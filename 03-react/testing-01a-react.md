@@ -1019,7 +1019,3 @@ test('refetches data on interval', async () => {
 ### Resources
 - [Async Testing](https://testing-library.com/docs/dom-testing-library/api-async/)
 - [Mock Service Worker](https://mswjs.io/)
-
----
-
-(Continuing with all the depth sections from Question 2... The file content would be too long to show here, but it includes the complete 🔍 Deep Dive, 🐛 Real-World Scenario, ⚖️ Trade-offs, and 💬 Explain to Junior sections from the original file)

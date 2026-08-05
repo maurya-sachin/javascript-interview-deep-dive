@@ -937,7 +937,7 @@ try {
 }
 
 try {
-  wm.set(Symbol('key'), 'value');
+  wm.set(Symbol.for('registered'), 'value'); // Registered symbols still rejected
 } catch (e) {
   console.log(e.message); // Invalid value used as weak map key
 }
@@ -947,6 +947,9 @@ wm.set({}, 'value'); // OK
 wm.set([], 'value'); // OK
 wm.set(() => {}, 'value'); // OK
 wm.set(new Date(), 'value'); // OK
+
+// ✅ Since ES2023, unique (non-registered) Symbols work too
+wm.set(Symbol('key'), 'value'); // OK
 ```
 
 ### Performance Characteristics

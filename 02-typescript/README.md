@@ -1,6 +1,6 @@
 # TypeScript Interview Preparation
 
-> **22 Q&A covering TypeScript fundamentals, advanced types, generics, and TypeScript with React/Next.js**
+> **55 Q&A covering TypeScript fundamentals, advanced types, generics, and TypeScript with React/Next.js**
 
 Master TypeScript from basics to advanced patterns. Essential for modern frontend development.
 
@@ -33,7 +33,7 @@ Master TypeScript from basics to advanced patterns. Essential for modern fronten
 | [04b. TypeScript with Next.js](./nextjs-01-typing.md) | Pages Router, App Router, API routes | 🟡 🔴 |
 | [05. Best Practices](./practices-01-best-practices.md) | Strict mode, type guards, error handling | 🟡 |
 
-**Total:** 22 Q&A (will expand to 90+)
+**Total:** 55 Q&A
 
 ---
 

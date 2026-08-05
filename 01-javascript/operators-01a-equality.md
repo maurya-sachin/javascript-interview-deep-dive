@@ -153,7 +153,7 @@ if (value == null) {
 }
 
 // ✅ Better: Modern nullish check
-if (value ?? false) {
+if (value !== null && value !== undefined) {
   console.log("Value is not null/undefined");
 }
 
@@ -464,7 +464,7 @@ console.log(obj == 10);
 console.log(obj == '10');
 // Output:
 // valueOf called
-// false (10 !== 10 after valueOf returns 10, then "10" coerces to 10)
+// true (valueOf returns 10, "10" coerces to 10, 10 === 10)
 
 // String context (like in template literals)
 console.log(`Value: ${obj}`);
@@ -918,7 +918,7 @@ function isAvailable(productId) {
   return inStock[productId] == true; // Dangerous ==
 }
 
-console.log(isAvailable(123));    // undefined == true → false ✅ (accidentally correct)
+console.log(isAvailable(123));    // true == true → true (numeric key coerced to "123")
 console.log(isAvailable("123"));  // true == true → true ✅
 console.log(isAvailable(456));    // false == true → false ✅
 console.log(isAvailable("456"));  // false == true → false ✅

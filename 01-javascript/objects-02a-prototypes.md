@@ -1405,8 +1405,8 @@ Warrior.prototype.defend = function() {
 };
 
 Warrior.prototype.heal = function() {
-  return `${this.name} heals!`;
   this.health += 20;
+  return `${this.name} heals!`;
 };
 
 const warrior1 = new Warrior("Aragorn");

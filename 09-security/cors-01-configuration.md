@@ -319,6 +319,7 @@ app.get('/users', (req, res) => {
 // By default, JavaScript can only read these response headers:
 // - Cache-Control
 // - Content-Language
+// - Content-Length
 // - Content-Type
 // - Expires
 // - Last-Modified
@@ -1054,14 +1055,16 @@ app.get('/api/customers/:id', authenticateUser, async (req, res) => {
 
 // WHY THIS IS DANGEROUS:
 
-// Modern browsers SHOULD block credentials with wildcard origin,
-// but implementation varies:
-// - Chrome 89+: Blocks ✅
-// - Firefox 86+: Blocks ✅
-// - Safari 14-: Allows ❌ (vulnerable!)
-// - Older browsers: Varies
-
-// Additionally, non-browser clients (mobile apps, desktop apps) may not enforce CORS
+// The Fetch spec forbids combining Access-Control-Allow-Origin: *
+// with Access-Control-Allow-Credentials: true — all modern browsers
+// reject this combination and fail the credentialed request.
+// But that client-side check isn't a substitute for server-side origin
+// validation:
+// - Non-browser clients (mobile apps, desktop apps, curl, server-to-server
+//   requests) don't enforce CORS at all — they'll happily read the response
+// - A misconfigured server sending '*' still exposes non-credentialed
+//   endpoints (or any endpoint reachable via cookies set with SameSite=None)
+//   to every origin on the web
 ```
 
 **The Attack:**
@@ -1505,7 +1508,7 @@ app.use(corsManager.middleware());
 const improvements = {
   security: {
     corsWhitelist: 'Strict origin validation',
-    rateeLimiting: 'Per-origin rate limits',
+    rateLimiting: 'Per-origin rate limits',
     monitoring: 'Real-time suspicious origin alerts',
     logging: 'Comprehensive CORS rejection logging'
   },

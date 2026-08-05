@@ -1,6 +1,6 @@
 # React Interview Preparation
 
-> **22 Q&A covering React hooks, component patterns, performance, state management, forms, testing, and internals**
+> **128 Q&A covering React hooks, component patterns, performance, state management, forms, testing, and internals**
 
 Master React from fundamentals to advanced patterns. Essential for modern frontend interviews.
 
@@ -51,7 +51,7 @@ Master React from fundamentals to advanced patterns. Essential for modern fronte
 | [07a. Internals - Fiber](./internals-01-fiber.md) | Fiber architecture | 🔴 |
 | [07b. Internals - Reconciliation](./internals-02-reconciliation.md) | Reconciliation algorithm | 🔴 |
 
-**Total:** 22 Q&A (will expand to 150+)
+**Total:** 128 Q&A across 71 files
 
 ---
 

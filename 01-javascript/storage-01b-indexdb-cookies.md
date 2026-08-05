@@ -1,3 +1,9 @@
+# IndexedDB & Cookies
+
+> **Focus**: Browser storage mechanisms and best practices
+
+---
+
 ## Question 1: What is IndexedDB and when should you use it?
 
 **Difficulty:** 🟡 Medium

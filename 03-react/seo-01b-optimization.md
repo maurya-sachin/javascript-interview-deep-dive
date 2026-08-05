@@ -1107,6 +1107,8 @@ Slowest (SSR without CDN):
 └─ Cost: $200-1000/month (heavy server load)
 ```
 
+</details>
+
 ### 💬 Explain to Junior
 
 **The Movie Poster Analogy - Understanding Meta Tags and Open Graph:**
@@ -1436,7 +1438,5 @@ Example:
 ```
 
 This guarantees perfect previews on Facebook, LinkedIn, Twitter, Discord, Slack, and WhatsApp."
-
-</details>
 
 ---

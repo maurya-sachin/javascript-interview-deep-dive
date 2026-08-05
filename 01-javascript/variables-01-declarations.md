@@ -667,9 +667,9 @@ var users = [];                      // Don't use var!
 - TDZ protection
 
 **Performance:**
-- `const`: Fastest (~0.5ns) - V8 can inline immutable values
-- `let`: Fast (~1ns) - stack allocation
-- `var`: Slower (~5ns) - heap allocation in Variable Object
+- Runtime difference between all three is negligible in modern V8
+- `let`/`const`: ~1-2ns TDZ check per access (identical cost for both - `const` gets no special speed boost, since immutability is enforced at compile time, not runtime)
+- `var`: No TDZ check, but the saving is immeasurable in practice
 
 **True Immutability:**
 ```javascript
@@ -737,7 +737,7 @@ for (let i = 0; i < 10; i++) {  // ✅ Block-scoped
 | **Scope** | Block | Block | Function | ✅ const/let |
 | **Hoisting** | Yes (TDZ) | Yes (TDZ) | Yes (initialized `undefined`) | var |
 | **Redeclaration** | ❌ No | ❌ No | ✅ Yes (overwrites) | var |
-| **Performance** | ~0.5ns (fastest) | ~1ns | ~5ns | ✅ const |
+| **Performance** | Negligible difference (~1-2ns TDZ check) | Negligible difference (~1-2ns TDZ check) | Negligible difference (no TDZ check) | Tie |
 | **Safety** | ✅ Immutable binding | ⚠️ Mutable | ⚠️ Mutable + function-scoped | ✅ const |
 | **Use Case** | Constants, objects | Loop counters, reassigned vars | ❌ Legacy only | const/let |
 

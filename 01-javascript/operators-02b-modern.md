@@ -935,7 +935,7 @@ const value2 = input ?? defaultValue;
 | **Handles null** | ✅ Replaces with default | ✅ Replaces with default |
 | **Handles undefined** | ✅ Replaces with default | ✅ Replaces with default |
 | **Performance** | ✅ Slightly faster (~4%) | ⚠️ Minimal overhead |
-| **Browser support** | ✅ All browsers | ⚠️ ES2020+ (polyfill needed) |
+| **Browser support** | ✅ All browsers | ✅ ES2020+ (universally supported today) |
 | **Best for** | Boolean-only logic | Numbers, booleans, strings |
 
 **When to use each:**
@@ -1124,7 +1124,7 @@ class DataCache {
 
 ### 8. Browser Compatibility Trade-offs
 
-| Browser | ?? Support | ||= Support | Polyfill |
+| Browser | `??` Support | `??=` Support | Polyfill |
 |---------|-----------|------------|----------|
 | **Chrome** | 80+ (2020) | 85+ (2020) | Available |
 | **Firefox** | 72+ (2020) | 79+ (2020) | Available |
@@ -1132,19 +1132,15 @@ class DataCache {
 | **Edge** | 80+ (2020) | 85+ (2020) | Available |
 | **IE11** | ❌ Never | ❌ Never | Required |
 
-**Polyfill (if needed):**
+**Transpiling for legacy targets:**
+
+`??` is language syntax, not a function, so it can't be polyfilled like a missing method — it must be transpiled. As of 2026, `??` has near-universal support across evergreen browsers, so this is only relevant if you still ship to very old runtimes:
 
 ```javascript
-// Simple polyfill for ??
-if (!('??') in {}) {
-  Object.defineProperty(Object.prototype, '??', {
-    value: function(right) {
-      return this !== null && this !== undefined ? this : right;
-    }
-  });
-}
-
-// Or use Babel plugin: @babel/plugin-proposal-nullish-coalescing-operator
+// Babel transpiles ?? down to an equivalent expression for older engines
+// (included by default in @babel/preset-env when targeting older browsers)
+var _temp = value;
+var result = (_temp !== null && _temp !== undefined) ? _temp : defaultValue;
 ```
 
 </details>

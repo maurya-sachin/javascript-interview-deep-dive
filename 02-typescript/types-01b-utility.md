@@ -275,7 +275,7 @@ function createUser(data: Partial<User>) {
 
 ✅ **Correct:** Make specific fields optional
 ```typescript
-type CreateUser = Omit<User, 'id'> & { age?: number };
+type CreateUser = Omit<User, 'id' | 'age'> & { age?: number };
 
 function createUser(data: CreateUser) {
   // ✅ name and email required, id excluded, age optional

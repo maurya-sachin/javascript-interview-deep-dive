@@ -146,27 +146,28 @@ type AnimalHandler = (animal: Animal) => void;
 type DogHandler = (dog: Dog) => void;
 
 // ❌ Without strictFunctionTypes (bivariant - allows unsound assignment)
+const dogOnlyHandler: DogHandler = (dog) => {
+  console.log(dog.breed.toUpperCase());  // Assumes every argument is a Dog
+};
+
+const unsafeGeneralHandler: AnimalHandler = dogOnlyHandler;  // Allowed but unsound
+unsafeGeneralHandler({ name: 'Buddy' });  // 💥 Runtime error: breed is undefined
+
+// The reverse direction is always sound and always allowed, flag or not:
 const handleAnimal: AnimalHandler = (animal) => {
   console.log(animal.name);
 };
 
-const handleDog: DogHandler = handleAnimal;  // Allowed but unsound
+const handleDog: DogHandler = handleAnimal;  // ✅ Safe: narrows what's accepted
 handleDog({ name: 'Buddy', breed: 'Labrador' });  // Works
 
-// But this is dangerous:
-const unsafeHandler: AnimalHandler = (animal) => {
-  console.log((animal as Dog).breed.toUpperCase());  // Runtime error if not a Dog
-};
-
-const dogHandler: DogHandler = unsafeHandler;  // Allowed without strict mode
-
 // ✅ With strictFunctionTypes (contravariant - sound)
-const safeAnimalHandler: AnimalHandler = (animal) => {
-  console.log(animal.name);
+const safeDogOnlyHandler: DogHandler = (dog) => {
+  console.log(dog.breed.toUpperCase());
 };
 
-// ❌ Error: Type 'AnimalHandler' is not assignable to 'DogHandler'
-// const safeDogHandler: DogHandler = safeAnimalHandler;
+// ❌ Error: Type 'DogHandler' is not assignable to type 'AnimalHandler'
+// const safeGeneralHandler: AnimalHandler = safeDogOnlyHandler;
 
 // Correct approach: use generics or proper typing
 function createHandler<T extends Animal>(handler: (item: T) => void) {

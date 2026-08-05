@@ -626,13 +626,11 @@ const data = fs.readFileSync('large-file.txt', 'utf8');
 console.timeEnd('sync'); // ~50ms, blocks thread
 
 // Asynchronous:
-console.time('async-start');
+console.time('async');
 fs.readFile('large-file.txt', 'utf8', (err, data) => {
-  console.timeEnd('async-start'); // ~0.1ms (initiated)
-  console.timeEnd('async-complete'); // ~50ms (when done)
+  console.timeEnd('async'); // ~50ms (measured when the read completes)
 });
-console.timeEnd('async-start'); // ~0.1ms, continues immediately
-console.time('async-complete');
+console.log('Continues immediately, does not wait for the read'); // Runs right away
 ```
 
 **2. Sequential vs Concurrent Async:**

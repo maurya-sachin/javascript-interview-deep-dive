@@ -1008,12 +1008,16 @@ console.timeEnd('Complex object'); // Slow path ~150ms
 **15. Security Considerations:**
 
 ```javascript
-// ❌ Unsafe reviver (prototype pollution)
+// ⚠️ Note: JSON.parse() alone does NOT pollute Object.prototype —
+// "__proto__" is created as a plain own data property, not through the
+// prototype setter. The risk shows up later, if this parsed object is
+// passed into an unsafe recursive merge/extend function.
 const maliciousJson = '{"__proto__":{"isAdmin":true}}';
 const obj = JSON.parse(maliciousJson);
 const newObj = {};
-console.log(newObj.isAdmin); // true (prototype polluted!)
+console.log(newObj.isAdmin); // undefined (NOT polluted by JSON.parse itself)
 
+// Still worth blocking dangerous keys defensively before merging untrusted data:
 // ✅ Safe reviver with validation
 class SafeSerializer {
   static DANGEROUS_KEYS = ['__proto__', 'constructor', 'prototype'];
@@ -1799,16 +1803,19 @@ Recommendation:
 
 **Security Considerations:**
 
-**1. Prototype Pollution:**
+**1. Prototype Pollution (downstream of JSON.parse, not caused by it):**
 
 ```javascript
-// ❌ Vulnerable code
+// ⚠️ JSON.parse() itself does not pollute Object.prototype — it creates
+// "__proto__" as a plain own data property. Real pollution happens only
+// if the parsed object is later fed into an unsafe recursive merge.
 const malicious = '{"__proto__":{"isAdmin":true}}';
 JSON.parse(malicious);
 
 const user = {};
-console.log(user.isAdmin); // true (polluted!)
+console.log(user.isAdmin); // undefined (NOT polluted)
 
+// Still good practice to block dangerous keys before merging untrusted data:
 // ✅ Safe parsing
 function safeParse(json) {
   return JSON.parse(json, (key, value) => {
@@ -3029,14 +3036,16 @@ function loadState() {
 **Mistake 3: Security Vulnerabilities**
 
 ```javascript
-// ❌ DANGEROUS: Prototype pollution
+// ⚠️ JSON.parse() alone does not pollute Object.prototype — "__proto__"
+// becomes a plain own property. Danger only appears if this parsed data
+// later flows into an unsafe recursive merge/extend function.
 const malicious = '{"__proto__":{"isAdmin":true}}';
 JSON.parse(malicious);
 
 const user = {};
-console.log(user.isAdmin); // true (polluted!)
+console.log(user.isAdmin); // undefined (NOT polluted)
 
-// ✅ Safe: Block dangerous keys
+// ✅ Still good practice: Block dangerous keys before merging untrusted data
 function safeParse(json) {
   return JSON.parse(json, (key, value) => {
     if (key === '__proto__' || key === 'constructor') {

@@ -455,13 +455,17 @@ Stack depth: O(1) instead of O(n)!
 
 // Check if TCO is available:
 function supportsTCO() {
-  return (function f(n) {
-    if (n <= 0) return true;
-    return f(n - 1); // Tail call
-  })(100000);
+  try {
+    return (function f(n) {
+      if (n <= 0) return true;
+      return f(n - 1); // Tail call
+    })(100000);
+  } catch (e) {
+    return false; // Stack overflow means no TCO
+  }
 }
 
-console.log('TCO supported:', supportsTCO()); // Safari: true, others: false (stack overflow)
+console.log('TCO supported:', supportsTCO()); // Safari: true, others: false
 ```
 
 **Performance: Call Stack vs Alternatives:**

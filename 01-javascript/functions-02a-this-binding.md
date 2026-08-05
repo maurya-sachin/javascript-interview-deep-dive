@@ -149,8 +149,8 @@ obj1.show.call(obj2); // 2 (call wins over method)
 // new > Explicit
 const BoundShow = show.bind(obj1);
 const instance = new BoundShow(); // undefined (new wins, 'this' = new object)
-instance.value = 3;
-new BoundShow(); // 3 (new binding)
+instance.value = 3; // sets value on that specific instance only
+new BoundShow(); // undefined (a fresh object again; it doesn't inherit instance's value)
 ```
 
 **How V8 Compiles `this` References:**
@@ -857,7 +857,7 @@ function Dashboard() {
 </details>
 
 <details>
-<parameter name="⚖️ Trade-offs: Different 'this' Binding Approaches</strong></summary>
+<summary><strong>⚖️ Trade-offs: Different 'this' Binding Approaches</strong></summary>
 
 ### 1. Regular Method vs Arrow Function in Class
 

@@ -124,10 +124,9 @@ function Parent() {
 ### Common Mistakes
 
 ```typescript
-// ❌ WRONG: Using React.FC when you don't need children
-const Button: React.FC<{ text: string }> = ({ text, children }) => {
+// ❌ WRONG: Using React.FC (implicit return type, awkward with generics)
+const Button: React.FC<{ text: string }> = ({ text }) => {
   return <button>{text}</button>;
-  // children is typed but never used, misleading API
 };
 
 // ✅ CORRECT: Direct typing without React.FC
@@ -539,6 +538,11 @@ const LoginForm: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('Submitting', formData);
   };
 
   return (

@@ -786,7 +786,7 @@ const metrics = {
   userImpact: {
     slowScrolling: '60% of sessions',
     tabCrashes: '120/week',
-    revenueloss: '$12k/week' // Users abandoning transactions
+    revenueLoss: '$12k/week' // Users abandoning transactions
   }
 };
 ```
@@ -1041,7 +1041,7 @@ const metricsAfterFix = {
   userImpact: {
     slowScrolling: '2% of sessions', // ✅ 97% improvement
     tabCrashes: '3/week',            // ✅ 97% reduction
-    revenueloss: '$500/week',        // ✅ $11.5k recovered/week
+    revenueLoss: '$500/week',        // ✅ $11.5k recovered/week
     customerSatisfaction: '+92%'
   },
   developerImpact: {
@@ -2569,13 +2569,13 @@ const productionMetrics = {
     tabCrashes: '380/week',
     abandonedCarts: '25% (spike from 8%)',
     supportTickets: '120/week ("site is broken")',
-    revenueloss: '$45k/week',
+    revenueLoss: '$45k/week',
     negativeReviews: '85 new reviews mentioning slowness'
   },
   technicalDebt: {
     openWebSockets: 'Hundreds (server strain)',
     serverCosts: '+40% (handling zombie connections)',
-    developertTime: '20 hours/week firefighting'
+    developerTime: '20 hours/week firefighting'
   }
 };
 ```
@@ -2924,13 +2924,13 @@ const metricsAfterFix = {
     tabCrashes: '5/week',          // ✅ 99% reduction
     abandonedCarts: '8%',          // ✅ Back to normal
     supportTickets: '8/week',      // ✅ 93% reduction
-    revenueloss: '$0',             // ✅ $45k/week recovered
+    revenueLoss: '$0',             // ✅ $45k/week recovered
     negativeReviews: '2 (praising performance)'
   },
   technicalDebt: {
     openWebSockets: '1 per user',  // ✅ Proper cleanup
     serverCosts: '-35%',           // ✅ Fewer connections
-    developertime: '1 hour/week'   // ✅ 95% reduction
+    developerTime: '1 hour/week'   // ✅ 95% reduction
   },
   businessImpact: {
     conversionRate: '+18%',

@@ -1532,9 +1532,10 @@ Called for each property during parsing, in **depth-first leaf-to-root** order:
 
 **Security Concerns:**
 
-1. **Prototype Pollution:**
-   - Malicious JSON can modify `Object.prototype`
-   - Attack: `{"__proto__": {"isAdmin": true}}`
+1. **Prototype Pollution (via unsafe merging, not JSON.parse itself):**
+   - `JSON.parse()` alone is safe — it creates `"__proto__"` as a plain own data property, not through the prototype setter, so it does **not** modify `Object.prototype`
+   - The risk appears when the parsed object is later copied with an unsafe recursive merge/extend utility that uses bracket-notation assignment
+   - Attack payload: `{"__proto__": {"isAdmin": true}}`
 
 2. **JSON Injection:**
    - Untrusted JSON from user input
@@ -1825,21 +1826,26 @@ async function fetchJSON(url) {
 // 8. SECURITY: PROTOTYPE POLLUTION
 // ============================================
 
-// ❌ DANGEROUS: Prototype pollution attack
+// ⚠️ JSON.parse() ITSELF IS SAFE — it does not pollute Object.prototype
 const maliciousJson = '{"__proto__": {"isAdmin": true}}';
 
 const obj1 = JSON.parse(maliciousJson);
-console.log(obj1.isAdmin); // undefined (safe - own property)
+console.log(obj1.isAdmin); // undefined ("__proto__" is just an own property here)
 
-// But check the prototype chain:
+// The prototype chain is untouched:
 const newObj = {};
-console.log(newObj.isAdmin); // true (POLLUTED!)
-// All objects now have isAdmin = true!
+console.log(newObj.isAdmin); // undefined (NOT polluted!)
+console.log(Object.getPrototypeOf(obj1) === Object.prototype); // true (unchanged)
 
-// How it works:
-// JSON.parse sets obj1.__proto__.isAdmin = true
-// __proto__ points to Object.prototype
-// Now ALL objects inherit isAdmin: true
+// How it actually works:
+// JSON.parse uses CreateDataProperty internally, which defines an OWN
+// property literally named "__proto__" — it does NOT invoke the
+// Object.prototype.__proto__ accessor, so Object.prototype is never touched.
+// The real danger is passing obj1 into an UNSAFE recursive merge/extend
+// function that assigns via `target[key] = value` (which DOES walk the
+// prototype chain and can pollute Object.prototype through nested keys).
+// Defenses below (blocking dangerous keys, no-prototype objects) are still
+// good hygiene for data you plan to merge elsewhere.
 
 // ✅ CORRECT: Sanitize parsed data
 function sanitizeParsed(jsonString) {
@@ -2232,21 +2238,36 @@ eval('({"name":"Alice"}); deleteDatabase()');
 **Prototype Pollution Attack Vector:**
 
 ```javascript
-// How the attack works:
+// JSON.parse() itself does NOT pollute the prototype:
 const malicious = '{"__proto__":{"isAdmin":true}}';
 
-// Step-by-step:
 const obj = JSON.parse(malicious);
 // 1. Parser creates: obj = {}
-// 2. Parser sets: obj["__proto__"] = { isAdmin: true }
-// 3. JavaScript interprets obj["__proto__"] as Object.prototype
-// 4. Now Object.prototype.isAdmin = true
-// 5. ALL objects inherit isAdmin!
+// 2. Parser uses CreateDataProperty to set an OWN property
+//    literally named "__proto__" (bypasses the accessor/setter)
+// 3. Object.prototype is never touched
 
 const test = {};
-console.log(test.isAdmin); // true (polluted)
+console.log(test.isAdmin); // undefined (NOT polluted)
 
-// Why it's dangerous:
+// The real attack requires the parsed object to flow into an UNSAFE
+// recursive merge/extend function, e.g.:
+function unsafeMerge(target, source) {
+  for (const key in source) {
+    if (typeof source[key] === 'object' && source[key] !== null) {
+      unsafeMerge(target[key], source[key]); // target["__proto__"] resolves
+      // to the real Object.prototype via the accessor, and nested writes
+      // land on it — THIS is what pollutes every object.
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+
+unsafeMerge({}, obj); // Only now does Object.prototype get polluted
+console.log(({}).isAdmin); // true (polluted by the merge, not by JSON.parse)
+
+// Why it's dangerous once polluted:
 if (req.user.isAdmin) {
   // Attacker just became admin!
   grantAdminAccess();
@@ -2255,10 +2276,10 @@ if (req.user.isAdmin) {
 
 **Defense Mechanisms:**
 
-Modern JavaScript engines (V8, SpiderMonkey) have added protections:
-- Some engines automatically sanitize `__proto__` in JSON.parse
-- Use `Object.create(null)` for prototype-less objects
-- Libraries like `secure-json-parse` add extra validation
+- `JSON.parse()` on its own is already safe from `__proto__` pollution (spec behavior, not engine-specific)
+- The real risk lives in how the parsed data is later merged/copied — audit deep-merge, `extend`, and recursive-assign utilities for unsafe `target[key] = value` patterns
+- Use `Object.create(null)` for prototype-less objects when merging untrusted data
+- Libraries like `secure-json-parse` add extra validation for defense-in-depth
 
 **Benchmarks (1000 iterations, 10KB JSON string):**
 
@@ -3131,18 +3152,20 @@ eval('(' + malicious + ')');
 
 **Rule:** **NEVER use eval() for JSON. ALWAYS use JSON.parse().**
 
-**Key Gotcha: Prototype Pollution**
+**Key Gotcha: Prototype Pollution (usually blamed on the wrong step)**
 
 ```javascript
 const attack = '{"__proto__":{"isAdmin":true}}';
 
 JSON.parse(attack);
 
-// Now ALL objects have isAdmin = true:
+// JSON.parse() by itself does NOT pollute anything:
 const user = {};
-console.log(user.isAdmin); // true (POLLUTED!)
+console.log(user.isAdmin); // undefined (NOT polluted)
 
-// ✅ FIX: Filter dangerous keys
+// The danger only appears if you later feed the parsed object into an
+// unsafe recursive merge/extend function. As a defensive habit anyway,
+// filter dangerous keys before merging untrusted data:
 JSON.parse(attack, (key, value) => {
   if (key === '__proto__') return undefined; // Block it
   return value;

@@ -1037,13 +1037,15 @@ try {
 // 8. ABORT AFTER TIMEOUT HELPER
 // ============================================
 
-function AbortSignal.timeout(ms) {
+// This is what AbortSignal.timeout() does internally
+// (shown here for understanding; use the built-in below in real code)
+function createTimeoutSignal(ms) {
   const controller = new AbortController();
   setTimeout(() => controller.abort(), ms);
   return controller.signal;
 }
 
-// Modern usage (if supported)
+// Built-in AbortSignal.timeout() (standard, widely supported)
 try {
   const response = await fetch('/api/data', {
     signal: AbortSignal.timeout(5000)

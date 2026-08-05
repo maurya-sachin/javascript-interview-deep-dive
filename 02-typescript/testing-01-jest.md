@@ -243,11 +243,13 @@ describe('Repository<T>', () => {
 **ts-jest (Recommended for TypeScript projects):**
 ```typescript
 // jest.config.js with ts-jest
+// Note: configuring ts-jest via `globals: { 'ts-jest': {...} }` is deprecated.
+// Modern ts-jest (29+) passes options directly through `transform`.
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: {
         // Override tsconfig for tests
         esModuleInterop: true,
@@ -255,7 +257,7 @@ module.exports = {
       },
       // Improve performance
       isolatedModules: true
-    }
+    }]
   }
 };
 ```
@@ -269,8 +271,9 @@ module.exports = {
 **Babel preset (Faster, no type checking):**
 ```typescript
 // jest.config.js with Babel
+// Note: `preset` must point to a Jest preset package, not a Babel preset —
+// `@babel/preset-typescript` belongs in the `transform` config below (or in babel.config.js).
 module.exports = {
-  preset: '@babel/preset-typescript',
   transform: {
     '^.+\\.tsx?$': ['babel-jest', {
       presets: [
@@ -639,26 +642,28 @@ npm run test:coverage
 **Step 1: Enable strict type checking in tests**
 ```typescript
 // jest.config.js - BEFORE
+// Note: `globals: { 'ts-jest': {...} }` is the deprecated config style;
+// modern ts-jest passes these options through `transform` instead.
 module.exports = {
   preset: 'ts-jest',
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       isolatedModules: true // Fast but no type checking
-    }
+    }]
   }
 };
 
 // jest.config.js - AFTER
 module.exports = {
   preset: 'ts-jest',
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       isolatedModules: false, // Enable type checking
       diagnostics: {
         warnOnly: false, // Fail on type errors
         ignoreCodes: [] // Don't ignore any errors
       }
-    }
+    }]
   }
 };
 ```
@@ -709,8 +714,8 @@ describe('OrderService', () => {
       ];
 
       // ✅ TypeScript error: Argument type string not assignable to number
-      // @ts-expect-error - Testing runtime behavior
       await expect(
+        // @ts-expect-error - Testing runtime behavior
         service.createOrder('123', items)
       ).rejects.toThrow('Invalid userId type');
     });
@@ -1369,7 +1374,8 @@ interface PaymentGateway {
 const mockPaymentGateway: Partial<jest.Mocked<PaymentGateway>> = {
   processPayment: jest.fn().mockResolvedValue('txn_123'),
   getStatus: jest.fn().mockResolvedValue('SUCCESS')
-  // validateCard and refund use real implementation
+  // validateCard and refund are omitted - this is a plain object, not a class
+  // instance, so calling either of them here would throw at runtime
 };
 
 test('uses partial mock', async () => {

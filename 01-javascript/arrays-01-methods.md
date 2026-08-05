@@ -90,11 +90,10 @@ Array.prototype.find = function(callback, thisArg) {
   const len = O.length >>> 0;  // Convert to uint32
 
   for (let k = 0; k < len; k++) {
-    if (k in O) {  // Check if index exists (sparse arrays)
-      const kValue = O[k];
-      if (callback.call(thisArg, kValue, k, O)) {
-        return kValue;  // ✅ Return FIRST match
-      }
+    // Note: find() does NOT skip holes — it reads every index directly
+    const kValue = O[k];
+    if (callback.call(thisArg, kValue, k, O)) {
+      return kValue;  // ✅ Return FIRST match
     }
   }
   return undefined;  // Not found
@@ -133,7 +132,7 @@ Array.prototype.every = function(callback, thisArg) {
 
 **Key Implementation Details:**
 
-1. **Sparse Array Handling**: `if (k in O)` checks if index exists
+1. **Sparse Array Handling**: `if (k in O)` checks if index exists — this applies to `some()`/`every()`, but **not** to `find()`
    ```javascript
    const sparse = [1, , 3, , 5];  // Has "holes"
 
@@ -141,7 +140,14 @@ Array.prototype.every = function(callback, thisArg) {
      console.log(i, x);
      return false;
    });
-   // Logs: 0 1, 2 3, 4 5 (skips indices 1 and 3)
+   // Logs: 0 1, 1 undefined, 2 3, 3 undefined, 4 5
+   // find() visits EVERY index (unlike map/filter/some/every, it does NOT skip holes)
+
+   sparse.some((x, i) => {
+     console.log(i, x);
+     return false;
+   });
+   // Logs: 0 1, 2 3, 4 5 (skips indices 1 and 3 — holes are not visited)
    ```
 
 2. **Short-Circuit Optimization**:
@@ -389,7 +395,8 @@ const multiplier = {
 const numbers = [1, 5, 8, 12, 15];
 
 // ❌ Without thisArg (wrong 'this')
-numbers.find(multiplier.isMatch); // Error: Cannot read 'factor' of undefined
+numbers.find(multiplier.isMatch); // In strict mode/modules: TypeError (this is undefined)
+                                   // In non-strict scripts: 'this' is the global object, so it silently returns undefined
 
 // ✅ With thisArg (correct 'this')
 numbers.find(multiplier.isMatch, multiplier); // 12
@@ -1250,8 +1257,3 @@ const modified = users.map(user => ({
 
 console.log(users[0].role);  // undefined (original unchanged)
 ```
-
-<details>
-<summary><strong>🔍 Deep Dive: V8 Implementation & Optimization</strong></summary>
-
-**Content continues in the next message due to length...**

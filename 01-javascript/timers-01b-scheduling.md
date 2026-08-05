@@ -2754,7 +2754,7 @@ export default CountdownTimer;
 
 ---
 
-## 📚 Additional Resources
+### 📚 Additional Resources
 
 - **MDN: clearTimeout()** - https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout
 - **MDN: clearInterval()** - https://developer.mozilla.org/en-US/docs/Web/API/clearInterval

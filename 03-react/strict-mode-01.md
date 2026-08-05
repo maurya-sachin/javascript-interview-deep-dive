@@ -139,9 +139,9 @@ class FormInput extends React.Component {
 
 If a ref isn't properly attached or is accessed before the component mounts, StrictMode generates warnings about "findable refs" during the reconciliation phase.
 
-**Future-Proofing for Concurrent Features**
+**Compatibility with Concurrent Features**
 
-React's roadmap includes several features that require components to be pure and resilient to multiple renders:
+React's concurrent features require components to be pure and resilient to multiple renders:
 
 - **Concurrent Rendering**: Components may render multiple times before committing, requiring idempotent render functions
 - **Suspense for Data Fetching**: Components must handle interrupted renders gracefully
@@ -149,7 +149,7 @@ React's roadmap includes several features that require components to be pure and
 - **Server Components**: Components must serialize without side effects for client hydration
 - **Offscreen Rendering**: Components may render without mounting, requiring pure render logic
 
-StrictMode violations are strong indicators that code won't work correctly with these features. By enforcing purity now, StrictMode prepares codebases for React's concurrent future without requiring major refactoring later.
+StrictMode violations are strong indicators that code won't work correctly with these features. By enforcing purity, StrictMode keeps codebases compatible with React's concurrent rendering model without requiring major refactoring later.
 
 **Internal Flag Mechanism**
 
@@ -589,7 +589,7 @@ function GoodCounter({ initialCount }) {
 }
 ```
 
-**Why it matters**: React might render your component multiple times before showing it to users (especially with upcoming Concurrent Features). If your render function is impure, it will cause bugs.
+**Why it matters**: React might render your component multiple times before showing it to users (especially with concurrent features). If your render function is impure, it will cause bugs.
 
 **Rule 2: Side Effects Belong in useEffect**
 
@@ -719,7 +719,7 @@ useEffect(() => {
 **Mid-Level Answer**:
 "StrictMode is a development-only wrapper that performs additional validation on your components. The main thing it does is double-render components to expose side effects that shouldn't be in the render phase. For example, if you fetch data directly in the render function instead of useEffect, you'll see duplicate network requests, which immediately highlights the problem.
 
-It also warns about unsafe lifecycle methods like componentWillReceiveProps that won't work with React's upcoming Concurrent Features. The key benefit is catching bugs early—things like memory leaks from missing cleanup functions or race conditions from improper data fetching. It's completely stripped from production builds, so there's zero runtime cost."
+It also warns about unsafe lifecycle methods like componentWillReceiveProps that won't work with React's concurrent features. The key benefit is catching bugs early—things like memory leaks from missing cleanup functions or race conditions from improper data fetching. It's completely stripped from production builds, so there's zero runtime cost."
 
 **Senior Level Answer**:
 "StrictMode leverages React's Fiber architecture to perform additional validation during reconciliation. It operates by executing the render phase twice with identical props and state, then discarding the second result. This double-render exposes impure render functions immediately—side effects like API calls, event listener registration, or global mutations will execute twice, making them visible in DevTools.

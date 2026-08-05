@@ -4,13 +4,13 @@
 
 ---
 
-## Questions 4-15: TypeScript Fundamentals Deep Dive
-
 **Difficulty:** 🟡 Medium to 🔴 Hard
 **Frequency:** ⭐⭐⭐⭐
 **Consolidated comprehensive coverage**
 
-### Q4: Type Inference & Type Annotations
+---
+
+## Question 1: Type Inference & Type Annotations
 
 ```typescript
 // Type inference (TypeScript infers the type)
@@ -34,7 +34,7 @@ function multiply(a: number, b: number): number {
 }
 ```
 
-### Q5: Literal Types & Template Literal Types
+## Question 2: Literal Types & Template Literal Types
 
 ```typescript
 // String literal types
@@ -52,7 +52,7 @@ let greeting: Greeting = "Hello World"; // OK
 type EmailLocale = `${string}@${string}.${string}`;
 ```
 
-### Q6: Enums (Numeric & String)
+## Question 3: Enums (Numeric & String)
 
 ```typescript
 // Numeric enum
@@ -80,7 +80,7 @@ const enum Direction {
 }
 ```
 
-### Q7: Type Assertions & Type Casting
+## Question 4: Type Assertions & Type Casting
 
 ```typescript
 // Type assertion (angle bracket)
@@ -101,7 +101,7 @@ let obj = { name: "John" } as const;
 // obj.name = "Jane"; // Error: readonly
 ```
 
-### Q8: typeof & keyof Operators
+## Question 5: typeof & keyof Operators
 
 ```typescript
 // typeof
@@ -118,7 +118,7 @@ function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
 const name = getProperty(person, "name"); // Type: string
 ```
 
-### Q9: Indexed Access Types
+## Question 6: Indexed Access Types
 
 ```typescript
 type Person = {
@@ -139,7 +139,7 @@ type StringArray = string[];
 type ArrayElement = StringArray[number]; // string
 ```
 
-### Q10: Optional & Readonly Properties
+## Question 7: Optional & Readonly Properties
 
 ```typescript
 interface User {
@@ -157,7 +157,7 @@ user.name = "Jane"; // OK
 type ReadonlyUser = Readonly<User>;
 ```
 
-### Q11: Function Overloads
+## Question 8: Function Overloads
 
 ```typescript
 // Function overload signatures
@@ -174,7 +174,7 @@ const str = format("hello"); // Type: string
 const num = format(42); // Type: string
 ```
 
-### Q12: Type Guards & Narrowing
+## Question 9: Type Guards & Narrowing
 
 ```typescript
 // typeof type guard
@@ -208,7 +208,7 @@ function isString(value: any): value is string {
 }
 ```
 
-### Q13: Never & Unknown Types
+## Question 10: Never & Unknown Types
 
 ```typescript
 // never (represents values that never occur)
@@ -228,7 +228,7 @@ if (typeof value === "string") {
 }
 ```
 
-### Q14: Tuple Types
+## Question 11: Tuple Types
 
 ```typescript
 // Tuple with fixed length and types
@@ -249,7 +249,7 @@ const t1: OptionalTuple = ["hello"];
 const t2: OptionalTuple = ["hello", 42];
 ```
 
-### Q15: Type Compatibility & Structural Typing
+## Question 12: Type Compatibility & Structural Typing
 
 ```typescript
 // Structural typing (duck typing)

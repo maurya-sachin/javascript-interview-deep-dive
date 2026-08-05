@@ -929,7 +929,9 @@ setTimeout(() => {
   console.log('Timeout'); // After timers phase
 }, 0);
 
-// Node.js output: "Immediate", "Timeout"
+// Node.js output order here is NOT guaranteed (depends on process performance);
+// it's only deterministic ("immediate" always first) when both are scheduled
+// from within an I/O callback.
 ```
 
 
@@ -3412,7 +3414,7 @@ function MyComponent() {
 
 ---
 
-## 📚 Additional Resources
+### 📚 Additional Resources
 
 - [MDN: setTimeout()](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
 - [MDN: setInterval()](https://developer.mozilla.org/en-US/docs/Web/API/setInterval)

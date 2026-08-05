@@ -685,13 +685,13 @@ const asyncErrors = require('express-async-errors');
 // .eslintrc.js
 module.exports = {
   rules: {
-    // Require await for promise-returning functions
+    // Require Promises to be handled appropriately (awaited, returned, or explicitly voided)
     '@typescript-eslint/no-floating-promises': 'error',
 
-    // Require await in try blocks
+    // Disallow async functions that never use await
     'require-await': 'error',
 
-    // Prefer promise.catch over try-catch for promises
+    // Require rejecting/throwing with Error objects, not plain values
     'prefer-promise-reject-errors': 'error'
   }
 };

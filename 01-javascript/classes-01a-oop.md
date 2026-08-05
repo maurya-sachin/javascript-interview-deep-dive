@@ -302,7 +302,7 @@ var User = (function() {
 <details>
 <summary><strong>🔍 Deep Dive</strong></summary>
 
-### How V8 Handles Classes vs Constructors
+#### How V8 Handles Classes vs Constructors
 
 **Under the Hood:**
 Both classes and function constructors use the same V8 prototype mechanism. Classes add compile-time checks and syntactic sugar.

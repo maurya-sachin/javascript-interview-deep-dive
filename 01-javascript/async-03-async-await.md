@@ -3121,7 +3121,7 @@ async function loadDashboard() {
 **Comparison Table:**
 
 | Approach | Memory | Time | UX | Crashes |
-|----------|--------|------|----|---------| |
+|----------|--------|------|----|---------|
 | **Original (array)** | 487 MB | 45s | Poor (freeze) | 15% |
 | **Stream one-by-one** | 11 MB | 50s | Good | 0% |
 | **Stream batches** | 15 MB | 25s | Good | 0% |

@@ -210,7 +210,8 @@ Impact:
 **Circular Dependencies:**
 
 ```javascript
-// ES6 handles circular dependencies better
+// ES6 live bindings help with circular deps, but `const`/`let` exports
+// still hit the temporal dead zone (TDZ) if read before initialization
 
 // a.js (ES6)
 import { b } from './b.js';
@@ -224,9 +225,22 @@ console.log('b.js:', a);
 
 // main.js
 import './a.js';
-// Output:
-// b.js: undefined (hoisted but not yet initialized)
-// a.js: b
+// Actual output:
+// ReferenceError: Cannot access 'a' before initialization
+// (b.js runs before a.js reaches `export const a = 'a'`, and `const`
+// bindings are not initialized until that line executes — accessing
+// them earlier throws, it does NOT silently return undefined)
+
+// ✅ Function declarations avoid this because they're fully hoisted:
+// a.js
+import { fb } from './b.js';
+export function fa() { return 'a'; }
+console.log('a.js sees fb():', fb()); // 'b'
+// b.js
+import { fa } from './a.js';
+export function fb() { return 'b'; }
+console.log('b.js sees fa():', fa()); // 'a'
+// Output: fb.js sees fa(): a   →  fa.js sees fb(): b
 
 // CommonJS (has issues)
 // a.js
@@ -240,8 +254,10 @@ exports.b = 'b';
 console.log('b.js:', a);  // undefined
 
 /*
-ES6 handles circular dependencies via hoisting
-CommonJS may have partially executed modules
+ES6 modules only handle circular deps gracefully when the circularly
+referenced bindings are functions (hoisted) or are not accessed until
+after all modules finish evaluating — const/let exports still throw.
+CommonJS never throws here, but silently returns undefined instead.
 */
 ```
 
@@ -564,7 +580,7 @@ const utils = require(path); // ✅ Works! (runtime resolution)
 **Circular Dependencies Handling:**
 
 ```javascript
-// ES6 MODULES: Graceful Handling via Hoisting
+// ES6 MODULES: const/let exports still throw in this circular shape
 
 // a.js
 import { b } from './b.js';
@@ -577,14 +593,16 @@ export const b = 'b';
 console.log('b.js:', a);
 
 // Execution:
-// 1. Parse both files, create bindings
-// 2. Initialize exports (hoisted but undefined)
-// 3. Execute b.js first: a is undefined (TDZ)
-// 4. Execute a.js: b is 'b'
+// 1. Parse both files, create bindings (hoisted, but in the TDZ)
+// 2. Bindings for `a` and `b` exist but are NOT initialized yet
+// 3. Execute b.js first: reading `a` while it's in the TDZ throws
+// 4. a.js never reaches `console.log('a.js:', b)` — evaluation aborts
 
-// Output:
-// b.js: undefined
-// a.js: b
+// Actual output:
+// Uncaught ReferenceError: Cannot access 'a' before initialization
+//
+// (Using `export function` instead of `export const` avoids this,
+// since function declarations are fully hoisted with their value.)
 
 
 // COMMONJS: Partial Execution Problem
@@ -1813,9 +1831,12 @@ for (const path in modules) {
 }
 
 // 12. DYNAMIC IMPORT IN NODE.JS
-// ES module (Node >= 12)
+// ES module (Node >= 20.10, import attributes)
+// Note: the older `assert: { type: 'json' }` syntax (import assertions)
+// has been replaced by `with { type: 'json' }` (import attributes) and
+// no longer works on current Node.js versions.
 const config = await import('./config.json', {
-  assert: { type: 'json' }
+  with: { type: 'json' }
 });
 
 // 13. REACT LAZY LOADING

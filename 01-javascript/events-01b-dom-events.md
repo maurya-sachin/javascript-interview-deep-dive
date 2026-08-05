@@ -993,7 +993,7 @@ link.addEventListener('click', (e) => {
 
 // 4. Passive listeners can't preventDefault()
 element.addEventListener('touchstart', (e) => {
-  e.preventDefault(); // ERROR if listener is passive
+  e.preventDefault(); // No-op if listener is passive — browser logs a console warning, doesn't throw
 }, { passive: true });
 ```
 

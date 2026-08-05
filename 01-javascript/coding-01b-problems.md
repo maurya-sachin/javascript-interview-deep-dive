@@ -188,7 +188,8 @@ function mostFrequentChar(str) {
 }
 
 console.log(mostFrequentChar("mississippi"));
-// { char: 'i', count: 4 } or { char: 's', count: 4 }
+// { char: 's', count: 4 } (deterministic: 's' is the first char to strictly
+// exceed the previous max count, since 'i' only ties at 4, never exceeds it)
 
 // 9. PERFORMANCE COMPARISON
 

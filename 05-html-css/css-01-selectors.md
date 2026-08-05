@@ -352,7 +352,7 @@ function compareSpecificity(a, b) {
 // Result: 1 ID beats 10 classes
 ```
 
-**Modern Selector Specificity (2024):**
+**Selector Specificity with `:is()` and `:where()`:**
 
 ```css
 /* :is() and :where() have special specificity rules */
@@ -380,10 +380,10 @@ function compareSpecificity(a, b) {
 }
 ```
 
-**Cascade Layers (2023+):**
+**Cascade Layers:**
 
 ```css
-/* New @layer feature - controls cascade order */
+/* @layer controls cascade order, independent of specificity */
 
 @layer reset, base, components, utilities;
 
