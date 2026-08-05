@@ -390,4 +390,4 @@ function App() {
 
 ---
 
-[← Back to DOM Manipulation](./README.md)
+[← Back to DOM Manipulation](../README.md)

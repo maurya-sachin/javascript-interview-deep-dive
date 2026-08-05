@@ -831,4 +831,4 @@ const data = await fetch(`/api?q=${query}`, {
 
 ---
 
-[← Back to DOM Manipulation Problems](./README.md)
+[← Back to DOM Manipulation Problems](../README.md)

@@ -843,4 +843,4 @@ class Test4 {
 
 ---
 
-[← Back to JavaScript Fundamentals](./README.md) | [Next: Call/Apply Polyfill →](./call-apply-polyfill.md)
+[← Back to JavaScript Fundamentals](./README.md) | [Next: Call/Apply Polyfill →](./README.md)

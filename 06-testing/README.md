@@ -11,52 +11,52 @@ Master frontend testing from fundamentals to advanced patterns. Essential for se
 ### 1️⃣ Jest Fundamentals (1 file, 8 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [01. Jest Fundamentals](./01-jest-fundamentals.md) | Test structure, matchers, async, mocking, coverage | 🟢 🟡 |
+| [01. Jest Fundamentals](./jest-01-fundamentals.md) | Test structure, matchers, async, mocking, coverage | 🟢 🟡 |
 
 ### 2️⃣ React Testing Library (1 file, 5 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [02. React Testing Library](./02-react-testing-library.md) | RTL philosophy, queries, user interactions, async, forms | 🟡 |
+| [02. React Testing Library](./rtl-01-basics.md) | RTL philosophy, queries, user interactions, async, forms | 🟡 |
 
 ### 3️⃣ E2E Testing (1 file, 12 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [03. E2E Testing](./03-e2e-testing.md) | Cypress, Playwright, test strategies, CI/CD | 🟡 🔴 |
+| [03. E2E Testing](./e2e-01-cypress.md) | Cypress, Playwright, test strategies, CI/CD | 🟡 🔴 |
 
 ### 4️⃣ Testing Patterns (1 file, 12 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [04. Testing Patterns](./04-testing-patterns.md) | AAA, TDD, test doubles, coverage strategies | 🟡 |
+| [04. Testing Patterns](./patterns-01-strategies.md) | AAA, TDD, test doubles, coverage strategies | 🟡 |
 
 ### 5️⃣ Mocking Strategies (1 file, 12 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [05. Mocking Strategies](./05-mocking-strategies.md) | Mocks, stubs, spies, API mocking, module mocking | 🟡 🔴 |
+| [05. Mocking Strategies](./mocking-01-strategies.md) | Mocks, stubs, spies, API mocking, module mocking | 🟡 🔴 |
 
 ### 6️⃣ Integration Testing (1 file, 12 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [06. Integration Testing](./06-integration-testing.md) | Component integration, API integration, full-stack testing | 🟡 🔴 |
+| [06. Integration Testing](./README.md) | Component integration, API integration, full-stack testing | 🟡 🔴 |
 
 ### 7️⃣ Snapshot Testing (1 file, 10 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [07. Snapshot Testing](./07-snapshot-testing.md) | Jest snapshots, visual regression, best practices | 🟡 |
+| [07. Snapshot Testing](./README.md) | Jest snapshots, visual regression, best practices | 🟡 |
 
 ### 8️⃣ Accessibility Testing (1 file, 10 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [08. Accessibility Testing](./08-accessibility-testing.md) | ARIA testing, jest-axe, accessibility best practices | 🟡 🔴 |
+| [08. Accessibility Testing](./README.md) | ARIA testing, jest-axe, accessibility best practices | 🟡 🔴 |
 
 ### 9️⃣ Testing Hooks (1 file, 10 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [09. Testing Hooks](./09-testing-hooks.md) | Custom hooks, renderHook, hook testing patterns | 🟡 |
+| [09. Testing Hooks](./README.md) | Custom hooks, renderHook, hook testing patterns | 🟡 |
 
 ### 🔟 Testing Context & State (1 file, 12 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [10. Testing Context & State](./10-testing-context-state.md) | Context providers, Redux, Zustand, state testing | 🟡 🔴 |
+| [10. Testing Context & State](./README.md) | Context providers, Redux, Zustand, state testing | 🟡 🔴 |
 
 **Total:** 93 Q&A across 10 comprehensive files
 
@@ -329,6 +329,6 @@ node --inspect-brk node_modules/.bin/jest --runInBand
 
 ---
 
-[← Back to Main README](../README.md) | [Start Learning →](./01-jest-fundamentals.md)
+[← Back to Main README](../README.md) | [Start Learning →](./jest-01-fundamentals.md)
 
 **Total:** 93 comprehensive questions across all testing topics ✅

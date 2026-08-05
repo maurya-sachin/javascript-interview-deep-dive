@@ -11,27 +11,27 @@ Master frontend performance optimization from fundamentals to advanced patterns.
 ### 1️⃣ Optimization Techniques (1 file, ~8 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [01. Optimization Techniques](./01-optimization-techniques.md) | Code splitting, tree shaking, minification, bundle optimization | 🟡 🔴 |
+| [01. Optimization Techniques](./optimization-01-techniques.md) | Code splitting, tree shaking, minification, bundle optimization | 🟡 🔴 |
 
 ### 2️⃣ Image Optimization (1 file, ~4 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [02. Image Optimization](./02-image-optimization.md) | Image formats, compression, responsive images, lazy loading | 🟡 |
+| [02. Image Optimization](./images-01-optimization.md) | Image formats, compression, responsive images, lazy loading | 🟡 |
 
 ### 3️⃣ Caching Strategies (1 file, ~2 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [03. Caching Strategies](./03-caching-strategies.md) | Browser caching, service workers, CDN, cache invalidation | 🟡 🔴 |
+| [03. Caching Strategies](./caching-01-strategies.md) | Browser caching, service workers, CDN, cache invalidation | 🟡 🔴 |
 
 ### 4️⃣ Lazy Loading (1 file, ~2 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [04. Lazy Loading](./04-lazy-loading.md) | Code splitting, dynamic imports, React.lazy, Suspense | 🟡 |
+| [04. Lazy Loading](./lazy-loading-01-code-splitting.md) | Code splitting, dynamic imports, React.lazy, Suspense | 🟡 |
 
 ### 5️⃣ Performance Monitoring (1 file, ~2 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [05. Monitoring](./05-monitoring.md) | Core Web Vitals, Lighthouse, performance metrics, profiling | 🟡 🔴 |
+| [05. Monitoring](./monitoring-01-tools.md) | Core Web Vitals, Lighthouse, performance metrics, profiling | 🟡 🔴 |
 
 **Total:** 18 Q&A (will expand to 50+)
 
@@ -262,6 +262,6 @@ Master frontend performance optimization from fundamentals to advanced patterns.
 
 ---
 
-[← Back to Main README](../README.md) | [Start Learning →](./01-optimization-techniques.md)
+[← Back to Main README](../README.md) | [Start Learning →](./optimization-01-techniques.md)
 
 **Total:** 18 questions across all performance topics (will expand to 50+) ✅

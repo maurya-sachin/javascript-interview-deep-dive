@@ -1454,4 +1454,4 @@ const imageObserver = new IntersectionObserver((entries) => {
 
 ---
 
-[← Back to DOM Manipulation Problems](./README.md)
+[← Back to DOM Manipulation Problems](../README.md)

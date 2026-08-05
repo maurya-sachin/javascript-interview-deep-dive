@@ -10,10 +10,10 @@ Choose a study plan based on your timeline:
 
 | Plan | Duration | Time/Day | Best For |
 |------|----------|----------|----------|
-| [Intensive 2-Week](./study-plan-2-weeks.md) | 14 days | 4-5 hours | Upcoming interview |
+| [Intensive 2-Week](./study-plan-4-weeks.md) | 14 days | 4-5 hours | Upcoming interview |
 | [**Standard 4-Week**](./study-plan-4-weeks.md) | 28 days | 2-3 hours | **Recommended** |
-| [Relaxed 8-Week](./study-plan-8-weeks.md) | 56 days | 1-2 hours | Long-term prep |
-| [Weekend Warrior](./study-plan-weekends.md) | 8 weekends | 8 hours/weekend | Working professionals |
+| [Relaxed 8-Week](./study-plan-4-weeks.md) | 56 days | 1-2 hours | Long-term prep |
+| [Weekend Warrior](./study-plan-4-weeks.md) | 8 weekends | 8 hours/weekend | Working professionals |
 
 **Recommendation:** Start with 4-week plan - proven to work for most candidates.
 
@@ -23,12 +23,12 @@ Choose a study plan based on your timeline:
 
 ### Interview Preparation
 - [Pre-Interview Checklist](./interview-checklist.md) - Day before, morning of, 30 min before
-- [Technical Topics Checklist](./topics-checklist.md) - Ensure you've covered everything
-- [Coding Problems by Company](./company-specific.md) - FAANG and top tech companies
+- [Technical Topics Checklist](./interview-checklist.md) - Ensure you've covered everything
+- [Coding Problems by Company](../18-coding-challenges/README.md) - FAANG and top tech companies
 
 ### Daily/Weekly
-- [Daily Study Routine](./daily-routine.md) - Morning and evening habits
-- [Weekly Review Template](./weekly-review.md) - Track progress and adjust
+- [Daily Study Routine](./study-plan-4-weeks.md#daily-routine) - Morning and evening habits
+- [Weekly Review Template](./README.md#progress-tracking) - Track progress and adjust
 
 ---
 
@@ -162,11 +162,11 @@ Choose a study plan based on your timeline:
 - API design, caching
 
 ### Last-Minute Cheat Sheets
-- [JavaScript ES6+ Features](./cheatsheets/javascript-es6.md)
-- [React Hooks Reference](./cheatsheets/react-hooks.md)
-- [TypeScript Utility Types](./cheatsheets/typescript-utils.md)
-- [CSS Flexbox/Grid](./cheatsheets/css-layouts.md)
-- [Performance Metrics](./cheatsheets/performance.md)
+- [JavaScript ES6+ Features](../01-javascript/README.md)
+- [React Hooks Reference](../03-react/README.md)
+- [TypeScript Utility Types](../02-typescript/README.md)
+- [CSS Flexbox/Grid](../05-html-css/README.md)
+- [Performance Metrics](../07-performance/README.md)
 
 ---
 
@@ -178,31 +178,31 @@ Choose a study plan based on your timeline:
 - Focus: Algorithms, data structures, system design
 - Coding: Medium-Hard problems (LeetCode style)
 - System Design: Scalability, distributed systems
-- Resources: [Google-specific problems](./company-specific.md#google)
+- Resources: [Google-specific problems](../18-coding-challenges/README.md#google)
 
 **Meta (Facebook)**
 - Focus: React, frontend architecture, product sense
 - Coding: Medium difficulty, UI components
 - System Design: Real-world products (News Feed, etc.)
-- Resources: [Meta-specific problems](./company-specific.md#meta)
+- Resources: [Meta-specific problems](../18-coding-challenges/README.md#meta)
 
 **Amazon**
 - Focus: Leadership principles, behavioral + technical
 - Coding: Medium problems with time pressure
 - System Design: E-commerce scalability
-- Resources: [Amazon-specific problems](./company-specific.md#amazon)
+- Resources: [Amazon-specific problems](../18-coding-challenges/README.md#amazon)
 
 **Netflix**
 - Focus: Performance, video streaming, React
 - Coding: Advanced JavaScript, async patterns
 - System Design: Media delivery, caching
-- Resources: [Netflix-specific problems](./company-specific.md#netflix)
+- Resources: [Netflix-specific problems](../18-coding-challenges/README.md#netflix)
 
 **Microsoft**
 - Focus: Problem-solving, data structures
 - Coding: Algorithm-heavy problems
 - System Design: Cloud services, distributed systems
-- Resources: [Microsoft-specific problems](./company-specific.md#microsoft)
+- Resources: [Microsoft-specific problems](../18-coding-challenges/README.md#microsoft)
 
 ---
 

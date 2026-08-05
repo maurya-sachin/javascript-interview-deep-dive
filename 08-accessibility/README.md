@@ -11,22 +11,22 @@ Master web accessibility from fundamentals to advanced patterns. Essential for i
 ### 1️⃣ WCAG Fundamentals (1 file, ~3 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [01. WCAG Fundamentals](./01-wcag-fundamentals.md) | WCAG guidelines, POUR principles, conformance levels | 🟡 |
+| [01. WCAG Fundamentals](./wcag-01-fundamentals.md) | WCAG guidelines, POUR principles, conformance levels | 🟡 |
 
 ### 2️⃣ Keyboard Navigation (1 file, ~3 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [02. Keyboard Navigation](./02-keyboard-navigation.md) | Focus management, keyboard shortcuts, tab order | 🟡 |
+| [02. Keyboard Navigation](./keyboard-01-navigation.md) | Focus management, keyboard shortcuts, tab order | 🟡 |
 
 ### 3️⃣ Screen Readers (1 file, ~2 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [03. Screen Readers](./03-screen-readers.md) | ARIA, semantic HTML, screen reader testing | 🟡 🔴 |
+| [03. Screen Readers](./screen-readers-01-basics.md) | ARIA, semantic HTML, screen reader testing | 🟡 🔴 |
 
 ### 4️⃣ Testing Accessibility (1 file, ~2 Q&A)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [04. Testing Accessibility](./04-testing-accessibility.md) | Automated testing, manual testing, accessibility audits | 🟡 |
+| [04. Testing Accessibility](./testing-01-tools.md) | Automated testing, manual testing, accessibility audits | 🟡 |
 
 **Total:** 10 Q&A (will expand to 40+)
 
@@ -249,6 +249,6 @@ R - Robust
 
 ---
 
-[← Back to Main README](../README.md) | [Start Learning →](./01-wcag-fundamentals.md)
+[← Back to Main README](../README.md) | [Start Learning →](./wcag-01-fundamentals.md)
 
 **Total:** 10 questions across all accessibility topics (will expand to 40+) ✅

@@ -17,35 +17,35 @@ Time commitment: 2-3 hours daily
 ### Daily Schedule
 
 **Monday - JavaScript Core**
-- Read: [01-javascript/01-core-concepts.md](../01-javascript/01-core-concepts.md)
-- Read: [01-javascript/02-async-javascript.md](../01-javascript/02-async-javascript.md)
+- Read: [01-javascript/01-core-concepts.md](../01-javascript/variables-01-declarations.md)
+- Read: [01-javascript/02-async-javascript.md](../01-javascript/async-01-fundamentals.md)
 - Flashcards: Essential 50 (cards 1-20)
 - Practice: 3 JavaScript fundamentals problems
 - Time: 2.5 hours
 
 **Tuesday - Execution Context & Scope**
-- Read: [01-javascript/03-execution-context.md](../01-javascript/03-execution-context.md)
-- Read: [01-javascript/04-functions-binding.md](../01-javascript/04-functions-binding.md)
+- Read: [01-javascript/03-execution-context.md](../01-javascript/engine-01a-execution-context.md)
+- Read: [01-javascript/04-functions-binding.md](../01-javascript/functions-02a-this-binding.md)
 - Flashcards: Essential 50 (cards 21-35)
 - Practice: Implement call/apply/bind polyfills
 - Time: 2.5 hours
 
 **Wednesday - Objects & Prototypes**
-- Read: [01-javascript/05-objects-prototypes.md](../01-javascript/05-objects-prototypes.md)
-- Read: [01-javascript/06-memory-engine.md](../01-javascript/06-memory-engine.md)
+- Read: [01-javascript/05-objects-prototypes.md](../01-javascript/objects-02a-prototypes.md)
+- Read: [01-javascript/06-memory-engine.md](../01-javascript/engine-02a-memory.md)
 - Flashcards: JavaScript Master (cards 1-25)
 - Practice: Deep clone, flatten array problems
 - Time: 2.5 hours
 
 **Thursday - Modules & Patterns**
-- Read: [01-javascript/07-modules-patterns.md](../01-javascript/07-modules-patterns.md)
-- Read: [01-javascript/08-advanced-behavior.md](../01-javascript/08-advanced-behavior.md)
+- Read: [01-javascript/07-modules-patterns.md](../01-javascript/modules-01a-patterns.md)
+- Read: [01-javascript/08-advanced-behavior.md](../01-javascript/functions-03-advanced.md)
 - Practice: Event emitter, pub/sub pattern
 - Time: 2 hours
 
 **Friday - TypeScript Fundamentals**
-- Read: [02-typescript/01-fundamentals.md](../02-typescript/01-fundamentals.md)
-- Read: [02-typescript/02-advanced-types.md](../02-typescript/02-advanced-types.md)
+- Read: [02-typescript/01-fundamentals.md](../02-typescript/fundamentals-01a-basics.md)
+- Read: [02-typescript/02-advanced-types.md](../02-typescript/types-02a-advanced.md)
 - Flashcards: TypeScript deck (all 50 cards)
 - Practice: Convert 3 JS problems to TypeScript
 - Time: 2.5 hours
@@ -68,34 +68,34 @@ Time commitment: 2-3 hours daily
 ### Daily Schedule
 
 **Monday - React Hooks**
-- Read: [03-react/01-hooks-fundamentals.md](../03-react/01-hooks-fundamentals.md)
-- Read: [03-react/02-advanced-hooks.md](../03-react/02-advanced-hooks.md)
+- Read: [03-react/01-hooks-fundamentals.md](../03-react/hooks-01a-useState.md)
+- Read: [03-react/02-advanced-hooks.md](../03-react/hooks-03-useCallback-useMemo.md)
 - Flashcards: React Master (cards 1-30)
 - Practice: Build custom hooks (useDebounce, useLocalStorage)
 - Time: 3 hours
 
 **Tuesday - Component Patterns**
-- Read: [03-react/03-component-patterns.md](../03-react/03-component-patterns.md)
-- Read: [03-react/04-performance-optimization.md](../03-react/03-react/04-performance-optimization.md)
+- Read: [03-react/03-component-patterns.md](../03-react/patterns-01-composition.md)
+- Read: [03-react/04-performance-optimization.md](../03-react/performance-02-memoization.md)
 - Practice: Implement compound components, HOC
 - Time: 3 hours
 
 **Wednesday - State Management**
-- Read: [03-react/05-context-state-management.md](../03-react/05-context-state-management.md)
-- Read: [03-react/06-forms-validation.md](../03-react/06-forms-validation.md)
+- Read: [03-react/05-context-state-management.md](../03-react/state-01-management.md)
+- Read: [03-react/06-forms-validation.md](../03-react/forms-02-validation.md)
 - Practice: Build form with validation
 - Time: 3 hours
 
 **Thursday - React Internals & Testing**
-- Read: [03-react/07-testing-react.md](../03-react/07-testing-react.md)
-- Read: [03-react/08-react-internals.md](../03-react/08-react-internals.md)
+- Read: [03-react/07-testing-react.md](../03-react/testing-01a-react.md)
+- Read: [03-react/08-react-internals.md](../03-react/internals-01-fiber.md)
 - Flashcards: React Master (cards 31-60)
 - Practice: Write tests for custom hooks
 - Time: 2.5 hours
 
 **Friday - Next.js Fundamentals**
-- Read: [04-nextjs/01-app-router.md](../04-nextjs/01-app-router.md)
-- Read: [04-nextjs/02-data-fetching.md](../04-nextjs/02-data-fetching.md)
+- Read: [04-nextjs/01-app-router.md](../04-nextjs/router-01a-basics.md)
+- Read: [04-nextjs/02-data-fetching.md](../04-nextjs/data-01a-fetching.md)
 - Flashcards: Next.js deck (all 40 cards)
 - Practice: Build simple Next.js app
 - Time: 3 hours
@@ -118,37 +118,37 @@ Time commitment: 2-3 hours daily
 ### Daily Schedule
 
 **Monday - HTML/CSS Mastery**
-- Read: [05-html-css/01-html-semantics.md](../05-html-css/01-html-semantics.md)
-- Read: [05-html-css/02-css-fundamentals.md](../05-html-css/02-css-fundamentals.md)
-- Read: [05-html-css/03-flexbox-grid.md](../05-html-css/03-flexbox-grid.md)
+- Read: [05-html-css/01-html-semantics.md](../05-html-css/html-01-semantics.md)
+- Read: [05-html-css/02-css-fundamentals.md](../05-html-css/css-01-selectors.md)
+- Read: [05-html-css/03-flexbox-grid.md](../05-html-css/layout-02a-flexbox-vs-grid.md)
 - Practice: Build responsive layouts
 - Time: 2.5 hours
 
 **Tuesday - Performance**
-- Read: [07-performance/01-optimization-techniques.md](../07-performance/01-optimization-techniques.md)
-- Read: [07-performance/02-image-optimization.md](../07-performance/02-image-optimization.md)
-- Read: [07-performance/05-monitoring.md](../07-performance/05-monitoring.md)
+- Read: [07-performance/01-optimization-techniques.md](../07-performance/optimization-01-techniques.md)
+- Read: [07-performance/02-image-optimization.md](../07-performance/images-01-optimization.md)
+- Read: [07-performance/05-monitoring.md](../07-performance/monitoring-01-tools.md)
 - Flashcards: Performance deck (all 40 cards)
 - Time: 2.5 hours
 
 **Wednesday - Architecture**
-- Read: [09-architecture/01-design-patterns.md](../09-architecture/01-design-patterns.md)
-- Read: [09-architecture/02-system-design-basics.md](../09-architecture/02-system-design-basics.md)
-- Read: [09-architecture/03-frontend-architecture.md](../09-architecture/03-frontend-architecture.md)
+- Read: [09-architecture/01-design-patterns.md](../16-architecture/README.md)
+- Read: [09-architecture/02-system-design-basics.md](../16-architecture/README.md)
+- Read: [09-architecture/03-frontend-architecture.md](../16-architecture/README.md)
 - Practice: Design Twitter feed, infinite scroll
 - Time: 3 hours
 
 **Thursday - Security & Accessibility**
-- Read: [10-security/01-common-vulnerabilities.md](../10-security/01-common-vulnerabilities.md)
-- Read: [10-security/02-authentication.md](../10-security/02-authentication.md)
-- Read: [08-accessibility/01-wcag-fundamentals.md](../08-accessibility/01-wcag-fundamentals.md)
+- Read: [10-security/01-common-vulnerabilities.md](../09-security/xss-01-prevention.md)
+- Read: [10-security/02-authentication.md](../09-security/security-05-jwt-session.md)
+- Read: [08-accessibility/01-wcag-fundamentals.md](../08-accessibility/wcag-01-fundamentals.md)
 - Flashcards: Security + Accessibility (all cards)
 - Time: 2.5 hours
 
 **Friday - Testing & Tooling**
-- Read: [06-testing/01-jest-fundamentals.md](../06-testing/01-jest-fundamentals.md)
-- Read: [06-testing/02-react-testing-library.md](../06-testing/02-react-testing-library.md)
-- Read: [11-tooling/01-webpack-fundamentals.md](../11-tooling/01-webpack-fundamentals.md)
+- Read: [06-testing/01-jest-fundamentals.md](../06-testing/jest-01-fundamentals.md)
+- Read: [06-testing/02-react-testing-library.md](../06-testing/rtl-01-basics.md)
+- Read: [11-tooling/01-webpack-fundamentals.md](../14-tooling/webpack-01-fundamentals.md)
 - Practice: Setup Webpack config, write integration tests
 - Time: 2.5 hours
 

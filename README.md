@@ -20,7 +20,7 @@ Structured Q&A, coding problems, and interactive flashcards covering the complet
 
 ## 🚀 Quick Start
 
-**New to this repo?** Choose your path:
+**New to this repo?** Start with the **[Getting Started Guide](./GETTING-STARTED.md)**, or jump straight in:
 - **4-Week Sprint** → [Complete Study Plan](./resources/study-plan-4-weeks.md)
 - **Interview Tomorrow?** → [Pre-Interview 30 Flashcards](./19-flashcards/curated-decks/pre-interview-30.md)
 - **Daily Practice** → [Essential 50 Flashcards](./19-flashcards/curated-decks/essential-50.md)
@@ -34,14 +34,14 @@ Structured Q&A, coding problems, and interactive flashcards covering the complet
 
 | Topic | Content | Difficulty | Status |
 |-------|---------|------------|--------|
-| [JavaScript](./01-javascript/) | 9 topics | 🟢 🟡 🔴 | ✅ Complete |
-| [TypeScript](./02-typescript/) | 6 topics | 🟡 🔴 | ✅ Complete |
-| [React](./03-react/) | 8 topics | 🟢 🟡 🔴 | ✅ Complete |
-| [Next.js](./04-nextjs/) | 6 topics | 🟡 🔴 | ✅ Complete |
-| [HTML & CSS](./05-html-css/) | 7 topics | 🟢 🟡 | ✅ Complete |
-| [Testing](./06-testing/) | 5 topics | 🟡 🔴 | ✅ Complete |
-| [Performance](./07-performance/) | 5 topics | 🟡 🔴 | ✅ Complete |
-| [Accessibility](./08-accessibility/) | 4 topics | 🟢 🟡 | ✅ Complete |
+| [JavaScript](./01-javascript/) | 53 files · 97 Q&A | 🟢 🟡 🔴 | ✅ Complete |
+| [TypeScript](./02-typescript/) | 22 files · 43 Q&A | 🟡 🔴 | ✅ Complete |
+| [React](./03-react/) | 71 files · 128 Q&A | 🟢 🟡 🔴 | ✅ Complete |
+| [Next.js](./04-nextjs/) | 16 files · 25 Q&A | 🟡 🔴 | ✅ Complete |
+| [HTML & CSS](./05-html-css/) | 19 files · 39 Q&A | 🟢 🟡 | ✅ Complete |
+| [Testing](./06-testing/) | 5 files · 18 Q&A | 🟡 🔴 | ✅ Complete |
+| [Performance](./07-performance/) | 6 files · 12 Q&A | 🟡 🔴 | ✅ Complete |
+| [Accessibility](./08-accessibility/) | 17 files · 21 Q&A | 🟢 🟡 | ✅ Complete |
 | [Security](./09-security/) | 6 Q&A | 🟡 🔴 | 🔵 Expanding |
 | [System Design](./10-system-design/) | 4 Q&A | 🔴 | 🔵 Expanding |
 | [Browser/Web](./11-browser/) | 3 Q&A | 🟡 🔴 | 🔵 Expanding |
@@ -50,23 +50,24 @@ Structured Q&A, coding problems, and interactive flashcards covering the complet
 | [Tooling](./14-tooling/) | 3 Q&A | 🟡 | 🔵 Expanding |
 | [i18n](./15-i18n/) | 3 Q&A | 🟢 🟡 | 🔵 Expanding |
 | [Architecture](./16-architecture/) | Coming Soon | 🔴 | 🔜 Planned |
-| [SEO](./17-seo/) | 2 Q&A | 🟢 🟡 | 🔵 Expanding |
+| [SEO](./17-seo/) | 2 files · 3 Q&A | 🟢 🟡 | 🔵 Expanding |
 
-**374+ Q&A across 16 topics** with 1 more in development
+**411 Q&A across 16 topics** with 1 more in development
+
+> 📇 For the always-current, auto-generated inventory of every file and question, see [INDEX.md](./INDEX.md).
 
 ### Coding Problems (Growing Library)
 
 | Category | Current | Target | Companies |
 |----------|---------|--------|-----------|
-| [JavaScript Fundamentals](./18-coding-challenges/01-javascript-fundamentals/) | 30+ | 30+ | All |
-| [DOM Manipulation](./18-coding-challenges/02-dom-manipulation/) | 10+ | 20+ | Google, Meta |
-| [React Problems](./18-coding-challenges/03-react-problems/) | 8+ | 25+ | All |
-| [Algorithms](./18-coding-challenges/04-algorithms/) | 5+ | 30+ | FAANG |
-| [UI Components](./18-coding-challenges/05-ui-components/) | 8+ | 25+ | All |
-| [System Implementations](./18-coding-challenges/06-system-implementations/) | 2+ | 20+ | Senior |
-| [Company Questions](./18-coding-challenges/07-company-questions/) | 2+ | 35+ | FAANG |
+| [JavaScript Fundamentals](./18-coding-challenges/01-javascript-fundamentals/) | 30 | 30+ | All |
+| [DOM Manipulation](./18-coding-challenges/02-dom-manipulation/) | 12 | 20+ | Google, Meta |
+| [React Problems](./18-coding-challenges/03-react-problems/) | 11 | 25+ | All |
+| [Algorithms](./18-coding-challenges/04-algorithms/) | 1 | 30+ | FAANG |
+| [UI Components](./18-coding-challenges/05-ui-components/) | 2 | 25+ | All |
+| [Performance](./18-coding-challenges/06-performance/) | 5 | 20+ | Senior |
 
-**65 problems currently** (growing to 185+ target)
+**61 problems currently** (growing to 185+ target)
 
 Each problem includes:
 - Multiple solution approaches (basic → optimized → production)
@@ -74,7 +75,7 @@ Each problem includes:
 - Time/Space complexity analysis
 - Real-world use cases
 
-### Flashcards (514+ Cards - Target Exceeded! ✅)
+### Flashcards (12 Decks - Curated + By Topic)
 
 | Deck | Cards | Purpose | Time |
 |------|-------|---------|------|
@@ -115,14 +116,14 @@ Frontend-Master-Prep-Series/
 ├── 15-i18n/                # Localization, RTL, formatting (3 files - expanding)
 ├── 16-architecture/        # Coming soon - System design patterns
 ├── 17-seo/                 # Technical SEO, structured data (2 files - expanding)
-├── 18-coding-challenges/   # 65 LeetCode-style problems
+├── 18-coding-challenges/   # 61 LeetCode-style problems
 │   ├── 01-javascript-fundamentals/  # 30 problems
 │   ├── 02-dom-manipulation/         # 12 problems
 │   ├── 03-react-problems/           # 11 custom hooks
-│   ├── 04-algorithms/               # LRU cache, etc.
+│   ├── 04-algorithms/               # LRU cache
 │   ├── 05-ui-components/            # Modal, star rating
 │   └── 06-performance/              # Web workers, lazy loading
-├── 19-flashcards/          # 514+ flashcards with spaced repetition
+├── 19-flashcards/          # 12 flashcard decks with spaced repetition
 │   ├── curated-decks/      # Essential 50, Pre-Interview 30, Daily 20
 │   └── by-topic/           # JavaScript, React, TypeScript, etc.
 ├── src/                    # React app source code
@@ -236,7 +237,7 @@ Frontend-Master-Prep-Series/
 
 **Updated:**
 - ✅ Fixed folder structure (19 organized directories)
-- ✅ Accurate stats: 411 Q&A, 65 coding problems, 526 flashcards
+- ✅ Accurate stats: 411 Q&A, 61 coding problems, 12 flashcard decks
 - ✅ Updated all internal path references
 - ✅ Reorganized content for better navigation
 - ✅ Enhanced folder-specific READMEs
@@ -276,10 +277,11 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## 📊 Repository Stats
 
-- **Q&A:** 374+ comprehensive questions across 16 topics
-- **Coding Problems:** 65 (target: 185+) with multiple solutions
-- **Flashcards:** 514+ ✅ (target 180-200 exceeded!)
+- **Q&A:** 411 comprehensive questions across 16 topics (309 content files total)
+- **Coding Problems:** 61 (target: 185+) with multiple solutions
+- **Flashcards:** 12 decks (3 curated + 9 by topic)
 - **Topics Covered:** 19 major areas (16 active, 2 expanding, 1 planned)
+- **Full Inventory:** [INDEX.md](./INDEX.md) (auto-generated, always current)
 - **Study Guides:** 4-week plan, daily routines, interview checklist
 - **Interactive Tools:** Flashcard web app with SM-2 spaced repetition
 - **Last Updated:** November 2025
@@ -305,4 +307,4 @@ Found this helpful? ⭐ Star the repo and share with your network!
 
 **Happy Learning! 🚀**
 
-_Last updated: November 2025 | v2.1.0 | Growing repository with 374+ Q&A, 65 coding problems, and 514+ interactive flashcards_
+_Last updated: November 2025 | v2.1.0 | Growing repository with 411 Q&A, 61 coding problems, and 12 interactive flashcard decks_

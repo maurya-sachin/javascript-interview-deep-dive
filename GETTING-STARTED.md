@@ -1,19 +1,24 @@
 # Getting Started with Frontend Interview Prep
 
-Welcome! This guide will help you navigate this massive repository and create an effective study plan for your frontend interview preparation.
+Welcome! This guide will help you navigate this massive repository and create an effective study plan for your frontend interview preparation — whether your interview is tomorrow or three months away.
 
 ---
 
 ## 📋 Table of Contents
 
 1. [Quick Start](#-quick-start)
-2. [Understanding the Structure](#-understanding-the-structure)
-3. [Choose Your Path](#-choose-your-path)
-4. [How to Study Effectively](#-how-to-study-effectively)
-5. [Recommended Study Order](#-recommended-study-order)
-6. [Tips for Success](#-tips-for-success)
-7. [Common Mistakes to Avoid](#-common-mistakes-to-avoid)
-8. [Tools and Resources](#-tools-and-resources)
+2. [Interview Tomorrow? The 2-Hour Crash Review](#-interview-tomorrow-the-2-hour-crash-review)
+3. [Understanding the Structure](#-understanding-the-structure)
+4. [Choose Your Path](#-choose-your-path)
+5. [Study by Experience Level](#-study-by-experience-level)
+6. [Study by Company Type](#-study-by-company-type)
+7. [How to Study Effectively](#-how-to-study-effectively)
+8. [Progress Tracking](#-progress-tracking)
+9. [Tips for Success](#-tips-for-success)
+10. [Common Mistakes to Avoid](#-common-mistakes-to-avoid)
+11. [Interview Day](#-interview-day)
+12. [Tools and Resources](#-tools-and-resources)
+13. [Self-Assessment](#-self-assessment)
 
 ---
 
@@ -24,21 +29,26 @@ Welcome! This guide will help you navigate this massive repository and create an
 #### **1 Day Before Interview**
 1. Review [Pre-Interview 30 Flashcards](./19-flashcards/curated-decks/pre-interview-30.md) (15 min)
 2. Skim [Essential 50 Flashcards](./19-flashcards/curated-decks/essential-50.md) (25 min)
-3. Solve 3-5 problems from [Company-Specific Questions](./18-coding-challenges/07-company-questions/) (2 hours)
+3. Do the [2-Hour Crash Review](#-interview-tomorrow-the-2-hour-crash-review) below
 4. Review company's tech stack topics (1 hour)
 
 **Total:** ~4 hours of focused review
 
 #### **1 Week Before Interview**
-1. Complete Daily 20 flashcards every day (10 min/day)
-2. Solve 2-3 coding problems daily (1 hour/day)
+1. Complete [Daily 20 flashcards](./19-flashcards/curated-decks/daily-20.md) every day (10 min/day)
+2. Solve 2-3 [coding problems](./18-coding-challenges/README.md) daily (1 hour/day)
 3. Deep dive into 2-3 weak areas (2 hours/day)
 4. Mock interview practice (2 hours over weekend)
 
 **Total:** ~3 hours/day for 7 days
 
+#### **2 Weeks Before Interview**
+Follow the **[Two-Week Intensive](#path-2-two-week-intensive-)** day-by-day plan below.
+
+**Total:** ~4 hours/day for 14 days
+
 #### **1 Month Before Interview**
-Follow **Path 1: Quick Sprint (4 Weeks)** from main README
+Follow **[Path 1: Quick Sprint (4 Weeks)](#path-1-quick-sprint-4-weeks-)**
 - Week 1: JavaScript + TypeScript
 - Week 2: React + Performance
 - Week 3: Next.js + Testing
@@ -47,13 +57,86 @@ Follow **Path 1: Quick Sprint (4 Weeks)** from main README
 **Total:** ~47 hours over 4 weeks
 
 #### **3+ Months Before Interview**
-Follow **Path 2: Deep Mastery (12 Weeks)** from main README
-- Complete mastery of all 374 questions (growing to 500+)
-- Solve all 65 coding problems (growing to 185+)
-- Review all 514 flashcards
+Follow **[Path 3: Deep Mastery (12 Weeks)](#path-3-deep-mastery-12-weeks-)**
+- Complete mastery of all 411 Q&A
+- Solve all 61 coding problems
+- Review all flashcard decks
 - Build projects using learned concepts
 
 **Total:** ~130 hours over 12 weeks
+
+> 📇 Looking for a specific topic or file? [INDEX.md](./INDEX.md) is the auto-generated inventory of everything in this repo.
+
+---
+
+## ⚡ Interview Tomorrow? The 2-Hour Crash Review
+
+If you have an interview tomorrow, focus on these.
+
+### Top 30 Must-Know Questions (60 minutes)
+
+**JavaScript (10 questions - 20 min)**
+1. [Closures](./01-javascript/scope-01b-closure.md)
+2. [Event loop & async fundamentals](./01-javascript/async-01-fundamentals.md)
+3. [Promises vs async/await](./01-javascript/async-03-async-await.md)
+4. [this keyword](./01-javascript/functions-02a-this-binding.md)
+5. [Prototypal inheritance](./01-javascript/objects-02a-prototypes.md)
+6. [var/let/const differences](./01-javascript/variables-01-declarations.md)
+7. [Arrow functions vs regular functions](./01-javascript/functions-01a-basics.md)
+8. [Array methods (map, filter, reduce)](./01-javascript/arrays-01-methods.md)
+9. [Hoisting & scope](./01-javascript/scope-01a-lexical-scope.md)
+10. [Spread, rest & destructuring](./01-javascript/operators-03-destructuring.md)
+
+**React (10 questions - 20 min)**
+1. [useState](./03-react/hooks-01a-useState.md)
+2. [useEffect](./03-react/hooks-02-useEffect.md)
+3. [Keys in lists](./03-react/fragments-keys-01.md)
+4. [Controlled vs uncontrolled components](./03-react/forms-01-controlled.md)
+5. [React.memo vs useMemo](./03-react/performance-02-memoization.md)
+6. [Custom hooks](./03-react/hooks-07-custom-hooks.md)
+7. [Context API](./03-react/context-01-api.md)
+8. [Virtual DOM](./03-react/rendering-01-virtual-dom.md)
+9. [Lifecycle methods vs hooks](./03-react/lifecycle-01-methods.md)
+10. [Error boundaries](./03-react/patterns-04-error-boundaries.md)
+
+**TypeScript (5 questions - 10 min)**
+1. [Type vs Interface](./02-typescript/fundamentals-01a-basics.md)
+2. [Generics basics](./02-typescript/generics-01a-basics.md)
+3. [Utility types (Partial, Pick, Omit)](./02-typescript/types-01a-utility.md)
+4. [Type narrowing](./02-typescript/narrowing-01-guards.md)
+5. [Union vs Intersection](./02-typescript/fundamentals-02-advanced.md)
+
+**Performance & Security (5 questions - 10 min)**
+1. [Core Web Vitals (LCP, FID, CLS)](./07-performance/core-vitals-01.md)
+2. [Code splitting & lazy loading](./07-performance/lazy-loading-01-code-splitting.md)
+3. [XSS prevention](./09-security/xss-01-prevention.md)
+4. [CSRF protection](./09-security/csrf-01-protection.md)
+5. [Bundle optimization](./07-performance/optimization-01-techniques.md)
+
+### Top 5 Coding Problems (60 minutes)
+
+Practice these in order of importance:
+
+1. **[Debounce](./18-coding-challenges/01-javascript-fundamentals/debounce.md)** (15 min)
+   - The single most frequently asked frontend coding question
+   - Tests async understanding
+   - Multiple difficulty levels
+
+2. **[Deep Clone](./18-coding-challenges/01-javascript-fundamentals/deep-clone.md)** (10 min)
+   - Common in Google, Meta interviews
+   - Tests recursion and edge cases
+
+3. **[Promise.all](./18-coding-challenges/01-javascript-fundamentals/promise-all.md)** (15 min)
+   - Tests async/await knowledge
+   - Common in senior roles
+
+4. **[useLocalStorage Hook](./18-coding-challenges/03-react-problems/use-local-storage.md)** (15 min)
+   - Most common React custom hook question
+   - Tests hooks + browser APIs
+
+5. **[Autocomplete Component](./18-coding-challenges/02-dom-manipulation/autocomplete.md)** (20 min)
+   - Real-world problem
+   - Tests debouncing, keyboard nav, accessibility
 
 ---
 
@@ -61,21 +144,18 @@ Follow **Path 2: Deep Mastery (12 Weeks)** from main README
 
 ### Core Topics (Q&A)
 
-Each topic directory contains **questions with comprehensive answers**:
+Each topic directory contains **questions with comprehensive answers**, organized by concept:
 
 ```
 01-javascript/
-├── README.md              # Topic overview + navigation
-├── 01-core-concepts.md    # Primitives, types, hoisting, etc.
-├── 02-execution-context.md
-├── 03-async-javascript.md
-├── 04-functions-binding.md
-├── 05-objects-prototypes.md
-├── 06-memory-engine.md
-├── 07-modules-patterns.md
-├── 08-advanced-behavior.md
-├── 09-data-structures.md
-└── examples/              # Working code examples
+├── README.md                    # Topic overview + navigation
+├── scope-01b-closure.md         # Closures, lexical scope
+├── async-01-fundamentals.md     # Event loop, callbacks
+├── async-02a-promises.md        # Promises deep dive
+├── functions-02a-this-binding.md
+├── objects-02a-prototypes.md
+├── primitives-02a-coercion.md
+└── ...                          # 50+ concept files
 ```
 
 **Every question includes:**
@@ -92,14 +172,12 @@ Each topic directory contains **questions with comprehensive answers**:
 
 ```
 18-coding-challenges/
-├── 01-javascript-fundamentals/
-│   ├── debounce.md
-│   ├── throttle.md
-│   └── memoize.md
-└── 07-company-questions/
-    ├── google/
-    ├── meta/
-    └── amazon/
+├── 01-javascript-fundamentals/   # debounce, throttle, memoize, polyfills...
+├── 02-dom-manipulation/          # autocomplete, infinite scroll, drag & drop...
+├── 03-react-problems/            # custom hooks (useLocalStorage, useFetch...)
+├── 04-algorithms/                # LRU cache
+├── 05-ui-components/             # modal, star rating
+└── 06-performance/               # web workers, lazy images, code splitting
 ```
 
 **Every problem includes:**
@@ -110,7 +188,6 @@ Each topic directory contains **questions with comprehensive answers**:
 - Multiple solutions (basic → optimized → production)
 - Time/Space complexity
 - Edge cases
-- Company-specific notes
 
 ### Flashcards
 
@@ -123,9 +200,10 @@ Each topic directory contains **questions with comprehensive answers**:
 └── by-topic/              # Topic-specific decks
     ├── javascript.md
     ├── react.md
-    └── typescript.md
+    ├── typescript.md
+    └── ...
 
-📱 Interactive app at root: index.html + assets/js/
+📱 Interactive app at root: index.html + src/
 ```
 
 **Use flashcards for:**
@@ -142,6 +220,8 @@ Each topic directory contains **questions with comprehensive answers**:
 
 **Best for:** Interview in 1 month, need focused preparation
 
+**📘 [Full 4-Week Study Plan](./resources/study-plan-4-weeks.md)** - Complete day-by-day breakdown
+
 | Week | Focus | Daily Time | Key Outcomes |
 |------|-------|------------|--------------|
 | 1 | JavaScript + TypeScript | 1.5h | Master async, closures, types |
@@ -154,7 +234,60 @@ Each topic directory contains **questions with comprehensive answers**:
 - Evening (1-2 hours): Topic reading + 1 coding problem
 - Weekend (3-4 hours): Deep dive + mock interviews
 
-### Path 2: Deep Mastery (12 Weeks) 🎓
+### Path 2: Two-Week Intensive 🔥
+
+**Best for:** Interview in 2 weeks, can commit ~4 hours/day
+
+#### Week 1: Core Fundamentals
+
+**Days 1-2: JavaScript Deep Dive**
+- [ ] [Scope & closures](./01-javascript/scope-01a-lexical-scope.md) (3 hours)
+- [ ] [Async JavaScript](./01-javascript/async-01-fundamentals.md) (3 hours)
+- [ ] Practice: Debounce, Throttle, Deep Clone (2 hours)
+- [ ] [Essential 50 Flashcards](./19-flashcards/curated-decks/essential-50.md) - First third
+
+**Days 3-4: React Fundamentals**
+- [ ] [React Hooks](./03-react/hooks-01a-useState.md) (4 hours)
+- [ ] [Component Patterns](./03-react/README.md) (2 hours)
+- [ ] Practice: useLocalStorage, useDebounce (2 hours)
+- [ ] Essential 50 Flashcards - Second third
+
+**Days 5-6: TypeScript & Next.js**
+- [ ] [TypeScript Fundamentals](./02-typescript/README.md) (3 hours)
+- [ ] [Advanced Types](./02-typescript/fundamentals-02-advanced.md) (2 hours)
+- [ ] [Next.js App Router](./04-nextjs/router-01a-basics.md) (2 hours)
+- [ ] Essential 50 Flashcards - Final third
+
+**Day 7: Review & Practice**
+- [ ] Review all flashcards (1 hour)
+- [ ] Practice 3 coding problems (2 hours)
+- [ ] Mock interview with friend (1 hour)
+
+#### Week 2: Advanced Topics & Practice
+
+**Days 8-9: Performance & Security**
+- [ ] [Performance Optimization](./07-performance/optimization-01-techniques.md) (3 hours)
+- [ ] [Accessibility](./08-accessibility/wcag-01-fundamentals.md) (2 hours)
+- [ ] [Security (XSS, CSRF)](./09-security/xss-01-prevention.md) (2 hours)
+- [ ] Practice: Infinite Scroll, Autocomplete (2 hours)
+
+**Days 10-11: Testing & System Design**
+- [ ] [Jest Fundamentals](./06-testing/jest-01-fundamentals.md) (3 hours)
+- [ ] [System Design Basics](./10-system-design/) (2 hours)
+- [ ] Practice: Write tests for previous problems (2 hours)
+
+**Days 12-13: Coding Problem Marathon**
+- [ ] Complete all JavaScript fundamentals problems (4 hours)
+- [ ] Complete all React problems (3 hours)
+- [ ] Complete 2 DOM manipulation problems (2 hours)
+
+**Day 14: Final Review & Mock Interview**
+- [ ] Review all flashcards (1 hour)
+- [ ] Weak areas deep dive (2 hours)
+- [ ] Full mock interview (1 hour)
+- [ ] Rest well!
+
+### Path 3: Deep Mastery (12 Weeks) 🎓
 
 **Best for:** 3+ months until interview, want complete understanding
 
@@ -171,7 +304,7 @@ Each topic directory contains **questions with comprehensive answers**:
 - Evening (1-2 hours): Solve 2 coding problems
 - Weekend (4-6 hours): Deep topic study + projects
 
-### Path 3: Daily Practice (Long-term) 🌱
+### Path 4: Daily Practice (Long-term) 🌱
 
 **Best for:** Consistent improvement over 6 months
 
@@ -183,6 +316,97 @@ Each topic directory contains **questions with comprehensive answers**:
   - Sunday: Build small project
 
 **Results:** Master frontend in 6 months with consistency
+
+---
+
+## 🧑‍💻 Study by Experience Level
+
+### Junior Developer (0-2 years)
+
+**Study order:**
+1. **JavaScript** ([01-javascript/](./01-javascript/README.md)) - Start here! Core concepts first, then async; skip advanced topics initially
+2. **HTML & CSS** ([05-html-css/](./05-html-css/README.md)) - Semantics, Flexbox/Grid, responsive design
+3. **React** ([03-react/](./03-react/README.md)) - Fundamentals and hooks; skip Fiber/internals until later
+4. **Coding Problems** ([18-coding-challenges/](./18-coding-challenges/README.md)) - JS fundamentals, DOM, UI components
+5. **Flashcards** - [Daily 20](./19-flashcards/curated-decks/daily-20.md) every day
+
+**Skip for now:** Advanced TypeScript (generics, utility types), system design, deep performance optimization, microservices architecture
+
+**Recommended problems:** Debounce/throttle (basic version), deep clone, array flatten, star rating, simple React components
+
+### Mid-Level Developer (2-4 years)
+
+**Study order:**
+1. **JavaScript** ([01-javascript/](./01-javascript/README.md)) - Review advanced topics
+2. **TypeScript** ([02-typescript/](./02-typescript/README.md)) - Interfaces, generics, utility types
+3. **React** ([03-react/](./03-react/README.md)) - Advanced patterns, custom hooks, performance
+4. **Next.js** ([04-nextjs/](./04-nextjs/README.md)) - SSR, ISR, App Router
+5. **Testing** ([06-testing/](./06-testing/README.md)) - Jest, RTL, E2E
+6. **Performance** ([07-performance/](./07-performance/README.md)) - Optimization, Core Web Vitals
+7. **Coding Problems** - All categories
+8. **Flashcards** - [Essential 50](./19-flashcards/curated-decks/essential-50.md) + topic-specific decks
+
+**Don't skip:** Core Web Vitals, accessibility (WCAG, ARIA), build tools concepts, security basics (XSS, CSRF), state management (Context, Redux concepts)
+
+**Recommended problems:** All JavaScript fundamentals, custom React hooks (useLocalStorage, useDebounce), autocomplete with debouncing, infinite scroll, Promise implementations
+
+### Senior Developer (4+ years)
+
+**Study order:**
+1. **System Design** ([10-system-design/](./10-system-design/)) - Component/system design (16-architecture/ coming soon)
+2. **Performance** ([07-performance/](./07-performance/README.md)) - Deep optimization
+3. **Security** ([09-security/](./09-security/)) - Comprehensive coverage
+4. **Testing** ([06-testing/](./06-testing/README.md)) - Advanced patterns and strategies
+5. **Tooling** ([14-tooling/](./14-tooling/)) - Webpack, Vite, Babel internals
+6. **Coding Problems** - Know multiple solutions for every problem
+7. **Flashcards** - All decks for retention
+
+**Must know:** All fundamentals (be able to teach them), architectural patterns, trade-offs and decision-making, scale considerations, team collaboration strategies
+
+**Recommended challenges:** Design autocomplete for 1M users, optimize a bundle for slow connections, design a component library architecture, plus leadership/mentoring questions
+
+---
+
+## 🏢 Study by Company Type
+
+### FAANG (Google, Meta, Amazon)
+
+**Focus areas:** Algorithms and data structures, system design (required for senior+), deep JavaScript fundamentals, React internals, performance optimization
+
+**Common questions:**
+- Implement debounce/throttle
+- Deep clone with edge cases
+- Custom hooks with complex logic
+- Autocomplete with optimization
+- Infinite scroll with virtual scrolling
+
+**Resources:** All [advanced coding problems](./18-coding-challenges/README.md) and the [system design section](./10-system-design/)
+
+### Startups
+
+**Focus areas:** Ship fast and iterate, full-stack knowledge, React + TypeScript, real-world problem solving, product thinking
+
+**Common questions:**
+- Build a feature end-to-end
+- "How would you implement X?"
+- Trade-offs discussion
+- Take-home style projects
+- Architecture decisions
+
+**Resources:** Practical coding problems, [React](./03-react/README.md) + [Next.js](./04-nextjs/README.md) sections, performance basics
+
+### Agencies / Consultancies
+
+**Focus areas:** Client communication, multiple tech stacks, best practices, accessibility, cross-browser compatibility
+
+**Common questions:**
+- How do you handle X browser issue?
+- Accessibility implementation
+- Responsive design
+- SEO optimization
+- Performance on slow connections
+
+**Resources:** [HTML/CSS](./05-html-css/README.md), [Accessibility](./08-accessibility/README.md), [SEO](./17-seo/) sections
 
 ---
 
@@ -202,12 +426,14 @@ Each topic directory contains **questions with comprehensive answers**:
 
 ### 2. Spaced Repetition
 
-Review flashcards on schedule:
-- Day 1: Learn new cards
-- Day 3: Review
-- Day 7: Review
-- Day 14: Review
-- Day 30: Review
+| Day | Review |
+|-----|--------|
+| 0 | Learn new concept |
+| 1 | Review (after 1 day) |
+| 3 | Review (after 3 days) |
+| 7 | Review (after 1 week) |
+| 14 | Review (after 2 weeks) |
+| 30 | Review (after 1 month) |
 
 **Tool:** Use the [Interactive Flashcard App](https://maurya-sachin.github.io/Frontend-Master-Prep-Series/) to track automatically
 
@@ -226,7 +452,7 @@ Review flashcards on schedule:
 ### 4. Teach to Learn
 
 Best way to solidify knowledge:
-- Explain concepts to a friend
+- Explain concepts to a friend (out loud, not just in your head)
 - Write blog posts
 - Create video tutorials
 - Answer questions on Stack Overflow
@@ -242,52 +468,57 @@ Apply concepts immediately:
 
 ---
 
-## 📖 Recommended Study Order
+## 📈 Progress Tracking
 
-### For Beginners (1-2 years experience)
+### Daily Checklist
 
-1. **JavaScript** (01-javascript/) - Start here!
-   - Focus on core concepts first
-   - Then async JavaScript
-   - Skip advanced topics initially
+- [ ] 20 flashcards reviewed
+- [ ] 1 coding problem solved
+- [ ] 1 concept explained out loud
+- [ ] 30 minutes of reading
 
-2. **HTML & CSS** (05-html-css/)
-   - Semantics and accessibility
-   - Layouts (Flexbox, Grid)
-   - Responsive design
+### Weekly Goals
 
-3. **React** (03-react/)
-   - Start with fundamentals
-   - Master hooks
-   - Skip Fiber/advanced until later
+- [ ] All flashcards reviewed once
+- [ ] 5+ coding problems completed
+- [ ] 1 full topic mastered
+- [ ] 1 mock interview completed
 
-4. **Coding Problems** (18-coding-challenges/)
-   - JavaScript fundamentals
-   - DOM manipulation
-   - UI components
+### Ready for Interview When:
 
-5. **Flashcards** - Daily Review 20
+- [ ] Can explain the Essential 50 flashcards confidently
+- [ ] Solved 20+ coding problems
+- [ ] Can code common problems from memory
+- [ ] Comfortable with mock interviews
+- [ ] Know your weak areas and worked on them
+- [ ] Sleep well the night before!
 
-### For Intermediate (3-4 years experience)
+### Weekly Goals Template
 
-1. **JavaScript** (01-javascript/) - Review advanced topics
-2. **TypeScript** (02-typescript/) - NEW! Important
-3. **React** (03-react/) - Focus on advanced patterns
-4. **Next.js** (04-nextjs/) - SSR, ISR, App Router
-5. **Testing** (06-testing/) - Jest, RTL, E2E
-6. **Performance** (07-performance/) - Optimization
-7. **Coding Problems** - All categories
-8. **Flashcards** - Essential 50 + topic-specific
+Copy this template for tracking:
 
-### For Senior (5-6 years experience)
+```markdown
+## Week [N] Goals
 
-1. **Architecture** (09-architecture/) - System design
-2. **Performance** (07-performance/) - Deep optimization
-3. **Security** (10-security/) - Vulnerabilities
-4. **Testing** (06-testing/) - Advanced patterns
-5. **Tooling** (11-tooling/) - Webpack, Vite internals
-6. **Coding Problems** - Focus on company-specific + system implementations
-7. **Flashcards** - All decks for retention
+**Topic:** [JavaScript / React / etc.]
+
+### Objectives
+- [ ] Read 50 Q&A
+- [ ] Solve 10 coding problems
+- [ ] Review 100 flashcards
+- [ ] Build mini project
+
+### Daily Breakdown
+- Monday: [specific tasks]
+- Tuesday: [specific tasks]
+- Wednesday: [specific tasks]
+- Thursday: [specific tasks]
+- Friday: [specific tasks]
+- Weekend: [review + project]
+
+### Reflections
+[What went well? What to improve?]
+```
 
 ---
 
@@ -300,12 +531,7 @@ Worse: 10 hours once a week
 
 ### 2. Track Your Progress
 
-Use checkboxes in main README:
-```markdown
-- [x] Completed JavaScript (200+ questions)
-- [ ] Completed TypeScript (90+ questions)
-- [x] Solved 50+ coding problems
-```
+Use the checklists above, or your own system (Notion, Trello, a spreadsheet).
 
 ### 3. Focus on Weak Areas
 
@@ -324,7 +550,7 @@ Practice with:
 
 ### 5. Don't Get Overwhelmed
 
-This repo has 374 Q&A (growing to 500+). You don't need ALL of them!
+This repo has 411 Q&A. You don't need ALL of them!
 
 **Minimum viable prep (4 weeks):**
 - Essential 50 flashcards ✅
@@ -376,6 +602,74 @@ Better to deeply understand 10 concepts than superficially know 100.
 
 ---
 
+## 🎤 Interview Day
+
+### Last-Minute Prep (2 Hours Before)
+
+**Don't:**
+- ❌ Learn new topics
+- ❌ Cram complex algorithms
+- ❌ Panic code everything
+- ❌ Stay up all night
+
+**Do:**
+- ✅ Review [Pre-Interview 30 Flashcards](./19-flashcards/curated-decks/pre-interview-30.md) (20 min)
+- ✅ Practice 1 easy problem (10 min)
+- ✅ Review your previous projects (20 min)
+- ✅ Prepare questions to ask interviewer (10 min)
+- ✅ Test your setup (camera, mic, internet) (10 min)
+- ✅ Review company info (10 min)
+- ✅ Relax and breathe (30 min)
+- ✅ Get water and snacks ready (10 min)
+
+### During the Interview: Problem-Solving Process
+
+1. **Listen Carefully** (2 min)
+   - Don't interrupt
+   - Take notes
+   - Wait for complete question
+
+2. **Clarify Requirements** (3 min)
+   - Ask about edge cases
+   - Confirm input/output format
+   - Check constraints
+
+3. **Explain Approach** (5 min)
+   - Think out loud
+   - Discuss trade-offs
+   - Get interviewer buy-in
+
+4. **Code Solution** (25 min)
+   - Start simple, optimize later
+   - Talk while coding
+   - Use clear variable names
+
+5. **Test Your Code** (10 min)
+   - Walk through examples
+   - Check edge cases
+   - Fix bugs
+
+6. **Optimize** (5 min)
+   - Discuss time/space complexity
+   - Suggest improvements
+   - Alternative approaches
+
+### Communication Tips
+
+- **"I'm thinking about..."** (shows thought process)
+- **"Let me clarify..."** (asks good questions)
+- **"One approach could be..."** (discusses options)
+- **"The trade-off here is..."** (shows decision-making)
+- **"I would test this by..."** (shows thoroughness)
+
+And remember:
+- **Don't panic** - Everyone gets nervous
+- **Be yourself** - Authenticity wins
+- **Ask questions** - Shows engagement
+- **Learn from each interview** - Feedback is gold
+
+---
+
 ## 🛠 Tools and Resources
 
 ### Coding Practice Platforms
@@ -413,6 +707,12 @@ Better to deeply understand 10 concepts than superficially know 100.
 - [Interviewing.io](https://interviewing.io/) - Anonymous interviews
 - [LeetCode Mock](https://leetcode.com/interview/) - Timed practice
 
+### In This Repo
+
+- [Interview Checklist](./resources/interview-checklist.md)
+- [4-Week Study Plan](./resources/study-plan-4-weeks.md)
+- [Full Content Index](./INDEX.md)
+
 ---
 
 ## 📊 Self-Assessment
@@ -438,38 +738,9 @@ Before starting, assess your current level:
 
 ---
 
-## 🎯 Weekly Goals Template
-
-Copy this template for tracking:
-
-```markdown
-## Week [N] Goals
-
-**Topic:** [JavaScript / React / etc.]
-
-### Objectives
-- [ ] Read 50 Q&A
-- [ ] Solve 10 coding problems
-- [ ] Review 100 flashcards
-- [ ] Build mini project
-
-### Daily Breakdown
-- Monday: [specific tasks]
-- Tuesday: [specific tasks]
-- Wednesday: [specific tasks]
-- Thursday: [specific tasks]
-- Friday: [specific tasks]
-- Weekend: [review + project]
-
-### Reflections
-[What went well? What to improve?]
-```
-
----
-
 ## 🚀 Ready to Start?
 
-1. **Choose your path** (Quick Sprint / Deep Mastery / Daily Practice)
+1. **Choose your path** (Quick Sprint / Two-Week Intensive / Deep Mastery / Daily Practice)
 2. **Set up tools** (flashcard app, code editor, tracking system)
 3. **Block time** on calendar (non-negotiable study time)
 4. **Start small** (Day 1: Just 30 minutes)

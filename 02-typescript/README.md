@@ -11,27 +11,27 @@ Master TypeScript from basics to advanced patterns. Essential for modern fronten
 ### 1️⃣ Fundamentals (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [01a. Fundamentals - Basics](./01a-fundamentals-basics.md) | Types, interfaces, unions, intersections | 🟢 🟡 |
-| [01b. Fundamentals - Advanced](./01b-fundamentals-advanced.md) | Literal types, enums, typeof, keyof | 🟡 |
+| [01a. Fundamentals - Basics](./fundamentals-01a-basics.md) | Types, interfaces, unions, intersections | 🟢 🟡 |
+| [01b. Fundamentals - Advanced](./fundamentals-01b-basics.md) | Literal types, enums, typeof, keyof | 🟡 |
 
 ### 2️⃣ Advanced Types (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [02a. Utility Types](./02a-utility-types.md) | Mapped, conditional, utility types | 🔴 |
-| [02b. Advanced Patterns](./02b-advanced-patterns.md) | Template literals, recursion, deep operations | 🔴 |
+| [02a. Utility Types](./types-01a-utility.md) | Mapped, conditional, utility types | 🔴 |
+| [02b. Advanced Patterns](./types-02a-advanced.md) | Template literals, recursion, deep operations | 🔴 |
 
 ### 3️⃣ Generics (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [03a. Generics - Basics](./03a-generics-basics.md) | Generics, constraints, conditional types | 🟡 🔴 |
-| [03b. Generics - Advanced](./03b-generics-advanced.md) | Mapped types, utility types, patterns | 🔴 |
+| [03a. Generics - Basics](./generics-01a-basics.md) | Generics, constraints, conditional types | 🟡 🔴 |
+| [03b. Generics - Advanced](./generics-02-advanced.md) | Mapped types, utility types, patterns | 🔴 |
 
 ### 4️⃣ Framework Integration (3 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [04a. TypeScript with React](./04a-typescript-react.md) | Components, props, hooks, events | 🟡 |
-| [04b. TypeScript with Next.js](./04b-typescript-nextjs.md) | Pages Router, App Router, API routes | 🟡 🔴 |
-| [05. Best Practices](./05-best-practices.md) | Strict mode, type guards, error handling | 🟡 |
+| [04a. TypeScript with React](./react-01-components.md) | Components, props, hooks, events | 🟡 |
+| [04b. TypeScript with Next.js](./nextjs-01-typing.md) | Pages Router, App Router, API routes | 🟡 🔴 |
+| [05. Best Practices](./practices-01-best-practices.md) | Strict mode, type guards, error handling | 🟡 |
 
 **Total:** 22 Q&A (will expand to 90+)
 
@@ -87,4 +87,4 @@ Master TypeScript from basics to advanced patterns. Essential for modern fronten
 
 ---
 
-[← Back to Main README](../README.md) | [Start Learning →](./01a-fundamentals-basics.md)
+[← Back to Main README](../README.md) | [Start Learning →](./fundamentals-01a-basics.md)

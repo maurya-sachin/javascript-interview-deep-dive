@@ -12,66 +12,66 @@ Master JavaScript from fundamentals to advanced topics. This section covers ever
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [01a. Primitives & Types](./01a-primitives-types.md) | Data types, Symbol, BigInt, typeof/instanceof | 4 | 🟢 🟡 |
-| [01b. Variables & Declarations](./01b-variables-declarations.md) | var/let/const, hoisting, TDZ, strict mode | 4 | 🟢 🟡 |
-| [01c. Scope & Closures](./01c-scope-closures.md) | Lexical scope, shadowing, closures, lexical environment | 4 | 🟡 |
+| [01a. Primitives & Types](./primitives-01a-types-memory.md) | Data types, Symbol, BigInt, typeof/instanceof | 4 | 🟢 🟡 |
+| [01b. Variables & Declarations](./variables-01-declarations.md) | var/let/const, hoisting, TDZ, strict mode | 4 | 🟢 🟡 |
+| [01c. Scope & Closures](./scope-01a-lexical-scope.md) | Lexical scope, shadowing, closures, lexical environment | 4 | 🟡 |
 
 ### 2️⃣ Operators & Syntax
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [02a. Type Checking & Equality](./02a-type-checking-equality.md) | ==, ===, truthy/falsy, type coercion | 5 | 🟢 🟡 |
-| [02b. Modern Operators](./02b-operators-modern.md) | Optional chaining, nullish coalescing, spread, templates | 5 | 🟢 🟡 |
-| [02c. Destructuring & Params](./02c-destructuring-params.md) | Destructuring, rest parameters, default parameters | 3 | 🟢 |
+| [02a. Type Checking & Equality](./operators-01a-equality.md) | ==, ===, truthy/falsy, type coercion | 5 | 🟢 🟡 |
+| [02b. Modern Operators](./operators-02a-modern.md) | Optional chaining, nullish coalescing, spread, templates | 5 | 🟢 🟡 |
+| [02c. Destructuring & Params](./operators-03-destructuring.md) | Destructuring, rest parameters, default parameters | 3 | 🟢 |
 
 ### 3️⃣ Functions
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [03a. Functions Basics](./03a-functions-basics.md) | Higher-order functions, pure functions, arrow functions | 3 | 🟡 |
-| [03b. 'this' & Binding](./03b-this-binding.md) | this keyword, implicit/explicit binding, bind polyfill | 5 | 🟡 🔴 |
-| [03c. Advanced Functions](./03c-advanced-functions.md) | Memoization, advanced patterns | 1 | 🔴 |
+| [03a. Functions Basics](./functions-01a-basics.md) | Higher-order functions, pure functions, arrow functions | 3 | 🟡 |
+| [03b. 'this' & Binding](./functions-02a-this-binding.md) | this keyword, implicit/explicit binding, bind polyfill | 5 | 🟡 🔴 |
+| [03c. Advanced Functions](./functions-03-advanced.md) | Memoization, advanced patterns | 1 | 🔴 |
 
 ### 4️⃣ Objects
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [04a. Objects Basics](./04a-objects-basics.md) | Object methods, Map vs Object | 2 | 🟢 🟡 |
-| [04b. Prototypes & Inheritance](./04b-prototypes-inheritance.md) | Prototypal inheritance, prototype chain, Object.create | 3 | 🟡 🔴 |
+| [04a. Objects Basics](./objects-01-basics.md) | Object methods, Map vs Object | 2 | 🟢 🟡 |
+| [04b. Prototypes & Inheritance](./objects-02a-prototypes.md) | Prototypal inheritance, prototype chain, Object.create | 3 | 🟡 🔴 |
 
 ### 5️⃣ Arrays
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [05a. Arrays Basics](./05a-arrays-basics.md) | Array methods - map, filter, reduce, find, some, every | 2 | 🟢 🟡 |
+| [05a. Arrays Basics](./arrays-01-methods.md) | Array methods - map, filter, reduce, find, some, every | 2 | 🟢 🟡 |
 
 ### 6️⃣ Asynchronous JavaScript
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [06a. Async Fundamentals](./06a-async-fundamentals.md) | Sync vs async, event loop, microtasks/macrotasks | 3 | 🟡 🔴 |
-| [06b. Promises](./06b-promises.md) | Promises, Promise.all/race/allSettled, error handling | 3 | 🟡 🔴 |
-| [06c. Async/Await](./06c-async-await.md) | async/await, async iteration | 2 | 🟡 🔴 |
-| [06d. Async Patterns](./06d-async-patterns.md) | Patterns, AbortController, debounce/throttle, memory | 4 | 🔴 |
+| [06a. Async Fundamentals](./async-01-fundamentals.md) | Sync vs async, event loop, microtasks/macrotasks | 3 | 🟡 🔴 |
+| [06b. Promises](./async-02a-promises.md) | Promises, Promise.all/race/allSettled, error handling | 3 | 🟡 🔴 |
+| [06c. Async/Await](./async-03-async-await.md) | async/await, async iteration | 2 | 🟡 🔴 |
+| [06d. Async Patterns](./async-04-patterns.md) | Patterns, AbortController, debounce/throttle, memory | 4 | 🔴 |
 
 ### 7️⃣ Engine & Performance
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [07a. Execution Context](./07a-execution-context.md) | Execution context, creation/execution phases, call stack | 4 | 🟡 🔴 |
-| [07b. Memory Management](./07b-memory-management.md) | Stack/heap, memory management, GC, memory leaks | 4 | 🔴 |
+| [07a. Execution Context](./engine-01a-execution-context.md) | Execution context, creation/execution phases, call stack | 4 | 🟡 🔴 |
+| [07b. Memory Management](./engine-02a-memory.md) | Stack/heap, memory management, GC, memory leaks | 4 | 🔴 |
 
 ### 8️⃣ Modules & Patterns
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [08a. Modules & Patterns](./08a-modules-patterns.md) | ES6 modules, CommonJS, IIFE, Singleton | 4 | 🟡 🔴 |
+| [08a. Modules & Patterns](./modules-01a-patterns.md) | ES6 modules, CommonJS, IIFE, Singleton | 4 | 🟡 🔴 |
 
 ### 9️⃣ Error Handling
 
 | File | Topics | Questions | Difficulty |
 |------|--------|-----------|------------|
-| [09a. Error Handling](./09a-error-handling.md) | try-catch-finally, error patterns | 1 | 🟢 |
+| [09a. Error Handling](./errors-01-handling.md) | try-catch-finally, error patterns | 1 | 🟢 |
 
 ---
 
@@ -232,7 +232,7 @@ Each file includes:
 
 - **[JavaScript Coding Problems](../18-coding-challenges/01-javascript-fundamentals/)** - Practice implementations
 - **[JavaScript Flashcards](../19-flashcards/by-topic/javascript.md)** - Quick review
-- **[Code Examples Directory](./examples/)** - Runnable code samples
+- **[JavaScript Coding Challenges](../18-coding-challenges/01-javascript-fundamentals/)** - Runnable practice problems
 
 ---
 
@@ -256,7 +256,7 @@ Track your progress through each file:
 
 ## 🎯 Quick Start
 
-**New to this section?** → Start with [Core Concepts](./01-core-concepts.md)
+**New to this section?** → Start with [Core Concepts](./primitives-01a-types-memory.md)
 
 **Interview tomorrow?** → Review ⭐⭐⭐⭐⭐ questions in each file
 
@@ -274,4 +274,4 @@ Track your progress through each file:
 
 ---
 
-[← Back to Main README](../README.md) | [Start Learning →](./01-core-concepts.md)
+[← Back to Main README](../README.md) | [Start Learning →](./primitives-01a-types-memory.md)

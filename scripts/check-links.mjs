@@ -18,7 +18,10 @@ walk(ROOT);
 
 let broken = 0;
 for (const file of mdFiles) {
-  const text = readFileSync(file, 'utf8');
+  // strip fenced code blocks and inline code — regexes like [\\/](react)[\\/] are not links
+  const text = readFileSync(file, 'utf8')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`\n]*`/g, '');
   for (const m of text.matchAll(/\]\(([^)#\s]+)(#[^)]*)?\)/g)) {
     const target = m[1];
     if (/^(https?:|mailto:|tel:)/.test(target)) continue;

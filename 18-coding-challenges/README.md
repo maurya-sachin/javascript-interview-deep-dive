@@ -15,8 +15,8 @@ Practice implementing common patterns, algorithms, and UI components asked in fr
 | [React Problems](./03-react-problems/) | 25+ | 🟡 🔴 | All |
 | [Algorithms](./04-algorithms/) | 30+ | 🟡 🔴 | FAANG |
 | [UI Components](./05-ui-components/) | 25+ | 🟢 🟡 | All |
-| [System Implementations](./06-system-implementations/) | 20+ | 🔴 | Senior roles |
-| [Company Questions](./07-company-questions/) | 35+ | 🟡 🔴 | FAANG |
+| [System Implementations](./README.md) | 20+ | 🔴 | Senior roles |
+| [Company Questions](./README.md) | 35+ | 🟡 🔴 | FAANG |
 
 **Total:** 185+ problems
 

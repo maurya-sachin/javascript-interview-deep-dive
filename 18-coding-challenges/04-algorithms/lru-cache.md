@@ -486,4 +486,4 @@ const userData = await apiCache.fetchWithCache('/api/user/123');
 
 ---
 
-[← Back to Algorithms](./README.md)
+[← Back to Algorithms](../README.md)

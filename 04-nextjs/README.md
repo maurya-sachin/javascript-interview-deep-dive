@@ -11,26 +11,26 @@ Master Next.js from basics to production patterns. Essential for modern React de
 ### 1️⃣ App Router (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [01a. App Router - Basics](./01a-app-router-basics.md) | Server Components, layouts, routing | 🟡 |
-| [01b. App Router - Advanced](./01b-app-router-advanced.md) | Parallel routes, intercepting routes | 🟡 🔴 |
+| [01a. App Router - Basics](./router-01a-basics.md) | Server Components, layouts, routing | 🟡 |
+| [01b. App Router - Advanced](./router-02-advanced.md) | Parallel routes, intercepting routes | 🟡 🔴 |
 
 ### 2️⃣ Data Fetching & Rendering (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [02a. Data Fetching Methods](./02a-data-fetching-methods.md) | SSG, SSR, ISR, streaming | 🟡 🔴 |
-| [02b. Rendering Strategies](./02b-rendering-strategies.md) | CSR, SSR, SSG comparison | 🟡 🔴 |
+| [02a. Data Fetching Methods](./data-01a-fetching.md) | SSG, SSR, ISR, streaming | 🟡 🔴 |
+| [02b. Rendering Strategies](./data-02a-rendering.md) | CSR, SSR, SSG comparison | 🟡 🔴 |
 
 ### 3️⃣ API & Server (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [03a. API Routes](./03a-api-routes.md) | REST API, authentication, middleware | 🟡 |
-| [03b. Middleware & Auth](./03b-middleware-auth.md) | Middleware patterns, authentication | 🟡 🔴 |
+| [03a. API Routes](./api-01a-routes.md) | REST API, authentication, middleware | 🟡 |
+| [03b. Middleware & Auth](./api-02-middleware-auth.md) | Middleware patterns, authentication | 🟡 🔴 |
 
 ### 4️⃣ Production (2 files)
 | File | Topics | Difficulty |
 |------|--------|------------|
-| [04a. Deployment](./04a-deployment.md) | Vercel, environment variables | 🟡 |
-| [04b. Optimization](./04b-optimization.md) | Performance, caching, images | 🟡 🔴 |
+| [04a. Deployment](./deployment-01-basics.md) | Vercel, environment variables | 🟡 |
+| [04b. Optimization](./deployment-02a-optimization.md) | Performance, caching, images | 🟡 🔴 |
 
 **Total:** 20 Q&A (will expand to 80+)
 
@@ -85,4 +85,4 @@ Master Next.js from basics to production patterns. Essential for modern React de
 
 ---
 
-[← Back to Main README](../README.md) | [Start Learning →](./01a-app-router-basics.md)
+[← Back to Main README](../README.md) | [Start Learning →](./router-01a-basics.md)

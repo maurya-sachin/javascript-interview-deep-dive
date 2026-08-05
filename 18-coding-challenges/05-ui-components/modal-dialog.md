@@ -502,4 +502,4 @@ function App() {
 
 ---
 
-[← Back to UI Components](./README.md)
+[← Back to UI Components](../README.md)

@@ -529,4 +529,4 @@ const value = percent < 0.5 ? index - 0.5 : index;
 
 ---
 
-[← Back to UI Components](./README.md)
+[← Back to UI Components](../README.md)

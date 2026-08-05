@@ -112,4 +112,4 @@ new DragAndDrop(container);
 
 ---
 
-[← Back to DOM Manipulation](./README.md)
+[← Back to DOM Manipulation](../README.md)

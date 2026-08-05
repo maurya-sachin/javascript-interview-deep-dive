@@ -285,6 +285,6 @@ let handler: Handler = (input: string | number) => {
 
 ---
 
-[← Back to TypeScript README](./README.md) | [Next: Advanced Types →](./02-advanced-types.md)
+[← Back to TypeScript README](./README.md) | [Next: Advanced Types →](./types-01a-utility.md)
 
 **Progress:** 15 of 15 fundamental questions completed ✅

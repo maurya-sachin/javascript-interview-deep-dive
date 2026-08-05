@@ -1434,4 +1434,4 @@ const data = await api.search(query, { signal: controller.signal });
 
 ---
 
-[← Back to DOM Manipulation Problems](./README.md)
+[← Back to DOM Manipulation Problems](../README.md)
