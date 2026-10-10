@@ -47,7 +47,7 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] ⌘K search (MiniSearch), practice mode, flashcards (`ts-fsrs`), 
+- [ ] ⌘K search (MiniSearch), practice mode, flashcards (`ts-fsrs`)
 - [ ] "Suggest a fix" (pre-filled issue form) + "Edit on GitHub" per question
 - [ ] Decide v2 preview hosting while v1 stays live
 
