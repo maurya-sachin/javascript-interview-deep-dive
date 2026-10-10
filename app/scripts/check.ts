@@ -12,11 +12,13 @@ function checkReferences({ topics }: Content): Problem[] {
   for (const chapter of topics.flatMap((topic) => topic.chapters)) {
     const readme = repoRelative(chapter.readmeFile)
     const numbers = new Set<string>()
+    const slugs = new Set<string>()
     for (const question of chapter.questions) {
-      if (numbers.has(question.number)) {
-        problems.push({ file: repoRelative(question.file), message: `number ${question.number} is used twice in this chapter` })
-      }
+      const file = repoRelative(question.file)
+      if (numbers.has(question.number)) problems.push({ file, message: `number ${question.number} is used twice in this chapter` })
+      if (slugs.has(question.slug)) problems.push({ file, message: `slug \`${question.slug}\` is used twice, so the id isn't unique` })
       numbers.add(question.number)
+      slugs.add(question.slug)
     }
 
     const covered = new Set<string>()
