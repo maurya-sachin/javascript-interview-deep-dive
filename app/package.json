@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "content:check": "node scripts/check.ts",
     "content:sync": "node scripts/sync.ts",
-    "content:status": "node scripts/status.ts"
+    "content:status": "node scripts/status.ts",
+    "content:new": "node scripts/new.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

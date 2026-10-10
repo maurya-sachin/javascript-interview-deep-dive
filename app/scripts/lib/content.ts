@@ -62,7 +62,7 @@ export interface Content {
 const KEBAB = '[a-z0-9]+(?:-[a-z0-9]+)*'
 const TOPIC_DIR = new RegExp(`^${KEBAB}$`)
 const CHAPTER_DIR = new RegExp(`^(\\d{2})-(${KEBAB})$`)
-const QUESTION_FILE = new RegExp(`^(\\d{3})-(${KEBAB})\\.md$`)
+export const QUESTION_FILE = new RegExp(`^(\\d{3})-(${KEBAB})\\.md$`)
 const FRONTMATTER = /^---\n([\s\S]*?)\n---\n?/
 const SUB_TOPIC = /^- (.+) → (.+)$/
 const GAP = '—'
