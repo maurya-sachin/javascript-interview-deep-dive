@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 3 — `content/javascript/` structure done (26 chapters, 150 stubs, 35 gaps); next: other tracks' folders + READMEs
+- Doing: Phase 4 — design direction + question-page mock for maintainer approval
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -25,6 +25,7 @@ Non-goals: backend service, accounts, paid AI.
 - R9 npm; scripts run on Node 24 native TypeScript.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
+- R12 One topic per subject: `javascript typescript browser nodejs html-and-css react nextjs accessibility web-performance web-security backend testing tooling`. A topic with no chapters keeps its planned structure in **Not yet mapped**.
 
 ## Content contract
 See `templates/README.md`. Write content with the `write-question` skill.
@@ -42,9 +43,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ```
 
 ## Phases
-
-### 3 — JavaScript structure · Opus
-- [ ] Other tracks: top-level folder + README (scope, structure TODO)
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
 - [ ] Design direction + question-page mock, maintainer approves
@@ -65,9 +63,8 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 - [ ] Issue forms (new question, correction, outdated, bug) + PR template
 - [ ] Merge `v2` → `main`
 
-### 7 — Next tracks (order confirmed after Phase 5)
-- [ ] TypeScript · Browser runtime (DOM, Web APIs) · Node.js runtime
-- [ ] Applied: frontend (React, Next.js, HTML/CSS, accessibility, performance) · backend (Node APIs, security) · shared (testing, tooling)
+### 7 — Next topics (order confirmed after Phase 5)
+- [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content
 
 ## Parked (don't start without maintainer)
 Supabase sync/votes · in-browser AI (WebLLM + retrieval; no paid APIs, no fine-tuning) · PWA offline · runnable challenges (Sandpack)
