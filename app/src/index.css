@@ -132,6 +132,12 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
+  }
   * {
     @apply border-border outline-ring/50;
     }
@@ -190,6 +196,10 @@
     min-width: 100%;
     background: oklch(0.95 0.05 150);
   }
+  /* Output lines are results, not comments: keep them readable on the highlight (beats Shiki's inline grey). */
+  .content pre .line.output span {
+    color: var(--foreground) !important;
+  }
   .content table {
     display: block;
     overflow-x: auto;
@@ -202,10 +212,13 @@
     border: 1px solid var(--border);
     text-align: left;
   }
+  /* Shiki inlines its light colours as style attributes; !important is the only way to override them. */
+  .dark .content .shiki {
+    background-color: var(--shiki-dark-bg) !important;
+  }
   .dark .content .shiki,
   .dark .content .shiki span {
-    color: var(--shiki-dark);
-    background-color: var(--shiki-dark-bg);
+    color: var(--shiki-dark) !important;
   }
   .dark .content pre .line.output {
     background: oklch(0.3 0.06 150);
