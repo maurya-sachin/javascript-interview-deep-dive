@@ -6,7 +6,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
 - Doing: Phase 5 — first JavaScript chapter (maintainer picks which; first chapter sets the bar)
-- Open: Phase 4 UI tested only with throwaway fixtures; in-content question links use `href="/<id>"` + click handling (middle-click wrong under a subpath host)
+- Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
 ## Goal
