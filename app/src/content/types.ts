@@ -67,3 +67,15 @@ export interface QuestionPage {
   deepDiveHtml: string | null
   exercises: Exercise[]
 }
+
+/** One entry of `data/search.json`; the app builds its MiniSearch index from these. */
+export interface SearchDoc {
+  id: string
+  title: string
+  topic: string
+  chapter: string
+  tags: string[]
+  /** Plain-text TL;DR; empty until the question has a page. */
+  tldr: string
+  hasPage: boolean
+}

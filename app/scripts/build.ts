@@ -4,7 +4,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import type { ContentIndex, Exercise, FollowUp, QuestionPage, QuestionSummary } from '../src/content/types.ts'
+import type { ContentIndex, Exercise, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, repoRelative, type Question } from './lib/content.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
@@ -144,5 +144,28 @@ const index: ContentIndex = {
   ),
 }
 await writeJson(path.join(outDir, 'index.json'), index)
+
+async function searchDocs(): Promise<SearchDoc[]> {
+  const docs: SearchDoc[] = []
+  for (const topic of content.topics) {
+    for (const chapter of topic.chapters) {
+      for (const question of chapter.questions) {
+        const meta = metaOf(question)
+        const written = hasPage(meta)
+        docs.push({
+          id: question.id,
+          title: (await renderInline(meta.title)).text,
+          topic: topic.title,
+          chapter: chapter.title,
+          tags: written ? meta.tags : [],
+          tldr: written ? (await renderInline(meta.tldr)).text : '',
+          hasPage: written,
+        })
+      }
+    }
+  }
+  return docs
+}
+await writeJson(path.join(outDir, 'search.json'), await searchDocs())
 
 console.log(`✔ built ${pageCount} question page(s) and an index of ${questions.length} questions → ${repoRelative(outDir)}`)
