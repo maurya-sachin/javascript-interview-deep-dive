@@ -5,8 +5,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — "Suggest a fix" + "Edit on GitHub" links per question
-- Open: rewrite relative `.md` links in `scripts/lib/markdown.ts` (TODO there); question page tested only with a throwaway fixture
+- Doing: Phase 4 — decide v2 preview hosting (last Phase 4 task)
+- Open: question page tested only with throwaway fixtures; in-content links use `href="/<id>"` + click handling, so middle-click is wrong under a subpath host (revisit with hosting)
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -47,7 +47,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] "Suggest a fix" (pre-filled issue form) + "Edit on GitHub" per question
 - [ ] Decide v2 preview hosting while v1 stays live
 
 ### 5 — JavaScript content · Opus (first chapter sets the bar; try Sonnet on the next and compare)
