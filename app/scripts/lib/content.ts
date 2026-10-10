@@ -1,7 +1,7 @@
 // Loads the content/ tree into topics → chapters → questions.
 // Everything derivable (ids, numbers, titles of folders) comes from paths, never from file contents (R3).
 
-import { readdir, readFile } from 'node:fs/promises'
+import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { loadDecks, type Deck } from './flashcards.ts'
@@ -65,6 +65,13 @@ const GAP = '—'
 const NON_TOPIC_DIRS = new Set(['flashcards'])
 
 export async function loadContent(): Promise<Content> {
+  try {
+    await access(contentDir)
+  } catch {
+    // Hosts that build from a sub-folder (e.g. a Vercel Root Directory of `app`) can't see ../content.
+    throw new Error(`Cannot find ${contentDir}. The build needs the whole repository: on Vercel, leave Root Directory blank.`)
+  }
+
   const problems: Problem[] = []
   const topics: Topic[] = []
 
