@@ -1,7 +1,9 @@
 // Every rule content:check enforces, shared with content:build so nothing invalid ships.
 
 import type { Content } from './content.ts'
+import { targetMarkdownFile, visitLinks } from './links.ts'
 import { repoRelative, type Problem } from './paths.ts'
+import { parseMarkdown } from './markdown.ts'
 import { staleReadmes } from './readme.ts'
 import { checkBody } from './sections.ts'
 
@@ -48,6 +50,24 @@ function checkReferences({ topics }: Content): Problem[] {
   return problems
 }
 
+/** Relative `.md` links in written questions must point at question files that exist. */
+function checkQuestionLinks({ topics }: Content): Problem[] {
+  const problems: Problem[] = []
+  const questions = topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
+  const questionFiles = new Set(questions.map((question) => question.file))
+
+  for (const question of questions) {
+    if (!question.meta || question.meta.status === 'planned') continue
+    visitLinks(parseMarkdown(question.body), (link) => {
+      const target = targetMarkdownFile(question.file, link.url)
+      if (target !== null && !questionFiles.has(target)) {
+        problems.push({ file: repoRelative(question.file), message: `link \`${link.url}\` is not an existing question file` })
+      }
+    })
+  }
+  return problems
+}
+
 /** Each deck belongs to an existing topic, has unique card ids, and links only to real questions. */
 function checkDecks({ topics, decks }: Content): Problem[] {
   const problems: Problem[] = []
@@ -71,7 +91,7 @@ function checkDecks({ topics, decks }: Content): Problem[] {
 
 export function collectProblems(content: Content): Problem[] {
   const questions = content.topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
-  const problems = [...content.problems, ...questions.flatMap(checkBody), ...checkReferences(content), ...checkDecks(content)]
+  const problems = [...content.problems, ...questions.flatMap(checkBody), ...checkReferences(content), ...checkQuestionLinks(content), ...checkDecks(content)]
   // README tables can only be rendered from valid content, so staleness is checked last.
   if (problems.length === 0) {
     for (const { file } of staleReadmes(content.topics)) {

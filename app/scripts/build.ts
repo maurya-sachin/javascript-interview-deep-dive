@@ -23,25 +23,25 @@ function metaOf(question: Question): Frontmatter {
 }
 
 /** `**Q:**` / `**A:**` line pairs; content:check guarantees each Q has its A. */
-async function renderFollowUps(section: Section | undefined): Promise<FollowUp[]> {
+async function renderFollowUps(section: Section | undefined, sourceFile: string): Promise<FollowUp[]> {
   if (!section) return []
   const questions = section.lines.filter((line) => line.startsWith(FOLLOW_UP_QUESTION))
   const answers = section.lines.filter((line) => line.startsWith(FOLLOW_UP_ANSWER))
   return Promise.all(
     questions.map(async (question, index) => ({
-      questionHtml: (await renderInline(question.slice(FOLLOW_UP_QUESTION.length).trim())).html,
-      answerHtml: (await renderInline(answers[index].slice(FOLLOW_UP_ANSWER.length).trim())).html,
+      questionHtml: (await renderInline(question.slice(FOLLOW_UP_QUESTION.length).trim(), sourceFile)).html,
+      answerHtml: (await renderInline(answers[index].slice(FOLLOW_UP_ANSWER.length).trim(), sourceFile)).html,
     })),
   )
 }
 
-async function renderExercise({ heading, lines }: Section): Promise<Exercise> {
+async function renderExercise({ heading, lines }: Section, sourceFile: string): Promise<Exercise> {
   const answerAt = lines.findIndex((line) => line.startsWith(EXERCISE_ANSWER))
   const answer = [lines[answerAt].slice(EXERCISE_ANSWER.length).trim(), ...lines.slice(answerAt + 1)]
   return {
     title: heading,
-    promptHtml: await renderBlock(lines.slice(0, answerAt).join('\n')),
-    answerHtml: await renderBlock(answer.join('\n')),
+    promptHtml: await renderBlock(lines.slice(0, answerAt).join('\n'), sourceFile),
+    answerHtml: await renderBlock(answer.join('\n'), sourceFile),
   }
 }
 
@@ -50,7 +50,7 @@ async function buildPage(question: Question, meta: WrittenMeta): Promise<Questio
   const sectionNamed = (heading: string) => sections.find((section) => section.heading === heading)
   const renderSection = async (heading: string) => {
     const section = sectionNamed(heading)
-    return section ? renderBlock(section.lines.join('\n')) : null
+    return section ? renderBlock(section.lines.join('\n'), question.file) : null
   }
   const renderRequired = async (heading: string) => {
     const html = await renderSection(heading)
@@ -72,14 +72,14 @@ async function buildPage(question: Question, meta: WrittenMeta): Promise<Questio
     related: meta.related,
     verified: meta.verified,
     sources: meta.sources,
-    tldrHtml: (await renderInline(meta.tldr)).html,
+    tldrHtml: (await renderInline(meta.tldr, question.file)).html,
     answerHtml: await renderRequired('Answer'),
     exampleHtml: await renderRequired('Example'),
     pitfallsHtml: await renderRequired('Pitfalls'),
-    followUps: await renderFollowUps(sectionNamed('Follow-ups')),
+    followUps: await renderFollowUps(sectionNamed('Follow-ups'), question.file),
     deepDiveHtml: await renderSection('Deep dive'),
     exercises: exercises
-      ? await Promise.all(splitSections(exercises.lines, 3, exercises.line + 1).sections.map(renderExercise))
+      ? await Promise.all(splitSections(exercises.lines, 3, exercises.line + 1).sections.map((exercise) => renderExercise(exercise, question.file)))
       : [],
   }
 }
