@@ -117,6 +117,26 @@ Topic and chapter READMEs start with a status line:
 The status line and the blocks between `<!-- generated:… -->` markers are generated — run `npm run content:sync`, never edit them by hand.
 Elsewhere, mark unknowns with ❓ — never guess.
 
+## Flashcards
+
+Flashcards are short recall prompts, separate from questions (R8). One file per topic: `content/flashcards/<topic>.yaml`, where `<topic>` is an existing topic folder. The file is a list of cards:
+
+```yaml
+- id: closure-captures-binding
+  front: What does a closure capture — a value or a binding?
+  back: The binding. It sees later assignments to the variable.
+  question: javascript/closures/what-is-a-closure
+```
+
+| Field | Required | Rule |
+|---|---|---|
+| `id` | yes | Kebab-case, unique within the file. It keys the learner's review history, so **never change it** once published — add a new card instead |
+| `front` | yes | ≤ 30 words; inline Markdown only |
+| `back` | yes | ≤ 60 words; inline Markdown only |
+| `question` | no | Id of the question that explains it; must exist |
+
+One fact per card. If the back needs a code block, it belongs in a question instead.
+
 ## Contributing
 
 1. Pick a `planned` question (or propose a new one in an issue first).
