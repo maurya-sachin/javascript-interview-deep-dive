@@ -5,8 +5,9 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — decide v2 preview hosting (last Phase 4 task)
-- Open: question page tested only with throwaway fixtures; in-content links use `href="/<id>"` + click handling, so middle-click is wrong under a subpath host (revisit with hosting)
+- Doing: Phase 5 — first JavaScript chapter (maintainer picks which; first chapter sets the bar)
+- Open: Phase 4 UI tested only with throwaway fixtures; in-content question links use `href="/<id>"` + click handling (middle-click wrong under a subpath host)
+- Waiting on maintainer: push `v2`, create Cloudflare Pages project (R14)
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -28,6 +29,7 @@ Non-goals: backend service, accounts, paid AI.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
 - R12 One topic per subject: `javascript typescript browser nodejs html-and-css react nextjs accessibility web-performance web-security backend testing tooling`. A topic with no chapters keeps its planned structure in **Not yet mapped**.
 - R13 Design (approved mock: https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv): Geist + Geist Mono; zinc neutrals; accent `#2F4FD8` light / `#9DAEF7` dark; TL;DR tint `#EEF1FD` / `#171C33`; code GitHub light/dark with `// →` output highlighted; 720px prose column.
+- R14 Hosting: v1 stays on `gh-pages` until v2 has published content. Preview on Cloudflare Pages via git integration: root dir `app`, build `npm run build`, output `dist`, env `NODE_VERSION=24`. Maintainer sets up the account and pushes.
 
 ## Content contract
 See `templates/README.md`. Write content with the `write-question` skill.
@@ -45,9 +47,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ```
 
 ## Phases
-
-### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] Decide v2 preview hosting while v1 stays live
 
 ### 5 — JavaScript content · Opus (first chapter sets the bar; try Sonnet on the next and compare)
 - [ ] Per question, top to bottom: research → write → `content:check` → maintainer review → `published`; update README status lines
