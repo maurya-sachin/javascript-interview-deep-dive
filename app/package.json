@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "content:check": "node scripts/check.ts",
-    "content:sync": "node scripts/sync.ts"
+    "content:sync": "node scripts/sync.ts",
+    "content:status": "node scripts/status.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
