@@ -1,6 +1,7 @@
 // Renders the derived parts of topic and chapter READMEs (R3): the status line and the
 // `<!-- generated:… -->` tables. Everything else in a README is hand-written and left untouched.
 
+import { writeFile } from 'node:fs/promises'
 import type { Chapter, Question, Topic } from './content.ts'
 import type { Status } from './frontmatter.ts'
 
@@ -91,4 +92,11 @@ export function staleReadmes(topics: Topic[]): { file: string; text: string }[] 
     })),
   ])
   return rendered.filter(({ current, text }) => current !== text)
+}
+
+/** Rewrites stale READMEs; returns the files written. */
+export async function writeStaleReadmes(topics: Topic[]): Promise<string[]> {
+  const stale = staleReadmes(topics)
+  await Promise.all(stale.map(({ file, text }) => writeFile(file, text)))
+  return stale.map(({ file }) => file)
 }
