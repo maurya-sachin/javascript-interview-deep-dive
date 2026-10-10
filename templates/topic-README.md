@@ -21,6 +21,12 @@ Topics or chapters to know first, linked.
 | 01 | [Chapter name](01-chapter-name/) | 🔴 |
 <!-- generated:chapters:end -->
 
+## Not yet mapped
+
+Areas this topic owns that have no chapter yet. Move an item into a chapter's sub-topics when the chapter exists.
+
+- ❓
+
 ## Sources
 
 Primary references used across the whole topic.

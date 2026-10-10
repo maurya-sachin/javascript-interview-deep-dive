@@ -12,9 +12,10 @@ After this chapter you can:
 
 ## Sub-topics
 
-Every concept the questions must cover between them.
+Every concept this chapter owns — its coverage checklist. Each ends with the question(s) covering it, or `→ —` when none does yet (a known gap).
 
-- ❓
+- Concept covered by questions → 010, 030
+- Concept with no question yet → —
 
 ## Questions
 

@@ -23,9 +23,20 @@ content/
       020-what-a-closure-keeps-alive.md
 ```
 
-- **Numbers set reading order.** Chapters use two digits (`01`, `02`, …). Questions use three digits in steps of 10 (`010`, `020`, …) so a question can be inserted (`015`) without renumbering.
+- **Numbers set reading order.** Chapters use two digits (`01`, `02`, …). Questions use three digits in steps of 10 (`010`, `020`, …) so a question can be inserted (`015`) without renumbering. Inserting a chapter renumbers the folders after it; ids don't change.
 - **The id comes from the path**, with number prefixes and `.md` removed: `javascript/closures/what-a-closure-keeps-alive`. Reordering never breaks an id. Never write ids, topic names, or counts by hand.
 - **Slugs** are kebab-case, ≤ 6 words, and name the concept rather than repeat the title.
+
+## Adding content
+
+Start from the concept, not from a free file number:
+
+1. **Topic.** Each topic README's **Scope** says what it owns and links to where the rest lives (e.g. DOM APIs → browser runtime, not `javascript`).
+2. **Chapter.** Pick one from the topic's chapter table. If none fits, add the area to the topic's **Not yet mapped** list.
+3. **Coverage.** Find the concept in the chapter's **Sub-topics**. Covered → improve that question instead. Ends in `→ —` → it's a known gap; take it. Missing → add it as a sub-topic.
+4. **Stub.** Create the question with a number between its neighbours (`015`), `status: planned`, and point the sub-topic at it.
+
+Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mapped** lists — so browsing the repo shows what's missing and where it goes.
 
 ## Question lifecycle
 

@@ -24,6 +24,7 @@ Non-goals: backend service, accounts, paid AI.
 - R8 Flashcards are separate: `content/flashcards/<topic>.yaml`.
 - R9 npm; scripts run on Node 24 native TypeScript.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
+- R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
 
 ## Content contract
 See `templates/README.md`. Write content with the `write-question` skill.
@@ -51,7 +52,7 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
 - [ ] Design direction + question-page mock, maintainer approves
 - [ ] Scaffold per R7; ESLint
-- [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`; regenerate README `<!-- generated:… -->` blocks; document commands in `templates/README.md` → Contributing
+- [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`; `content:status` lists `→ —` gaps per chapter; `content:check` fails on sub-topic refs to missing questions; regenerate README `<!-- generated:… -->` blocks; document commands in `templates/README.md` → Contributing
 - [ ] Navigation topic → chapter → question, previous/next; planned questions shown as "coming soon"
 - [ ] Question page: TL;DR → Answer → Deep dive → Exercises
 - [ ] ⌘K search (MiniSearch), practice mode, flashcards (`ts-fsrs`), light/dark/system theme
