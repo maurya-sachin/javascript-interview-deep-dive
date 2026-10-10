@@ -8,11 +8,13 @@ export function editUrl(sourcePath: string): string {
   return `${REPO_URL}/edit/${DEFAULT_BRANCH}/${sourcePath}`
 }
 
-/** A new-issue page pre-filled with the question and its address. Plain `title`/`body` work with or without issue forms. */
+/** The correction issue form, pre-filled with the question and its address (query params are the form's field ids). */
 export function suggestFixUrl(questionId: string, title: string, pageUrl: string): string {
   const params = new URLSearchParams({
+    template: 'correction.yml',
     title: `Fix: ${title}`,
-    body: `Question: ${questionId}\nPage: ${pageUrl}\n\nWhat is wrong or missing?\n`,
+    question: questionId,
+    page: pageUrl,
   })
   return `${REPO_URL}/issues/new?${params.toString()}`
 }
