@@ -29,11 +29,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What is a closure?](010-what-is-a-closure.md) | medium | 🔴 planned |
-| 020 | [Why does a `for (var i…)` loop with `setTimeout` print the same number?](020-closures-in-loops.md) | medium | 🔴 planned |
-| 030 | [What does a closure keep alive in memory?](030-closure-memory.md) | hard | 🔴 planned |
-| 040 | [How do closures create private state?](040-private-state.md) | medium | 🔴 planned |
-| 050 | [Implement `debounce`, `throttle`, and `once`.](050-debounce-throttle-once.md) | medium | 🔴 planned |
+| 010 | [What is a closure?](010-what-is-a-closure.md) | medium | 🟡 draft |
+| 020 | [Why does a `for (var i…)` loop with `setTimeout` print the same number?](020-closures-in-loops.md) | medium | 🟡 draft |
+| 030 | [What does a closure keep alive in memory?](030-closure-memory.md) | hard | 🟡 draft |
+| 040 | [How do closures create private state?](040-private-state.md) | medium | 🟡 draft |
+| 050 | [Implement `debounce`, `throttle`, and `once`.](050-debounce-throttle-once.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
