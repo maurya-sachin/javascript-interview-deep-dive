@@ -5,8 +5,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — question page (render `QuestionPage` content; TODO there); also rewrite `.md` links in `scripts/lib/markdown.ts`
-- Untested: prev/next with published questions (none exist yet)
+- Doing: Phase 4 — ⌘K search, theme (light/dark/system; `.dark` CSS already in place), practice mode, flashcards
+- Open: rewrite relative `.md` links in `scripts/lib/markdown.ts` (TODO there); question page tested only with a throwaway fixture
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -47,7 +47,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] Question page: TL;DR → Answer → Deep dive → Exercises
 - [ ] ⌘K search (MiniSearch), practice mode, flashcards (`ts-fsrs`), light/dark/system theme
 - [ ] "Suggest a fix" (pre-filled issue form) + "Edit on GitHub" per question
 - [ ] Decide v2 preview hosting while v1 stays live
