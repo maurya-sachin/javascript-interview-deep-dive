@@ -43,7 +43,7 @@ export function NotFound({ what }: { what: string }) {
 
 export function ComingSoon() {
   return (
-    <span className="rounded border border-dashed border-muted-foreground/60 px-1.5 text-xs text-muted-foreground">
+    <span className="rounded border border-dashed border-muted-foreground/60 px-1.5 text-xs text-muted-foreground whitespace-nowrap">
       Coming soon
     </span>
   )

@@ -6,7 +6,7 @@ import type { ChapterSummary, ContentIndex, QuestionPage as QuestionData, Questi
 export const INDEX_ROUTE_ID = 'root'
 
 /** Reads a JSON file produced by content:build; its shape is trusted because both sides share `types.ts`. */
-async function fetchData<T>(file: string): Promise<T> {
+export async function fetchData<T>(file: string): Promise<T> {
   const response = await fetch(`${import.meta.env.BASE_URL}data/${file}`)
   if (!response.ok) throw new Error(`Could not load ${file} (${response.status}). Run npm run content:build.`)
   const data: unknown = await response.json()
