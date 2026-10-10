@@ -4,9 +4,9 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2`; tag `v1-archive` = old `main` (local, not pushed)
-- Doing: Phase 1 — set commit email, then commit clean slate
+- Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
+- Doing: Phase 1 — repo rename (name ❓)
 - Next: Phase 2 — templates
-- Open: commit email ❓ · new repo name ❓
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -60,8 +60,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 1 — Clean slate
-- [ ] Set repo-local `user.email` to one linked to the maintainer's GitHub account (heatmap)
-- [ ] Commit the 359 staged deletions; commit plan docs
 - [ ] Rename the GitHub repo (maintainer picks name; `gh repo rename`, ask first); update titles in README / CLAUDE.md
 
 ### 2 — Templates
