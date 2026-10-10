@@ -53,8 +53,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 - [ ] JavaScript flashcards
 
 ### 6 — Go live · Sonnet
-- [ ] GitHub Actions: PR → typecheck, lint, `content:check`, build
-- [ ] Issue forms (new question, correction, outdated, bug) + PR template
 - [ ] Merge `v2` → `main`
 
 ### 7 — Next topics (order confirmed after Phase 5)
