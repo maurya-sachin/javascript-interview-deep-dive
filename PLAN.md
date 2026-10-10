@@ -29,7 +29,7 @@ Non-goals: backend service, accounts, paid AI.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
 - R12 One topic per subject: `javascript typescript browser nodejs html-and-css react nextjs accessibility web-performance web-security backend testing tooling`. A topic with no chapters keeps its planned structure in **Not yet mapped**.
 - R13 Design (approved mock: https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv): Geist + Geist Mono; zinc neutrals; accent `#2F4FD8` light / `#9DAEF7` dark; TL;DR tint `#EEF1FD` / `#171C33`; code GitHub light/dark with `// →` output highlighted; 720px prose column.
-- R14 Hosting: Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes.
+- R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes.
 
 ## Content contract
 See `templates/README.md`. Write content with the `write-question` skill.
