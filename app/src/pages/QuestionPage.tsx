@@ -9,6 +9,7 @@ import { Breadcrumbs, ComingSoon, NotFound } from '@/components/PageShell'
 import { QuestionTitle } from '@/components/QuestionTitle'
 import { findChapter, findTopic, neighbours, questionId, questionPath, useContentIndex } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
+import { editUrl, suggestFixUrl } from '@/lib/repo'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
@@ -110,13 +111,28 @@ export function QuestionPage() {
                 </div>
               )}
 
-              <footer className="mt-14 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                <span>Sources:</span>
-                {content.sources.map((source) => (
-                  <a key={source} href={source} className="text-link hover:text-link-hover">
-                    {new URL(source).hostname}
+              <footer className="mt-14 flex flex-col gap-3 text-sm text-muted-foreground">
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  <span>Sources:</span>
+                  {content.sources.map((source) => (
+                    <a key={source} href={source} className="text-link hover:text-link-hover">
+                      {new URL(source).hostname}
+                    </a>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  <a
+                    href={suggestFixUrl(content.id, content.title, window.location.origin + window.location.pathname)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-link hover:text-link-hover"
+                  >
+                    Suggest a fix
                   </a>
-                ))}
+                  <a href={editUrl(content.sourcePath)} target="_blank" rel="noreferrer" className="text-link hover:text-link-hover">
+                    Edit on GitHub
+                  </a>
+                </div>
               </footer>
             </>
           )}

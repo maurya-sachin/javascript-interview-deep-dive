@@ -62,6 +62,7 @@ async function buildPage(question: Question, meta: WrittenMeta): Promise<Questio
   const title = await renderInline(meta.title)
   return {
     id: question.id,
+    sourcePath: repoRelative(question.file),
     title: title.text,
     titleHtml: title.html,
     status: meta.status,

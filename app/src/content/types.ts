@@ -51,6 +51,8 @@ export interface Exercise {
 /** `data/questions/<id>.json` */
 export interface QuestionPage {
   id: string
+  /** Repo-relative path of the Markdown file, for "Edit on GitHub". */
+  sourcePath: string
   title: string
   titleHtml: string
   status: Status
