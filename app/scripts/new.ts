@@ -4,8 +4,9 @@
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import { loadContent, QUESTION_FILE, repoRelative } from './lib/content.ts'
+import { loadContent, QUESTION_FILE } from './lib/content.ts'
 import { frontmatterSchema } from './lib/frontmatter.ts'
+import { repoRelative } from './lib/paths.ts'
 import { writeStaleReadmes } from './lib/readme.ts'
 
 const USAGE =

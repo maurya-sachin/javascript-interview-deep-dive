@@ -1,6 +1,7 @@
 // content:sync — rewrites README status lines and generated tables from content/ (R3).
 
-import { loadContent, repoRelative } from './lib/content.ts'
+import { loadContent } from './lib/content.ts'
+import { repoRelative } from './lib/paths.ts'
 import { writeStaleReadmes } from './lib/readme.ts'
 
 const { topics, problems } = await loadContent()

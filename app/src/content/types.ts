@@ -79,3 +79,14 @@ export interface SearchDoc {
   tldr: string
   hasPage: boolean
 }
+
+/** One entry of `data/flashcards.json`. */
+export interface Flashcard {
+  /** `<topic>/<card id>`; keys the learner's review history. */
+  id: string
+  topic: string
+  frontHtml: string
+  backHtml: string
+  /** Id of the question that explains it, if any. */
+  question: string | null
+}

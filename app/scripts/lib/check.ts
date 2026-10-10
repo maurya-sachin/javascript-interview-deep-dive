@@ -1,6 +1,7 @@
 // Every rule content:check enforces, shared with content:build so nothing invalid ships.
 
-import { repoRelative, type Content, type Problem } from './content.ts'
+import type { Content } from './content.ts'
+import { repoRelative, type Problem } from './paths.ts'
 import { staleReadmes } from './readme.ts'
 import { checkBody } from './sections.ts'
 
@@ -47,9 +48,30 @@ function checkReferences({ topics }: Content): Problem[] {
   return problems
 }
 
+/** Each deck belongs to an existing topic, has unique card ids, and links only to real questions. */
+function checkDecks({ topics, decks }: Content): Problem[] {
+  const problems: Problem[] = []
+  const topicSlugs = new Set(topics.map((topic) => topic.slug))
+  const questionIds = new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((q) => q.id))))
+
+  for (const deck of decks) {
+    const file = repoRelative(deck.file)
+    if (!topicSlugs.has(deck.topic)) problems.push({ file, message: `no topic folder \`${deck.topic}\` for this deck` })
+    const seen = new Set<string>()
+    for (const card of deck.cards) {
+      if (seen.has(card.id)) problems.push({ file, message: `card id \`${card.id}\` is used twice` })
+      seen.add(card.id)
+      if (card.question !== undefined && !questionIds.has(card.question)) {
+        problems.push({ file, message: `card \`${card.id}\`: unknown question \`${card.question}\`` })
+      }
+    }
+  }
+  return problems
+}
+
 export function collectProblems(content: Content): Problem[] {
   const questions = content.topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
-  const problems = [...content.problems, ...questions.flatMap(checkBody), ...checkReferences(content)]
+  const problems = [...content.problems, ...questions.flatMap(checkBody), ...checkReferences(content), ...checkDecks(content)]
   // README tables can only be rendered from valid content, so staleness is checked last.
   if (problems.length === 0) {
     for (const { file } of staleReadmes(content.topics)) {

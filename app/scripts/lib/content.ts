@@ -4,16 +4,9 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { loadDecks, type Deck } from './flashcards.ts'
 import { frontmatterSchema, type Frontmatter } from './frontmatter.ts'
-
-export const repoRoot = path.resolve(import.meta.dirname, '../../..')
-export const contentDir = path.join(repoRoot, 'content')
-
-export interface Problem {
-  file: string
-  line?: number
-  message: string
-}
+import { contentDir, repoRelative, type Problem } from './paths.ts'
 
 export interface SubTopic {
   text: string
@@ -56,6 +49,7 @@ export interface Topic {
 
 export interface Content {
   topics: Topic[]
+  decks: Deck[]
   problems: Problem[]
 }
 
@@ -69,10 +63,6 @@ const GAP = '—'
 
 /** Folders under content/ that hold something other than a topic. */
 const NON_TOPIC_DIRS = new Set(['flashcards'])
-
-export function repoRelative(file: string): string {
-  return path.relative(repoRoot, file)
-}
 
 export async function loadContent(): Promise<Content> {
   const problems: Problem[] = []
@@ -88,7 +78,7 @@ export async function loadContent(): Promise<Content> {
     topics.push(await loadTopic(name, dir, problems))
   }
 
-  return { topics, problems }
+  return { topics, decks: await loadDecks(problems), problems }
 }
 
 async function loadTopic(slug: string, dir: string, problems: Problem[]): Promise<Topic> {

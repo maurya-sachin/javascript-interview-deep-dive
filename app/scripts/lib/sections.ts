@@ -1,6 +1,7 @@
 // Section rules for written questions, per `templates/README.md` → Sections.
 
-import { repoRelative, type Problem, type Question } from './content.ts'
+import type { Question } from './content.ts'
+import { repoRelative, type Problem } from './paths.ts'
 import { countWords } from './frontmatter.ts'
 
 export interface Section {

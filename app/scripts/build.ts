@@ -4,11 +4,12 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import type { ContentIndex, Exercise, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
+import type { ContentIndex, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
-import { loadContent, repoRelative, type Question } from './lib/content.ts'
+import { loadContent, type Question } from './lib/content.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
 import { renderBlock, renderInline } from './lib/markdown.ts'
+import { repoRelative } from './lib/paths.ts'
 import { EXERCISE_ANSWER, FOLLOW_UP_ANSWER, FOLLOW_UP_QUESTION, splitSections, type Section } from './lib/sections.ts'
 
 type WrittenMeta = Exclude<Frontmatter, { status: 'planned' }>
@@ -168,4 +169,17 @@ async function searchDocs(): Promise<SearchDoc[]> {
 }
 await writeJson(path.join(outDir, 'search.json'), await searchDocs())
 
-console.log(`✔ built ${pageCount} question page(s) and an index of ${questions.length} questions → ${repoRelative(outDir)}`)
+const flashcards: Flashcard[] = await Promise.all(
+  content.decks.flatMap((deck) =>
+    deck.cards.map(async (card) => ({
+      id: `${deck.topic}/${card.id}`,
+      topic: deck.topic,
+      frontHtml: (await renderInline(card.front)).html,
+      backHtml: (await renderInline(card.back)).html,
+      question: card.question ?? null,
+    })),
+  ),
+)
+await writeJson(path.join(outDir, 'flashcards.json'), flashcards)
+
+console.log(`✔ built ${pageCount} question page(s), an index of ${questions.length} questions and ${flashcards.length} flashcard(s) → ${repoRelative(outDir)}`)
