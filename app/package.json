@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run content:build -- --drafts && vite",
-    "build": "npm run content:build && tsc -b && vite build && node scripts/spa-fallback.ts",
+    "build": "npm run content:build && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "content:check": "node scripts/check.ts",
