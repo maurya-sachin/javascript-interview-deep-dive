@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — scaffold `app/` per R7 + R13
+- Doing: Phase 4 — content scripts (`content:build/check/status/new`)
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -46,7 +46,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] Scaffold per R7; ESLint
 - [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`; `content:status` lists `→ —` gaps per chapter; `content:check` fails on sub-topic refs to missing questions; regenerate README `<!-- generated:… -->` blocks; document commands in `templates/README.md` → Contributing
 - [ ] Navigation topic → chapter → question, previous/next; planned questions shown as "coming soon"
 - [ ] Question page: TL;DR → Answer → Deep dive → Exercises
