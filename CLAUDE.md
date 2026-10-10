@@ -1,4 +1,4 @@
-# JavaScript in depth — interview Q&A (repo rename pending)
+# JavaScript Interview Deep Dive
 
 JavaScript from language to spec/engine to runtimes, as interview questions — not introductory.
 One Markdown file per question in `content/`; the client-only app in `app/` reads generated JSON.

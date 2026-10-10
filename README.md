@@ -1,10 +1,10 @@
-# JavaScript in Depth
+# JavaScript Interview Deep Dive
 
 JavaScript from the language down to the spec and the engine, then up through its runtimes — written as interview questions.
 Not an introduction: work through a topic and you should be able to explain *why* it behaves the way it does.
 
 > **Status:** v2 is being rebuilt from scratch. The previous version is still live at
-> [maurya-sachin.github.io/Frontend-Master-Prep-Series](https://maurya-sachin.github.io/Frontend-Master-Prep-Series/).
+> [maurya-sachin.github.io/javascript-interview-deep-dive](https://maurya-sachin.github.io/javascript-interview-deep-dive/).
 
 ## What each question gives you
 

@@ -6,7 +6,6 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
 - Doing: Phase 3 — JavaScript structure
-- Open: repo name ❓ (rename anytime; not blocking)
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -42,9 +41,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ```
 
 ## Phases
-
-### 1 — Clean slate · Sonnet
-- [ ] Rename the GitHub repo (maintainer picks name; `gh repo rename`, ask first); update titles in README / CLAUDE.md
 
 ### 3 — JavaScript structure · Opus
 - [ ] Research the syllabus as of 2026-10: ECMAScript 2025 + 2026, finished TC39 proposals, MDN; coverage check per R6
