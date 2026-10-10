@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 3 — JavaScript structure
+- Doing: Phase 3 — map approved (26 chapters, 150 questions); writing `content/javascript/` READMEs + stubs directly (`content:new` comes in Phase 4)
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -44,9 +44,7 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 3 — JavaScript structure · Opus
-- [ ] Research the syllabus as of 2026-10: ECMAScript 2025 + 2026, finished TC39 proposals, MDN; coverage check per R6
 - [ ] `content/javascript/`: README, chapter folders + READMEs, question stubs
-- [ ] Checkpoint: maintainer approves the map
 - [ ] Other tracks: top-level folder + README (scope, structure TODO)
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
