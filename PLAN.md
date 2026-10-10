@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — design direction + question-page mock for maintainer approval
+- Doing: Phase 4 — design mock ready (https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv); blocked on maintainer approval before scaffold
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
