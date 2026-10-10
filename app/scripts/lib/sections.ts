@@ -3,11 +3,16 @@
 import { repoRelative, type Problem, type Question } from './content.ts'
 import { countWords } from './frontmatter.ts'
 
-interface Section {
+export interface Section {
   heading: string
   line: number
   lines: string[]
 }
+
+/** Line prefixes the section format relies on; content:build parses the same lines. */
+export const FOLLOW_UP_QUESTION = '**Q:**'
+export const FOLLOW_UP_ANSWER = '**A:**'
+export const EXERCISE_ANSWER = '**Answer:**'
 
 const SECTION_ORDER = ['Answer', 'Example', 'Pitfalls', 'Follow-ups', 'Deep dive', 'Exercises']
 const REQUIRED_SECTIONS = ['Answer', 'Example', 'Pitfalls']
@@ -16,7 +21,7 @@ const DEEP_DIVE_ORDER = ['How it works', 'Edge cases', 'Real-world scenario', 'T
 const isFence = (line: string) => line.trimStart().startsWith('```')
 
 /** Splits Markdown at headings of one level, ignoring `#` lines inside code fences. */
-function splitSections(lines: string[], level: number, firstLine: number): { intro: string[]; sections: Section[] } {
+export function splitSections(lines: string[], level: number, firstLine: number): { intro: string[]; sections: Section[] } {
   const marker = `${'#'.repeat(level)} `
   const intro: string[] = []
   const sections: Section[] = []
@@ -80,12 +85,12 @@ function checkSection(section: Section): string[] {
       break
     }
     case 'Follow-ups': {
-      const questions = lines.filter((line) => line.startsWith('**Q:**'))
-      const answers = lines.filter((line) => line.startsWith('**A:**'))
+      const questions = lines.filter((line) => line.startsWith(FOLLOW_UP_QUESTION))
+      const answers = lines.filter((line) => line.startsWith(FOLLOW_UP_ANSWER))
       if (questions.length < 1 || questions.length > 4) errors.push(`must have 1–4 pairs (has ${questions.length})`)
       if (questions.length !== answers.length) errors.push('every `**Q:**` line needs one `**A:**` line')
       for (const answer of answers) {
-        const words = countWords(answer.slice('**A:**'.length))
+        const words = countWords(answer.slice(FOLLOW_UP_ANSWER.length))
         if (words > 50) errors.push(`answers must be 50 words or fewer (one has ${words})`)
       }
       break
@@ -103,7 +108,7 @@ function checkSection(section: Section): string[] {
       if (exercises.length < 1 || exercises.length > 3) errors.push(`must have 1–3 exercises (has ${exercises.length})`)
       for (const exercise of exercises) {
         if (codeBlocks(exercise.lines).length !== 1) errors.push(`"${exercise.heading}" must have exactly 1 code block`)
-        if (!exercise.lines.some((line) => line.startsWith('**Answer:**'))) {
+        if (!exercise.lines.some((line) => line.startsWith(EXERCISE_ANSWER))) {
           errors.push(`"${exercise.heading}" needs an \`**Answer:**\` line`)
         }
       }
