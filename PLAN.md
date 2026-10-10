@@ -3,10 +3,10 @@
 Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene.
 
 ## Now
-- Branch `v2`; tag `v1-archive` = old `main` (local, not pushed)
+- Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 1 — repo rename (name ❓)
-- Next: Phase 2 — templates
+- Doing: Phase 3 — JavaScript structure
+- Open: repo name ❓ (rename anytime; not blocking)
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -27,23 +27,7 @@ Non-goals: backend service, accounts, paid AI.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
 
 ## Content contract
-Moves to `templates/README.md` in Phase 2; then replace this section with a link.
-
-| Part | Limit |
-|---|---|
-| frontmatter `tldr` | ≤ 60 words — the 30-second answer |
-| `## Answer` | ≤ 300 words |
-| `## Example` | 1 code block, ≤ 30 lines |
-| `## Pitfalls` | 1–4 bullets |
-| `## Follow-ups` | 0–4 Q/A pairs, answers ≤ 50 words |
-| `## Deep dive` | ≤ 1,500 words, ≤ 5 code blocks; `###` from: How it works · Edge cases · Real-world scenario · Trade-offs. Required when `core: true` |
-| `## Exercises` | 1–3 items, each with `**Answer:**` |
-
-- Frontmatter: `title`, `difficulty`, `frequency` (1–5), `core`, `tags`, `related`, `status` (planned → draft → published), `verified` (YYYY-MM), `sources`.
-- Title phrased as an interviewer asks it. Current stable behaviour; legacy gets one sentence labelled *Legacy*.
-- One concept per question; link `related` instead of re-explaining. No emoji headings or filler.
-- Examples in JavaScript; TypeScript only in TypeScript topics.
-- Done = passes `content:check` + facts match `sources` + maintainer reviewed.
+See `templates/README.md`. Write content with the `write-question` skill.
 
 ## Layout
 ```
@@ -62,11 +46,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ### 1 — Clean slate · Sonnet
 - [ ] Rename the GitHub repo (maintainer picks name; `gh repo rename`, ask first); update titles in README / CLAUDE.md
 
-### 2 — Templates · Sonnet
-- [ ] Root `README.md`: what this is, status, link to the v1 site meanwhile
-- [ ] `templates/README.md` (content contract + how to contribute), `topic-README.md`, `chapter-README.md`, `question.md` — status line at top, `❓` for unknowns
-- [ ] `.claude/skills/write-question/SKILL.md`: research → write → verify; points to `templates/`
-
 ### 3 — JavaScript structure · Opus
 - [ ] Research the syllabus as of 2026-10: ECMAScript 2025 + 2026, finished TC39 proposals, MDN; coverage check per R6
 - [ ] `content/javascript/`: README, chapter folders + READMEs, question stubs
@@ -76,7 +55,7 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
 - [ ] Design direction + question-page mock, maintainer approves
 - [ ] Scaffold per R7; ESLint
-- [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`
+- [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`; regenerate README `<!-- generated:… -->` blocks; document commands in `templates/README.md` → Contributing
 - [ ] Navigation topic → chapter → question, previous/next; planned questions shown as "coming soon"
 - [ ] Question page: TL;DR → Answer → Deep dive → Exercises
 - [ ] ⌘K search (MiniSearch), practice mode, flashcards (`ts-fsrs`), light/dark/system theme
