@@ -59,21 +59,21 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 
 ## Phases
 
-### 1 — Clean slate
+### 1 — Clean slate · Sonnet
 - [ ] Rename the GitHub repo (maintainer picks name; `gh repo rename`, ask first); update titles in README / CLAUDE.md
 
-### 2 — Templates
+### 2 — Templates · Sonnet
 - [ ] Root `README.md`: what this is, status, link to the v1 site meanwhile
 - [ ] `templates/README.md` (content contract + how to contribute), `topic-README.md`, `chapter-README.md`, `question.md` — status line at top, `❓` for unknowns
 - [ ] `.claude/skills/write-question/SKILL.md`: research → write → verify; points to `templates/`
 
-### 3 — JavaScript structure
+### 3 — JavaScript structure · Opus
 - [ ] Research the syllabus as of 2026-10: ECMAScript 2025 + 2026, finished TC39 proposals, MDN; coverage check per R6
 - [ ] `content/javascript/`: README, chapter folders + READMEs, question stubs
 - [ ] Checkpoint: maintainer approves the map
 - [ ] Other tracks: top-level folder + README (scope, structure TODO)
 
-### 4 — App (`app/`)
+### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
 - [ ] Design direction + question-page mock, maintainer approves
 - [ ] Scaffold per R7; ESLint
 - [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`
@@ -83,11 +83,11 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 - [ ] "Suggest a fix" (pre-filled issue form) + "Edit on GitHub" per question
 - [ ] Decide v2 preview hosting while v1 stays live
 
-### 5 — JavaScript content
+### 5 — JavaScript content · Opus (first chapter sets the bar; try Sonnet on the next and compare)
 - [ ] Per question, top to bottom: research → write → `content:check` → maintainer review → `published`; update README status lines
 - [ ] JavaScript flashcards
 
-### 6 — Go live
+### 6 — Go live · Sonnet
 - [ ] GitHub Actions: PR → typecheck, lint, `content:check`, build; `main` → deploy
 - [ ] Issue forms (new question, correction, outdated, bug) + PR template
 - [ ] Merge `v2` → `main`
