@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "npm run content:build -- --drafts && vite",
+    "build": "npm run content:build && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "content:check": "node scripts/check.ts",
     "content:sync": "node scripts/sync.ts",
     "content:status": "node scripts/status.ts",
-    "content:new": "node scripts/new.ts"
+    "content:new": "node scripts/new.ts",
+    "content:build": "node scripts/build.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
@@ -28,7 +29,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@shikijs/rehype": "^4.5.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/hast": "^3.0.5",
+    "@types/mdast": "^4.0.4",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
@@ -37,9 +41,17 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "hast-util-to-html": "^9.0.5",
+    "mdast-util-to-string": "^4.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "shiki": "^4.5.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.71.1",
+    "unified": "^11.0.5",
     "vite": "^8.3.0",
     "yaml": "^2.9.1",
     "zod": "^4.6.5"
