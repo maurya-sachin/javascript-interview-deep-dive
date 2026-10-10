@@ -106,6 +106,7 @@ async function loadTopic(slug: string, dir: string, problems: Problem[]): Promis
     chapters.push(await loadChapter(slug, number, chapterSlug, path.join(dir, name), problems))
   }
 
+  requireGenerated(readme, readmeFile, 'chapters', problems)
   return { slug, title: readHeading(readme, readmeFile, problems), dir, readmeFile, readme, chapters }
 }
 
@@ -119,6 +120,7 @@ async function loadChapter(
   const readmeFile = path.join(dir, 'README.md')
   const readme = await readText(readmeFile, problems)
   const heading = readHeading(readme, readmeFile, problems)
+  requireGenerated(readme, readmeFile, 'questions', problems)
 
   // Chapter headings are `NN — Title`; the number must match the folder.
   const [headingNumber, title = heading] = heading.split(' — ', 2)
@@ -224,6 +226,17 @@ function parseSubTopics(readme: string, file: string, problems: Problem[]): SubT
   }
 
   return subTopics
+}
+
+/** The parts `content:sync` rewrites must exist, or a stale README would pass unnoticed. */
+function requireGenerated(readme: string, file: string, block: string, problems: Problem[]): void {
+  if (readme === '') return // a missing README is already reported
+  if (!/^> \*\*Status:\*\*/m.test(readme)) {
+    problems.push({ file: repoRelative(file), message: 'missing `> **Status:**` line' })
+  }
+  for (const marker of [`<!-- generated:${block}:start -->`, `<!-- generated:${block}:end -->`]) {
+    if (!readme.includes(marker)) problems.push({ file: repoRelative(file), message: `missing \`${marker}\`` })
+  }
 }
 
 function readHeading(readme: string, file: string, problems: Problem[]): string {

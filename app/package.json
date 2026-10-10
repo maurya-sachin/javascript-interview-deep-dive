@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "content:check": "node scripts/check.ts"
+    "content:check": "node scripts/check.ts",
+    "content:sync": "node scripts/sync.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

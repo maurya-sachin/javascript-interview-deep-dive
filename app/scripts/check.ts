@@ -1,6 +1,7 @@
 // content:check — validates content/ against `templates/README.md`. Exits 1 on any problem.
 
 import { loadContent, repoRelative, type Content, type Problem } from './lib/content.ts'
+import { staleReadmes } from './lib/readme.ts'
 import { checkBody } from './lib/sections.ts'
 
 /** Problems that need more than one file to see. */
@@ -51,6 +52,12 @@ const problems = [
   ...questions.flatMap(checkBody),
   ...checkReferences(content),
 ]
+// README tables can only be rendered from valid content, so staleness is checked last.
+if (problems.length === 0) {
+  for (const { file } of staleReadmes(content.topics)) {
+    problems.push({ file: repoRelative(file), message: 'generated parts are out of date — run `npm run content:sync`' })
+  }
+}
 
 for (const { file, line, message } of problems) {
   console.error(`${file}${line ? `:${line}` : ''}  ${message}`)
