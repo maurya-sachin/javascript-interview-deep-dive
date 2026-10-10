@@ -36,7 +36,7 @@ export function QuestionPage() {
   return (
     <div className="mx-auto flex max-w-340 flex-wrap gap-12 px-6 py-8">
       <aside className="max-w-72 min-w-56 flex-1 basis-60">
-        <ChapterNav chapter={chapter} currentId={question.id} />
+        <ChapterNav topicSlug={topic.slug} chapter={chapter} currentId={question.id} />
       </aside>
 
       <main className="min-w-0 max-w-180 flex-999 basis-140">

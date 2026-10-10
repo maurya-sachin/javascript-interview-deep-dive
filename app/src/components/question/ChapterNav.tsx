@@ -1,11 +1,13 @@
 import { Link } from 'react-router'
 import { ComingSoon } from '@/components/PageShell'
+import { Button } from '@/components/ui/button'
 import { QuestionTitle } from '@/components/QuestionTitle'
 import type { ChapterSummary } from '@/content/types'
 import { questionPath } from '@/content/index-data'
 import { cn } from '@/lib/utils'
 
-export function ChapterNav({ chapter, currentId }: { chapter: ChapterSummary; currentId: string }) {
+export function ChapterNav({ topicSlug, chapter, currentId }: { topicSlug: string; chapter: ChapterSummary; currentId: string }) {
+  const hasPublished = chapter.questions.some((question) => question.hasPage)
   return (
     <nav aria-label="Questions in this chapter" className="text-sm">
       <p className="font-mono text-xs tracking-wide text-muted-foreground">CHAPTER {chapter.number}</p>
@@ -46,6 +48,11 @@ export function ChapterNav({ chapter, currentId }: { chapter: ChapterSummary; cu
           )
         })}
       </ol>
+      {hasPublished && (
+        <Button asChild size="lg" className="mt-6 w-full">
+          <Link to={`/practice/${topicSlug}/${chapter.slug}`}>Practice this chapter</Link>
+        </Button>
+      )}
     </nav>
   )
 }

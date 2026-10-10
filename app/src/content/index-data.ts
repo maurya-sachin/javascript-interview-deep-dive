@@ -31,6 +31,15 @@ export async function loadQuestion(id: string): Promise<QuestionData | null> {
   return summary?.hasPage ? fetchData<QuestionData>(`questions/${id}.json`) : null
 }
 
+/** The content of every published question in a chapter, in reading order. */
+export async function loadChapterQuestions(topicSlug: string | undefined, chapterSlug: string | undefined): Promise<QuestionData[]> {
+  const { topics } = await loadIndex()
+  const chapter = findTopic({ topics }, topicSlug)?.chapters.find((candidate) => candidate.slug === chapterSlug)
+  const ids = chapter?.questions.filter((question) => question.hasPage).map((question) => question.id) ?? []
+  const pages = await Promise.all(ids.map(loadQuestion))
+  return pages.filter((page) => page !== null)
+}
+
 export function useContentIndex(): ContentIndex {
   // Route loader data is untyped in data-router mode; INDEX_ROUTE_ID's loader returns loadIndex().
   return useRouteLoaderData(INDEX_ROUTE_ID) as ContentIndex
