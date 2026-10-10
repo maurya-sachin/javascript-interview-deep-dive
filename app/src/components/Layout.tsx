@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router'
+import { Link, Outlet, ScrollRestoration } from 'react-router'
 
 export function Layout() {
   return (
@@ -10,6 +10,7 @@ export function Layout() {
         </Link>
       </header>
       <Outlet />
+      <ScrollRestoration />
     </>
   )
 }

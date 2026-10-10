@@ -142,3 +142,72 @@
     @apply font-sans;
     }
 }
+
+/* Styles for HTML compiled by content:build (Markdown → HTML), including Shiki output. */
+@layer components {
+  .content {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .content > * + * {
+    margin-top: 1rem;
+  }
+  .content h3 {
+    margin-top: 1.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .content ul,
+  .content ol {
+    padding-left: 1.4rem;
+    list-style: revert;
+  }
+  .content li + li {
+    margin-top: 0.5rem;
+  }
+  .content a {
+    color: var(--color-link);
+    text-decoration: underline;
+  }
+  .content :not(pre) > code {
+    padding: 0.05rem 0.3rem;
+    border-radius: 0.25rem;
+    background: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  .content pre {
+    overflow-x: auto;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+  .content pre .line.output {
+    display: inline-block;
+    min-width: 100%;
+    background: oklch(0.95 0.05 150);
+  }
+  .content table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .content th,
+  .content td {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .dark .content .shiki,
+  .dark .content .shiki span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+  .dark .content pre .line.output {
+    background: oklch(0.3 0.06 150);
+  }
+}

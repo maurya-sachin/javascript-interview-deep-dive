@@ -1,4 +1,6 @@
-/** A question title with inline code; the HTML comes from content:build, which drops raw HTML from sources. */
+import { InlineHtml } from './question/InlineHtml'
+
+/** A question title with inline code. */
 export function QuestionTitle({ html }: { html: string }) {
-  return <span className="[&_code]:font-mono [&_code]:text-[0.9em]" dangerouslySetInnerHTML={{ __html: html }} />
+  return <InlineHtml html={html} className="[&_code]:font-mono [&_code]:text-[0.9em]" />
 }
