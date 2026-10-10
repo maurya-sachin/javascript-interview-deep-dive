@@ -1,4 +1,5 @@
 import { Link, Outlet, ScrollRestoration } from 'react-router'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 export function Layout() {
   return (
@@ -8,6 +9,9 @@ export function Layout() {
           <span className="grid size-7 place-items-center rounded-md bg-foreground font-mono text-sm text-background">{'{ }'}</span>
           Deep Dive
         </Link>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
       </header>
       <Outlet />
       <ScrollRestoration />
