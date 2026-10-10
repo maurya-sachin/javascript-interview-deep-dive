@@ -133,6 +133,7 @@ const index: ContentIndex = {
     content.topics.map(async (topic) => ({
       slug: topic.slug,
       title: topic.title,
+      flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
       chapters: await Promise.all(
         topic.chapters.map(async (chapter) => ({
           number: chapter.number,

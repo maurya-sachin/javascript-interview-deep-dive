@@ -28,6 +28,8 @@ export interface TopicSummary {
   slug: string
   title: string
   chapters: ChapterSummary[]
+  /** Cards in this topic's flashcard deck; 0 when it has none. */
+  flashcardCount: number
 }
 
 /** `data/index.json` */

@@ -1,7 +1,7 @@
 // Loading and querying data/index.json, the navigation tree built by content:build.
 
 import { useRouteLoaderData } from 'react-router'
-import type { ChapterSummary, ContentIndex, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
+import type { ChapterSummary, ContentIndex, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
 
 export const INDEX_ROUTE_ID = 'root'
 
@@ -38,6 +38,12 @@ export async function loadChapterQuestions(topicSlug: string | undefined, chapte
   const ids = chapter?.questions.filter((question) => question.hasPage).map((question) => question.id) ?? []
   const pages = await Promise.all(ids.map(loadQuestion))
   return pages.filter((page) => page !== null)
+}
+
+/** One topic's flashcards. */
+export async function loadFlashcards(topicSlug: string | undefined): Promise<Flashcard[]> {
+  const cards = await fetchData<Flashcard[]>('flashcards.json')
+  return cards.filter((card) => card.topic === topicSlug)
 }
 
 export function useContentIndex(): ContentIndex {

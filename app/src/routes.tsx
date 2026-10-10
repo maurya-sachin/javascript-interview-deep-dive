@@ -1,7 +1,8 @@
 import { createBrowserRouter, type LoaderFunctionArgs } from 'react-router'
 import { Layout } from '@/components/Layout'
-import { INDEX_ROUTE_ID, loadChapterQuestions, loadIndex, loadQuestion } from '@/content/index-data'
+import { INDEX_ROUTE_ID, loadChapterQuestions, loadFlashcards, loadIndex, loadQuestion } from '@/content/index-data'
 import { ChapterPage } from '@/pages/ChapterPage'
+import { FlashcardsPage } from '@/pages/FlashcardsPage'
 import { HomePage } from '@/pages/HomePage'
 import { PracticePage } from '@/pages/PracticePage'
 import { QuestionPage } from '@/pages/QuestionPage'
@@ -15,6 +16,10 @@ function practiceLoader({ params }: LoaderFunctionArgs) {
   return loadChapterQuestions(params.topic, params.chapter)
 }
 
+function flashcardsLoader({ params }: LoaderFunctionArgs) {
+  return loadFlashcards(params.topic)
+}
+
 export const router = createBrowserRouter(
   [
     {
@@ -25,6 +30,7 @@ export const router = createBrowserRouter(
       children: [
         { index: true, element: <HomePage /> },
         { path: 'practice/:topic/:chapter', element: <PracticePage />, loader: practiceLoader },
+        { path: 'flashcards/:topic', element: <FlashcardsPage />, loader: flashcardsLoader },
         { path: ':topic', element: <TopicPage /> },
         { path: ':topic/:chapter', element: <ChapterPage /> },
         { path: ':topic/:chapter/:question', element: <QuestionPage />, loader: questionLoader },
