@@ -24,6 +24,10 @@ export default defineConfig([
     },
   },
   {
+    files: ['scripts/**', 'vite.config.ts'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     // shadcn/ui files are generated and export variants beside components.
     files: ['src/components/ui/**'],
     rules: {
