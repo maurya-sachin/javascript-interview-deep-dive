@@ -23,4 +23,11 @@ export default defineConfig([
       },
     },
   },
+  {
+    // shadcn/ui files are generated and export variants beside components.
+    files: ['src/components/ui/**'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
