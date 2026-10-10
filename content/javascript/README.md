@@ -8,7 +8,7 @@ Frontend, backend, and full-stack interviews all test this layer — frameworks 
 ## Scope
 
 - **In:** the language as ECMA-262 defines it, through ES2026 plus the Stage 4 proposals shipping in ES2027 (Temporal, `using`, new iterator methods); the spec model behind it; `Intl` basics (ECMA-402); V8 as the reference engine.
-- **Out:** DOM, events, Web APIs, and the browser rendering loop → Browser runtime track · Node.js APIs, event-loop phases, and CommonJS internals → Node.js runtime track · static types → TypeScript track · frameworks → frontend track. These tracks are planned; links follow when their folders exist.
+- **Out:** DOM, events, Web APIs, and the browser rendering loop → [Browser runtime](../browser/) · Node.js APIs, event-loop phases, and CommonJS internals → [Node.js runtime](../nodejs/) · static types → [TypeScript](../typescript/) · frameworks → [React](../react/), [Next.js](../nextjs/) · build tools and package managers → [Tooling](../tooling/).
 - **Not yet Stage 4:** covered by [How does a feature become part of JavaScript?](01-how-javascript-runs/020-tc39-process.md) and listed as gaps in the chapter that will own them.
 
 ## Prerequisites
