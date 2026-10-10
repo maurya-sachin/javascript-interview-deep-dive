@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — practice mode, then flashcards
+- Doing: Phase 4 — flashcards (define YAML format in `templates/` first)
 - Open: rewrite relative `.md` links in `scripts/lib/markdown.ts` (TODO there); question page tested only with a throwaway fixture
 
 ## Goal
@@ -47,7 +47,7 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] Practice mode, flashcards (`ts-fsrs`)
+- [ ] Flashcards (`ts-fsrs`) — needs the `content/flashcards/<topic>.yaml` format (R8) defined first
 - [ ] "Suggest a fix" (pre-filled issue form) + "Edit on GitHub" per question
 - [ ] Decide v2 preview hosting while v1 stays live
 
