@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 4 — design mock ready (https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv); blocked on maintainer approval before scaffold
+- Doing: Phase 4 — scaffold `app/` per R7 + R13
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -26,6 +26,7 @@ Non-goals: backend service, accounts, paid AI.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
 - R12 One topic per subject: `javascript typescript browser nodejs html-and-css react nextjs accessibility web-performance web-security backend testing tooling`. A topic with no chapters keeps its planned structure in **Not yet mapped**.
+- R13 Design (approved mock: https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv): Geist + Geist Mono; zinc neutrals; accent `#2F4FD8` light / `#9DAEF7` dark; TL;DR tint `#EEF1FD` / `#171C33`; code GitHub light/dark with `// →` output highlighted; 720px prose column.
 
 ## Content contract
 See `templates/README.md`. Write content with the `write-question` skill.
@@ -45,7 +46,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ## Phases
 
 ### 4 — App (`app/`) · Opus for design direction, Sonnet for the rest
-- [ ] Design direction + question-page mock, maintainer approves
 - [ ] Scaffold per R7; ESLint
 - [ ] Scripts: `content:build`, `content:check`, `content:status`, `content:new`; `content:status` lists `→ —` gaps per chapter; `content:check` fails on sub-topic refs to missing questions; regenerate README `<!-- generated:… -->` blocks; document commands in `templates/README.md` → Contributing
 - [ ] Navigation topic → chapter → question, previous/next; planned questions shown as "coming soon"
