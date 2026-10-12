@@ -32,13 +32,13 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Function declarations vs expressions vs arrow functions — what actually differs?](010-function-forms.md) | easy | 🔴 planned |
-| 020 | [How do default and rest parameters work?](020-default-and-rest-parameters.md) | medium | 🔴 planned |
-| 030 | [What is the `arguments` object, and why avoid it?](030-arguments-object.md) | easy | 🔴 planned |
-| 040 | [What are higher-order functions?](040-higher-order-functions.md) | easy | 🔴 planned |
-| 050 | [What is an IIFE, and do you still need one?](050-iife.md) | easy | 🔴 planned |
-| 060 | [What are currying and partial application?](060-currying-partial-application.md) | medium | 🔴 planned |
-| 070 | [Implement `compose` and `pipe`.](070-compose-and-pipe.md) | medium | 🔴 planned |
+| 010 | [Function declarations vs expressions vs arrow functions — what actually differs?](010-function-forms.md) | easy | 🟡 draft |
+| 020 | [How do default and rest parameters work?](020-default-and-rest-parameters.md) | medium | 🟡 draft |
+| 030 | [What is the `arguments` object, and why avoid it?](030-arguments-object.md) | easy | 🟡 draft |
+| 040 | [What are higher-order functions?](040-higher-order-functions.md) | easy | 🟡 draft |
+| 050 | [What is an IIFE, and do you still need one?](050-iife.md) | easy | 🟡 draft |
+| 060 | [What are currying and partial application?](060-currying-partial-application.md) | medium | 🟡 draft |
+| 070 | [Implement `compose` and `pipe`.](070-compose-and-pipe.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
