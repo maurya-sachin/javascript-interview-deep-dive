@@ -31,11 +31,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [When do you use a `Map` instead of an object?](010-map-vs-object.md) | easy | 🔴 planned |
-| 020 | [What can a `Set` do in ES2025?](020-set-methods.md) | easy | 🔴 planned |
-| 030 | [What are `WeakMap` and `WeakSet` for, and why can't you iterate them?](030-weakmap-weakset.md) | medium | 🔴 planned |
-| 040 | [How do `Object.groupBy` and `Map.groupBy` work?](040-groupby.md) | easy | 🔴 planned |
-| 050 | [What does `Map.prototype.getOrInsert` solve?](050-map-upsert.md) | easy | 🔴 planned |
+| 010 | [When do you use a `Map` instead of an object?](010-map-vs-object.md) | easy | 🟡 draft |
+| 020 | [What can a `Set` do in ES2025?](020-set-methods.md) | easy | 🟡 draft |
+| 030 | [What are `WeakMap` and `WeakSet` for, and why can't you iterate them?](030-weakmap-weakset.md) | medium | 🟡 draft |
+| 040 | [How do `Object.groupBy` and `Map.groupBy` work?](040-groupby.md) | easy | 🟡 draft |
+| 050 | [What does `Map.prototype.getOrInsert` solve?](050-map-upsert.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
