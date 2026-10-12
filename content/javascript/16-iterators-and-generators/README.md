@@ -31,11 +31,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What are the iteration protocols?](010-iteration-protocols.md) | medium | 🔴 planned |
-| 020 | [How do generators pause and resume?](020-generators.md) | hard | 🔴 planned |
-| 030 | [What are iterator helpers, and why are they lazy?](030-iterator-helpers.md) | medium | 🔴 planned |
-| 040 | [What's new for iterators after ES2025?](040-new-iterator-methods.md) | medium | 🔴 planned |
-| 050 | [How do async iterators and `for await…of` work?](050-async-iteration.md) | medium | 🔴 planned |
+| 010 | [What are the iteration protocols?](010-iteration-protocols.md) | medium | 🟡 draft |
+| 020 | [How do generators pause and resume?](020-generators.md) | hard | 🟡 draft |
+| 030 | [What are iterator helpers, and why are they lazy?](030-iterator-helpers.md) | medium | 🟡 draft |
+| 040 | [What's new for iterators after ES2025?](040-new-iterator-methods.md) | medium | 🟡 draft |
+| 050 | [How do async iterators and `for await…of` work?](050-async-iteration.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
