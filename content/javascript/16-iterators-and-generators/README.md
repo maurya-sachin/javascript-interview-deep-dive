@@ -42,7 +42,3 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 
 - **Spec:** [Iteration](https://tc39.es/ecma262/#sec-iteration) · [Generator objects](https://tc39.es/ecma262/#sec-generator-objects) · [Iterator.prototype.map](https://tc39.es/ecma262/#sec-iterator.prototype.map) · [Iterator.concat](https://tc39.es/ecma262/#sec-iterator.concat)
 - **MDN:** [Iteration protocols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) · [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) · [Iterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator) · [for await...of](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of)
-
-## Open questions
-
-- [ ] Check engine support for `Iterator.zip` and chunking (ES2027) before writing 040
