@@ -31,11 +31,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Why is `"😀".length` 2?](010-utf16-string-length.md) | medium | 🔴 planned |
-| 020 | [How do you iterate over the characters a user sees?](020-graphemes-and-code-points.md) | medium | 🔴 planned |
-| 030 | [What are lone surrogates, and what do `isWellFormed` and `toWellFormed` fix?](030-well-formed-strings.md) | hard | 🔴 planned |
-| 040 | [How do tagged template literals work?](040-tagged-templates.md) | medium | 🔴 planned |
-| 050 | [How do you compare strings correctly across languages?](050-locale-comparison-normalization.md) | medium | 🔴 planned |
+| 010 | [Why is `"😀".length` 2?](010-utf16-string-length.md) | medium | 🟡 draft |
+| 020 | [How do you iterate over the characters a user sees?](020-graphemes-and-code-points.md) | medium | 🟡 draft |
+| 030 | [What are lone surrogates, and what do `isWellFormed` and `toWellFormed` fix?](030-well-formed-strings.md) | hard | 🟡 draft |
+| 040 | [How do tagged template literals work?](040-tagged-templates.md) | medium | 🟡 draft |
+| 050 | [How do you compare strings correctly across languages?](050-locale-comparison-normalization.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
