@@ -22,18 +22,18 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Lexical `this` in arrow functions → 020
 - `call`, `apply`, `bind`; bound function exotic objects → 030, 050
 - Lost `this` in callbacks; the Reference Record; `(0, obj.fn)()` → 040
-- `this` in event handlers and timers (host-defined) → —
+- `this` in event handlers and timers (host-defined) → 040
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How is the value of `this` determined?](010-this-binding-rules.md) | medium | 🔴 planned |
-| 020 | [Why don't arrow functions have their own `this`?](020-arrow-functions-this.md) | easy | 🔴 planned |
-| 030 | [`call` vs `apply` vs `bind`?](030-call-apply-bind.md) | easy | 🔴 planned |
-| 040 | [Why does a method lose `this` when passed as a callback?](040-lost-this-callbacks.md) | medium | 🔴 planned |
-| 050 | [Implement `Function.prototype.bind`.](050-implement-bind.md) | hard | 🔴 planned |
+| 010 | [How is the value of `this` determined?](010-this-binding-rules.md) | medium | 🟡 draft |
+| 020 | [Why don't arrow functions have their own `this`?](020-arrow-functions-this.md) | easy | 🟡 draft |
+| 030 | [`call` vs `apply` vs `bind`?](030-call-apply-bind.md) | easy | 🟡 draft |
+| 040 | [Why does a method lose `this` when passed as a callback?](040-lost-this-callbacks.md) | medium | 🟡 draft |
+| 050 | [Implement `Function.prototype.bind`.](050-implement-bind.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
