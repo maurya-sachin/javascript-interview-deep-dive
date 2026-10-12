@@ -31,11 +31,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does `==` decide whether two values are equal?](010-loose-equality.md) | medium | 🔴 planned |
-| 020 | [Which values are falsy?](020-truthy-falsy.md) | easy | 🔴 planned |
-| 030 | [How does an object convert to a primitive?](030-object-to-primitive.md) | hard | 🔴 planned |
-| 040 | [Why does `[] + {}` give `"[object Object]"`?](040-addition-operator-coercion.md) | medium | 🔴 planned |
-| 050 | [`===` vs `Object.is` vs SameValueZero — which comparison does each API use?](050-equality-algorithms.md) | medium | 🔴 planned |
+| 010 | [How does `==` decide whether two values are equal?](010-loose-equality.md) | medium | 🟡 draft |
+| 020 | [Which values are falsy?](020-truthy-falsy.md) | easy | 🟡 draft |
+| 030 | [How does an object convert to a primitive?](030-object-to-primitive.md) | hard | 🟡 draft |
+| 040 | [Why does `[] + {}` give `"[object Object]"`?](040-addition-operator-coercion.md) | medium | 🟡 draft |
+| 050 | [`===` vs `Object.is` vs SameValueZero — which comparison does each API use?](050-equality-algorithms.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
