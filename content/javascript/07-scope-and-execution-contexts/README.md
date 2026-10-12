@@ -35,15 +35,15 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What's the difference between `var`, `let`, and `const`?](010-var-let-const.md) | easy | 🔴 planned |
-| 020 | [What is hoisting, really?](020-hoisting.md) | medium | 🔴 planned |
-| 030 | [What is the temporal dead zone?](030-temporal-dead-zone.md) | medium | 🔴 planned |
-| 040 | [What is lexical scope, and how does the scope chain work?](040-lexical-scope-chain.md) | medium | 🔴 planned |
-| 050 | [What is an execution context, and what does the call stack hold?](050-execution-context-call-stack.md) | medium | 🔴 planned |
-| 060 | [What is an Environment Record?](060-environment-records.md) | hard | 🔴 planned |
-| 070 | [What is the global object, and how does `globalThis` relate to global variables?](070-global-object-globalthis.md) | medium | 🔴 planned |
-| 080 | [What causes "Maximum call stack size exceeded", and do tail calls help?](080-stack-overflow-tail-calls.md) | medium | 🔴 planned |
-| 090 | [What is a realm, and why does `instanceof Array` fail across iframes?](090-realms.md) | hard | 🔴 planned |
+| 010 | [What's the difference between `var`, `let`, and `const`?](010-var-let-const.md) | easy | 🟡 draft |
+| 020 | [What is hoisting, really?](020-hoisting.md) | medium | 🟡 draft |
+| 030 | [What is the temporal dead zone?](030-temporal-dead-zone.md) | medium | 🟡 draft |
+| 040 | [What is lexical scope, and how does the scope chain work?](040-lexical-scope-chain.md) | medium | 🟡 draft |
+| 050 | [What is an execution context, and what does the call stack hold?](050-execution-context-call-stack.md) | medium | 🟡 draft |
+| 060 | [What is an Environment Record?](060-environment-records.md) | hard | 🟡 draft |
+| 070 | [What is the global object, and how does `globalThis` relate to global variables?](070-global-object-globalthis.md) | medium | 🟡 draft |
+| 080 | [What causes "Maximum call stack size exceeded", and do tail calls help?](080-stack-overflow-tail-calls.md) | medium | 🟡 draft |
+| 090 | [What is a realm, and why does `instanceof Array` fail across iframes?](090-realms.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
