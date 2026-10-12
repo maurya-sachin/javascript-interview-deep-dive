@@ -17,10 +17,10 @@ sources:
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 tldr: >
-  An IIFE is a function expression called as soon as it is created, usually wrapped in parentheses
-  so it parses as an expression: `(function () { ... })()`. It was the way to get a private scope
-  before `let`/`const` blocks and ES modules. Today it is rarely needed; its remaining uses are an
-  async IIFE where top-level `await` isn't available, and computing a value with several statements.
+  An IIFE is a function expression called as soon as it is created, wrapped in parentheses so it
+  parses as an expression: `(function () { ... })()`. It gave classic scripts a private scope. Block
+  scope and ES modules replaced that; today it mostly survives as an async IIFE or a way to compute
+  a value with several statements.
 ---
 
 ## Answer
