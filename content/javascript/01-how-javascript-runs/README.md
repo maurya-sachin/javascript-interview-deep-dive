@@ -35,12 +35,12 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What's the difference between ECMAScript, JavaScript, an engine, and a host?](010-ecmascript-engine-host.md) | easy | 🔴 planned |
-| 020 | [How does a feature become part of JavaScript?](020-tc39-process.md) | medium | 🔴 planned |
-| 030 | [Is JavaScript compiled or interpreted?](030-compiled-or-interpreted.md) | medium | 🔴 planned |
-| 040 | [What's the difference between a script and a module?](040-scripts-vs-modules.md) | medium | 🔴 planned |
-| 050 | [What does strict mode change, and when is code strict automatically?](050-strict-mode.md) | medium | 🔴 planned |
-| 060 | [What's the difference between a polyfill and a transpiler?](060-polyfill-vs-transpiler.md) | easy | 🔴 planned |
+| 010 | [What's the difference between ECMAScript, JavaScript, an engine, and a host?](010-ecmascript-engine-host.md) | easy | 🟡 draft |
+| 020 | [How does a feature become part of JavaScript?](020-tc39-process.md) | medium | 🟡 draft |
+| 030 | [Is JavaScript compiled or interpreted?](030-compiled-or-interpreted.md) | medium | 🟡 draft |
+| 040 | [What's the difference between a script and a module?](040-scripts-vs-modules.md) | medium | 🟡 draft |
+| 050 | [What does strict mode change, and when is code strict automatically?](050-strict-mode.md) | medium | 🟡 draft |
+| 060 | [What's the difference between a polyfill and a transpiler?](060-polyfill-vs-transpiler.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
