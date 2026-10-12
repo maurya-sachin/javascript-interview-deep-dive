@@ -4,8 +4,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed); commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: Phase 5 — ch 01–11 drafted; awaiting maintainer review before `published`; next: ch 12 prototypes
-- Review flags: sloppy/Annex B and V8/Node-only claims in ch 01–08 (see `verified` sources); ch 10: Node `Timeout` as timer `this`, DOM/HTML `this` from specs only; ch 11: DOM-node `structuredClone` failure from spec only
+- Doing: Phase 5 — ch 01–12 drafted; awaiting maintainer review before `published`; next: ch 13 classes
+- Review flags: sloppy/Annex B and V8/Node-only claims in ch 01–08 (see `verified` sources); ch 10: Node `Timeout` as timer `this`, DOM/HTML `this` from specs only; ch 11: DOM-node `structuredClone` failure from spec only; ch 12: engine-speed claims (MDN only), SmooshGate history from Chrome blog/proposal READMEs
 - Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
