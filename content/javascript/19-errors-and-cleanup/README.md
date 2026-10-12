@@ -30,18 +30,14 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How do `try`, `catch`, and `finally` interact with `return`?](010-try-catch-finally.md) | medium | 🔴 planned |
-| 020 | [How do you create custom errors?](020-custom-errors.md) | easy | 🔴 planned |
-| 030 | [Why doesn't `try`/`catch` catch errors in a callback?](030-async-error-boundaries.md) | medium | 🔴 planned |
-| 040 | [What do `using` and `await using` do?](040-explicit-resource-management.md) | medium | 🔴 planned |
-| 050 | [How do you handle errors you didn't catch?](050-uncaught-errors.md) | medium | 🔴 planned |
+| 010 | [How do `try`, `catch`, and `finally` interact with `return`?](010-try-catch-finally.md) | medium | 🟡 draft |
+| 020 | [How do you create custom errors?](020-custom-errors.md) | easy | 🟡 draft |
+| 030 | [Why doesn't `try`/`catch` catch errors in a callback?](030-async-error-boundaries.md) | medium | 🟡 draft |
+| 040 | [What do `using` and `await using` do?](040-explicit-resource-management.md) | medium | 🟡 draft |
+| 050 | [How do you handle errors you didn't catch?](050-uncaught-errors.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
 
 - **Spec:** [The try statement](https://tc39.es/ecma262/#sec-try-statement) · [Error objects](https://tc39.es/ecma262/#sec-error-objects) · [Resource management](https://tc39.es/ecma262/#sec-resource-management) · [DisposableStack objects](https://tc39.es/ecma262/#sec-disposablestack-objects)
 - **MDN:** [try...catch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch) · [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) · [using](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using) · [Resource management](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Resource_management)
-
-## Open questions
-
-- [ ] Check engine support for `using` (ES2027) before writing 040
