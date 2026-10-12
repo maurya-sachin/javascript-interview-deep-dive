@@ -32,13 +32,13 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does the event loop work?](010-event-loop.md) | medium | 🔴 planned |
-| 020 | [Predict the order: `setTimeout` vs promises vs `queueMicrotask`.](020-task-microtask-ordering.md) | medium | 🔴 planned |
-| 030 | [How does `async`/`await` work under the hood?](030-async-await-mechanics.md) | hard | 🔴 planned |
-| 040 | [Sequential vs parallel `await` — and `await` inside loops?](040-sequential-vs-parallel-await.md) | medium | 🔴 planned |
-| 050 | [Is JavaScript single-threaded?](050-single-threaded.md) | medium | 🔴 planned |
-| 060 | [How do you cancel async work?](060-cancelling-async-work.md) | medium | 🔴 planned |
-| 070 | [Implement a concurrency-limited task runner with retry.](070-concurrency-limit-retry.md) | hard | 🔴 planned |
+| 010 | [How does the event loop work?](010-event-loop.md) | medium | 🟡 draft |
+| 020 | [Predict the order: `setTimeout` vs promises vs `queueMicrotask`.](020-task-microtask-ordering.md) | medium | 🟡 draft |
+| 030 | [How does `async`/`await` work under the hood?](030-async-await-mechanics.md) | hard | 🟡 draft |
+| 040 | [Sequential vs parallel `await` — and `await` inside loops?](040-sequential-vs-parallel-await.md) | medium | 🟡 draft |
+| 050 | [Is JavaScript single-threaded?](050-single-threaded.md) | medium | 🟡 draft |
+| 060 | [How do you cancel async work?](060-cancelling-async-work.md) | medium | 🟡 draft |
+| 070 | [Implement a concurrency-limited task runner with retry.](070-concurrency-limit-retry.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
