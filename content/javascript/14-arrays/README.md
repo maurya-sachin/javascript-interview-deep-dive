@@ -24,20 +24,21 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Array-likes vs iterables; `Array.from`, `Array.of`, `Array.fromAsync` → 050
 - `includes` (SameValueZero) vs `indexOf`; `find`, `findLast`, `findIndex`, `at` → 060
 - `flat`, `flatMap`; implementing `flatten` → 070
-- `some`, `every`, `fill`, `copyWithin`; `Array(n)` vs `Array.from({ length: n })` → —
+- `Array(n)` vs `Array.from({ length: n })` → 040, 050
+- `some`, `every`, `fill`, `copyWithin` → —
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Which array methods mutate, and what are their copying versions?](010-mutating-vs-copying-methods.md) | easy | 🔴 planned |
-| 020 | [How does `Array.prototype.sort` work?](020-array-sort.md) | medium | 🔴 planned |
-| 030 | [Implement `map`, `filter`, and `reduce`.](030-implement-map-filter-reduce.md) | medium | 🔴 planned |
-| 040 | [What are sparse arrays and holes?](040-sparse-arrays.md) | medium | 🔴 planned |
-| 050 | [Array-likes vs iterables: how do `Array.from` and `Array.fromAsync` work?](050-array-from-and-fromasync.md) | medium | 🔴 planned |
-| 060 | [`includes` vs `indexOf` vs `find` vs `findLast` vs `at`?](060-searching-arrays.md) | easy | 🔴 planned |
-| 070 | [How do `flat` and `flatMap` work?](070-flat-and-flatmap.md) | medium | 🔴 planned |
+| 010 | [Which array methods mutate, and what are their copying versions?](010-mutating-vs-copying-methods.md) | easy | 🟡 draft |
+| 020 | [How does `Array.prototype.sort` work?](020-array-sort.md) | medium | 🟡 draft |
+| 030 | [Implement `map`, `filter`, and `reduce`.](030-implement-map-filter-reduce.md) | medium | 🟡 draft |
+| 040 | [What are sparse arrays and holes?](040-sparse-arrays.md) | medium | 🟡 draft |
+| 050 | [Array-likes vs iterables: how do `Array.from` and `Array.fromAsync` work?](050-array-from-and-fromasync.md) | medium | 🟡 draft |
+| 060 | [`includes` vs `indexOf` vs `find` vs `findLast` vs `at`?](060-searching-arrays.md) | easy | 🟡 draft |
+| 070 | [How do `flat` and `flatMap` work?](070-flat-and-flatmap.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
