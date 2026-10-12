@@ -76,7 +76,7 @@ try { new arrow(); } catch (error) { console.log(error.name); } // → TypeError
 **A:** `module.exports`, because the file is wrapped in a function whose `this` is `module.exports`. In an ES module it is `undefined`; in a browser classic script it is `window`.
 
 **Q:** Is an arrow's `this` a copy or a live reference?
-**A:** The arrow doesn't store `this`; it resolves it through the enclosing Function Environment Record. A function's `this` binding can't be reassigned once set, so you can't tell a copy from a lookup, except in a derived constructor: an arrow created before `super()` throws a `ReferenceError` if called early, and sees the instance if called after.
+**A:** The arrow doesn't store `this`; it resolves it through the enclosing Function Environment Record. A `this` binding can't be reassigned once set, so copy and lookup look alike, except in a derived constructor: an arrow created before `super()` throws a `ReferenceError` if called early and sees the instance if called after.
 
 **Q:** When would you still choose a regular function?
 **A:** For methods, constructors, generators, and any callback whose caller supplies `this` on purpose (such as a DOM listener that reads `this.value`).
