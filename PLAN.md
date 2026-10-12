@@ -5,8 +5,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 5 — ch 01–07 and 09 drafted (09 by Opus, rest Sonnet); awaiting maintainer review before `published`; next: ch 08
-- Review flags: unverified/time-sensitive claims — 01: 060 transpiler output hand-written, 020 Stage 3 names, Annex B/V8 tiers; 03: 050 `Math.sumPrecise` status; 04: ICU-dependent `Intl` output; 05: 020 `[[IsHTMLDDA]]` only on `document.all`; 06: 020 V8 spread-argument limit (200k, Node 24), V8 error text; 07: 080 "no other engine ships PTC" (only JSC/V8 checked), `vm` global-property attributes not used (differ from browsers)
+- Doing: Phase 5 — ch 01–09 drafted (09 by Opus, rest Sonnet); awaiting maintainer review before `published`; next: ch 10 `this`
+- Review flags: unverified/time-sensitive claims — 01: 060 transpiler output hand-written, 020 Stage 3 names, Annex B/V8 tiers; 03: 050 `Math.sumPrecise` status; 04: ICU-dependent `Intl` output; 05: 020 `[[IsHTMLDDA]]` only on `document.all`; 06: 020 V8 spread-argument limit (200k, Node 24), V8 error text; 07: 080 "no other engine ships PTC" (only JSC/V8 checked), `vm` global-property attributes not used (differ from browsers); 08: spec text read from tc39.es, MDN pages via summaries only; 010/050 sloppy block-function (Annex B) and ASI wording, 030 mapping-removal via `defineProperty`, 060/070 exercise outputs run in Node 24 only
 - Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
