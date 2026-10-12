@@ -90,7 +90,7 @@ console.log(Array.prototype.map.call('abc', (c) => c.toUpperCase())); // → [ '
 **A:** Yes. Bound arguments accumulate in order: `f.bind(null, 1).bind(null, 2)(3)` calls `f(1, 2, 3)`. Only the first `thisArg` counts.
 
 **Q:** `bind` or an arrow wrapper to fix a method's receiver?
-**A:** Both fix `this`. `bind` also pre-fills leading arguments and keeps all later ones; `(x) => obj.method(x)` forwards only the parameters you list but reads more explicitly. Neither is checked for a missing method until called.
+**A:** Both fix `this`. `bind` also pre-fills leading arguments and keeps all later ones; `(x) => obj.method(x)` forwards only the parameters you list but reads more explicitly. A missing method fails at `bind` time with `obj.method.bind`, but only at call time in the arrow.
 
 ## Exercises
 
