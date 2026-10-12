@@ -32,11 +32,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does destructuring work, and where does it throw?](010-destructuring.md) | easy | 🔴 planned |
-| 020 | [What's the difference between spread and rest?](020-spread-vs-rest.md) | easy | 🔴 planned |
-| 030 | [`??` vs `\|\|`, and how do optional chaining and logical assignment short-circuit?](030-nullish-and-optional-chaining.md) | easy | 🔴 planned |
-| 040 | [`for…in` vs `for…of` vs `forEach` — when do you use each?](040-loop-statements.md) | easy | 🔴 planned |
-| 050 | [How does automatic semicolon insertion work, and when does it bite?](050-automatic-semicolon-insertion.md) | medium | 🔴 planned |
+| 010 | [How does destructuring work, and where does it throw?](010-destructuring.md) | easy | 🟡 draft |
+| 020 | [What's the difference between spread and rest?](020-spread-vs-rest.md) | easy | 🟡 draft |
+| 030 | [`??` vs `\|\|`, and how do optional chaining and logical assignment short-circuit?](030-nullish-and-optional-chaining.md) | easy | 🟡 draft |
+| 040 | [`for…in` vs `for…of` vs `forEach` — when do you use each?](040-loop-statements.md) | easy | 🟡 draft |
+| 050 | [How does automatic semicolon insertion work, and when does it bite?](050-automatic-semicolon-insertion.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
