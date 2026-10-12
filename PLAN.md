@@ -4,8 +4,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed); commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: Phase 5 — ch 01–14 drafted; awaiting maintainer review before `published`; next: ch 15
-- Review flags: engine/Node-only and spec-less claims in ch 01–08, 10–14 (see `verified` sources); ch 14: V8 holey/TimSort/deep-`flat` limits, `fromAsync` Baseline from MDN, Node release of `fromAsync` unchecked
+- Doing: Phase 5 — ch 01–15 drafted; awaiting maintainer review before `published`; next: ch 16
+- Review flags: engine/Node-only and spec-less claims in ch 01–08, 10–14 (see `verified` sources); ch 15: `getOrInsert` edition unchecked (absent Node 24.19, present 26.7), ES2025 set-methods edition from memory
 - Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
