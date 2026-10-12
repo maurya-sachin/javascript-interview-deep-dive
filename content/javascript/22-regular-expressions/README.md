@@ -32,10 +32,10 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What do the regex flags do?](010-regex-flags.md) | medium | 🔴 planned |
-| 020 | [How do named groups and lookbehind work?](020-named-groups-lookbehind.md) | medium | 🔴 planned |
-| 030 | [What is catastrophic backtracking?](030-catastrophic-backtracking.md) | hard | 🔴 planned |
-| 040 | [`match` vs `matchAll` vs `exec` vs `replace` — and `RegExp.escape`?](040-regex-methods.md) | medium | 🔴 planned |
+| 010 | [What do the regex flags do?](010-regex-flags.md) | medium | 🟡 draft |
+| 020 | [How do named groups and lookbehind work?](020-named-groups-lookbehind.md) | medium | 🟡 draft |
+| 030 | [What is catastrophic backtracking?](030-catastrophic-backtracking.md) | hard | 🟡 draft |
+| 040 | [`match` vs `matchAll` vs `exec` vs `replace` — and `RegExp.escape`?](040-regex-methods.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
