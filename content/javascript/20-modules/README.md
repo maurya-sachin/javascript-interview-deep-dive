@@ -34,13 +34,13 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How do ES modules load?](010-es-module-loading.md) | hard | 🔴 planned |
-| 020 | [ES modules vs CommonJS — what differs and how do they interoperate?](020-esm-vs-commonjs.md) | medium | 🔴 planned |
-| 030 | [What happens with circular imports?](030-circular-imports.md) | hard | 🔴 planned |
-| 040 | [How does dynamic `import()` work?](040-dynamic-import.md) | medium | 🔴 planned |
-| 050 | [What does top-level `await` do to the module graph?](050-top-level-await.md) | medium | 🔴 planned |
-| 060 | [What are import attributes and JSON modules?](060-import-attributes-json-modules.md) | easy | 🔴 planned |
-| 070 | [What is `import.meta`?](070-import-meta.md) | easy | 🔴 planned |
+| 010 | [How do ES modules load?](010-es-module-loading.md) | hard | 🟡 draft |
+| 020 | [ES modules vs CommonJS — what differs and how do they interoperate?](020-esm-vs-commonjs.md) | medium | 🟡 draft |
+| 030 | [What happens with circular imports?](030-circular-imports.md) | hard | 🟡 draft |
+| 040 | [How does dynamic `import()` work?](040-dynamic-import.md) | medium | 🟡 draft |
+| 050 | [What does top-level `await` do to the module graph?](050-top-level-await.md) | medium | 🟡 draft |
+| 060 | [What are import attributes and JSON modules?](060-import-attributes-json-modules.md) | easy | 🟡 draft |
+| 070 | [What is `import.meta`?](070-import-meta.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
