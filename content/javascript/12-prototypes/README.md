@@ -33,12 +33,12 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does prototypal inheritance work?](010-prototype-chain.md) | medium | 🔴 planned |
-| 020 | [`__proto__` vs `prototype` vs `Object.getPrototypeOf`?](020-proto-vs-prototype.md) | medium | 🔴 planned |
-| 030 | [What does the `new` operator do?](030-new-operator.md) | medium | 🔴 planned |
-| 040 | [How does `instanceof` work?](040-instanceof.md) | medium | 🔴 planned |
-| 050 | [When do you use `Object.create(null)`?](050-object-create-null.md) | medium | 🔴 planned |
-| 060 | [Should you extend native prototypes?](060-extending-native-prototypes.md) | medium | 🔴 planned |
+| 010 | [How does prototypal inheritance work?](010-prototype-chain.md) | medium | 🟡 draft |
+| 020 | [`__proto__` vs `prototype` vs `Object.getPrototypeOf`?](020-proto-vs-prototype.md) | medium | 🟡 draft |
+| 030 | [What does the `new` operator do?](030-new-operator.md) | medium | 🟡 draft |
+| 040 | [How does `instanceof` work?](040-instanceof.md) | medium | 🟡 draft |
+| 050 | [When do you use `Object.create(null)`?](050-object-create-null.md) | medium | 🟡 draft |
+| 060 | [Should you extend native prototypes?](060-extending-native-prototypes.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
