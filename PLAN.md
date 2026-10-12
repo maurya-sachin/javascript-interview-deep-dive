@@ -5,8 +5,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed)
 - Commits: repo-local email `sachinmaurya1710@gmail.com` (set)
-- Doing: Phase 5 — ch 09 (closures, Opus) and ch 01 (how JS runs, Sonnet) drafted; ch 02 (values and types) drafted too; awaiting maintainer review before `published`; next: ch 03
-- Review flags (ch 01): 060 transpiler output hand-written; 020 Stage 3 names are time-sensitive; Annex B / V8 tier / Ecma-mid-year claims not spec-verified
+- Doing: Phase 5 — ch 09 (closures, Opus) and ch 01 (how JS runs, Sonnet) drafted; ch 02 (values and types) and ch 03 (numbers and BigInt) drafted too; awaiting maintainer review before `published`; next: ch 04
+- Review flags: ch 01 060 transpiler output hand-written, 020 Stage 3 names time-sensitive, Annex B / V8 tier / Ecma-mid-year claims not spec-verified; ch 03 050 `Math.sumPrecise` status is time-sensitive (absent in Node 24)
 - Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
