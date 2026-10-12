@@ -4,8 +4,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed); commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: Phase 5 — ch 01–17 drafted; awaiting maintainer review before `published`; next: ch 18
-- Review flags: engine/Node-only and spec-less claims in ch 01–08, 10–14 (see `verified` sources); ch 17 050: draft spec's `Promise.try` (PromiseResolve) differs from Node 24; 070: A+ suite 872/872 run locally
+- Doing: Phase 5 — ch 01–18 drafted; awaiting maintainer review before `published`; next: ch 19
+- Review flags: engine/Node-only and spec-less claims in ch 01–08, 10–14 (see `verified` sources); ch 17 050: `Promise.try` spec differs from Node 24; ch 18: HTML/Node/MDN-sourced claims (browser clamping, worker/Atomics) not run
 - Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
