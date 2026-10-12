@@ -32,11 +32,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Why is `0.1 + 0.2 !== 0.3`?](010-floating-point-precision.md) | easy | 🔴 planned |
-| 020 | [What are `NaN`, `-0`, and `Infinity`, and how do you test for them?](020-nan-negative-zero-infinity.md) | medium | 🔴 planned |
-| 030 | [What's `Number.MAX_SAFE_INTEGER`, and when do you need BigInt?](030-safe-integers-bigint.md) | medium | 🔴 planned |
-| 040 | [`Number()` vs `parseInt()` vs unary `+` — how do they differ?](040-parsing-numbers.md) | easy | 🔴 planned |
-| 050 | [How do you sum floating-point numbers accurately?](050-math-sumprecise.md) | medium | 🔴 planned |
+| 010 | [Why is `0.1 + 0.2 !== 0.3`?](010-floating-point-precision.md) | easy | 🟡 draft |
+| 020 | [What are `NaN`, `-0`, and `Infinity`, and how do you test for them?](020-nan-negative-zero-infinity.md) | medium | 🟡 draft |
+| 030 | [What's `Number.MAX_SAFE_INTEGER`, and when do you need BigInt?](030-safe-integers-bigint.md) | medium | 🟡 draft |
+| 040 | [`Number()` vs `parseInt()` vs unary `+` — how do they differ?](040-parsing-numbers.md) | easy | 🟡 draft |
+| 050 | [How do you sum floating-point numbers accurately?](050-math-sumprecise.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
