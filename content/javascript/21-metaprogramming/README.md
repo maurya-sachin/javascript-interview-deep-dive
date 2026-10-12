@@ -30,11 +30,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What can a Proxy intercept, and what are its invariants?](010-proxy-traps-invariants.md) | hard | 🔴 planned |
-| 020 | [What is `Reflect` for?](020-reflect-api.md) | medium | 🔴 planned |
-| 030 | [Which well-known symbols let you customize built-in behavior?](030-well-known-symbols.md) | medium | 🔴 planned |
-| 040 | [What is an exotic object?](040-exotic-objects.md) | hard | 🔴 planned |
-| 050 | [Why is `eval` dangerous, and what's the difference between direct and indirect eval?](050-eval-direct-indirect.md) | medium | 🔴 planned |
+| 010 | [What can a Proxy intercept, and what are its invariants?](010-proxy-traps-invariants.md) | hard | 🟡 draft |
+| 020 | [What is `Reflect` for?](020-reflect-api.md) | medium | 🟡 draft |
+| 030 | [Which well-known symbols let you customize built-in behavior?](030-well-known-symbols.md) | medium | 🟡 draft |
+| 040 | [What is an exotic object?](040-exotic-objects.md) | hard | 🟡 draft |
+| 050 | [Why is `eval` dangerous, and what's the difference between direct and indirect eval?](050-eval-direct-indirect.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
