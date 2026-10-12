@@ -31,13 +31,13 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What are JavaScript's types?](010-language-types.md) | easy | 🔴 planned |
-| 020 | [Why does `typeof null` return `"object"`?](020-typeof-null.md) | easy | 🔴 planned |
-| 030 | [What's the difference between `null` and `undefined`?](030-null-vs-undefined.md) | easy | 🔴 planned |
-| 040 | [How can a primitive have methods?](040-primitive-wrappers.md) | medium | 🔴 planned |
-| 050 | [Is JavaScript pass-by-value or pass-by-reference?](050-pass-by-sharing.md) | medium | 🔴 planned |
-| 060 | [What are Symbols for?](060-symbols.md) | medium | 🔴 planned |
-| 070 | [How do you reliably check a value's type?](070-type-checking.md) | medium | 🔴 planned |
+| 010 | [What are JavaScript's types?](010-language-types.md) | easy | 🟡 draft |
+| 020 | [Why does `typeof null` return `"object"`?](020-typeof-null.md) | easy | 🟡 draft |
+| 030 | [What's the difference between `null` and `undefined`?](030-null-vs-undefined.md) | easy | 🟡 draft |
+| 040 | [How can a primitive have methods?](040-primitive-wrappers.md) | medium | 🟡 draft |
+| 050 | [Is JavaScript pass-by-value or pass-by-reference?](050-pass-by-sharing.md) | medium | 🟡 draft |
+| 060 | [What are Symbols for?](060-symbols.md) | medium | 🟡 draft |
+| 070 | [How do you reliably check a value's type?](070-type-checking.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
