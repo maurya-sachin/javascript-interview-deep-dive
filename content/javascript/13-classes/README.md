@@ -31,13 +31,13 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Are classes just syntactic sugar over prototypes?](010-classes-vs-prototypes.md) | medium | 🔴 planned |
-| 020 | [How do private fields (`#x`) work?](020-private-fields.md) | medium | 🔴 planned |
-| 030 | [Class fields vs methods — where does each live?](030-fields-vs-methods.md) | medium | 🔴 planned |
-| 040 | [What are static members and static initialization blocks?](040-static-members-and-blocks.md) | easy | 🔴 planned |
-| 050 | [How does `super` work?](050-super-keyword.md) | hard | 🔴 planned |
-| 060 | [How do you extend built-ins like `Array` and `Error`?](060-extending-built-ins.md) | hard | 🔴 planned |
-| 070 | [Composition vs inheritance — when do mixins make sense?](070-composition-vs-inheritance.md) | medium | 🔴 planned |
+| 010 | [Are classes just syntactic sugar over prototypes?](010-classes-vs-prototypes.md) | medium | 🟡 draft |
+| 020 | [How do private fields (`#x`) work?](020-private-fields.md) | medium | 🟡 draft |
+| 030 | [Class fields vs methods — where does each live?](030-fields-vs-methods.md) | medium | 🟡 draft |
+| 040 | [What are static members and static initialization blocks?](040-static-members-and-blocks.md) | easy | 🟡 draft |
+| 050 | [How does `super` work?](050-super-keyword.md) | hard | 🟡 draft |
+| 060 | [How do you extend built-ins like `Array` and `Error`?](060-extending-built-ins.md) | hard | 🟡 draft |
+| 070 | [Composition vs inheritance — when do mixins make sense?](070-composition-vs-inheritance.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
