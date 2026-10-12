@@ -31,14 +31,14 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What is a Promise?](010-what-is-a-promise.md) | easy | 🔴 planned |
-| 020 | [How does promise chaining work?](020-promise-chaining.md) | medium | 🔴 planned |
-| 030 | [`Promise.all` vs `allSettled` vs `race` vs `any`?](030-promise-combinators.md) | easy | 🔴 planned |
-| 040 | [How do errors propagate through promises, and what is an unhandled rejection?](040-promise-error-handling.md) | medium | 🔴 planned |
-| 050 | [What do `Promise.withResolvers` and `Promise.try` solve?](050-withresolvers-and-try.md) | medium | 🔴 planned |
-| 060 | [Implement `Promise.all`.](060-implement-promise-all.md) | medium | 🔴 planned |
-| 070 | [Implement a Promise from scratch.](070-implement-a-promise.md) | hard | 🔴 planned |
-| 080 | [How do you convert a callback API to promises?](080-promisify.md) | easy | 🔴 planned |
+| 010 | [What is a Promise?](010-what-is-a-promise.md) | easy | 🟡 draft |
+| 020 | [How does promise chaining work?](020-promise-chaining.md) | medium | 🟡 draft |
+| 030 | [`Promise.all` vs `allSettled` vs `race` vs `any`?](030-promise-combinators.md) | easy | 🟡 draft |
+| 040 | [How do errors propagate through promises, and what is an unhandled rejection?](040-promise-error-handling.md) | medium | 🟡 draft |
+| 050 | [What do `Promise.withResolvers` and `Promise.try` solve?](050-withresolvers-and-try.md) | medium | 🟡 draft |
+| 060 | [Implement `Promise.all`.](060-implement-promise-all.md) | medium | 🟡 draft |
+| 070 | [Implement a Promise from scratch.](070-implement-a-promise.md) | hard | 🟡 draft |
+| 080 | [How do you convert a callback API to promises?](080-promisify.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
