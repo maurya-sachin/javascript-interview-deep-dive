@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 010 | [Should you use enums or union types?](010-enums-vs-unions.md) | medium | 🟡 draft |
 | 020 | [How do TypeScript classes differ from JavaScript classes: modifiers, parameter properties, `#private`?](020-class-members-access.md) | medium | 🟡 draft |
 | 030 | [When do you use `abstract` classes versus `implements` an interface?](030-abstract-classes-implements.md) | medium | 🟡 draft |
-| 040 | [What is declaration merging, and are namespaces still used?](040-declaration-merging-namespaces.md) | medium | 🔴 planned |
+| 040 | [What is declaration merging, and are namespaces still used?](040-declaration-merging-namespaces.md) | medium | 🟡 draft |
 | 050 | [How do decorators work in TypeScript?](050-decorators.md) | hard | 🔴 planned |
 | 060 | [Which TypeScript syntax has runtime output, and why does `erasableSyntaxOnly` exist?](060-erasable-syntax-only.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
