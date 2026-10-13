@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [How does Node.js run TypeScript files directly?](030-node-type-stripping.md) | medium | 🟡 draft |
 | 040 | [What are the stages of the TypeScript compiler?](040-compiler-pipeline.md) | hard | 🟡 draft |
 | 050 | [What is the native (Go) port of the TypeScript compiler?](050-native-compiler-port.md) | medium | 🟡 draft |
-| 060 | [Is TypeScript's type system sound? Where does it not catch errors?](060-type-system-soundness.md) | hard | 🔴 planned |
+| 060 | [Is TypeScript's type system sound? Where does it not catch errors?](060-type-system-soundness.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
