@@ -25,18 +25,18 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Smis, HeapNumbers, pointer compression → 050
 - Code caching and snapshots → —
 - Other engines' tiers (SpiderMonkey, JavaScriptCore) → —
-- Micro-benchmark pitfalls → —
+- Micro-benchmark pitfalls → 030
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What happens between source code and execution in V8?](010-v8-pipeline.md) | hard | 🔴 planned |
-| 020 | [What are hidden classes and inline caches?](020-hidden-classes-inline-caches.md) | hard | 🔴 planned |
-| 030 | [What causes deoptimization?](030-deoptimization.md) | hard | 🔴 planned |
-| 040 | [How does V8 store arrays?](040-elements-kinds.md) | hard | 🔴 planned |
-| 050 | [How does V8 represent numbers?](050-smi-and-heap-numbers.md) | hard | 🔴 planned |
+| 010 | [What happens between source code and execution in V8?](010-v8-pipeline.md) | hard | 🟡 draft |
+| 020 | [What are hidden classes and inline caches?](020-hidden-classes-inline-caches.md) | hard | 🟡 draft |
+| 030 | [What causes deoptimization?](030-deoptimization.md) | hard | 🟡 draft |
+| 040 | [How does V8 store arrays?](040-elements-kinds.md) | hard | 🟡 draft |
+| 050 | [How does V8 represent numbers?](050-smi-and-heap-numbers.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
