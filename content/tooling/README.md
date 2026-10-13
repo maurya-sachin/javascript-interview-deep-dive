@@ -2,13 +2,13 @@
 
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 
-The tools between source code and what ships: package managers, bundlers, transpilers, linters, monorepos, and CI.
+The tools between source code and what ships: package managers, bundlers, transpilers, linters, and monorepos.
 Interviews ask about them when something breaks — a duplicate dependency, a bundle that won't tree-shake, a dual-package bug.
 
 ## Scope
 
-- **In:** package managers and dependency resolution, publishing packages, bundlers and dev servers, transpilers, tree-shaking and code splitting as mechanisms, source maps, linting and formatting, monorepos, CI pipelines.
-- **Out:** module semantics → [JavaScript](../javascript/) · `tsconfig` → [TypeScript](../typescript/) · Node's module resolution → [Node.js runtime](../nodejs/) · bundle-size impact on users → [Web performance](../web-performance/).
+- **In:** package managers and dependency resolution, publishing packages, bundlers and dev servers, transpilers, tree-shaking and code splitting as mechanisms, source maps, linting and formatting, monorepo workspaces and task runners.
+- **Out:** module semantics → [JavaScript](../javascript/) · `tsconfig` → [TypeScript](../typescript/) · Node's module resolution → [Node.js runtime](../nodejs/) · bundle-size impact on users → [Web performance](../web-performance/) · CI pipelines → [CI/CD](../ci-cd/) · monorepo vs polyrepo and version control → [Git](../git/).
 
 ## Prerequisites
 
@@ -33,7 +33,6 @@ Areas this topic owns that have no chapter yet. Move an item into a chapter's su
 - Source maps
 - Linting and formatting: ESLint, Prettier, how rules work
 - Monorepos: workspaces, task runners, caching
-- CI: pipelines, caching dependencies, running checks
 
 ## Sources
 

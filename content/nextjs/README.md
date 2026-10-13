@@ -8,7 +8,7 @@ Interviews for React roles increasingly assume it, and the hard questions are ab
 ## Scope
 
 - **In:** the App Router (layouts, routing, route handlers), static and dynamic rendering, streaming, data fetching and caching, Server Actions in Next.js, request interception, image/font/metadata optimization, runtimes and deployment, how the Pages Router differs.
-- **Out:** React itself, including Server Components → [React](../react/) · HTTP service design → [Backend](../backend/) · Core Web Vitals → [Web performance](../web-performance/).
+- **Out:** React itself, including Server Components → [React](../react/) · API design → [HTTP and APIs](../http-and-apis/) · client-side data caching → [State and data fetching](../state-and-data-fetching/) · Core Web Vitals → [Web performance](../web-performance/).
 
 ## Prerequisites
 

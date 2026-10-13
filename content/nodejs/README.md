@@ -8,7 +8,7 @@ Backend and full-stack interviews probe this layer to see whether you know what 
 ## Scope
 
 - **In:** Node's architecture (V8 + libuv), event-loop phases and `process.nextTick`, CommonJS internals and ESM interop, core modules (`fs`, `stream`, `buffer`, `events`, `child_process`, `worker_threads`), processes and signals, diagnostics.
-- **Out:** the language → [JavaScript](../javascript/) · building HTTP services → [Backend](../backend/) · npm and package managers → [Tooling](../tooling/) · the built-in test runner → [Testing](../testing/).
+- **Out:** the language → [JavaScript](../javascript/) · building HTTP services → [Backend patterns](../backend-patterns/) · npm and package managers → [Tooling](../tooling/) · the built-in test runner → [Testing](../testing/).
 
 ## Prerequisites
 

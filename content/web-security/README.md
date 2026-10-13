@@ -2,17 +2,17 @@
 
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 
-Security for web apps on both sides of the network: the browser's security model, common attacks, and authentication.
+Security for web apps on both sides of the network: the browser's security model, common attacks, and the defences against them.
 Frontend and backend interviews both ask it, and the answers depend on knowing exactly what the browser enforces.
 
 ## Scope
 
-- **In:** the same-origin policy and CORS, XSS and CSP, CSRF and cookie attributes, clickjacking, authentication and sessions, OAuth 2.0 and OpenID Connect, passkeys, injection, SSRF, security headers, dependency and supply-chain risk, secrets handling.
-- **Out:** how cookies and storage work → [Browser runtime](../browser/) · building the API itself → [Backend](../backend/) · package manager mechanics → [Tooling](../tooling/).
+- **In:** the same-origin policy and CORS, XSS and CSP, CSRF and cookie attributes, clickjacking, injection, SSRF, security headers, dependency and supply-chain risk, secrets handling.
+- **Out:** how cookies and storage work → [Browser runtime](../browser/) · sessions, tokens, OAuth, and passkeys → [Authentication](../authentication/) · building the API itself → [Backend patterns](../backend-patterns/) · TLS mechanics → [Networking](../networking/) · package manager mechanics → [Tooling](../tooling/).
 
 ## Prerequisites
 
-[Browser runtime](../browser/) for the client side, [Backend](../backend/) for the server side.
+[Browser runtime](../browser/) for the client side, [HTTP and APIs](../http-and-apis/) for the server side.
 
 ## Chapters
 
@@ -30,9 +30,6 @@ Areas this topic owns that have no chapter yet. Move an item into a chapter's su
 - Content Security Policy
 - CSRF, `SameSite`, and cookie attributes
 - Clickjacking and framing controls
-- Authentication: sessions vs tokens, JWT pitfalls, password storage
-- OAuth 2.0 and OpenID Connect flows, PKCE
-- Passkeys and WebAuthn
 - Server-side attacks: injection, SSRF, path traversal, mass assignment
 - Security headers and HTTPS
 - Supply chain: dependency risk, lockfiles, integrity checks

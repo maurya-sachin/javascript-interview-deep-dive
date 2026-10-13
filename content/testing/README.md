@@ -8,7 +8,7 @@ Interviews use it to judge whether your code can be changed safely — by you or
 ## Scope
 
 - **In:** test strategy, unit and integration testing, test runners (Vitest, Jest, the Node.js test runner), mocking modules/timers/network, testing async code, component testing, end-to-end testing, coverage, flaky tests, TDD.
-- **Out:** accessibility checks → [Accessibility](../accessibility/) · performance measurement → [Web performance](../web-performance/) · running tests in CI → [Tooling](../tooling/).
+- **Out:** accessibility checks → [Accessibility](../accessibility/) · performance measurement → [Web performance](../web-performance/) · running tests in CI → [CI/CD](../ci-cd/).
 
 ## Prerequisites
 

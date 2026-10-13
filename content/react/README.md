@@ -8,7 +8,7 @@ It's the most-asked frontend framework in interviews, and the hard questions are
 ## Scope
 
 - **In:** components and JSX, state and rendering, hooks, effects, reconciliation and keys, Fiber and concurrent rendering, Suspense, context, refs, Server Components and Server Functions as React defines them, the React Compiler.
-- **Out:** routing, caching, and deployment → [Next.js](../nextjs/) · typing components → [TypeScript](../typescript/) · accessible widget patterns → [Accessibility](../accessibility/) · component testing → [Testing](../testing/).
+- **Out:** routing, caching, and deployment → [Next.js](../nextjs/) · typing components → [TypeScript](../typescript/) · accessible widget patterns → [Accessibility](../accessibility/) · component testing → [Testing](../testing/) · client state libraries and server data → [State and data fetching](../state-and-data-fetching/) · native apps → [React Native and Expo](../react-native/).
 
 ## Prerequisites
 

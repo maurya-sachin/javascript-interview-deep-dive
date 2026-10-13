@@ -8,7 +8,7 @@ Interviews use it to test whether you can find a bottleneck with data instead of
 ## Scope
 
 - **In:** Core Web Vitals and how they're measured (lab vs field), loading performance (critical rendering path, resource hints, priorities, caching for asset delivery), images and fonts, JavaScript cost (bundle size, code splitting, hydration), runtime responsiveness (long tasks, layout thrashing, scheduling), profiling.
-- **Out:** how the rendering pipeline works → [Browser runtime](../browser/) · engine optimizations → [JavaScript](../javascript/) · bundler configuration → [Tooling](../tooling/) · server-side caching → [Backend](../backend/).
+- **Out:** how the rendering pipeline works → [Browser runtime](../browser/) · engine optimizations → [JavaScript](../javascript/) · bundler configuration → [Tooling](../tooling/) · server-side caching → [Caching](../caching/) · TCP, TLS, and HTTP/2–3 on the wire → [Networking](../networking/).
 
 ## Prerequisites
 
