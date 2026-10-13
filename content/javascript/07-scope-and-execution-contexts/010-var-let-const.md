@@ -3,7 +3,7 @@ title: "What's the difference between `var`, `let`, and `const`?"
 status: draft
 difficulty: easy
 frequency: 5
-core: false
+core: true
 tags: [scope, var, let, const, declarations]
 related:
   - javascript/scope-and-execution-contexts/hoisting
@@ -16,6 +16,9 @@ sources:
   - https://tc39.es/ecma262/#sec-variable-statement
   - https://tc39.es/ecma262/#sec-blockdeclarationinstantiation
   - https://tc39.es/ecma262/#sec-declarative-environment-records-setmutablebinding-n-v-s
+  - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
+  - https://tc39.es/ecma262/#sec-globaldeclarationinstantiation
+  - https://nodejs.org/docs/latest-v24.x/api/vm.html
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const
@@ -93,6 +96,99 @@ try {
 
 **Q:** Is `var` ever the right choice?
 **A:** Rarely. It matters when reading old code and in sloppy-mode scripts that rely on global properties. In new modules, `let` and `const` cover every case with tighter scope.
+
+## Deep dive
+
+### How it works
+
+The four differences in the Answer come from *which Environment Record holds the binding* and *when it is initialized*.
+
+In a function, `FunctionDeclarationInstantiation` puts `var` names (and parameters) in the function's `VariableEnvironment`, initialized to `undefined`. `let`/`const` names go in a lexical environment and stay uninitialized until their declaration runs. Blocks create their own Declarative Environment Record on entry (`BlockDeclarationInstantiation`); a `switch` creates one for the whole `CaseBlock`.
+
+At the top level of a classic script, the Global Environment Record is two records in one: an Object Environment Record backed by the global object, and a Declarative Environment Record. `var` and function declarations go to the object side (so they become non-configurable global properties); `let`, `const` and `class` go to the declarative side (so they don't). Node's `vm` module runs code as a classic script, which makes this observable:
+
+```js
+import vm from 'node:vm';
+
+const context = vm.createContext({});
+vm.runInContext('var fromVar = 1; let fromLet = 2; const fromConst = 3;', context);
+
+console.log(Object.keys(context)); // → [ 'fromVar' ]
+console.log(vm.runInContext('fromLet + fromConst', context)); // → 5
+
+try {
+  vm.runInContext('var fromLet = 9;', context);
+} catch (error) {
+  console.log(error.name, error.message); // → SyntaxError Identifier 'fromLet' has already been declared
+}
+vm.runInContext('var fromVar = 10;', context); // var may be redeclared
+console.log(context.fromVar); // → 10
+```
+
+Lexical bindings are still reachable by name from later scripts, which is why `fromLet + fromConst` works. They just aren't properties.
+
+### Edge cases
+
+- **Parameter expressions split the scope.** When a parameter list contains expressions (defaults), the spec creates a separate environment for the function body's `var`s, so a closure in the parameter list doesn't see body declarations. Without parameter expressions there is one environment.
+- **`switch` is one block.** All `case` clauses share a single lexical scope, so a `let` in one clause is in the TDZ, not out of scope, in another.
+- **`const` binds per iteration only where the loop creates one.** `for (const x of list)` creates a fresh binding each pass. `for (const i = 0; i < 2; i++)` throws a `TypeError` at the increment.
+- **`var` conflicts with a lexical name too.** `let x` and `var x` in the same scope are an early `SyntaxError`; across two scripts the same conflict is a run-time `SyntaxError` (see below).
+
+```js
+var x = 'outer';
+function run(getX = () => x) {
+  var x = 'inner';
+  return [x, getX()];
+}
+console.log(run()); // → [ 'inner', 'outer' ]
+
+function pick(kind) {
+  switch (kind) {
+    case 'a':
+      let value = 'A';
+      return value;
+    case 'b':
+      try {
+        return value; // same block scope as the `let` in case 'a'
+      } catch (error) {
+        return error.name;
+      }
+  }
+}
+console.log(pick('b')); // → ReferenceError
+
+try {
+  for (const j = 0; j < 2; j++) {}
+} catch (error) {
+  console.log(error.name); // → TypeError
+}
+```
+
+In `run`, `getX` reads the outer `x` because the parameter-list closure can't see the body's `var x`.
+
+### Real-world scenario
+
+Classic `<script>` tags share one global declarative record. If a third-party snippet and your bundle both declare `const config`, the second script fails at `GlobalDeclarationInstantiation`, a runtime `SyntaxError` rather than an early error, because the conflict spans two scripts. The spec says that when this check fails, no bindings are instantiated for the failing script, and its code doesn't run. With `var` for both names, nothing would have thrown and the later script would silently overwrite the earlier value.
+
+```js
+import vm from 'node:vm';
+
+const page = vm.createContext({});
+vm.runInContext('const config = { source: "snippet" };', page);
+
+try {
+  vm.runInContext('var startedApp = true; const config = { source: "app" };', page);
+} catch (error) {
+  console.log(error.name, error.message); // → SyntaxError Identifier 'config' has already been declared
+}
+console.log(page.startedApp, vm.runInContext('config.source', page)); // → undefined snippet
+```
+
+Module code has its own top-level scope, so this mostly affects inline and legacy classic scripts. The fix is to load them as modules or wrap each in an IIFE, not to switch to `var`.
+
+### Trade-offs
+
+`const` by default communicates "this binding never changes", which removes a class of reassignment bugs from review; `let` marks the variables that do change, which makes the changing state easy to spot. `var` offers nothing that block scoping doesn't, apart from deliberately creating global properties in classic scripts. Linters enforce this (`no-var`, `prefer-const`), and converting old code from `var` to `let` can change behaviour wherever a variable is read before its declaration, used outside its block, or captured in a loop, so convert in small, tested steps.
 
 ## Exercises
 
