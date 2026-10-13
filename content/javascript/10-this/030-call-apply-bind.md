@@ -3,7 +3,7 @@ title: "`call` vs `apply` vs `bind`?"
 status: draft
 difficulty: easy
 frequency: 5
-core: false
+core: true
 tags: [this, call, apply, bind, partial-application]
 related:
   - javascript/this/this-binding-rules
@@ -18,6 +18,9 @@ sources:
   - https://tc39.es/ecma262/#sec-function.prototype.bind
   - https://tc39.es/ecma262/#sec-boundfunctioncreate
   - https://tc39.es/ecma262/#sec-bound-function-exotic-objects-call-thisargument-argumentslist
+  - https://tc39.es/ecma262/#sec-createlistfromarraylike
+  - https://tc39.es/ecma262/#sec-ordinaryhasinstance
+  - https://nodejs.org/docs/latest-v24.x/api/events.html#eventtarget-and-event-api
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
@@ -91,6 +94,96 @@ console.log(Array.prototype.map.call('abc', (c) => c.toUpperCase())); // → [ '
 
 **Q:** `bind` or an arrow wrapper to fix a method's receiver?
 **A:** Both fix `this`. `bind` also pre-fills leading arguments and keeps all later ones; `(x) => obj.method(x)` forwards only the parameters you list but reads more explicitly. A missing method fails at `bind` time with `obj.method.bind`, but only at call time in the arrow.
+
+## Deep dive
+
+### How it works
+
+`call` and `apply` are thin wrappers over the internal `Call(func, thisArg, args)`. They differ in how the argument list is built:
+
+- `apply` returns `Call(func, thisArg)` with no arguments when `argArray` is `undefined` or `null`. Otherwise it runs `CreateListFromArrayLike`, which requires an *object*, reads `length` with `LengthOfArrayLike`, and then `Get`s each index. That is why a plain `{ length: 2, 0: 4, 1: 9 }` works, why a number throws `TypeError`, and why a getter-backed array-like runs its getters.
+- `call` takes the rest arguments as they are.
+
+`bind` does more work up front, and every step is observable:
+
+1. `BoundFunctionCreate` makes a bound function exotic object with `[[BoundTargetFunction]]`, `[[BoundThis]]` and `[[BoundArguments]]`. Its `[[Prototype]]` is taken from `target.[[GetPrototypeOf]]()`, so it is *not* `Function.prototype` when the target has a different prototype (a derived class, for example).
+2. `length` is set only if the target has an *own* `length` property holding a Number: `max(targetLength - boundArgCount, 0)`, with `Infinity` staying `Infinity`. Otherwise it stays `0`.
+3. `name` is `"bound "` plus the target's `name`, or plus the empty string when `name` isn't a String.
+
+```js
+class Base {}
+class Child extends Base {}
+
+const BoundChild = Child.bind(null);
+console.log(Object.getPrototypeOf(BoundChild) === Object.getPrototypeOf(Child)); // → true
+console.log(Object.getPrototypeOf(Child) === Base); // → true
+console.log(new BoundChild() instanceof Child, new Child() instanceof BoundChild); // → true true
+
+function f(a, b, c) {}
+Object.defineProperty(f, 'name', { value: 42 });
+const bound = f.bind(null, 1).bind(null, 2);
+console.log(JSON.stringify(bound.name), bound.length); // → "bound bound " 1
+
+const noLength = Object.defineProperty(function () {}, 'length', { value: Infinity });
+console.log(noLength.bind(null, 1).length); // → Infinity
+```
+
+`instanceof` works in both directions because a bound function has no `prototype`; `instanceof` unwraps it to `[[BoundTargetFunction]]`. Binding twice yields `"bound bound "` plus the target name, and the second bind sees the first bound function's `length` (`3 - 1 - 1`).
+
+### Edge cases
+
+- **`apply` argument validation.** `null`/`undefined` means "no arguments" and anything that isn't an object throws.
+- **`apply` can be shadowed.** `fn.apply` is a normal property lookup, so a function that defines its own `apply` hijacks `fn.apply(...)`. `Reflect.apply(fn, thisArg, args)` doesn't go through that lookup.
+- **Arrow functions and bound functions ignore a later `thisArg`.** The spec notes this in `Function.prototype.bind`; arrows can still be bound for their *arguments*.
+
+```js
+console.log(Math.max.apply(null, { length: 2, 0: 4, 1: 9 })); // → 9
+try {
+  Math.max.apply(null, 5);
+} catch (error) {
+  console.log(error.name); // → TypeError
+}
+console.log(Math.max.apply(null, null), Math.max.apply(null)); // → -Infinity -Infinity
+
+const fn = function () { return 'real'; };
+fn.apply = () => 'hijacked';
+console.log(fn.apply(null), Reflect.apply(fn, null, [])); // → hijacked real
+```
+
+### Real-world scenario
+
+`bind` returns a new function every time it is called. Code that registers a listener with `this.handler.bind(this)` and later tries to remove it with another `this.handler.bind(this)` removes nothing, because `removeEventListener` matches by function identity. The handler keeps firing, along with whatever the instance retains:
+
+```js
+class Panel {
+  constructor(target) {
+    this.target = target;
+    this.clicks = 0;
+  }
+  onClick() { this.clicks++; }
+
+  attachBroken() {
+    this.target.addEventListener('click', this.onClick.bind(this));
+  }
+  detachBroken() {
+    this.target.removeEventListener('click', this.onClick.bind(this)); // a different function
+  }
+}
+
+const target = new EventTarget();
+const panel = new Panel(target);
+panel.attachBroken();
+panel.detachBroken();
+target.dispatchEvent(new Event('click'));
+console.log(panel.clicks); // → 1
+console.log(panel.onClick.bind(panel) === panel.onClick.bind(panel)); // → false
+```
+
+Bind once and keep the reference (in the constructor, or a class field arrow function), and use that same reference for add and remove. Passing an `AbortSignal` in the `addEventListener` options is another way to remove it without keeping the function.
+
+### Trade-offs
+
+`bind` gives a real function you can store, compare and remove, plus partial application, at the cost of an extra allocation per call to `bind` and a function whose `name` and `length` are derived. An arrow wrapper (`(event) => this.onClick(event)`) is clearer about what is forwarded, but it is also a new function each time and doesn't pre-fill arguments. A class field arrow (`onClick = () => {…}`) fixes `this` per instance and gives a stable reference, but creates one function per instance instead of sharing the prototype method. Choose by whether you need identity (listeners), partial application (`bind`), or shared methods (prototype). For `apply` itself, modern code usually prefers spread (`fn(...args)`) and `Reflect.apply` when `fn.apply` can't be trusted.
 
 ## Exercises
 
