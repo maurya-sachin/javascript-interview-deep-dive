@@ -33,7 +33,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 010 | [What does TypeScript erase at compile time, and what does that mean for runtime checks?](010-type-erasure.md) | medium | 🟡 draft |
 | 020 | [What is the difference between type checking and transpiling, and why do bundlers skip checking?](020-checking-vs-emitting.md) | medium | 🟡 draft |
 | 030 | [How does Node.js run TypeScript files directly?](030-node-type-stripping.md) | medium | 🟡 draft |
-| 040 | [What are the stages of the TypeScript compiler?](040-compiler-pipeline.md) | hard | 🔴 planned |
+| 040 | [What are the stages of the TypeScript compiler?](040-compiler-pipeline.md) | hard | 🟡 draft |
 | 050 | [What is the native (Go) port of the TypeScript compiler?](050-native-compiler-port.md) | medium | 🔴 planned |
 | 060 | [Is TypeScript's type system sound? Where does it not catch errors?](060-type-system-soundness.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
