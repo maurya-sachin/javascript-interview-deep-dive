@@ -1,5 +1,6 @@
 # Next.js
 
+> **Track:** Frontend
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 
 Next.js as a full-stack React framework: the App Router, rendering strategies, data fetching and caching, and deployment.

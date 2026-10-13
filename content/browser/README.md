@@ -1,5 +1,6 @@
 # Browser runtime
 
+> **Track:** Frontend
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 
 What the browser adds around the language: the DOM, events, the rendering pipeline, the HTML event loop, and Web APIs.

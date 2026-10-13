@@ -1,5 +1,6 @@
 # React
 
+> **Track:** Frontend
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 
 React's rendering model, from components and hooks down to reconciliation, concurrent rendering, and Server Components.

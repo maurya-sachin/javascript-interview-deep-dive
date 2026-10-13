@@ -114,6 +114,20 @@ Topic and chapter READMEs start with a status line:
 🔴 planned (nothing published) · 🟡 in progress (some published) · 🟢 complete (all published).
 **Last verified** is the oldest `verified` among published questions.
 
+Topic READMEs (not chapters) put a hand-written track line directly above it, in the same blockquote:
+
+```
+> **Track:** Backend
+> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+```
+
+| Track | Topics |
+|---|---|
+| Frontend | `javascript` `typescript` `html-and-css` `browser` `accessibility` `react` `nextjs` `react-native` `state-and-data-fetching` |
+| Backend | `nodejs` `http-and-apis` `backend-patterns` `databases` `caching` `messaging-and-jobs` `authentication` |
+| Infrastructure and delivery | `git` `ci-cd` `containers-and-kubernetes` `cloud-and-iac` `networking` `observability` |
+| Engineering practice | `testing` `web-performance` `web-security` `tooling` `system-design` `data-structures-and-algorithms` |
+
 The status line and the blocks between `<!-- generated:… -->` markers are generated — run `npm run content:sync`, never edit them by hand.
 Elsewhere, mark unknowns with ❓ — never guess.
 

@@ -1,5 +1,6 @@
 # Web security
 
+> **Track:** Engineering practice
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 
 Security for web apps on both sides of the network: the browser's security model, common attacks, and the defences against them.
