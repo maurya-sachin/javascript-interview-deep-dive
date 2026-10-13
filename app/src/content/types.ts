@@ -29,6 +29,8 @@ export interface ChapterSummary {
 export interface TopicSummary {
   slug: string
   title: string
+  /** Group on the home page, from the README's `> **Track:**` line. */
+  track: string
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string
   chapters: ChapterSummary[]

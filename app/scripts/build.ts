@@ -144,11 +144,17 @@ async function summaryHtml(readme: string): Promise<string> {
   return (await renderInline(paragraph.join(' '))).html
 }
 
+/** The topic README's `> **Track:**` line, which groups topics on the home page. */
+function trackOf(readme: string): string {
+  return readme.match(/^> \*\*Track:\*\* (.+)$/m)?.[1].trim() ?? 'Other'
+}
+
 const index: ContentIndex = {
   topics: await Promise.all(
     content.topics.map(async (topic) => ({
       slug: topic.slug,
       title: topic.title,
+      track: trackOf(topic.readme),
       summaryHtml: await summaryHtml(topic.readme),
       flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
       chapters: await Promise.all(
