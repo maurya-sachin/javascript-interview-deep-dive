@@ -3,7 +3,7 @@ title: "ES modules vs CommonJS — what differs and how do they interoperate?"
 status: draft
 difficulty: medium
 frequency: 5
-core: false
+core: true
 tags: [esm, commonjs, require, interop, require-esm, dual-package, node]
 related:
   - javascript/modules/es-module-loading
@@ -18,6 +18,8 @@ sources:
   - https://nodejs.org/docs/latest-v24.x/api/packages.html#determining-module-system
   - https://nodejs.org/docs/latest-v24.x/api/packages.html#conditional-exports
   - https://tc39.es/ecma262/#sec-cyclic-module-records
+  - https://tc39.es/ecma262/#sec-source-text-module-record-initialize-environment
+  - https://nodejs.org/docs/latest-v24.x/api/esm.html#json-modules
 tldr: >
   CommonJS runs a file synchronously on `require()` and hands back a plain `module.exports` object, so it is a
   value copy and can be dynamic. ES modules are statically linked, asynchronous-capable, strict, and expose live
@@ -80,6 +82,115 @@ console.log(ns.answer, ns.default(21));
 
 **Q:** Why are file extensions required in ESM imports in Node.js?
 **A:** ESM resolution follows URL rules and doesn't probe extensions or `index` files. Write `./lib.js`.
+
+## Deep dive
+
+### How it works
+
+The two systems differ in *when* names are connected to values.
+
+An ES module goes through separate phases. After loading the graph, the `Link` phase runs `InitializeEnvironment` for each module. It creates the module's environment and, for every import, calls `CreateImportBinding`, which makes an *indirect binding*: a name in the importer that points at a binding in the exporter's environment. If an imported name doesn't resolve, linking throws a `SyntaxError` before any module code runs. The `Evaluate` phase then runs module bodies in dependency order. `var` and function declarations are initialized during linking; `let`, `const` and `class` exist but stay uninitialized until their line runs.
+
+A CommonJS module has no link phase. `require` runs the file's wrapper function on first use, takes whatever is in `module.exports` when it returns, caches it in `require.cache`, and hands every caller that same object. Reading `exports.count` later reads a property on that object, and a primitive copied into it (`count`) was copied at that moment.
+
+```js
+// counter.mjs
+export let count = 0;
+export function increment() { count++; }
+
+// counter.cjs
+let count = 0;
+module.exports = { count, increment() { count++; }, getCount: () => count };
+
+// live.mjs
+import { count, increment } from './counter.mjs';
+import cjs from './counter.cjs';
+
+increment();
+console.log(count); // → 1
+try {
+  count = 5;
+} catch (error) {
+  console.log(error.name); // → TypeError
+}
+
+cjs.increment();
+console.log(cjs.count, cjs.getCount()); // → 0 1
+```
+
+The ESM import saw the update because it is an alias for the exporter's `count`; assigning to it throws because import bindings are read-only. The CommonJS object has `count: 0` forever, because the property was set once.
+
+### Edge cases
+
+- **Circular imports differ in what you see.** In CommonJS, a cycle returns the *partially filled* `exports` object of the module still running. In ESM, the bindings exist but may be uninitialized: reading a `const` early throws `ReferenceError`, while a function declaration works, since it was initialized at link time.
+- **Caches differ.** CommonJS exposes `require.cache`, so `delete require.cache[path]` forces a reload. ESM has no equivalent: a module instance is keyed by its resolved URL and lives for the process. A different query string is a different URL, so `import('./state.mjs?v=2')` loads a second instance and the original stays cached.
+- **A missing export is a link error in ESM** (`SyntaxError`, nothing runs), but just `undefined` in CommonJS.
+
+```js
+// a.cjs (run: node a.cjs)
+exports.early = 'a-early';
+const b = require('./b.cjs');
+exports.late = 'a-late';
+console.log('a sees b:', b.fromB);
+
+// b.cjs
+const a = require('./a.cjs');
+console.log('b sees a:', Object.keys(a));
+module.exports = { fromB: true };
+// → b sees a: [ 'early' ]
+// → a sees b: true
+```
+
+```js
+// ca.mjs (run: node ca.mjs)
+import { fromB } from './cb.mjs';
+export const fromA = 'a';
+console.log('a sees', fromB);
+
+// cb.mjs
+import { fromA } from './ca.mjs';
+export const fromB = 'b';
+try {
+  console.log(fromA);
+} catch (error) {
+  console.log('b:', error.name);
+}
+// → b: ReferenceError
+// → a sees b
+```
+
+```js
+// bust.mjs
+const a = await import('./state.mjs');
+const b = await import('./state.mjs');
+const c = await import('./state.mjs?v=2');
+console.log(a === b, a.instance === c.instance); // → true false
+```
+
+### Real-world scenario
+
+A typical CommonJS-to-ESM migration breaks in a few predictable places, and each follows from the model above:
+
+- **`__dirname` and `require` don't exist.** Use `import.meta.dirname` / `import.meta.filename` (or `new URL(…, import.meta.url)`), and `createRequire` when you really need `require`.
+- **JSON can't be `require`d.** Node.js requires an import attribute: `import data from './data.json' with { type: 'json' }`. Without `with { type: 'json' }`, Node throws `ERR_IMPORT_ATTRIBUTE_MISSING`. JSON modules only expose a default export.
+- **Singletons with `delete require.cache` hacks** (test isolation, hot reload) need a different approach, such as the query-string trick above, which leaves the original cached, or a fresh process or worker.
+
+```js
+// migrated.mjs
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import data from './data.json' with { type: 'json' };
+
+console.log(typeof __dirname, typeof require); // → undefined undefined
+console.log(data.name); // → demo
+console.log(readFileSync(join(import.meta.dirname, 'data.json'), 'utf8').trim()); // → { "name": "demo" }
+```
+
+Do the migration one package or directory at a time, and re-run the tests between steps. The `require(esm)` support in Node.js 24 lets CommonJS code consume ESM dependencies during that period, as long as no module in the graph uses top-level `await`.
+
+### Trade-offs
+
+ESM gives static analysis (tree shaking, early errors for bad imports), live bindings, and top-level `await`, in exchange for asynchronous loading, a strict no-reload cache, and extra care around cycles. CommonJS is simpler to hack on dynamically (conditional `require`, cache clearing, mutable `module.exports`) and is still what a large amount of existing Node.js code is written in. For new code, ESM is the standard; the practical constraint is your dependency graph. For libraries, ship ESM (or ESM plus a thin CommonJS entry that reuses it) and keep state in one place to avoid the dual package hazard.
 
 ## Exercises
 
