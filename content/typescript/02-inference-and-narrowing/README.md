@@ -18,8 +18,8 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Best common type, contextual typing, return type inference,Where explicit annotations belong (public APIs, empty collections) → 010
-- Control-flow analysis; `typeof`, truthiness, equality, `in`, `instanceof`,Why narrowing is lost in callbacks and after mutation → 020
+- Best common type, contextual typing, return type inference; Where explicit annotations belong (public APIs, empty collections) → 010
+- Control-flow analysis; `typeof`, truthiness, equality, `in`, `instanceof`; Why narrowing is lost in callbacks and after mutation → 020
 - `x is T` predicates, `asserts x is T`, inferred type predicates → 030
 - Discriminated unions, tag property, `never` exhaustiveness check → 040
 - `satisfies` vs annotation vs `as` → 050

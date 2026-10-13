@@ -19,7 +19,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 
 - Generic functions, interfaces, classes; `extends` constraints, defaults → 010
 - Inference candidates, widening, inference from multiple sites → 020
-- Variance, `strictFunctionTypes`, `in` / `out` annotations,Array and function parameter variance → 030
+- Variance, `strictFunctionTypes`, `in` / `out` annotations; Array and function parameter variance → 030
 - `keyof`, `typeof` (type position), indexed access, `T[number]` → 040
 - `const` type parameters, `NoInfer<T>` → 050
 

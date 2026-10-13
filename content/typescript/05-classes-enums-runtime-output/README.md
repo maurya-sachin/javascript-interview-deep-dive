@@ -18,7 +18,7 @@ After this chapter you can:
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
 - Numeric, string, and `const` enums; emitted code; `as const` objects → 010
-- `public` / `private` / `protected` / `readonly`, parameter properties, `override`,Mixins → 020
+- `public` / `private` / `protected` / `readonly`, parameter properties, `override`; Mixins → 020
 - `abstract` classes, `implements` vs `extends` → 030
 - Interface merging, namespace merging, namespaces vs modules → 040
 - Standard (TC39) decorators vs `experimentalDecorators` → 050

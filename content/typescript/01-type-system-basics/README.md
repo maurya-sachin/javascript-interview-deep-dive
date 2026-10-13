@@ -21,9 +21,9 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - `type` aliases vs `interface`: declaration merging, `extends` vs intersections, unions, error messages → 010
 - Structural typing and assignability; branding to simulate nominal types → 020
 - Top type, bottom type, and the escape hatch; `never` in exhaustiveness and unreachable code → 030
-- Literal types, widening, `const` vs `let` inference, `as const`, `unique symbol → 040
-- Excess property checks and fresh object literals,Object types: optional, `readonly`, index signatures, `exactOptionalPropertyTypes` → 050
-- Function type expressions, call signatures, overloads, `this` parameters,Parameter bivariance and `void` return assignability,Typing iterators and generators → 060
+- Literal types, widening, `const` vs `let` inference, `as const`, `unique symbol` → 040
+- Excess property checks and fresh object literals; Object types: optional, `readonly`, index signatures, `exactOptionalPropertyTypes` → 050
+- Function type expressions, call signatures, overloads, `this` parameters; Parameter bivariance and `void` return assignability; Typing iterators and generators → 060
 
 ## Questions
 
