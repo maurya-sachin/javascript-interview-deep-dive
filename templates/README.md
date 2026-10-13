@@ -56,7 +56,7 @@ Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mappe
 | `status` | `planned` \| `draft` \| `published` | |
 | `difficulty` | `easy` \| `medium` \| `hard` | |
 | `frequency` | 1–5 | How often it's asked; 5 = almost every interview |
-| `core` | boolean | `true` makes the deep dive required |
+| `core` | boolean | `true` makes the deep dive required. Set it on every `frequency: 5` question; use it on lower-frequency questions only when depth is the point |
 | `tags` | string[] | Lowercase, kebab-case |
 | `related` | id[] | Other questions this builds on or leads to |
 | `verified` | `YYYY-MM` | When the facts were last checked against `sources` |
@@ -84,9 +84,10 @@ Use exactly these `##` headings, in this order. Leave out optional ones entirely
 - **Be exact.** Name the spec mechanism (e.g. *Environment Record*, *[[Prototype]]*) when it explains the behaviour; say when something is engine-specific (e.g. *In V8, …*).
 - **No filler.** No emoji headings, no "In this article…", no "Great question".
 - **Code:**
-  - JavaScript; TypeScript only in TypeScript topics.
-  - Must run as written in current Node.js or a modern browser.
-  - Assume module code (strict mode); say so when sloppy mode matters.
+  - JavaScript by default; TypeScript in TypeScript topics (and where a topic is about typed code); other languages and configs (SQL, YAML, Dockerfiles, shell) only where the topic is about them.
+  - JavaScript must run as written in current Node.js or a modern browser; assume module code (strict mode) and say so when sloppy mode matters.
+  - TypeScript must be type-checked with a real `tsc` (`--strict`); state the TypeScript version, and make every `// Error` comment match what `tsc` printed.
+  - Configs and commands must be run for real (a scratch project, a container, a local database) before you show their output.
   - Show output as `// → value` comments.
 
 ## Research
@@ -97,7 +98,7 @@ Every claim must be traceable to a primary source listed in `sources`:
 2. TC39 proposals — [github.com/tc39/proposals](https://github.com/tc39/proposals)
 3. MDN — [developer.mozilla.org](https://developer.mozilla.org/)
 4. Engine and runtime teams — [v8.dev](https://v8.dev/), [nodejs.org/docs](https://nodejs.org/docs/latest/api/), WebKit/SpiderMonkey blogs
-5. Official docs of the library or tool in question
+5. Official docs of the library or tool in question; for other topics, the standard that defines it (RFCs, WHATWG/W3C specs, the language's own spec) and the vendor's official docs
 
 Blog posts and tutorials can point you somewhere; they're never the source.
 Never copy text from other books or courses — write your own explanation.
