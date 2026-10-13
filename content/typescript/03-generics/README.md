@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What are generics, and how do `extends` constraints work?](010-generics-and-constraints.md) | medium | 🔴 planned |
+| 010 | [What are generics, and how do `extends` constraints work?](010-generics-and-constraints.md) | medium | 🟡 draft |
 | 020 | [How are generic type arguments inferred, and when does inference go wrong?](020-generic-inference.md) | hard | 🔴 planned |
 | 030 | [What are covariance and contravariance, and what do `in` and `out` do?](030-variance.md) | hard | 🔴 planned |
 | 040 | [What do `keyof`, `typeof`, and indexed access types do?](040-keyof-typeof-indexed-access.md) | medium | 🔴 planned |
