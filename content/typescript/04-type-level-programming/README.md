@@ -31,7 +31,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [How do conditional types work, and what is distribution?](010-conditional-types.md) | hard | 🟡 draft |
-| 020 | [What does `infer` do? Implement `ReturnType` and `Awaited`.](020-infer-keyword.md) | hard | 🔴 planned |
+| 020 | [What does `infer` do? Implement `ReturnType` and `Awaited`.](020-infer-keyword.md) | hard | 🟡 draft |
 | 030 | [How do mapped types work, including key remapping and `+` / `-` modifiers?](030-mapped-types.md) | hard | 🔴 planned |
 | 040 | [What are template literal types, and what are they used for?](040-template-literal-types.md) | medium | 🔴 planned |
 | 050 | [Which built-in utility types do you use, and how would you implement them?](050-utility-types.md) | medium | 🔴 planned |
