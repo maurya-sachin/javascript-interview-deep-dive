@@ -31,7 +31,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 010 | [What are generics, and how do `extends` constraints work?](010-generics-and-constraints.md) | medium | 🟡 draft |
 | 020 | [How are generic type arguments inferred, and when does inference go wrong?](020-generic-inference.md) | hard | 🟡 draft |
 | 030 | [What are covariance and contravariance, and what do `in` and `out` do?](030-variance.md) | hard | 🟡 draft |
-| 040 | [What do `keyof`, `typeof`, and indexed access types do?](040-keyof-typeof-indexed-access.md) | medium | 🔴 planned |
+| 040 | [What do `keyof`, `typeof`, and indexed access types do?](040-keyof-typeof-indexed-access.md) | medium | 🟡 draft |
 | 050 | [What are `const` type parameters and `NoInfer`?](050-const-type-params-noinfer.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
 
