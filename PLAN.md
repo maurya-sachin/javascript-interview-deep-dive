@@ -4,8 +4,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed); commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: Phase 5 — ch 01–25 drafted; awaiting maintainer review before `published`; next: ch 26
-- Review flags: Node-only/spec-less claims ch 01–08, 10–14; 17 050 `Promise.try` spec≠Node 24; 18–22: browser/CSP/MDN claims not run; 23: Temporal polyfill-run; 25: DevTools UI not run, V8 internals blog/flag-sourced
+- Doing: Phase 5 content drafted — all 26 chapters await maintainer review; next: JavaScript flashcards (Phase 5 second task) after sign-off
+- Review flags: Node-only/spec-less claims ch 01–08, 10–14; 17 050 `Promise.try` spec≠Node 24; 18–22: browser/CSP/MDN claims not run; 23: Temporal polyfill-run; 26: V8 natives/flags run on Node 24.19 only, IC limits and fill() packing observed
 - Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
