@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [How do you write a user-defined type guard or assertion function?](030-custom-type-guards.md) | medium | 🟡 draft |
 | 040 | [What is a discriminated union, and how do you check it exhaustively?](040-discriminated-unions.md) | medium | 🟡 draft |
 | 050 | [What does `satisfies` do, and how is it different from a type annotation?](050-satisfies-operator.md) | medium | 🟡 draft |
-| 060 | [What do `as`, `!`, and `!:` actually do, and when are they safe?](060-assertions-and-non-null.md) | easy | 🔴 planned |
+| 060 | [What do `as`, `!`, and `!:` actually do, and when are they safe?](060-assertions-and-non-null.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
