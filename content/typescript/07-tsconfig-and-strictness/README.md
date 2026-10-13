@@ -31,7 +31,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [What does `strict` enable, and why is `strictNullChecks` the important one?](010-strict-mode-flags.md) | medium | 🟡 draft |
-| 020 | [Which flags beyond `strict` do you turn on, such as `noUncheckedIndexedAccess`?](020-flags-beyond-strict.md) | medium | 🔴 planned |
+| 020 | [Which flags beyond `strict` do you turn on, such as `noUncheckedIndexedAccess`?](020-flags-beyond-strict.md) | medium | 🟡 draft |
 | 030 | [What is the difference between `target`, `lib`, and `module`?](030-target-lib-module.md) | medium | 🔴 planned |
 | 040 | [How do `paths`, `baseUrl`, and `extends` work?](040-paths-and-extends.md) | medium | 🔴 planned |
 | 050 | [What are project references, and how do `composite` and `incremental` help?](050-project-references.md) | hard | 🔴 planned |
