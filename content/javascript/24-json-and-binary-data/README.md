@@ -31,11 +31,11 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What does `JSON.stringify` drop or change?](010-json-stringify-edge-cases.md) | medium | 🔴 planned |
-| 020 | [How do `JSON.parse` revivers work, and what does source text access add?](020-json-parse-reviver.md) | medium | 🔴 planned |
-| 030 | [What are `ArrayBuffer`, typed arrays, and `DataView`?](030-arraybuffer-typed-arrays.md) | medium | 🔴 planned |
-| 040 | [What's new in binary data?](040-modern-binary-data.md) | medium | 🔴 planned |
-| 050 | [What are `SharedArrayBuffer` and `Atomics` for?](050-sharedarraybuffer-atomics.md) | hard | 🔴 planned |
+| 010 | [What does `JSON.stringify` drop or change?](010-json-stringify-edge-cases.md) | medium | 🟡 draft |
+| 020 | [How do `JSON.parse` revivers work, and what does source text access add?](020-json-parse-reviver.md) | medium | 🟡 draft |
+| 030 | [What are `ArrayBuffer`, typed arrays, and `DataView`?](030-arraybuffer-typed-arrays.md) | medium | 🟡 draft |
+| 040 | [What's new in binary data?](040-modern-binary-data.md) | medium | 🟡 draft |
+| 050 | [What are `SharedArrayBuffer` and `Atomics` for?](050-sharedarraybuffer-atomics.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
