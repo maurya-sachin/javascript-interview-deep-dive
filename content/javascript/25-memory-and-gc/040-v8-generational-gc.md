@@ -74,7 +74,7 @@ console.log(counts, Math.round(space('old_space').space_used_size / 2 ** 20), 'M
 // → { scavenge: 78, 'incremental step': 2, 'mark-compact': 2 } 97 MB old (varies)
 ```
 
-The script allocates 20 million short-lived objects and keeps 1 in 20. The output is from one machine (Node 24.19, V8 13.6, macOS). The scavenge count varied by 1 to 2 across three runs (78 to 79); read the pattern, not the digits: many scavenges, a few mark-compacts, and the survivors ending up in old space.
+The script allocates 20 million short-lived objects and keeps 1 in 20. The output is from one machine (Node 24.19, V8 13.6, macOS). The scavenge count ranged from 78 to 80 across runs; read the pattern, not the digits: many scavenges, a few mark-compacts, and the survivors ending up in old space.
 
 ## Pitfalls
 
