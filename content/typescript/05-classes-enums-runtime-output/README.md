@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [Should you use enums or union types?](010-enums-vs-unions.md) | medium | 🟡 draft |
-| 020 | [How do TypeScript classes differ from JavaScript classes: modifiers, parameter properties, `#private`?](020-class-members-access.md) | medium | 🔴 planned |
+| 020 | [How do TypeScript classes differ from JavaScript classes: modifiers, parameter properties, `#private`?](020-class-members-access.md) | medium | 🟡 draft |
 | 030 | [When do you use `abstract` classes versus `implements` an interface?](030-abstract-classes-implements.md) | medium | 🔴 planned |
 | 040 | [What is declaration merging, and are namespaces still used?](040-declaration-merging-namespaces.md) | medium | 🔴 planned |
 | 050 | [How do decorators work in TypeScript?](050-decorators.md) | hard | 🔴 planned |
