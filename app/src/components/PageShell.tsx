@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import { cn } from '@/lib/utils'
 
 export interface Crumb {
   label: string
@@ -21,9 +22,9 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   )
 }
 
-export function PageShell({ crumbs, children }: { crumbs: Crumb[]; children: ReactNode }) {
+export function PageShell({ crumbs, wide = false, children }: { crumbs: Crumb[]; wide?: boolean; children: ReactNode }) {
   return (
-    <main className="mx-auto max-w-180 px-6 py-8">
+    <main className={cn('mx-auto px-6 py-8', wide ? 'max-w-5xl' : 'max-w-180')}>
       {crumbs.length > 0 && <Breadcrumbs crumbs={crumbs} />}
       {children}
     </main>

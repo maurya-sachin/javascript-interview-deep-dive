@@ -19,18 +19,28 @@ export function MetaRow({ difficulty, frequency, verified }: MetaRowProps) {
   return (
     <ul aria-label="Question details" className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
       <li>
-        <span className={cn('rounded-full px-2 py-0.5 font-medium capitalize', DIFFICULTY_STYLE[difficulty])}>{difficulty}</span>
+        <DifficultyBadge difficulty={difficulty} />
       </li>
       <li className="flex items-center gap-1.5">
         Asked
-        <span role="img" aria-label={`${frequency} of 5`} className="flex gap-0.5">
-          {[1, 2, 3, 4, 5].map((dot) => (
-            <span key={dot} className={cn('size-2 rounded-xs', dot <= frequency ? 'bg-foreground' : 'bg-border')} />
-          ))}
-        </span>
+        <FrequencyDots frequency={frequency} />
         {FREQUENCY_LABEL[frequency]}
       </li>
       <li>Verified {verified}</li>
     </ul>
+  )
+}
+
+export function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
+  return <span className={cn('rounded-full px-2 py-0.5 font-medium capitalize', DIFFICULTY_STYLE[difficulty])}>{difficulty}</span>
+}
+
+export function FrequencyDots({ frequency }: { frequency: number }) {
+  return (
+    <span role="img" aria-label={`Asked ${FREQUENCY_LABEL[frequency]} (${frequency} of 5)`} className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((dot) => (
+        <span key={dot} className={cn('size-2 rounded-xs', dot <= frequency ? 'bg-foreground' : 'bg-border')} />
+      ))}
+    </span>
   )
 }

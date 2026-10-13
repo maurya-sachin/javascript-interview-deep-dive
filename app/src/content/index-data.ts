@@ -82,3 +82,18 @@ export function neighbours(topic: TopicSummary, id: string) {
     next: questions.slice(position + 1).find(readable),
   }
 }
+
+/** Totals for a set of chapters: what is readable now, and the difficulty mix of everything planned. */
+export function chapterStats(chapters: ChapterSummary[]) {
+  const questions = chapters.flatMap((chapter) => chapter.questions)
+  return {
+    total: questions.length,
+    readable: questions.filter((question) => question.hasPage).length,
+    core: questions.filter((question) => question.core).length,
+    byDifficulty: {
+      easy: questions.filter((question) => question.difficulty === 'easy').length,
+      medium: questions.filter((question) => question.difficulty === 'medium').length,
+      hard: questions.filter((question) => question.difficulty === 'hard').length,
+    },
+  }
+}

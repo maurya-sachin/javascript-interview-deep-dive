@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link, useLoaderData, useParams } from 'react-router'
 import { ChapterNav } from '@/components/question/ChapterNav'
 import { Exercises } from '@/components/question/Exercises'
@@ -9,6 +10,7 @@ import { Breadcrumbs, ComingSoon, NotFound } from '@/components/PageShell'
 import { QuestionTitle } from '@/components/QuestionTitle'
 import { findChapter, findTopic, neighbours, questionId, questionPath, useContentIndex } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
+import { markRead } from '@/lib/progress'
 import { editUrl, suggestFixUrl } from '@/lib/repo'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
@@ -21,6 +23,10 @@ export function QuestionPage() {
   const chapter = topic && findChapter(topic, params.chapter)
   const id = topic && chapter && params.question ? questionId(topic, chapter, params.question) : undefined
   const question = chapter?.questions.find((candidate) => candidate.id === id)
+  const readableId = content !== null ? question?.id : undefined
+  useEffect(() => {
+    if (readableId) markRead(readableId)
+  }, [readableId])
   if (!topic || !chapter || !question) return <NotFound what="Question" />
 
   const { previous, next } = neighbours(topic, question.id)
