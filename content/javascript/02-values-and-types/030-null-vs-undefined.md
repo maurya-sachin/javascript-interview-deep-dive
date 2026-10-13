@@ -3,7 +3,7 @@ title: "What's the difference between `null` and `undefined`?"
 status: draft
 difficulty: easy
 frequency: 5
-core: false
+core: true
 tags: ["null", undefined, void, nullish, missing-values]
 related:
   - javascript/values-and-types/language-types
@@ -74,3 +74,70 @@ console.log(null ?? 'fallback', 0 ?? 'fallback'); // → fallback 0
 
 **Q:** Can `undefined` be overwritten?
 **A:** The global `undefined` property is non-writable and non-configurable, so global assignment can't change it. A local variable named `undefined` is legal and shadows it, which is why you shouldn't write one.
+
+## Deep dive
+
+### How it works
+
+The two values enter the language in different places. `undefined` is produced by named spec mechanisms, so you can predict every one:
+
+- A `var` binding is created and initialized to `undefined` when its Environment Record is instantiated, which is why a hoisted `var` reads as `undefined` before its assignment. (`let` and `const` are different: they stay uninitialized, and reading them early throws.)
+- A function body that finishes without a `return` value completes with `undefined`, and a parameter with no matching argument is `undefined`.
+- `OrdinaryGet` returns `undefined` when it walks the prototype chain and reaches a `null` parent without finding the key. It also returns `undefined` for an accessor property whose getter is `undefined`.
+
+`null`, by contrast, comes from the engine in very few places: it is the `[[Prototype]]` of `Object.prototype`, which is what ends the chain `OrdinaryGet` walks, and it is the `[[Prototype]]` of objects you create with `Object.create(null)`. Everything else that is `null` was written by a program or parsed from JSON.
+
+```js
+const proto = Object.getPrototypeOf(Object.prototype);
+const setterOnly = { set value(v) {} };
+const bare = Object.create(null);
+
+console.log(proto); // → null
+console.log(setterOnly.value, bare.toString); // → undefined undefined
+console.log(Object.getPrototypeOf(bare)); // → null
+console.log(Object.hasOwn(setterOnly, 'value')); // → true
+```
+
+`setterOnly.value` is `undefined` even though the property exists, so `=== undefined` cannot mean "absent". That is the same trap the Answer describes for explicitly assigned `undefined`, reached by a second route.
+
+### Edge cases
+
+`==` has a dedicated rule for this pair: `IsLooselyEqual` returns `true` when one side is `null` and the other `undefined`, and neither is loosely equal to anything else, including `0`, `''` and `false`. Relational operators don't use that rule. They convert with `ToNumber`, so `null` becomes `0` and `undefined` becomes `NaN`, and the results look inconsistent:
+
+```js
+console.log(null == 0, null >= 0, null > 0); // → false true false
+console.log(undefined == 0, undefined >= 0, undefined < 0); // → false false false
+console.log(null + 1, undefined + 1); // → 1 NaN
+console.log(`${null} ${undefined}`, String([null, undefined])); // → null undefined ,
+```
+
+The last line shows a third behaviour: `Array.prototype.join` (and so `String(array)`) renders both as an empty string, while template literals print the words.
+
+*Legacy:* browsers implement the Annex B `[[IsHTMLDDA]]` internal slot, which the spec lists as a normative-optional exception in `IsLooselyEqual`. `document.all` has it, so `document.all == null` is `true` even though it is an object and `typeof document.all` is `"undefined"`. Don't rely on it; it exists only for old compatibility checks.
+
+### Real-world scenario
+
+The distinction decides whether a value is *ignored* or *applied*, and different layers disagree about which side they are on. A settings form sends partial updates:
+
+```js
+const defaults = { theme: 'light', pageSize: 20 };
+const fromForm = { theme: undefined, pageSize: null };
+
+console.log({ ...defaults, ...fromForm }); // → { theme: undefined, pageSize: null }
+
+const patch = JSON.stringify({ name: 'Ada', nickname: null, bio: undefined });
+console.log(patch); // → {"name":"Ada","nickname":null}
+
+const { theme = 'light', pageSize = 20 } = fromForm;
+console.log(theme, pageSize); // → light null
+```
+
+- **Spread and `Object.assign`** copy own enumerable properties as they are, so `theme: undefined` overwrites the default. Only destructuring defaults and `??` treat `undefined` as "use the fallback", and they still keep `null`.
+- **JSON** has `null` but no `undefined`, so a PATCH body can say "clear the nickname" (`null`) versus "leave the bio alone" (omitted). Setting a field to `undefined` and expecting the server to clear it silently sends nothing.
+- **Defaults** applied with `= value` skip `null`, so a `null` from an API response reaches code that assumed a default had been applied.
+
+The fix is to decide per boundary, then normalise once at the edge: for API input, map `null` to the domain's "cleared" value explicitly, and strip or reject `undefined` keys before merging.
+
+### Trade-offs
+
+Using only one of them is simpler, but you can't fully do it: the language still hands you `undefined` for missing arguments and properties, and JSON hands you `null`. A common convention is `undefined` for "not provided / not found" (matching `Array.prototype.find` and `Map.prototype.get`) and `null` for "deliberately empty" in stored or transmitted data. In TypeScript with `strictNullChecks`, that convention becomes visible in types (`string | null` for "cleared", an optional property for "absent"), which is the main reason to keep the two meanings apart rather than treat them as interchangeable.
