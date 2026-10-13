@@ -24,6 +24,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Template literal types, intrinsic string types, pattern inference → 040
 - `Partial`, `Required`, `Pick`, `Omit`, `Record`, `Exclude`, `Extract`, `NonNullable`, `ReturnType`, `Parameters` → 050
 - Recursive and tail-recursive conditional types, instantiation depth limits → 060
+- `InstanceType`, `ConstructorParameters`, `ThisParameterType`, `OmitThisParameter`, `ThisType` (only named in passing) → —
+- Variadic tuple types and tuple-based type-level arithmetic (`[...A, ...B]`, `Acc["length"]`; only used as a tool in 060) → —
 
 ## Questions
 
