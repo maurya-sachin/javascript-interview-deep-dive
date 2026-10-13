@@ -1205,3 +1205,798 @@
   front: "Why should a deep-equality function compare prototypes?"
   back: "Otherwise instances of different classes with the same fields compare equal. It is a policy choice; `util.isDeepStrictEqual` treats them as different."
   question: javascript/objects-and-properties/deep-equality
+# 12 Prototypes
+- id: prototype-write-shadows
+  front: "After `dog.kind = 'dog'` where `kind` is inherited from a prototype, which object changed?"
+  back: "Only `dog`. The write creates a new own property that shadows the inherited one. The prototype is untouched, unless an inherited setter or non-writable property intercepts the write."
+  question: javascript/prototypes/prototype-chain
+- id: prototype-inherited-setter-this
+  front: "When an inherited setter runs on `obj.key = value`, what is `this`?"
+  back: "`obj`, the object the assignment started from, not the prototype where the setter was found. Inherited getters behave the same way: they are called with the original object as `this`."
+  question: javascript/prototypes/prototype-chain
+- id: prototype-nonwritable-blocks-write
+  front: "What happens when you assign to a property whose inherited data property is non-writable?"
+  back: "The write is blocked. Sloppy mode ignores it silently; strict mode (modules, classes) throws `TypeError`. No own property is created."
+  question: javascript/prototypes/prototype-chain
+- id: prototype-shared-mutable-state
+  front: "Why does `dog.tags.push('x')` change `base.tags` when `tags` lives on the prototype?"
+  back: "Reading `dog.tags` finds the shared array on the prototype, and `push` mutates it. Only assignment creates an own property; mutating an inherited object reaches the shared value."
+  question: javascript/prototypes/prototype-chain
+- id: proto-slot-vs-prototype-property
+  front: "Is `F.prototype` the prototype of `F`?"
+  back: "No. `F.prototype` is the object `new F()` uses as the `[[Prototype]]` of new instances. `F`'s own prototype is `Function.prototype`, as `Object.getPrototypeOf(F)` shows."
+  question: javascript/prototypes/proto-vs-prototype
+- id: dunder-proto-legacy-accessor
+  front: "What is `obj.__proto__`, and why does `Object.create(null)` have no such property?"
+  back: "A legacy accessor property on `Object.prototype` that calls `[[GetPrototypeOf]]` / `[[SetPrototypeOf]]` on `this`. Objects without `Object.prototype` in their chain do not inherit it."
+  question: javascript/prototypes/proto-vs-prototype
+- id: constructor-lost-on-prototype-replace
+  front: "What happens to `constructor` if you assign a new object to `F.prototype`?"
+  back: "It is lost. Only the default `prototype` object has a non-enumerable `constructor` pointing back at `F`. A replacement object inherits `constructor` from `Object.prototype`, so `obj.constructor` returns `Object`."
+  question: javascript/prototypes/proto-vs-prototype
+- id: prototype-replace-existing-instances
+  front: "After `F.prototype` is reassigned, which instances use the new prototype?"
+  back: "Only instances created afterwards. Existing instances keep their old `[[Prototype]]` link. Because `instanceof` compares against the current `F.prototype`, old instances then fail `instanceof F`."
+  question: javascript/prototypes/proto-vs-prototype
+- id: new-object-return-rule
+  front: "What does `new F()` return if the constructor returns a primitive, and if it returns an object?"
+  back: "A primitive return value is ignored and the new instance is the result. An object return value (including a function or array) replaces the instance, and the original is discarded."
+  question: javascript/prototypes/new-operator
+- id: new-four-steps
+  front: "What four things does `new F(...args)` do for an ordinary function?"
+  back: "Creates an ordinary object, links its `[[Prototype]]` to `newTarget.prototype`, calls `F` with `this` bound to it, then returns the object unless `F` returned an object."
+  question: javascript/prototypes/new-operator
+- id: new-target-meaning
+  front: "What is `new.target` inside a function?"
+  back: "The constructor `new` was applied to, or `undefined` in a plain call. In a subclass it is the subclass even inside the parent's constructor, so the right prototype gets linked."
+  question: javascript/prototypes/new-operator
+- id: new-derived-constructor-return
+  front: "What may a derived class constructor return, and when does it get `this`?"
+  back: "Only an object or `undefined`; anything else throws `TypeError`. `this` is not created until `super()` returns."
+  question: javascript/prototypes/new-operator
+- id: instanceof-algorithm
+  front: "What does `value instanceof Target` actually test?"
+  back: "Whether `Target.prototype` is in `value`'s prototype chain right now. It does not check who constructed `value`. Before that walk, `Target[Symbol.hasInstance]` is consulted, and a primitive `value` gives `false`."
+  question: javascript/prototypes/instanceof
+- id: instanceof-cross-realm
+  front: "Why can `otherArray instanceof Array` be `false` for an array from an iframe?"
+  back: "Each realm has its own `Array.prototype`, so the iframe's array chain does not contain this realm's one. Use `Array.isArray` instead."
+  question: javascript/prototypes/instanceof
+- id: instanceof-bound-function
+  front: "How does `x instanceof BoundFn` work when bound functions have no `prototype`?"
+  back: "`OrdinaryHasInstance` forwards the check to the bound target function and tests against that function's `prototype`."
+  question: javascript/prototypes/instanceof
+- id: is-prototype-of-vs-instanceof
+  front: "How does `proto.isPrototypeOf(obj)` differ from `obj instanceof Ctor`?"
+  back: "Same chain walk, different input. `isPrototypeOf` takes the prototype object directly and returns `false` for primitives; `instanceof` takes a constructor and reads its `prototype`."
+  question: javascript/prototypes/instanceof
+- id: null-proto-dictionary-collisions
+  front: "Why is a plain `{}` risky as a counter keyed by user input?"
+  back: "Keys such as `constructor`, `toString` and `__proto__` collide with inherited members. `'toString' in table` is truthy unprompted, and assigning `__proto__` changes the prototype instead of storing a key."
+  question: javascript/prototypes/object-create-null
+- id: null-proto-missing-methods
+  front: "What breaks on an `Object.create(null)` object?"
+  back: "It has no `toString`, `valueOf` or `hasOwnProperty`: string conversion throws `TypeError`, and `dict.hasOwnProperty(key)` fails. Use `Object.hasOwn(dict, key)`. Also `dict instanceof Object` is `false`."
+  question: javascript/prototypes/object-create-null
+- id: null-proto-spread-loses
+  front: "Does `{ ...dict }` keep a null prototype?"
+  back: "No. Spread and `Object.assign({}, dict)` return ordinary objects with `Object.prototype`, so the null prototype is lost."
+  question: javascript/prototypes/object-create-null
+- id: json-parse-proto-key
+  front: "What does `JSON.parse('{\"__proto__\": 1}')` produce?"
+  back: "An object with an own data property named `__proto__` and an unchanged prototype. The danger comes later, when code copies or merges keys with assignment."
+  question: javascript/prototypes/object-create-null
+- id: monkey-patch-enumerable-leak
+  front: "Why does `Array.prototype.last = fn` break `for...in` over arrays?"
+  back: "Plain assignment creates an enumerable property, so every array's `for...in` now yields `last`. Built-in methods are non-enumerable."
+  question: javascript/prototypes/extending-native-prototypes
+- id: smooshgate-flatten-rename
+  front: "Why was `Array.prototype.flatten` renamed `flat`?"
+  back: "MooTools defined its own enumerable `flatten` and copied `Array.prototype` keys with `for...in`. A native non-enumerable `flatten` was skipped by that copy, breaking sites. Making it enumerable would leak into every `for...in`."
+  question: javascript/prototypes/extending-native-prototypes
+- id: safe-polyfill-shape
+  front: "What makes a polyfill acceptable when extending a built-in prototype?"
+  back: "It feature-tests first (`if (!Array.prototype.at)`), follows the spec's behaviour, and uses `Object.defineProperty` so the property is non-enumerable like built-ins."
+  question: javascript/prototypes/extending-native-prototypes
+# 13 Classes
+- id: class-not-pure-sugar-call
+  front: "Why is `class` not pure sugar over constructor functions?"
+  back: "Class constructors throw `TypeError` without `new`, methods are non-enumerable and not constructors, the body is strict, the binding has a TDZ, and derived constructors have no `this` before `super()`."
+  question: javascript/classes/classes-vs-prototypes
+- id: class-methods-location-attributes
+  front: "Where do class instance methods live, and with what attributes?"
+  back: "On `Class.prototype`, as writable, configurable, non-enumerable properties. Static methods live on the constructor itself."
+  question: javascript/classes/classes-vs-prototypes
+- id: class-declaration-tdz
+  front: "Is a class declaration hoisted like a function declaration?"
+  back: "No. It is hoisted like `let`: using it before its line throws `ReferenceError` because the binding is in the TDZ."
+  question: javascript/classes/classes-vs-prototypes
+- id: private-name-not-property
+  front: "Why does `obj['#x']` not reach the private field `#x`?"
+  back: "A `#x` is a Private Name stored in the object's `[[PrivateElements]]`, not a property. `obj['#x']` is an unrelated ordinary string key, and `obj.#x` outside the class is a `SyntaxError`."
+  question: javascript/classes/private-fields
+- id: private-freeze-proxy
+  front: "What do `Object.freeze` and `Proxy` do to private fields?"
+  back: "Neither affects them. Freezing does not stop writes to private fields, and a proxy cannot intercept them: accessing `#x` through a proxy throws `TypeError` because the proxy has no such private element."
+  question: javascript/classes/private-fields
+- id: private-brand-check
+  front: "How do you safely test whether an object has a private field, without throwing?"
+  back: "Use `#x in obj`, which returns a boolean. Reading a missing private element throws `TypeError`. The `in` form itself throws only for non-objects."
+  question: javascript/classes/private-fields
+- id: private-names-per-class-evaluation
+  front: "Do two evaluations of the same class expression share their private names?"
+  back: "No. Each evaluation creates fresh Private Names, so instances from different evaluations fail `#x in obj` for each other's `#x`."
+  question: javascript/classes/private-fields
+- id: field-define-semantics
+  front: "Does a class field call an inherited setter?"
+  back: "No. Fields use define semantics (`CreateDataPropertyOrThrow`), so they shadow inherited setters and read-only properties. A `this.x = ...` assignment in the constructor does call the setter."
+  question: javascript/classes/fields-vs-methods
+- id: field-init-timing-derived
+  front: "When are fields defined in a base class versus a derived class?"
+  back: "Base class: just before the constructor body runs. Derived class: right after `super()` returns, so a base constructor cannot see the subclass's fields (they read as `undefined`)."
+  question: javascript/classes/fields-vs-methods
+- id: arrow-field-tradeoff
+  front: "What does an arrow-function class field gain and cost compared with a method?"
+  back: "It captures the instance as `this`, so it survives being passed as a callback. It costs a new closure per instance and shadows the prototype, so subclasses cannot override it with `super.method()`."
+  question: javascript/classes/fields-vs-methods
+- id: field-declaration-without-value
+  front: "Is declaring `x;` in a class the same as not declaring it?"
+  back: "No. It defines an own property `x` with value `undefined`, so `'x' in obj` is `true` and it appears in `Object.keys`."
+  question: javascript/classes/fields-vs-methods
+- id: static-inheritance-mechanism
+  front: "How does a subclass inherit static members?"
+  back: "`class B extends A` sets `B.[[Prototype]]` to `A`, so `B.method` is found by lookup. Statics are shared by lookup, not copied."
+  question: javascript/classes/static-members-and-blocks
+- id: static-block-semantics
+  front: "When do static blocks run, and what scope do they have?"
+  back: "Once, during class evaluation, in source order interleaved with static fields. `this` is the class, and the block has its own function-like scope. `await`, `arguments` and `return` are syntax errors."
+  question: javascript/classes/static-members-and-blocks
+- id: static-this-inherited-write
+  front: "Why can `++this.count` in an inherited static method leave the parent's `count` unchanged?"
+  back: "The read finds the parent's `count` through the chain, but the write creates an own `count` on the subclass. Reference the class by name for one shared value."
+  question: javascript/classes/static-members-and-blocks
+- id: static-private-subclass
+  front: "Why does `this.#items` in a static method throw when called on a subclass?"
+  back: "Static private members are not inherited. The subclass has no such private element, so the lookup throws `TypeError`. Use the class name, such as `Store.#items`."
+  question: javascript/classes/static-members-and-blocks
+- id: super-call-steps
+  front: "What does `super(...args)` do in a derived constructor?"
+  back: "Constructs the parent (the constructor's `[[GetPrototypeOf]]`) with the original `new.target`, binds the result as `this`, then initialises this class's fields and private methods."
+  question: javascript/classes/super-keyword
+- id: super-property-home-object
+  front: "How is `super.x` resolved in a method?"
+  back: "From the method's `[[HomeObject]]`: take its prototype and look up `x` there. Getters and methods run with the current `this` as receiver. `super.x = v` sets on `this`, not on the parent."
+  question: javascript/classes/super-keyword
+- id: super-this-before-call
+  front: "What happens if a derived constructor reads `this` before calling `super()`?"
+  back: "`ReferenceError`, not `undefined`. `this` is uninitialised until `super()` returns. Calling `super()` twice also throws `ReferenceError`."
+  question: javascript/classes/super-keyword
+- id: super-parent-fields-undefined
+  front: "Why is `super.x` `undefined` when the parent declares `x` as a field?"
+  back: "Fields are own properties of instances, not members of the parent's prototype, and `super.x` looks up from the home object's prototype."
+  question: javascript/classes/super-keyword
+- id: extends-array-new-target
+  front: "Why does `class Stack extends Array` produce a real array, while ES5 `Array.call(this)` does not?"
+  back: "`super(...)` passes `new.target` to `Array`, which allocates the exotic array with the subclass prototype. `Array.call(this)` cannot forward `new.target`, so it creates and discards an exotic array."
+  question: javascript/classes/extending-built-ins
+- id: symbol-species-effect
+  front: "What does `Symbol.species` control on an `Array` subclass?"
+  back: "The constructor that `map`, `filter`, `slice`, `concat`, `flat` and `flatMap` use for their results. The default returns the subclass, called with a length. Returning `Array` yields plain arrays."
+  question: javascript/classes/extending-built-ins
+- id: error-subclass-name-default
+  front: "What is `new E('m').name` for `class E extends Error {}`?"
+  back: "`'Error'`. `name` is inherited unless you set it, so logs and `String(err)` show `Error`. Call `super(message, options)` so `cause` works."
+  question: javascript/classes/extending-built-ins
+- id: composition-vs-extends-rule
+  front: "When is `extends` appropriate rather than composition?"
+  back: "When the child is a substitutable kind of the parent, the hierarchy is shallow, and the parent was written to be extended. Otherwise hold a collaborator, preferably in a private field, and delegate."
+  question: javascript/classes/composition-vs-inheritance
+- id: mixin-subclass-factory
+  front: "What is the subclass-factory mixin pattern, and why does `instanceof` fail on it?"
+  back: "`const M = (Base) => class extends Base { ... }` keeps the chain linear and `super` working. Each call returns a distinct class, so `instanceof M` is unreliable."
+  question: javascript/classes/composition-vs-inheritance
+- id: object-assign-mixin-flaw
+  front: "Why is `Object.assign(Target.prototype, mixin)` a flawed mixin?"
+  back: "It copies only own enumerable properties, invokes getters instead of copying them, and a method using `super` keeps its original home object. It is a snapshot with no live chain."
+  question: javascript/classes/composition-vs-inheritance
+# 14 Arrays
+- id: array-mutators-return-values
+  front: "Which array mutators return the same array, and which do not?"
+  back: "`sort`, `reverse`, `fill` and `copyWithin` return the same array, so `const sorted = arr.sort()` aliases `arr`. `push` returns the new length and `splice` returns the removed items."
+  question: javascript/arrays/mutating-vs-copying-methods
+- id: es2023-copying-counterparts
+  front: "What are the ES2023 copying counterparts of `reverse`, `sort`, `splice` and `arr[i] = v`?"
+  back: "`toReversed()`, `toSorted(cmp)`, `toSpliced(start, n, ...items)` and `with(i, v)`. They never touch `this`, so they work on frozen arrays."
+  question: javascript/arrays/mutating-vs-copying-methods
+- id: copying-methods-shallow-plain-array
+  front: "What kind of array do `toSorted` and `with` return, and how deep is the copy?"
+  back: "Always a plain `Array` (`ArrayCreate`), ignoring `constructor` and `Symbol.species`, unlike `slice`, `map` or `filter`. The copy is shallow: elements keep the same object references."
+  question: javascript/arrays/mutating-vs-copying-methods
+- id: with-out-of-bounds
+  front: "How does `arr.with(i, v)` differ from `arr[i] = v` for an out-of-bounds index?"
+  back: "`with` throws `RangeError` for an out-of-bounds index (negative indices count from the end). `arr[10] = v` extends the array."
+  question: javascript/arrays/mutating-vs-copying-methods
+- id: sort-default-string-order
+  front: "Why does `[10, 9, 1, 100].sort()` give `[1, 10, 100, 9]`?"
+  back: "With no comparator, elements are converted with `ToString` and compared by UTF-16 code units, so numbers sort as text."
+  question: javascript/arrays/array-sort
+- id: sort-boolean-comparator
+  front: "Why is `(a, b) => a > b` a wrong sort comparator?"
+  back: "It returns `true` or `false`, which become `1` and `0`, so it can never say \"less than\". The comparator must return negative, positive or zero. Results are implementation-defined."
+  question: javascript/arrays/array-sort
+- id: sort-stability-es2019
+  front: "What does the spec guarantee about `sort` stability?"
+  back: "Since ES2019 the sort must be stable: elements the comparator calls equal keep their original relative order."
+  question: javascript/arrays/array-sort
+- id: sort-undefined-and-holes
+  front: "Where do `undefined` values and holes go in `sort`, and does the comparator see them?"
+  back: "`undefined` values are never passed to the comparator. They move to the end, followed by holes. `toSorted` reads holes as `undefined` instead."
+  question: javascript/arrays/array-sort
+- id: sort-random-comparator-shuffle
+  front: "Why is `sort(() => Math.random() - 0.5)` not a correct shuffle?"
+  back: "An inconsistent comparator (not the same answer for the same pair, not transitive) makes the resulting order implementation-defined."
+  question: javascript/arrays/array-sort
+- id: sort-subtraction-comparator-nan
+  front: "When does the comparator `(a, b) => a - b` fail?"
+  back: "When values can be `NaN` or `Infinity`: `Infinity - Infinity` is `NaN`, which the spec treats as `0` (equal). It is safe only for finite numbers."
+  question: javascript/arrays/array-sort
+- id: parseint-map-radix
+  front: "Why does `['1', '2', '3'].map(parseInt)` return `[1, NaN, NaN]`?"
+  back: "`map` passes the index as the second argument, and `parseInt` reads it as the radix."
+  question: javascript/arrays/implement-map-filter-reduce
+- id: reduce-initial-value-detection
+  front: "Why does a `reduce` implementation check the argument count rather than `initialValue === undefined`?"
+  back: "`reduce(fn, undefined)` is a legitimate initial value. Only the number of arguments tells \"no initial value\" apart from an explicit `undefined`."
+  question: javascript/arrays/implement-map-filter-reduce
+- id: reduce-empty-no-initial
+  front: "What does `reduce` do on an empty array with no initial value, and what is the accumulator otherwise?"
+  back: "It throws `TypeError`. With no initial value on a non-empty array, the first element becomes the accumulator and the loop starts at index 1."
+  question: javascript/arrays/implement-map-filter-reduce
+- id: map-hole-preserved
+  front: "What does native `map` do with a hole in `[1, , 3]`?"
+  back: "It skips the hole and leaves a hole at the same index in the result, giving `[2, <1 empty item>, 6]`."
+  question: javascript/arrays/implement-map-filter-reduce
+- id: array-length-semantics
+  front: "How does `length` react to writes?"
+  back: "Setting an index at or beyond `length` raises it to `index + 1`. Setting `length` lower deletes elements at or above it. Raising it creates no properties."
+  question: javascript/arrays/sparse-arrays
+- id: hole-vs-undefined
+  front: "How does a hole differ from a stored `undefined`?"
+  back: "A hole is an index below `length` with no own property, so `i in arr` is `false`. A stored `undefined` has the property, so `i in arr` is `true`."
+  question: javascript/arrays/sparse-arrays
+- id: hole-skipping-methods
+  front: "Which iteration methods skip holes and which read them as `undefined`?"
+  back: "Skip: `forEach`, `map`, `filter`, `reduce`, `some`, `every`, `indexOf`. Read as `undefined`: `includes`, `find`, `join`, spread, `for...of`, `Array.from`."
+  question: javascript/arrays/sparse-arrays
+- id: new-array-map-noop
+  front: "Why does `new Array(3).map(fn)` do nothing?"
+  back: "Every index is a hole and `map` skips holes. Use `Array.from({ length: 3 }, fn)` or `new Array(3).fill().map(fn)`."
+  question: javascript/arrays/sparse-arrays
+- id: array-max-index
+  front: "What is the largest array index, and what happens to `arr[2**32 - 1] = x`?"
+  back: "The largest index is 2³²−2. The key 2³²−1 is not an array index, so it becomes an ordinary property and `length` does not change."
+  question: javascript/arrays/sparse-arrays
+- id: delete-array-element-length
+  front: "Why does `delete arr[i]` leave `length` unchanged?"
+  back: "`delete` only removes the property, creating a hole. `length` changes only when a property is added at or above it or when you assign it. Use `splice` to remove and shift."
+  question: javascript/arrays/sparse-arrays
+- id: iterable-vs-array-like
+  front: "What is the difference between an iterable and an array-like, and which works with spread?"
+  back: "An iterable implements `[Symbol.iterator]()`; an array-like has `length` and indexed properties. Spread and `for...of` need an iterable, so `[...{ length: 2 }]` throws `TypeError`. `Array.from` accepts both."
+  question: javascript/arrays/array-from-and-fromasync
+- id: array-from-source-order
+  front: "In what order does `Array.from(items)` decide how to read `items`?"
+  back: "If `items` has `Symbol.iterator`, it steps the iterator. Otherwise it treats `items` as an array-like, reading `length` and indices, with missing indices becoming `undefined`. `null` or `undefined` throw `TypeError`."
+  question: javascript/arrays/array-from-and-fromasync
+- id: array-from-mapper-args
+  front: "What arguments does the `Array.from` mapper receive?"
+  back: "Only `(value, index)`, and it runs as values are produced, so there is no intermediate array."
+  question: javascript/arrays/array-from-and-fromasync
+- id: array-of-vs-array-ctor
+  front: "How does `Array.of(7)` differ from `Array(7)`?"
+  back: "`Array.of(7)` builds `[7]` from its arguments. `Array(7)` creates length 7 with seven holes."
+  question: javascript/arrays/array-from-and-fromasync
+- id: from-async-sequential
+  front: "Does `Array.fromAsync` process items concurrently?"
+  back: "No. It requests the next item, awaits it, and only then asks for the following one; the mapper's result is awaited too. For parallel work, start the promises first and use `Promise.all`."
+  question: javascript/arrays/array-from-and-fromasync
+- id: includes-vs-indexof-nan
+  front: "Why is `[NaN].includes(NaN)` true but `[NaN].indexOf(NaN)` is `-1`?"
+  back: "`includes` uses SameValueZero, which treats `NaN` as equal to itself. `indexOf` uses strict equality, where `NaN !== NaN`."
+  question: javascript/arrays/searching-arrays
+- id: includes-indexof-holes
+  front: "How do `includes` and `indexOf` treat holes?"
+  back: "`indexOf` skips holes (it checks `HasProperty`), while `includes` reads them as `undefined`, so `[ , ].includes(undefined)` is `true`."
+  question: javascript/arrays/searching-arrays
+- id: find-undefined-ambiguity
+  front: "Why can `find` be ambiguous, and what do you use instead?"
+  back: "It returns `undefined` for no match, which is also a valid element, and a found `0`, `''` or `false` looks like a miss when tested for truthiness. Use `findIndex`, or `some` for a boolean."
+  question: javascript/arrays/searching-arrays
+- id: at-negative-index
+  front: "Why does `arr.at(-1)` work when `arr[-1]` gives `undefined`?"
+  back: "`at` counts negative integers from the end. `arr[-1]` is just a lookup of the property `\"-1\"`, which does not exist."
+  question: javascript/arrays/searching-arrays
+- id: find-last-es2023
+  front: "What do `findLast` and `findLastIndex` add?"
+  back: "They scan from the end (ES2023), avoiding `arr.slice().reverse().find(...)`. No match returns `undefined` or `-1`."
+  question: javascript/arrays/searching-arrays
+- id: flat-default-depth
+  front: "What is the default depth of `flat`, and what does `flat(Infinity)` do?"
+  back: "The default is `1`, so `[1, [2, [3]]].flat()` is `[1, 2, [3]]`. `flat(Infinity)` flattens every level. The depth goes through `ToIntegerOrInfinity`, so `NaN` is `0`."
+  question: javascript/arrays/flat-and-flatmap
+- id: flatmap-one-level
+  front: "How many levels does `flatMap` flatten, and what is it equivalent to?"
+  back: "Exactly one level, equivalent to `map(fn).flat(1)` but with one array allocation. Returning `[]` drops an element, so `[1].flatMap(() => [[2]])` gives `[[2]]`."
+  question: javascript/arrays/flat-and-flatmap
+- id: flat-only-real-arrays
+  front: "Which values does `flat` flatten, and what happens to holes?"
+  back: "Only values where `Array.isArray` is true. Array-likes, `Set`s, strings and typed arrays stay as single elements. Holes are skipped, so `flat` removes them."
+  question: javascript/arrays/flat-and-flatmap
+# 15 Keyed collections
+- id: map-key-types-and-equality
+  front: "How does a `Map` compare keys, and how does that differ from object keys?"
+  back: "SameValueZero: any key type, `NaN` usable, `-0` normalised to `+0`, objects by identity. Object keys are strings or symbols, so `obj[user]` stores under `\"[object Object]\"`."
+  question: javascript/keyed-collections/map-vs-object
+- id: map-vs-object-order
+  front: "How does key iteration order differ between a `Map` and an object?"
+  back: "A `Map` iterates strictly in insertion order. An object lists integer-like keys first in ascending order, then strings in creation order."
+  question: javascript/keyed-collections/map-vs-object
+- id: map-property-assignment-trap
+  front: "What does `map.foo = 1` do on a `Map`?"
+  back: "It adds an ordinary property to the `Map` object, not an entry. `size` stays `0` and `has('foo')` is `false`. Use `set`, `get`, `has` and `delete`."
+  question: javascript/keyed-collections/map-vs-object
+- id: map-json-stringify-empty
+  front: "What does `JSON.stringify(new Map([[1, 2]]))` return?"
+  back: "`'{}'`, since entries are not properties. Serialise with `[...map]` or `Object.fromEntries`, and rebuild with `new Map(entries)`."
+  question: javascript/keyed-collections/map-vs-object
+- id: map-update-keeps-position
+  front: "Does updating an existing `Map` key move it in iteration order?"
+  back: "No, updating keeps its position. Deleting and re-adding the key moves it to the end because the spec appends a new entry."
+  question: javascript/keyed-collections/map-vs-object
+- id: set-methods-set-like-arg
+  front: "What argument types do `Set.prototype.union` and friends accept?"
+  back: "A set-like object: one with `size`, `has` and `keys`. A `Map` qualifies, an array does not (no `size`), so `a.union([5])` throws `TypeError`. Wrap it with `new Set(array)`."
+  question: javascript/keyed-collections/set-methods
+- id: set-methods-non-mutating
+  front: "Do `union`, `intersection`, `difference` and `symmetricDifference` mutate the receiver?"
+  back: "No. Each returns a fresh plain `Set`, never a subclass instance, and the original is unchanged."
+  question: javascript/keyed-collections/set-methods
+- id: set-methods-predicates
+  front: "What do `isSubsetOf`, `isSupersetOf` and `isDisjointFrom` return?"
+  back: "Booleans. `a.isSubsetOf(b)`: every member of `a` is in `b`. `a.isSupersetOf(b)`: every member of `b` is in `a`. `a.isDisjointFrom(b)`: they share no member."
+  question: javascript/keyed-collections/set-methods
+- id: set-size-validation
+  front: "How is the `size` of a set-like argument validated by the new `Set` methods?"
+  back: "It must convert to a number that is not `NaN` (else `TypeError`) and not negative (else `RangeError`). `has` and `keys` must be callable."
+  question: javascript/keyed-collections/set-methods
+- id: weakmap-key-types
+  front: "What can be a `WeakMap` key or `WeakSet` member?"
+  back: "Objects and symbols not in the global registry (`CanBeHeldWeakly`). Strings and numbers throw `TypeError` on `set` or `add`. `Symbol.for` symbols are rejected because they can be recreated from the string."
+  question: javascript/keyed-collections/weakmap-weakset
+- id: weakmap-not-iterable-why
+  front: "Why do `WeakMap` and `WeakSet` have no `size`, iteration or `clear`?"
+  back: "The engine may drop entries some time after a key becomes unreachable, so listing them or reading `size` would depend on when garbage collection ran. Only operations where you hold the key are allowed."
+  question: javascript/keyed-collections/weakmap-weakset
+- id: map-cache-leak
+  front: "Why is a `Map` a leak risk as a per-object cache?"
+  back: "It holds keys strongly, so every key object and its value stay reachable until you delete the entry. A `WeakMap` does not keep the key alive."
+  question: javascript/keyed-collections/weakmap-weakset
+- id: weakmap-value-key-cycle
+  front: "Does a `WeakMap` value that references its own key keep the key alive?"
+  back: "No. The value is reachable only through the key, and the liveness rule says a non-live key does not make its value live."
+  question: javascript/keyed-collections/weakmap-weakset
+- id: groupby-key-handling
+  front: "How do `Object.groupBy` and `Map.groupBy` treat keys differently?"
+  back: "`Object.groupBy` applies `ToPropertyKey` (string or symbol) and returns a null-prototype object. `Map.groupBy` keeps keys as is, using SameValueZero, and returns a `Map` in first-seen order."
+  question: javascript/keyed-collections/groupby
+- id: groupby-object-key-merge
+  front: "What goes wrong using object keys with `Object.groupBy`?"
+  back: "Keys are coerced with `ToPropertyKey`, so every object becomes `\"[object Object]\"` (unless it defines `toString`) and the groups merge. Use `Map.groupBy`."
+  question: javascript/keyed-collections/groupby
+- id: groupby-integer-key-order
+  front: "What order are `Object.groupBy` result keys in?"
+  back: "Integer-like keys ascending first, then other keys in creation order. `Object.keys(Object.groupBy(['b', '10', '2'], (x) => x))` is `['2', '10', 'b']`."
+  question: javascript/keyed-collections/groupby
+- id: groupby-input-and-callback
+  front: "What must `groupBy` receive, and what does the callback get?"
+  back: "An iterable (else `TypeError`) and a callable. The callback receives `(value, index)` once per element in order, and groups hold the original element references, not copies."
+  question: javascript/keyed-collections/groupby
+- id: get-or-insert-eager-argument
+  front: "Why prefer `getOrInsertComputed(key, () => [])` over `getOrInsert(key, [])`?"
+  back: "The argument to `getOrInsert` is evaluated on every call, so a new array is allocated even when the key exists. The callback runs only on a miss."
+  question: javascript/keyed-collections/map-upsert
+- id: get-or-insert-no-overwrite
+  front: "Does `getOrInsert` overwrite an existing key's value?"
+  back: "No. It returns the existing value if the key is present, even a stored `undefined`, and otherwise stores and returns the new value. Use `set` to overwrite."
+  question: javascript/keyed-collections/map-upsert
+- id: get-or-insert-availability
+  front: "Is `Map.prototype.getOrInsert` safe to call without a feature check?"
+  back: "No. It is a newly available feature (MDN: Baseline 2026), and it was absent in the Node 24.19 runs in this repo. Feature-detect it or use a helper."
+  question: javascript/keyed-collections/map-upsert
+- id: get-or-insert-computed-callback
+  front: "What does `getOrInsertComputed` pass to its callback?"
+  back: "The key, as `callback(key)`, called with `undefined` as `this`, and only when the key is missing. A non-callable callback throws `TypeError`."
+  question: javascript/keyed-collections/map-upsert
+# 16 Iterators and generators
+- id: iterable-vs-iterator-contract
+  front: "What is the difference between an iterable and an iterator?"
+  back: "An iterable has a `[Symbol.iterator]()` method that returns an iterator. An iterator has a `next()` method returning `{ value, done }`. A missing `done` counts as `false`."
+  question: javascript/iterators-and-generators/iteration-protocols
+- id: array-is-iterable-not-iterator
+  front: "Is an array an iterator?"
+  back: "No, it is an iterable. `array[Symbol.iterator]()` returns a separate Array Iterator with `next()`, which is why you can loop over the same array twice."
+  question: javascript/iterators-and-generators/iteration-protocols
+- id: iterator-return-early-exit
+  front: "When do consumers call `iterator.return()`?"
+  back: "On early exit: `break`, `return`, or a `throw` in a `for...of` body, and array destructuring that finishes before the iterator is done. Normal exhaustion does not call it."
+  question: javascript/iterators-and-generators/iteration-protocols
+- id: builtin-iterator-self-iterable
+  front: "Why can you pass a built-in iterator to `for...of`, but not a hand-written `{ next() {} }`?"
+  back: "Built-in iterators inherit `Iterator.prototype[Symbol.iterator]`, which returns `this`. A hand-written iterator throws `TypeError` unless it defines `[Symbol.iterator]`."
+  question: javascript/iterators-and-generators/iteration-protocols
+- id: iterable-fresh-iterator-per-call
+  front: "Why should `[Symbol.iterator]()` return a fresh iterator each call?"
+  back: "If it returns the same object, a second `for...of` continues where the first stopped or sees nothing. Generators are deliberately single-use."
+  question: javascript/iterators-and-generators/iteration-protocols
+- id: generator-call-runs-nothing
+  front: "What does calling a generator function run?"
+  back: "Only argument and default-parameter evaluation. It returns a generator object in the suspended-start state; the body runs on the first `next()`."
+  question: javascript/iterators-and-generators/generators
+- id: generator-first-next-arg-dropped
+  front: "What happens to the argument of the first `next(x)` on a generator?"
+  back: "It is ignored, because no `yield` is waiting to receive it. Later `next(arg)` calls make `arg` the value of the suspended `yield` expression."
+  question: javascript/iterators-and-generators/generators
+- id: generator-return-throw
+  front: "What do `gen.return(v)` and `gen.throw(e)` do at a suspended `yield`?"
+  back: "They resume with an abrupt completion: `return v` or `throw e` at that point. `finally` blocks run, and a surrounding `try...catch` can handle the throw."
+  question: javascript/iterators-and-generators/generators
+- id: generator-return-value-hidden
+  front: "Why does `for...of` over a generator not see its `return 2` value?"
+  back: "`for...of`, spread and `Array.from` ignore the `value` of the `done: true` result. `yield*` gives you the inner iterator's return value."
+  question: javascript/iterators-and-generators/generators
+- id: generator-return-finally-yield
+  front: "Can `gen.return()` always finish a generator immediately?"
+  back: "No. A `yield` inside `finally` suspends it again and `return()` gives `done: false`."
+  question: javascript/iterators-and-generators/generators
+- id: generator-stackless-coroutine
+  front: "What kind of coroutine is a generator?"
+  back: "A stackless one. It suspends only at its own `yield` expressions, not from nested calls, and runs on the one thread. Delegating to another generator needs `yield*`."
+  question: javascript/iterators-and-generators/generators
+- id: iterator-helpers-lazy-pull
+  front: "Why do chained iterator helpers create no intermediate arrays?"
+  back: "Lazy helpers do nothing until `next()` is called. Each pull sends one element through `filter`, `map` and `take` before the next is read, so infinite sources work."
+  question: javascript/iterators-and-generators/iterator-helpers
+- id: iterator-helper-lazy-vs-eager
+  front: "Which iterator helpers are lazy and which consume the iterator?"
+  back: "Lazy, returning iterators: `map`, `filter`, `take`, `drop`, `flatMap`. Eager: `reduce`, `toArray`, `forEach`, `some`, `every`, `find`."
+  question: javascript/iterators-and-generators/iterator-helpers
+- id: iterator-helpers-not-on-arrays
+  front: "Why is `[1, 2].take(1)` not a function, and how do you fix it?"
+  back: "Arrays do not inherit from `Iterator.prototype`. Use `array.values()`. A hand-written `{ next() {} }` object also needs wrapping with `Iterator.from`."
+  question: javascript/iterators-and-generators/iterator-helpers
+- id: iterator-take-closes-source
+  front: "When does `take(n)` close its source?"
+  back: "On the call after the n-th value is delivered. It checks its remaining count before pulling, so it never fetches an n+1-th element, then calls the source's `return()` so `finally` runs."
+  question: javascript/iterators-and-generators/iterator-helpers
+- id: iterator-helper-single-use
+  front: "What happens if you call `toArray()` twice on the same helper chain?"
+  back: "The second call gives `[]`: helpers are single-use and the source is already exhausted."
+  question: javascript/iterators-and-generators/iterator-helpers
+- id: iterator-zip-modes
+  front: "What are the `mode` options of `Iterator.zip`, and which is the default?"
+  back: "`\"shortest\"` (default; extra items are silently dropped), `\"longest\"` (with optional `padding`) and `\"strict\"` (throws if lengths differ)."
+  question: javascript/iterators-and-generators/new-iterator-methods
+- id: iterator-concat-inputs
+  front: "What inputs does `Iterator.concat` accept?"
+  back: "Iterables only. Strings and bare iterators throw `TypeError`; wrap an iterator with `Iterator.from`."
+  question: javascript/iterators-and-generators/new-iterator-methods
+- id: iterator-chunks-windows
+  front: "How do `chunks(n)` and `windows(n)` differ on a short final group?"
+  back: "`chunks` yields a shorter final group. `windows` yields only full windows unless you pass `\"allow-partial\"`."
+  question: javascript/iterators-and-generators/new-iterator-methods
+- id: for-await-sync-fallback
+  front: "How does `for await` handle an object with only `Symbol.iterator`?"
+  back: "It falls back to the sync iterator and wraps it in an `AsyncFromSyncIterator`, which awaits each value. So `for await (const v of arrayOfPromises)` yields resolved values."
+  question: javascript/iterators-and-generators/async-iteration
+- id: for-await-sequential
+  front: "Is `for await` iteration parallel?"
+  back: "No. It calls `next()`, awaits it, runs the body, and only then asks for the next item, giving natural backpressure. For concurrency, start the work first and use `Promise.all`."
+  question: javascript/iterators-and-generators/async-iteration
+- id: async-generator-request-queue
+  front: "What happens if you call `next()` on an async generator three times without awaiting?"
+  back: "The requests are queued and the body runs one step at a time. The three promises settle in call order."
+  question: javascript/iterators-and-generators/async-iteration
+- id: for-of-async-iterable-error
+  front: "What happens when `for...of` is used on an async iterable?"
+  back: "`TypeError`, because it has no `[Symbol.iterator]`. Use `for await`, which is allowed only in async functions and at module top level."
+  question: javascript/iterators-and-generators/async-iteration
+# 17 Promises
+- id: promise-executor-synchronous
+  front: "When does the `new Promise` executor run, and what if it throws?"
+  back: "Synchronously, before `new Promise` returns. If it throws, the promise is rejected with that error, unless `resolve` or `reject` was already called, in which case the throw is ignored."
+  question: javascript/promises/what-is-a-promise
+- id: promise-resolved-vs-settled
+  front: "What is the difference between a promise being resolved and being settled?"
+  back: "Settled means fulfilled or rejected. Resolved means its fate is fixed, including being locked in to follow another thenable. A resolved promise can still be pending."
+  question: javascript/promises/what-is-a-promise
+- id: resolve-with-thenable
+  front: "What does `resolve(x)` do when `x` is a thenable?"
+  back: "The promise adopts the thenable's outcome. It is locked in but stays pending until the thenable settles, so it may even reject. Resolving a promise with itself rejects it with `TypeError`."
+  question: javascript/promises/what-is-a-promise
+- id: then-handlers-microtask
+  front: "When do `then` handlers run on an already settled promise?"
+  back: "Never synchronously. Each handler runs as a separate microtask, after the current synchronous code but before the next macrotask, so timing is the same for settled and pending promises."
+  question: javascript/promises/what-is-a-promise
+- id: promise-resolve-identity
+  front: "When does `Promise.resolve(x)` return `x` itself?"
+  back: "When `x` is a native promise whose `constructor` is the same as the receiver. A thenable or plain value gets wrapped in a new promise."
+  question: javascript/promises/what-is-a-promise
+- id: then-returns-new-promise-outcomes
+  front: "How does a `then` handler's outcome decide the promise `then` returned?"
+  back: "A returned value fulfills it, a throw rejects it, and a returned promise or thenable is adopted. A missing handler passes the result through to the next one."
+  question: javascript/promises/promise-chaining
+- id: then-missing-return
+  front: "What happens if a `then` handler starts async work but does not `return` the promise?"
+  back: "The returned promise fulfills with `undefined` immediately, so the next step does not wait, and the inner promise's rejection is not part of the chain."
+  question: javascript/promises/promise-chaining
+- id: catch-recovers-chain
+  front: "Does `.catch` end a promise chain?"
+  back: "No. It returns a promise that fulfills with the handler's return value, so later `then` handlers run unless the handler rethrows."
+  question: javascript/promises/promise-chaining
+- id: chain-vs-branch
+  front: "How do `p.then(a).then(b)` and `p.then(a); p.then(b)` differ?"
+  back: "The first runs `b` after `a`. The second runs both from `p` independently, in registration order, and a failure in one does not affect the other."
+  question: javascript/promises/promise-chaining
+- id: then-self-return-typeerror
+  front: "What happens if a handler returns the promise that `then` itself returned?"
+  back: "That promise would wait for itself, so the resolution procedure rejects it with `TypeError`."
+  question: javascript/promises/promise-chaining
+- id: combinator-outcomes-table
+  front: "When does each of `all`, `allSettled`, `race` and `any` reject?"
+  back: "`all`: on the first rejection. `allSettled`: never (only on bad input). `race`: if the first to settle rejects. `any`: when all reject, with an `AggregateError`."
+  question: javascript/promises/promise-combinators
+- id: combinator-empty-iterable
+  front: "What does each combinator do with an empty iterable?"
+  back: "`all([])` and `allSettled([])` fulfill with `[]`. `any([])` rejects with an `AggregateError` with empty `errors`. `race([])` stays pending forever."
+  question: javascript/promises/promise-combinators
+- id: promise-all-no-cancel
+  front: "What happens to the other promises when `Promise.all` rejects?"
+  back: "They keep running, because nothing can cancel them. Their later rejections are handled by the combinator, so they do not become unhandled rejections. Use `AbortController` to cancel real work."
+  question: javascript/promises/promise-combinators
+- id: race-vs-any
+  front: "How do `Promise.race` and `Promise.any` differ?"
+  back: "`race` takes the first promise to settle, including a rejection. `any` ignores rejections until none are left, then rejects with an `AggregateError`."
+  question: javascript/promises/promise-combinators
+- id: promise-all-order
+  front: "In what order are `Promise.all` results returned?"
+  back: "Input order, not completion order. `allSettled` and the `errors` of `AggregateError` also follow input order."
+  question: javascript/promises/promise-combinators
+- id: promise-all-sync-throw-map
+  front: "Why does a throw inside `Promise.all(items.map(fn))` not become a rejection?"
+  back: "The throw happens in `map`, before `all` is called, so it escapes as a normal exception."
+  question: javascript/promises/promise-combinators
+- id: catch-is-then-undefined
+  front: "What is `catch(f)` equivalent to, and what does it return?"
+  back: "`then(undefined, f)`. It returns a promise that fulfills with whatever `f` returns, so the chain recovers. To keep failing, throw again."
+  question: javascript/promises/promise-error-handling
+- id: then-two-args-not-protected
+  front: "Does `then(a, b)` handle errors thrown by `a`?"
+  back: "No. `b` covers only the earlier promise, so if `a` throws, `b` is skipped. A `catch` after the `then` sees both."
+  question: javascript/promises/promise-error-handling
+- id: finally-semantics
+  front: "What does `finally(f)` receive, and how can it change the outcome?"
+  back: "No arguments, and its return value is ignored, so the original value or reason passes through. It changes the outcome only by throwing or returning a rejected promise."
+  question: javascript/promises/promise-error-handling
+- id: unhandled-rejection-host-hook
+  front: "Who decides what happens on an unhandled rejection: ECMAScript or the host?"
+  back: "The host. The spec defines only the `HostPromiseRejectionTracker` hook, called with \"reject\" and later \"handle\". Browsers fire `unhandledrejection`; Node emits `unhandledRejection` and by default throws."
+  question: javascript/promises/promise-error-handling
+- id: try-catch-needs-await
+  front: "Why does `try { promise } catch {}` not catch a rejection?"
+  back: "Without `await`, the `try` block finishes first and the rejection arrives later. A throw in a `setTimeout` or event callback also cannot reject a promise."
+  question: javascript/promises/promise-error-handling
+- id: with-resolvers-shape
+  front: "What does `Promise.withResolvers()` return, and when is it useful?"
+  back: "A plain object `{ promise, resolve, reject }`. Use it when the code that settles the promise is not the code that creates it, such as event handlers or request/response matching."
+  question: javascript/promises/withresolvers-and-try
+- id: with-resolvers-no-executor-throw
+  front: "What does `Promise.withResolvers` lose compared with `new Promise(executor)`?"
+  back: "There is no executor, so no automatic conversion of a throw into a rejection. Setup code you write next to it throws normally."
+  question: javascript/promises/withresolvers-and-try
+- id: promise-try-sync-call
+  front: "When does `Promise.try(fn, ...args)` call `fn`, and what does it do with a throw?"
+  back: "Immediately and synchronously. A returned value or promise resolves the result, and a throw rejects it, so a function that is sometimes sync and sometimes async can be `.catch`ed uniformly."
+  question: javascript/promises/withresolvers-and-try
+- id: promise-static-detached-this
+  front: "Why does `const { try: t } = Promise; t(fn)` throw?"
+  back: "`Promise.try` and `withResolvers` read `this` as the constructor. Detached, `this` is no longer `Promise`, so they throw `TypeError`."
+  question: javascript/promises/withresolvers-and-try
+- id: promise-try-vs-resolve-then
+  front: "How does `Promise.resolve().then(fn)` differ from `Promise.try(fn)`?"
+  back: "Both convert a throw into a rejection, but `then` delays `fn` by a microtask while `Promise.try` runs it synchronously."
+  question: javascript/promises/withresolvers-and-try
+- id: implement-all-index-results
+  front: "Why does a `Promise.all` implementation write `results[index]` instead of `push`?"
+  back: "Values arrive in completion order. Writing at each item's own index keeps input order."
+  question: javascript/promises/implement-promise-all
+- id: implement-all-counter-empty
+  front: "Why does a `Promise.all` implementation count completions and check an empty input?"
+  back: "An iterable has no length, and a sparse array's length can be reached early, so a pending counter decides when to resolve. With empty input no callback ever fires, so resolve after the loop if it is zero."
+  question: javascript/promises/implement-promise-all
+- id: implement-all-sync-throw
+  front: "How does a `Promise.all` implementation turn a non-iterable into a rejection?"
+  back: "The loop runs inside the `new Promise` executor, which converts a synchronous throw (for example `for...of` on a non-iterable) into a rejection."
+  question: javascript/promises/implement-promise-all
+- id: implement-all-wrap-resolve
+  front: "Why wrap each item with `Promise.resolve(item)` in a `Promise.all` implementation?"
+  back: "Plain values have no `then`, and thenables need adoption. Wrapping makes all items uniform."
+  question: javascript/promises/implement-promise-all
+- id: promise-impl-five-pieces
+  front: "What five pieces does a custom `Promise` implementation need?"
+  back: "State, stored reactions, asynchronous handlers via `queueMicrotask`, a `then` that returns a new promise, and the resolution procedure for thenables."
+  question: javascript/promises/implement-a-promise
+- id: resolve-not-fulfill
+  front: "Why is `resolve(x)` not the same as \"fulfill with x\" in a promise implementation?"
+  back: "The resolution procedure rejects with `TypeError` if `x` is the promise itself, and adopts `x` if it has a callable `then`. Only otherwise does it fulfill with `x`."
+  question: javascript/promises/implement-a-promise
+- id: thenable-then-read-once
+  front: "Why read `x.then` only once in the resolution procedure?"
+  back: "A getter can return different values each time, so read it once, check it is callable, and call that same reference."
+  question: javascript/promises/implement-a-promise
+- id: promise-impl-queue-microtask
+  front: "Why use `queueMicrotask` and not `setTimeout` for handlers in a custom promise?"
+  back: "`setTimeout` makes handlers macrotasks, running after rendering and timers that should come later. Native promises use the microtask queue, which `queueMicrotask` matches."
+  question: javascript/promises/implement-a-promise
+- id: promisify-error-first
+  front: "What callback convention does `util.promisify` assume?"
+  back: "Error-first: `(error, value) => ...`. It rejects when the first argument is truthy, otherwise resolves with the value. A success-first callback would be treated as an error."
+  question: javascript/promises/promisify
+- id: promisify-receiver-lost
+  front: "Why can `promisify(obj.method)` fail?"
+  back: "The detached method is called with `this` as `undefined`. Use `promisify(obj.method.bind(obj))` or `.call(obj)`."
+  question: javascript/promises/promisify
+- id: promisify-multiple-callbacks
+  front: "Why can't `setInterval` or event-stream callbacks be promisified?"
+  back: "A promise settles once, and these callbacks fire many times. Use events, `events.once` or async iterators."
+  question: javascript/promises/promisify
+- id: promisify-custom-symbol
+  front: "What does `util.promisify.custom` do?"
+  back: "If `fn[util.promisify.custom]` is a function, `promisify(fn)` returns it instead of building a wrapper. It supports non-standard signatures, as Node does for `setTimeout`."
+  question: javascript/promises/promisify
+# 18 Async and the event loop
+- id: event-loop-host-defined
+  front: "What does ECMAScript define about scheduling, and what does the host add?"
+  back: "The spec defines jobs that run to completion and the `HostEnqueuePromiseJob` hook. The host defines the event loop: task queues, the microtask checkpoint, timers and I/O. Node.js uses libuv phases."
+  question: javascript/async-and-the-event-loop/event-loop
+- id: event-loop-iteration-order
+  front: "What does one browser event-loop iteration do?"
+  back: "Runs one task, then a microtask checkpoint that drains the microtask queue (including microtasks queued by microtasks), then the browser may render, and the loop continues."
+  question: javascript/async-and-the-event-loop/event-loop
+- id: run-to-completion
+  front: "What does run-to-completion mean for a running function?"
+  back: "A timer, event handler or promise callback cannot interrupt it. A long synchronous loop blocks everything else in that agent, including browser rendering."
+  question: javascript/async-and-the-event-loop/event-loop
+- id: settimeout-zero-meaning
+  front: "When does a `setTimeout(fn, 0)` callback run relative to a promise `.then`?"
+  back: "After. The callback is a later task, running only after the current task and all of its microtasks. A `.then` runs before any earlier-queued timer."
+  question: javascript/async-and-the-event-loop/event-loop
+- id: workers-separate-event-loops
+  front: "Do web workers share the main thread's event loop?"
+  back: "No. Each worker is its own agent with its own event loop, stack, heap and global object."
+  question: javascript/async-and-the-event-loop/event-loop
+- id: ordering-three-steps
+  front: "In what order does a script's sync code, promise callbacks and timers run?"
+  back: "Synchronous code first (the script is one task), then the microtask queue drained fully, then the next task such as a timer callback. Each task gets its own microtask drain."
+  question: javascript/async-and-the-event-loop/task-microtask-ordering
+- id: then-queued-when-settles
+  front: "Why do two chains `a.then(f).then(g)` advance interleaved?"
+  back: "`g` is queued only after `f` has run, so each chain advances one step per round of the microtask queue."
+  question: javascript/async-and-the-event-loop/task-microtask-ordering
+- id: return-promise-extra-ticks
+  front: "Why is returning a promise from a handler slower than returning a value?"
+  back: "Adopting a promise needs a job to call its `then`, plus a further job for the reaction: two extra ticks for a native promise."
+  question: javascript/async-and-the-event-loop/task-microtask-ordering
+- id: microtask-starvation
+  front: "What happens with a recursive `queueMicrotask` that never ends?"
+  back: "Timers, I/O and rendering never get a turn, because the microtask drain stops only when the queue is empty."
+  question: javascript/async-and-the-event-loop/task-microtask-ordering
+- id: next-tick-before-promises
+  front: "How does `process.nextTick` order against promise jobs in Node.js?"
+  back: "In CommonJS, the `nextTick` queue drains before the microtask queue. In an ES module, promise jobs run first because the module already runs inside a microtask drain."
+  question: javascript/async-and-the-event-loop/task-microtask-ordering
+- id: queue-microtask-error-reporting
+  front: "How does an error in a `queueMicrotask` callback differ from one in a `.then` handler?"
+  back: "A throw in a promise handler rejects the derived promise. A throw in a `queueMicrotask` callback is reported as an uncaught exception."
+  question: javascript/async-and-the-event-loop/task-microtask-ordering
+- id: async-body-sync-until-await
+  front: "Where does an `async` function body run before its first `await`?"
+  back: "Synchronously, on the caller's stack. The call then returns the promise. Argument errors, such as a throwing default value, reject that promise instead of throwing."
+  question: javascript/async-and-the-event-loop/async-await-mechanics
+- id: await-three-steps
+  front: "What does `await value` do?"
+  back: "Converts `value` with `PromiseResolve` (a native promise is used as is, anything else is wrapped), attaches reactions that resume the function, and suspends, returning control to the caller."
+  question: javascript/async-and-the-event-loop/async-await-mechanics
+- id: await-non-promise-yields
+  front: "Does `await 1` continue in the same tick?"
+  back: "No. The resumption is a promise job running as a microtask, so even `await 1` yields at least one tick."
+  question: javascript/async-and-the-event-loop/async-await-mechanics
+- id: return-promise-in-try-catch
+  front: "Why does `return promise` inside `try`/`catch` skip the `catch` on rejection?"
+  back: "Without `await`, the function returns before the promise settles, so its rejection bypasses your `catch`. Use `return await promise` when the surrounding `try` should handle the error."
+  question: javascript/async-and-the-event-loop/async-await-mechanics
+- id: async-return-resolves
+  front: "What does `return x` do in an async function?"
+  back: "It calls the function's own promise's `resolve` with `x`. Returning a promise makes the function's promise adopt it, costing extra ticks. An uncaught `throw` rejects it."
+  question: javascript/async-and-the-event-loop/async-await-mechanics
+- id: await-in-loop-sequential
+  front: "What determines whether awaited operations overlap?"
+  back: "When each promise is created, because a promise represents work already started. `for (...) await work(x)` is sequential; creating all promises first, as in `Promise.all(xs.map(work))`, is parallel."
+  question: javascript/async-and-the-event-loop/sequential-vs-parallel-await
+- id: foreach-async-no-wait
+  front: "Why does `async` callback in `forEach` not work as expected?"
+  back: "`forEach` ignores the returned promises, so code after it runs before the callbacks finish and their errors become unhandled rejections. Use `for...of` or `Promise.all(xs.map(...))`."
+  question: javascript/async-and-the-event-loop/sequential-vs-parallel-await
+- id: early-promise-late-await-rejection
+  front: "What is the risk of creating promises early and awaiting them late?"
+  back: "A promise that rejects before you reach its `await` is unhandled until then, and Node.js by default raises that as an uncaught exception. Attach handlers right away or use `Promise.all`."
+  question: javascript/async-and-the-event-loop/sequential-vs-parallel-await
+- id: parallel-await-order-effects
+  front: "What does a parallel `await` guarantee about order?"
+  back: "Only the order of the result array. Parallel calls can finish, and be handled by a server, in any order, so order-dependent writes should be sequential."
+  question: javascript/async-and-the-event-loop/sequential-vs-parallel-await
+- id: single-threaded-agent
+  front: "In what sense is JavaScript single-threaded?"
+  back: "One agent runs one job at a time, with no preemption. The host does I/O off-thread, and workers are separate agents on other threads with their own globals, heap and event loop."
+  question: javascript/async-and-the-event-loop/single-threaded
+- id: worker-communication
+  front: "How do workers exchange data?"
+  back: "`postMessage` copies values (structured clone) or transfers ownership of some objects such as an `ArrayBuffer`. A `SharedArrayBuffer` shares memory, and `Atomics` gives race-free updates."
+  question: javascript/async-and-the-event-loop/single-threaded
+- id: atomics-wait-main-thread
+  front: "Why is `Atomics.wait` not allowed on a browser's main thread?"
+  back: "It blocks the thread."
+  question: javascript/async-and-the-event-loop/single-threaded
+- id: async-not-threads
+  front: "Do `async`/`await` and promises use extra threads?"
+  back: "No, they schedule work on one agent. A CPU-bound loop inside an `async` function still blocks the loop; move CPU-bound work to a worker."
+  question: javascript/async-and-the-event-loop/single-threaded
+- id: abort-controller-parts
+  front: "What does `controller.abort(reason)` do?"
+  back: "Sets `signal.aborted` to `true`, stores `signal.reason`, and fires an `abort` event once. With no reason it uses an `AbortError` `DOMException`. A signal aborts once and stays aborted."
+  question: javascript/async-and-the-event-loop/cancelling-async-work
+- id: abort-cooperative
+  front: "Why is aborting called cooperative?"
+  back: "If the work ignores the signal, it keeps running. Abort only changes work built to listen, such as `fetch` or code that checks `signal.throwIfAborted()`."
+  question: javascript/async-and-the-event-loop/cancelling-async-work
+- id: abort-signal-timeout-vs-race
+  front: "Why is `AbortSignal.timeout(ms)` better than `Promise.race` with a timer?"
+  back: "It cancels the work: the signal aborts with a `TimeoutError`. With `race`, the loser is ignored but keeps running."
+  question: javascript/async-and-the-event-loop/cancelling-async-work
+- id: abort-signal-any
+  front: "What does `AbortSignal.any([a, b])` return?"
+  back: "A signal that aborts when any input aborts, with that input's reason. Use it to combine a user cancel with a timeout."
+  question: javascript/async-and-the-event-loop/cancelling-async-work
+- id: throw-if-aborted
+  front: "What does `signal.throwIfAborted()` do?"
+  back: "Throws `signal.reason` if the signal is aborted, otherwise nothing. It is a one-line guard for the top of a function or loop body."
+  question: javascript/async-and-the-event-loop/cancelling-async-work
+- id: pool-takes-functions
+  front: "Why must a concurrency-limit runner accept task functions, not promises?"
+  back: "Promises start running when created, so a limit on already-created promises limits nothing. The runner decides when to call each function."
+  question: javascript/async-and-the-event-loop/concurrency-limit-retry
+- id: pool-worker-loop
+  front: "How does a worker-loop pool bound concurrency and keep input order?"
+  back: "It starts `limit` async loops that each claim the next index, run that task and store the result at the same index. `nextIndex++` needs no lock because one job runs at a time."
+  question: javascript/async-and-the-event-loop/concurrency-limit-retry
+- id: pool-batching-waste
+  front: "Why is chunked `Promise.all` batching wasteful compared with a worker pool?"
+  back: "Each batch waits for its slowest task while slots sit idle. Workers that pull the next task keep all slots busy."
+  question: javascript/async-and-the-event-loop/concurrency-limit-retry
+- id: retry-inside-worker
+  front: "Why does the concurrency limit still hold during retry backoff?"
+  back: "The retry happens inside the worker's `await`, so the worker does not claim another task until the current one finally succeeds or fails."
+  question: javascript/async-and-the-event-loop/concurrency-limit-retry
+- id: pool-fail-fast-flag
+  front: "What does a fail-fast pool need so it stops after one failure?"
+  back: "A `failed` flag that stops workers from claiming new tasks. Tasks already in flight cannot be cancelled and finish on their own."
+  question: javascript/async-and-the-event-loop/concurrency-limit-retry
