@@ -22,17 +22,17 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Immutable arithmetic and calendars in Temporal → 020
 - `Intl.DateTimeFormat`, `NumberFormat`, `PluralRules`, `RelativeTimeFormat`, `ListFormat` → 030
 - Time zones, offsets, DST; storing instants vs wall-clock times → 040
-- `Intl.DisplayNames`, `Intl.DurationFormat` → —
+- `Intl.DisplayNames`, `Intl.DurationFormat` → 030
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Why is `Date` hard to use correctly?](010-date-pitfalls.md) | easy | 🔴 planned |
-| 020 | [What is Temporal, and which type do you use when?](020-temporal-types.md) | medium | 🔴 planned |
-| 030 | [How do you format dates, numbers, and plurals per locale with `Intl`?](030-intl-formatting.md) | medium | 🔴 planned |
-| 040 | [How do you handle time zones correctly?](040-time-zones.md) | medium | 🔴 planned |
+| 010 | [Why is `Date` hard to use correctly?](010-date-pitfalls.md) | easy | 🟡 draft |
+| 020 | [What is Temporal, and which type do you use when?](020-temporal-types.md) | medium | 🟡 draft |
+| 030 | [How do you format dates, numbers, and plurals per locale with `Intl`?](030-intl-formatting.md) | medium | 🟡 draft |
+| 040 | [How do you handle time zones correctly?](040-time-zones.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
@@ -42,4 +42,4 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 
 ## Open questions
 
-- [ ] Check Temporal support across engines before writing 020 and 040
+- [ ] Re-check Temporal support (Safari, Node builds) and re-run polyfill outputs natively when available
