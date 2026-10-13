@@ -3,7 +3,7 @@ title: "Implement `debounce`, `throttle`, and `once`."
 status: draft
 difficulty: medium
 frequency: 5
-core: false
+core: true
 tags: [closures, debounce, throttle, once, timers, higher-order-functions]
 related:
   - javascript/closures/what-is-a-closure

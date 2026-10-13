@@ -3,7 +3,7 @@ title: "Implement `Promise.all`."
 status: draft
 difficulty: medium
 frequency: 5
-core: false
+core: true
 tags: [promise-all, implementation, polyfill, concurrency, iterable, interview-coding]
 related:
   - javascript/promises/promise-combinators
