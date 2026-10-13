@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What is the difference between `target`, `lib`, and `module`?](030-target-lib-module.md) | medium | 🟡 draft |
 | 040 | [How do `paths`, `baseUrl`, and `extends` work?](040-paths-and-extends.md) | medium | 🟡 draft |
 | 050 | [What are project references, and how do `composite` and `incremental` help?](050-project-references.md) | hard | 🟡 draft |
-| 060 | [What do `skipLibCheck`, `declaration`, and `sourceMap` do?](060-skiplibcheck-declaration-sourcemaps.md) | easy | 🔴 planned |
+| 060 | [What do `skipLibCheck`, `declaration`, and `sourceMap` do?](060-skiplibcheck-declaration-sourcemaps.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
