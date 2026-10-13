@@ -10,8 +10,8 @@ export function ChapterNav({ topicSlug, chapter, currentId }: { topicSlug: strin
   const hasPublished = chapter.questions.some((question) => question.hasPage)
   return (
     <nav aria-label="Questions in this chapter" className="text-sm">
-      <p className="font-mono text-xs tracking-wide text-muted-foreground">CHAPTER {chapter.number}</p>
-      <p className="mt-1 text-lg font-semibold">{chapter.title}</p>
+      <p className="text-sm text-muted-foreground">Chapter {chapter.number}</p>
+      <p className="mt-1 text-xl font-semibold tracking-tight">{chapter.title}</p>
       <ol className="mt-4 flex flex-col gap-0.5">
         {chapter.questions.map((question) => {
           const label = (

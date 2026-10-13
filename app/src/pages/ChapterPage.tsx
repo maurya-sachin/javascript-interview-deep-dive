@@ -34,9 +34,9 @@ export function ChapterPage() {
         { label: topic.title, to: `/${topic.slug}` },
       ]}
     >
-      <p className="font-mono text-sm text-muted-foreground">Chapter {chapter.number}</p>
-      <h1 className="mt-1 text-3xl font-bold tracking-tight">{chapter.title}</h1>
-      <InlineHtml html={chapter.summaryHtml} className="mt-3 block max-w-2xl text-lg leading-relaxed text-muted-foreground [&_code]:font-mono [&_code]:text-[0.9em]" />
+      <p className="text-sm text-muted-foreground">Chapter {chapter.number}</p>
+      <h1 className="mt-1 text-4xl font-bold tracking-[-0.03em]">{chapter.title}</h1>
+      <InlineHtml html={chapter.summaryHtml} className="mt-3 block max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground [&_code]:font-mono [&_code]:text-[0.9em]" />
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
         <span>{stats.total} questions</span>
@@ -74,9 +74,9 @@ export function ChapterPage() {
       {shown.length === 0 ? (
         <p className="mt-6 rounded-xl border border-dashed p-5 text-muted-foreground">No questions match these filters.</p>
       ) : (
-        <ol className="mt-4 divide-y rounded-xl border">
+        <ol className="mt-4 border-t">
           {shown.map((question) => (
-            <li key={question.id} className="grid grid-cols-[2.5rem_1fr] gap-x-3 gap-y-2 px-5 py-4 sm:grid-cols-[2.5rem_1fr_auto]">
+            <li key={question.id} className="grid grid-cols-[2.5rem_1fr] gap-x-3 gap-y-2 border-b py-4 sm:grid-cols-[2.5rem_1fr_auto]">
               <span className="font-mono text-xs text-muted-foreground sm:pt-1">{question.number}</span>
               {question.hasPage ? (
                 <Link to={questionPath(question)} className="font-medium hover:text-link">

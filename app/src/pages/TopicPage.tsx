@@ -21,17 +21,17 @@ export function TopicPage() {
 
   return (
     <PageShell crumbs={[{ label: 'Topics', to: '/' }]} wide>
-      <h1 className="text-3xl font-bold tracking-tight">{topic.title}</h1>
-      <InlineHtml html={topic.summaryHtml} className={`mt-3 block max-w-2xl text-lg leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
+      <h1 className="text-4xl font-bold tracking-[-0.03em]">{topic.title}</h1>
+      <InlineHtml html={topic.summaryHtml} className={`mt-3 block max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
 
       {topic.chapters.length === 0 ? (
         <p className="mt-8 rounded-xl border border-dashed p-5 text-muted-foreground">Chapters for this topic are planned.</p>
       ) : (
         <>
-          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-muted-foreground">
+          <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2">
             <Stat value={topic.chapters.length} label="chapters" />
             <Stat value={stats.total} label="questions" />
-            <Stat value={stats.core} label="core" />
+            <Stat value={stats.core} label="core questions" />
             {topic.flashcardCount > 0 && <Stat value={topic.flashcardCount} label="flashcards" />}
             {readCount > 0 && <Stat value={readCount} label="read by you" />}
           </dl>
@@ -48,27 +48,27 @@ export function TopicPage() {
             )}
           </div>
 
-          <h2 className="mt-12 text-xl font-semibold">Chapters</h2>
-          <ol className="mt-4 grid gap-3">
+          <h2 className="mt-14 text-2xl font-semibold tracking-tight">Contents</h2>
+          <ol className="mt-4 border-t">
             {topic.chapters.map((chapter) => {
               const chapterQuestions = chapterStats([chapter])
               const chapterRead = chapter.questions.filter((question) => read.includes(question.id)).length
               return (
-                <li key={chapter.slug}>
+                <li key={chapter.slug} className="border-b">
                   <Link
                     to={`/${topic.slug}/${chapter.slug}`}
-                    className="grid gap-x-5 gap-y-2 rounded-xl border p-5 transition-colors hover:bg-muted sm:grid-cols-[2.5rem_1fr_11rem]"
+                    className="group grid gap-x-6 gap-y-2 py-5 sm:grid-cols-[2.5rem_1fr_13rem]"
                   >
                     <span className="font-mono text-sm text-muted-foreground sm:pt-1">{chapter.number}</span>
                     <span>
-                      <span className="block text-lg font-semibold">{chapter.title}</span>
+                      <span className="block text-lg font-semibold group-hover:text-link">{chapter.title}</span>
                       <InlineHtml html={chapter.summaryHtml} className={`mt-1 block text-sm leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
                     </span>
                     <span className="flex flex-col gap-2 text-sm text-muted-foreground sm:pt-1.5 sm:text-right">
                       <DifficultyMix counts={chapterQuestions.byDifficulty} />
                       <span>
                         {chapterQuestions.total} questions
-                        {chapterQuestions.core > 0 && ` · ${chapterQuestions.core} core`}
+                        {chapterQuestions.core > 0 && `, ${chapterQuestions.core} core`}
                       </span>
                       {chapterRead > 0 && (
                         <span className="text-link">
@@ -90,8 +90,8 @@ export function TopicPage() {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex items-baseline gap-1.5">
-      <dd className="order-first text-xl font-semibold text-foreground tabular-nums">{value}</dd>
-      <dt>{label}</dt>
+      <dd className="order-first text-2xl font-semibold tracking-tight tabular-nums">{value}</dd>
+      <dt className="text-muted-foreground">{label}</dt>
     </div>
   )
 }

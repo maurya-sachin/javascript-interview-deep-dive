@@ -3,6 +3,8 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/newsreader";
+@import "@fontsource-variable/newsreader/wght-italic.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -10,6 +12,9 @@
     --font-heading: var(--font-sans);
     --font-sans: 'Geist Variable', sans-serif;
     --font-mono: 'Geist Mono Variable', monospace;
+    --font-serif: 'Newsreader Variable', Georgia, serif;
+    --color-depth-from: var(--depth-from);
+    --color-depth-to: var(--depth-to);
     --color-link: var(--link);
     --color-link-hover: var(--link-hover);
     --color-tldr: var(--tldr);
@@ -55,23 +60,23 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(21% 0.006 285.885);
-    --card: oklch(1 0 0);
+    --background: #F9FAFC;
+    --foreground: #0E1424;
+    --card: #FFFFFF;
     --card-foreground: oklch(21% 0.006 285.885);
-    --popover: oklch(1 0 0);
+    --popover: #FFFFFF;
     --popover-foreground: oklch(21% 0.006 285.885);
-    --primary: oklch(21% 0.006 285.885);
+    --primary: #0E1424;
     --primary-foreground: oklch(98.5% 0 0);
-    --secondary: oklch(96.7% 0.001 286.375);
+    --secondary: #EEF1F6;
     --secondary-foreground: oklch(21% 0.006 285.885);
-    --muted: oklch(96.7% 0.001 286.375);
-    --muted-foreground: oklch(44.2% 0.017 285.786);
-    --accent: oklch(96.7% 0.001 286.375);
+    --muted: #EEF1F6;
+    --muted-foreground: #4A5368;
+    --accent: #EEF1F6;
     --accent-foreground: oklch(21% 0.006 285.885);
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(92% 0.004 286.32);
-    --input: oklch(92% 0.004 286.32);
+    --border: #E1E5EE;
+    --input: #E1E5EE;
     --ring: #2F4FD8;
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
@@ -89,24 +94,26 @@
     --sidebar-ring: #2F4FD8;
     --link: #2F4FD8;
     --link-hover: #1E3A8A;
-    --tldr: #EEF1FD;
+    --tldr: #EDF1FD;
     --tldr-foreground: #1E3A8A;
+    --depth-from: #BCD0FF;
+    --depth-to: #1B2A6B;
 }
 
 .dark {
-    --background: oklch(14.1% 0.005 285.823);
-    --foreground: oklch(96.7% 0.001 286.375);
-    --card: oklch(21% 0.006 285.885);
+    --background: #0A0F1E;
+    --foreground: #E8EDFB;
+    --card: #101733;
     --card-foreground: oklch(96.7% 0.001 286.375);
-    --popover: oklch(21% 0.006 285.885);
+    --popover: #101733;
     --popover-foreground: oklch(96.7% 0.001 286.375);
-    --primary: oklch(96.7% 0.001 286.375);
+    --primary: #E8EDFB;
     --primary-foreground: oklch(21% 0.006 285.885);
-    --secondary: oklch(27.4% 0.006 286.033);
+    --secondary: #151D3D;
     --secondary-foreground: oklch(96.7% 0.001 286.375);
-    --muted: oklch(27.4% 0.006 286.033);
-    --muted-foreground: oklch(70.5% 0.015 286.067);
-    --accent: oklch(27.4% 0.006 286.033);
+    --muted: #151D3D;
+    --muted-foreground: #9AA6C4;
+    --accent: #151D3D;
     --accent-foreground: oklch(96.7% 0.001 286.375);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
@@ -127,8 +134,10 @@
     --sidebar-ring: #9DAEF7;
     --link: #9DAEF7;
     --link-hover: #C7D0FB;
-    --tldr: #171C33;
+    --tldr: #131B3D;
     --tldr-foreground: #B4C1F9;
+    --depth-from: #9DAEF7;
+    --depth-to: #28357F;
 }
 
 @layer base {
@@ -152,16 +161,20 @@
 /* Styles for HTML compiled by content:build (Markdown → HTML), including Shiki output. */
 @layer components {
   .content {
-    font-size: 1.0625rem;
-    line-height: 1.75;
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.7;
+    font-optical-sizing: auto;
   }
   .content > * + * {
     margin-top: 1rem;
   }
   .content h3 {
-    margin-top: 1.5rem;
-    font-size: 1.125rem;
+    margin-top: 1.75rem;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
   }
   .content ul,
   .content ol {
@@ -180,7 +193,7 @@
     border-radius: 0.25rem;
     background: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.88em;
+    font-size: 0.82em;
   }
   .content pre {
     overflow-x: auto;
@@ -201,6 +214,7 @@
     color: var(--foreground) !important;
   }
   .content table {
+    font-family: var(--font-sans);
     display: block;
     overflow-x: auto;
     border-collapse: collapse;
@@ -214,7 +228,7 @@
   }
   /* Shiki inlines its light colours as style attributes; !important is the only way to override them. */
   .dark .content .shiki {
-    background-color: var(--shiki-dark-bg) !important;
+    background-color: var(--card) !important;
   }
   .dark .content .shiki,
   .dark .content .shiki span {

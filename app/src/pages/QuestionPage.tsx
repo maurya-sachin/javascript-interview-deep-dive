@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useLoaderData, useParams } from 'react-router'
+import { DepthRail } from '@/components/DepthRail'
 import { ChapterNav } from '@/components/question/ChapterNav'
 import { Exercises } from '@/components/question/Exercises'
 import { Html } from '@/components/question/Html'
@@ -31,7 +32,7 @@ export function QuestionPage() {
 
   const { previous, next } = neighbours(topic, question.id)
   const sections = [
-    { id: 'tldr', title: 'TL;DR', shown: content !== null },
+    { id: 'tldr', title: '30-second answer', shown: content !== null },
     { id: 'answer', title: 'Answer', shown: content !== null },
     { id: 'example', title: 'Example', shown: content !== null },
     { id: 'pitfalls', title: 'Pitfalls', shown: content !== null },
@@ -55,7 +56,7 @@ export function QuestionPage() {
           ]}
         />
           <title>{`${question.title} · Deep Dive`}</title>
-          <h1 className="text-[2.125rem] leading-tight font-bold tracking-tight">
+          <h1 className="text-[2.5rem] leading-[1.1] font-bold tracking-[-0.03em]">
             <QuestionTitle html={question.titleHtml} />
           </h1>
 
@@ -67,11 +68,11 @@ export function QuestionPage() {
             <>
               <MetaRow difficulty={content.difficulty} frequency={content.frequency} verified={content.verified} />
 
-              <section aria-labelledby="tldr" className="mt-8 rounded-xl bg-tldr px-6 py-5 text-tldr-foreground">
-                <h2 id="tldr" className="font-mono text-xs font-medium tracking-widest">
-                  TL;DR — THE 30-SECOND ANSWER
+              <section aria-labelledby="tldr" className="mt-10 scroll-mt-8 rounded-r-xl border-l-4 border-link bg-tldr py-5 pr-6 pl-6 text-tldr-foreground">
+                <h2 id="tldr" className="text-sm font-medium">
+                  30-second answer
                 </h2>
-                <p className="mt-2.5 text-lg leading-relaxed text-foreground">
+                <p className="mt-2 font-serif text-[1.375rem] leading-snug text-foreground">
                   <InlineHtml html={content.tldrHtml} className={CODE_STYLE} />
                 </p>
               </section>
@@ -162,16 +163,9 @@ export function QuestionPage() {
       </main>
 
       {sections.length > 0 && (
-        <nav aria-label="On this page" className="max-w-52 min-w-36 flex-1 basis-40 text-sm">
-          <div className="sticky top-6 flex flex-col gap-2.5">
-            <span className="font-mono text-[0.6875rem] tracking-widest text-muted-foreground">ON THIS PAGE</span>
-            {sections.map((section) => (
-              <a key={section.id} href={`#${section.id}`} className="text-muted-foreground hover:text-foreground">
-                {section.title}
-              </a>
-            ))}
-          </div>
-        </nav>
+        <aside className="max-w-56 min-w-40 flex-1 basis-44">
+          <DepthRail stops={sections} />
+        </aside>
       )}
     </div>
   )
