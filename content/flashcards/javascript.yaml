@@ -1,0 +1,565 @@
+# 01 How JavaScript runs
+- id: ecmascript-vs-host-apis
+  front: "Which layer defines `setTimeout`, `console` and `fetch`: the ECMAScript spec or the host?"
+  back: "The host. ECMA-262 defines none of them. Hosts (browsers, Node.js, Deno, Bun) embed an engine and supply timers, `console`, the DOM, `fetch` and the event loop."
+  question: javascript/how-javascript-runs/ecmascript-engine-host
+- id: bare-engine-test
+  front: "What quick test tells you whether a feature is ECMAScript or a host API?"
+  back: "Ask whether it would exist in a bare engine shell with no host. `Array.prototype.map` would; `setTimeout` would not."
+  question: javascript/how-javascript-runs/ecmascript-engine-host
+- id: host-hook-definition
+  front: "What is a host hook in the ECMAScript spec?"
+  back: "An abstract operation whose behaviour the host supplies, marking where the spec is deliberately incomplete. Example: `HostEnqueuePromiseJob` decides how a promise reaction becomes a queued Job."
+  question: javascript/how-javascript-runs/ecmascript-engine-host
+- id: event-loop-not-ecmascript
+  front: "Is the event loop part of ECMAScript?"
+  back: "No. The spec defines Jobs and the hooks that enqueue them. The event loop, task queues and timer-versus-I/O ordering are defined by the host (HTML Standard, or libuv-based code in Node.js)."
+  question: javascript/how-javascript-runs/ecmascript-engine-host
+- id: node-is-not-v8
+  front: "Why is 'Node.js' not a synonym for 'V8'?"
+  back: "V8 is the engine. Node.js is a host built on V8 that adds libuv-backed I/O, `require` and its own module loader."
+  question: javascript/how-javascript-runs/ecmascript-engine-host
+- id: tc39-stage-3-meaning
+  front: "What happens at TC39 Stage 3, and is the proposal final?"
+  back: "Stage 3 is implementation and feedback: engines implement and may ship, sometimes behind a flag. It is not final; feedback can still change or stall the proposal."
+  question: javascript/how-javascript-runs/tc39-process
+- id: tc39-stage-4-bar
+  front: "What does a proposal need to reach TC39 Stage 4?"
+  back: "Two compatible implementations passing test262, real shipping experience, and editor approval. It is then merged into the spec draft."
+  question: javascript/how-javascript-runs/tc39-process
+- id: tc39-stage-2-7
+  front: "What is TC39 Stage 2.7?"
+  back: "Testing and validation. The spec text is complete and signed off by reviewers and editors, the design is frozen apart from changes found through testing, and tests are written."
+  question: javascript/how-javascript-runs/tc39-process
+- id: stage-4-not-available
+  front: "Does a Stage 4 feature mean it works in your users' browsers?"
+  back: "No. Stage 4 means the spec is settled. Each engine and host ships on its own schedule, so check real support (MDN compatibility data, `caniuse`) for your targets."
+  question: javascript/how-javascript-runs/tc39-process
+- id: v8-pipeline-stages
+  front: "What is V8's execution pipeline for JavaScript, from source to optimized code?"
+  back: "Parse to an AST, compile to bytecode run by the Ignition interpreter, then tier up hot functions through Sparkplug (baseline), Maglev (mid-tier) and TurboFan (top-tier optimizer)."
+  question: javascript/how-javascript-runs/compiled-or-interpreted
+- id: deoptimization-meaning
+  front: "What is deoptimization in a JIT engine?"
+  back: "Optimized machine code rests on assumptions from collected type feedback. When one breaks, for example a function receives a different type, the engine discards that code and falls back to a lower tier."
+  question: javascript/how-javascript-runs/compiled-or-interpreted
+- id: early-errors-at-parse
+  front: "When are syntax errors and early errors, such as duplicate `let`, reported?"
+  back: "At parse time, before any code runs, even inside a function that is never called."
+  question: javascript/how-javascript-runs/compiled-or-interpreted
+- id: why-not-optimize-everything
+  front: "Why do engines start in an interpreter instead of optimizing everything up front?"
+  back: "Optimizing is slow and costs memory, and most code runs once. Interpreting first keeps startup fast; only hot code earns the expensive tiers."
+  question: javascript/how-javascript-runs/compiled-or-interpreted
+- id: script-module-top-level-this
+  front: "What is top-level `this` in a classic script versus an ES module?"
+  back: "In a script it is the global object. In a module it is `undefined`."
+  question: javascript/how-javascript-runs/scripts-vs-modules
+- id: module-top-level-var-scope
+  front: "Does a top-level `var` in a module become a property of `globalThis`?"
+  back: "No. A module has its own scope. In a classic script, top-level `var` and function declarations become global object properties."
+  question: javascript/how-javascript-runs/scripts-vs-modules
+- id: module-evaluated-once
+  front: "How many times is a module evaluated if it is imported from several places?"
+  back: "Once per resolved URL. Later imports reuse the same module instance. A script is evaluated every time it is run or included."
+  question: javascript/how-javascript-runs/scripts-vs-modules
+- id: live-bindings-definition
+  front: "What is a live binding in ES modules?"
+  back: "An imported name is a read-only view of the exporting module's variable, not a copy. If the exporter reassigns an exported `let`, importers see the new value; they cannot assign to it."
+  question: javascript/how-javascript-runs/scripts-vs-modules
+- id: script-can-use-dynamic-import
+  front: "Can a classic script load an ES module, and how?"
+  back: "Yes, through dynamic `import()`, which returns a promise and is allowed in both goals. Static `import` declarations are a syntax error in a script."
+  question: javascript/how-javascript-runs/scripts-vs-modules
+- id: strict-undeclared-assignment
+  front: "What does assigning to an undeclared name do in strict mode versus sloppy mode?"
+  back: "Strict mode throws `ReferenceError`. Sloppy mode silently creates a global variable."
+  question: javascript/how-javascript-runs/strict-mode
+- id: strict-this-plain-call
+  front: "What is `this` in a plain function call in strict mode?"
+  back: "`undefined`, and a primitive `this` stays a primitive. Sloppy mode substitutes `globalThis` or a wrapper object."
+  question: javascript/how-javascript-runs/strict-mode
+- id: strict-automatic-contexts
+  front: "Which code is strict automatically, without a `'use strict'` directive?"
+  back: "Module code, class bodies (all methods, accessors, fields and static blocks), and code nested inside strict code."
+  question: javascript/how-javascript-runs/strict-mode
+- id: use-strict-directive-position
+  front: "Where must `'use strict'` appear for it to take effect?"
+  back: "As the first statement of a script or function body (comments are fine). After another statement it is just an expression statement and does nothing."
+  question: javascript/how-javascript-runs/strict-mode
+- id: strict-arguments-unmapped
+  front: "What does it mean that `arguments` is unmapped in strict mode?"
+  back: "It no longer aliases the named parameters, so writing one does not change the other. In sloppy functions with simple parameters they share storage. `arguments.callee` throws in strict mode."
+  question: javascript/how-javascript-runs/strict-mode
+- id: polyfill-vs-transpiler-split
+  front: "What is the rule of thumb for polyfills versus transpilers?"
+  back: "New syntax is transpiled at build time; new built-ins (APIs) are polyfilled at run time."
+  question: javascript/how-javascript-runs/polyfill-vs-transpiler
+- id: polyfill-cannot-fix-syntax
+  front: "Why can a polyfill not fix a `SyntaxError` from new syntax like `??`?"
+  back: "An engine that cannot parse the syntax throws for the whole file, so no run-time code gets to execute. A transpiler must rewrite the syntax before shipping."
+  question: javascript/how-javascript-runs/polyfill-vs-transpiler
+- id: ponyfill-definition
+  front: "What is a ponyfill?"
+  back: "A module that exports a feature as a function instead of modifying globals, so it never changes the environment. Callers must import and use it explicitly."
+  question: javascript/how-javascript-runs/polyfill-vs-transpiler
+- id: browserslist-targets-purpose
+  front: "What do target environments (Browserslist, esbuild `target`) control?"
+  back: "Which transforms and polyfills are applied: only those the listed engines lack. A wider target means larger, slower output."
+  question: javascript/how-javascript-runs/polyfill-vs-transpiler
+
+# 02 Values and types
+- id: eight-language-types
+  front: "Name the eight ECMAScript language types."
+  back: "Undefined, Null, Boolean, String, Symbol, Number, BigInt and Object. The first seven are primitives. Functions, arrays and dates are all Object."
+  question: javascript/values-and-types/language-types
+- id: primitives-compare-by-value
+  front: "How do primitives and objects differ in comparison and mutability?"
+  back: "Primitives are immutable and compare by value. Objects compare by identity: `{} === {}` is `false`, because each literal creates a new object."
+  question: javascript/values-and-types/language-types
+- id: typeof-null-historical
+  front: "Why is `typeof null` equal to `'object'`?"
+  back: "A historical mistake. In the first implementation values had a type tag, the object tag was 0 and `null` was the NULL pointer. A fix was proposed and rejected, so the spec now states the result explicitly."
+  question: javascript/values-and-types/typeof-null
+- id: null-is-primitive
+  front: "Is `null` an object despite `typeof null`?"
+  back: "No. It is a primitive with exactly one value. Reading a property throws `TypeError`, `null instanceof Object` is `false`, and it has no wrapper."
+  question: javascript/values-and-types/typeof-null
+- id: non-null-object-check
+  front: "How do you test for a non-null object-like value with `typeof`?"
+  back: "`value !== null && typeof value === 'object'`. Functions report `'function'`, so add `|| typeof value === 'function'` if they should count."
+  question: javascript/values-and-types/typeof-null
+- id: document-all-typeof
+  front: "What is the surprising `typeof` of `document.all`?"
+  back: "`'undefined'`, although it is an object. The spec allows it through the `[[IsHTMLDDA]]` internal slot, a willful violation kept for web compatibility."
+  question: javascript/values-and-types/typeof-null
+- id: undefined-vs-null-origin
+  front: "Who produces `undefined` and who produces `null`?"
+  back: "The language produces `undefined` (unassigned variable, missing argument or property, no `return`). `null` is usually assigned by a programmer; the language yields it mainly as the end of the prototype chain."
+  question: javascript/values-and-types/null-vs-undefined
+- id: default-parameter-null
+  front: "Does a default parameter value apply when the argument is `null`?"
+  back: "No. Defaults apply only to `undefined`. `greet(null)` keeps `null`."
+  question: javascript/values-and-types/null-vs-undefined
+- id: null-undefined-number-conversion
+  front: "What do `Number(null)` and `Number(undefined)` return?"
+  back: "`Number(null)` is `0` and `Number(undefined)` is `NaN`."
+  question: javascript/values-and-types/null-vs-undefined
+- id: null-undefined-json
+  front: "How does `JSON.stringify` treat `null` and `undefined`?"
+  back: "It keeps `null`, drops an `undefined` object property, and turns an `undefined` array element into `null`."
+  question: javascript/values-and-types/null-vs-undefined
+- id: missing-vs-undefined-property
+  front: "How do you tell a missing property from one explicitly set to `undefined`?"
+  back: "Use `'key' in obj` or `Object.hasOwn(obj, 'key')`. `obj.key === undefined` cannot tell them apart."
+  question: javascript/values-and-types/null-vs-undefined
+- id: null-relational-inconsistency
+  front: "Why are `null == 0` false but `null >= 0` true?"
+  back: "`==` has a dedicated rule: `null` equals only `undefined`. Relational operators use `ToNumber`, which makes `null` into `0`, so `null >= 0` is `true` while `null > 0` is `false`."
+  question: javascript/values-and-types/null-vs-undefined
+- id: auto-boxing-mechanism
+  front: "How does `'abc'.toUpperCase()` work if primitives have no properties?"
+  back: "Property access calls `ToObject` on the primitive, creating a temporary String wrapper. The lookup finds the method on `String.prototype`, calls it with the primitive as `this`, and the wrapper is discarded."
+  question: javascript/values-and-types/primitive-wrappers
+- id: primitive-property-write-lost
+  front: "What happens when you write `str.foo = 1` on a string primitive?"
+  back: "The write lands on a throwaway wrapper and is lost. Strict mode throws `TypeError`; sloppy mode silently ignores it."
+  question: javascript/values-and-types/primitive-wrappers
+- id: null-undefined-no-wrapper
+  front: "Why does `undefined.x` throw?"
+  back: "`ToObject` throws `TypeError` for `null` and `undefined`; they have no wrapper type."
+  question: javascript/values-and-types/primitive-wrappers
+- id: new-boolean-false-truthy
+  front: "Why is `new Boolean(false)` truthy, and what do `String(x)` and `new String(x)` return?"
+  back: "`new Boolean(false)` is an object, and every object is truthy. Without `new`, `String(x)` is a plain conversion returning a primitive; `new String(x)` returns an object."
+  question: javascript/values-and-types/primitive-wrappers
+- id: sloppy-this-primitive-boxed
+  front: "What does `this` hold when a function is called on a primitive in sloppy versus strict mode?"
+  back: "A sloppy function receives a wrapper object (`typeof this` is `'object'`). A strict function receives the primitive unchanged."
+  question: javascript/values-and-types/primitive-wrappers
+- id: js-pass-by-value
+  front: "Is JavaScript pass-by-reference for objects?"
+  back: "No. Everything is passed by value. An object value is a reference, so the callee gets a copy of that reference (pass by sharing)."
+  question: javascript/values-and-types/pass-by-sharing
+- id: mutate-vs-reassign-parameter
+  front: "Why does mutating an object parameter affect the caller but reassigning it does not?"
+  back: "Mutation follows the shared reference to the same object. Reassigning only repoints the callee's local binding; the caller's variable is untouched."
+  question: javascript/values-and-types/pass-by-sharing
+- id: swap-impossible
+  front: "Why can a `swap(a, b)` function not exchange the caller's variables in JavaScript?"
+  back: "The callee never receives the caller's bindings, only the values they held. True pass-by-reference would be required."
+  question: javascript/values-and-types/pass-by-sharing
+- id: spread-shallow-copy
+  front: "Is a spread or `Object.assign` copy independent of the original?"
+  back: "Only at the top level. It copies the references held by the properties, so nested objects and arrays are shared. Use `structuredClone` for a deep copy."
+  question: javascript/values-and-types/pass-by-sharing
+- id: symbol-uniqueness
+  front: "What is the purpose of a Symbol, and is `Symbol('id') === Symbol('id')`?"
+  back: "A Symbol is a unique, immutable primitive used as a collision-free property key. The comparison is `false`; the description is only a label."
+  question: javascript/values-and-types/symbols
+- id: symbol-keys-not-private
+  front: "Are symbol-keyed properties private?"
+  back: "No. They are hidden from `Object.keys`, `for...in` and `JSON.stringify`, but `Object.getOwnPropertySymbols` and `Reflect.ownKeys` reveal them. Use `#private` fields for real encapsulation."
+  question: javascript/values-and-types/symbols
+- id: symbol-for-registry
+  front: "How do `Symbol('x')`, `Symbol.for('x')` and `Symbol.keyFor` differ?"
+  back: "`Symbol('x')` always makes a new symbol. `Symbol.for('x')` returns the shared registry symbol, creating it if needed. `Symbol.keyFor` returns `undefined` for an unregistered symbol."
+  question: javascript/values-and-types/symbols
+- id: symbol-string-conversion
+  front: "What happens when a Symbol is implicitly converted to a string, as in a template literal?"
+  back: "It throws `TypeError`. Use `String(sym)` or `sym.description` instead. `new Symbol()` also throws."
+  question: javascript/values-and-types/symbols
+- id: well-known-symbols
+  front: "What are well-known symbols such as `Symbol.iterator` and `Symbol.toPrimitive` for?"
+  back: "They are keys the engine looks up to customise language behaviour: `for...of`, `instanceof`, type conversion and `Object.prototype.toString`."
+  question: javascript/values-and-types/symbols
+- id: array-isarray-branded
+  front: "Why prefer `Array.isArray` over `instanceof Array`?"
+  back: "`Array.isArray` checks the internal array slot, so it works across realms (iframes, `vm`) and is not fooled by `{ __proto__: Array.prototype }`. `instanceof` checks the prototype chain and breaks across realms."
+  question: javascript/values-and-types/type-checking
+- id: instanceof-primitives-false
+  front: "What does `'s' instanceof String` return, and what can customise `instanceof`?"
+  back: "`false`, since primitives are never instances. A `Symbol.hasInstance` method on the right-hand side overrides the default prototype-chain check."
+  question: javascript/values-and-types/type-checking
+- id: tostring-tag-unreliable
+  front: "Why is `Object.prototype.toString.call(v)` not a reliable type check for your own classes?"
+  back: "For non-built-in objects it returns the value of `Symbol.toStringTag` if it is a string, and any class can set that to anything."
+  question: javascript/values-and-types/type-checking
+- id: global-isnan-coerces
+  front: "Why prefer `Number.isNaN` over the global `isNaN`?"
+  back: "Global `isNaN` coerces its argument first, so `isNaN('x')` is `true`. `Number.isNaN` does not coerce."
+  question: javascript/values-and-types/type-checking
+
+# 03 Numbers and BigInt
+- id: number-is-binary64
+  front: "What format is every JavaScript `Number`?"
+  back: "An IEEE 754 binary64 double: 64 bits with a 52-bit fraction, giving 53 significant bits (about 15 to 17 decimal digits)."
+  question: javascript/numbers-and-bigint/floating-point-precision
+- id: point-one-not-representable
+  front: "Why is `0.1 + 0.2 !== 0.3`?"
+  back: "`0.1` is a repeating fraction in binary, so each literal is rounded to the nearest double. The exact sum rounds to `0.30000000000000004`, one step above the double for `0.3`."
+  question: javascript/numbers-and-bigint/floating-point-precision
+- id: epsilon-meaning
+  front: "What is `Number.EPSILON`, and when is it a sensible tolerance?"
+  back: "The gap between `1` and the next double (`2 ** -52`). It suits only values near `1`; for other magnitudes scale it by the operands."
+  question: javascript/numbers-and-bigint/floating-point-precision
+- id: shortest-roundtrip-printing
+  front: "Why does `console.log(0.1)` print `0.1` if the stored value is not exactly `0.1`?"
+  back: "Number-to-string conversion prints the shortest decimal that round-trips to the same double, not the exact stored value."
+  question: javascript/numbers-and-bigint/floating-point-precision
+- id: float-addition-not-associative
+  front: "Is floating-point addition associative? Give an example."
+  back: "No. It is commutative but not associative: `0.1 + 0.2 + 0.3` is `0.6000000000000001`, while `0.3 + 0.2 + 0.1` is `0.6`."
+  question: javascript/numbers-and-bigint/floating-point-precision
+- id: tofixed-uses-stored-value
+  front: "Why is `(1.005).toFixed(2)` equal to `'1.00'`?"
+  back: "`toFixed` works on the stored value, and the closest double to `1.005` is slightly below it."
+  question: javascript/numbers-and-bigint/floating-point-precision
+- id: nan-self-inequality
+  front: "Why can `x === NaN` never work, and what should you use?"
+  back: "Every comparison with `NaN` is `false`; it is the only value where `x !== x`. Use `Number.isNaN(x)`."
+  question: javascript/numbers-and-bigint/nan-negative-zero-infinity
+- id: sources-of-nan
+  front: "Which operations produce `NaN`?"
+  back: "Invalid operations such as `0 / 0`, `Math.sqrt(-1)`, `Infinity - Infinity` and `Number('abc')`."
+  question: javascript/numbers-and-bigint/nan-negative-zero-infinity
+- id: negative-zero-detection
+  front: "How can you detect `-0`, given that `0 === -0` is true?"
+  back: "`Object.is(x, -0)`, or `x === 0 && 1 / x === -Infinity`. Dividing by `-0` gives `-Infinity`."
+  question: javascript/numbers-and-bigint/nan-negative-zero-infinity
+- id: negative-zero-serialization
+  front: "What do `String(-0)` and `JSON.stringify(-0)` return?"
+  back: "Both give `0`; the sign is lost on serialization. `console.log` and `Object.is` still show it."
+  question: javascript/numbers-and-bigint/nan-negative-zero-infinity
+- id: division-by-zero-results
+  front: "What do `1 / 0` and `1 / -0` give?"
+  back: "`Infinity` and `-Infinity`. Infinities also result from overflow. `Number.isFinite` is `false` for `NaN` and both infinities."
+  question: javascript/numbers-and-bigint/nan-negative-zero-infinity
+- id: max-safe-integer-range
+  front: "What is the safe integer range, and why does it end there?"
+  back: "`-(2 ** 53 - 1)` to `2 ** 53 - 1`. A Number has a 53-bit significand; `2 ** 53 + 1` rounds to `2 ** 53`, so the two are indistinguishable."
+  question: javascript/numbers-and-bigint/safe-integers-bigint
+- id: bigint-number-mixing
+  front: "What happens on `1n + 1`, and how do `==`, `===` and `<` treat BigInt and Number?"
+  back: "Arithmetic throws `TypeError`; convert explicitly. Comparisons may mix: `1n == 1` and `1n < 1.5` are `true`, but `1n === 1` is `false` because the types differ."
+  question: javascript/numbers-and-bigint/safe-integers-bigint
+- id: bigint-division-truncates
+  front: "What does BigInt division do with remainders?"
+  back: "It truncates toward zero: `5n / 2n` is `2n` and `-5n / 2n` is `-2n`."
+  question: javascript/numbers-and-bigint/safe-integers-bigint
+- id: bigint-unsupported-operations
+  front: "Which operations throw on a BigInt?"
+  back: "`Math.*` methods, unary `+`, `>>>`, and `JSON.stringify`. `BigInt(1.5)` throws `RangeError`."
+  question: javascript/numbers-and-bigint/safe-integers-bigint
+- id: json-parse-large-id
+  front: "What happens to `JSON.parse('{\"id\":9007199254740993}').id`?"
+  back: "It is read as a Number and silently rounds to `9007199254740992`. Have APIs send big IDs as strings and convert with `BigInt(string)`."
+  question: javascript/numbers-and-bigint/safe-integers-bigint
+- id: bigint-asintn
+  front: "What does `BigInt.asIntN(64, x)` do?"
+  back: "Keeps the low 64 bits of `x` and reads them as a two's-complement signed integer, so `2n ** 63n` wraps to `-(2n ** 63n)`. `asUintN` reads them as unsigned."
+  question: javascript/numbers-and-bigint/safe-integers-bigint
+- id: number-empty-string-zero
+  front: "What do `Number('')` and `Number('   ')` return?"
+  back: "`0`, not `NaN`. This is the classic trap with empty form fields; check for empty input first."
+  question: javascript/numbers-and-bigint/parsing-numbers
+- id: number-vs-parseint-trailing
+  front: "How do `Number('42px')` and `parseInt('42px', 10)` differ?"
+  back: "`Number` converts the whole string and returns `NaN` on trailing junk. `parseInt` reads the longest valid prefix and returns `42`."
+  question: javascript/numbers-and-bigint/parsing-numbers
+- id: map-parseint-pitfall
+  front: "Why does `['1', '2', '3'].map(parseInt)` return `[1, NaN, NaN]`?"
+  back: "`map` passes the index as the second argument, which `parseInt` reads as the radix. `parseInt('2', 1)` is `NaN`. Use `map(Number)`."
+  question: javascript/numbers-and-bigint/parsing-numbers
+- id: parseint-radix-default
+  front: "What radix does `parseInt` use when you omit it?"
+  back: "A `0x` prefix means hexadecimal; everything else is decimal. Always pass a radix: `parseInt(s, 10)`."
+  question: javascript/numbers-and-bigint/parsing-numbers
+- id: parseint-stringifies-number
+  front: "Why does `parseInt(0.0000005)` return `5`?"
+  back: "The argument is converted to a string first, giving `'5e-7'`, and the parser reads the prefix `5`. Use `Math.trunc` for numbers."
+  question: javascript/numbers-and-bigint/parsing-numbers
+- id: number-vs-unary-plus-bigint
+  front: "How do `Number(1n)` and `+1n` differ?"
+  back: "`Number(1n)` returns `1`; unary `+1n` throws `TypeError`."
+  question: javascript/numbers-and-bigint/parsing-numbers
+- id: naive-sum-absorption
+  front: "Why does `[1e20, 0.1, -1e20]` sum to `0` with a plain loop?"
+  back: "`1e20 + 0.1` rounds back to `1e20` because doubles near `1e20` are spaced far wider than `0.1`, so the small term is lost before the large ones cancel."
+  question: javascript/numbers-and-bigint/math-sumprecise
+- id: sumprecise-single-rounding
+  front: "How does `Math.sumPrecise` differ from a naive sum?"
+  back: "It sums as if with exact mathematical values, then rounds once to the nearest double, instead of rounding after every addition."
+  question: javascript/numbers-and-bigint/math-sumprecise
+- id: sumprecise-signature
+  front: "What input does `Math.sumPrecise` accept, and what does an empty input return?"
+  back: "One iterable of Numbers (not variadic arguments); other types throw `TypeError`. An empty iterable gives `-0`, the floating-point additive identity."
+  question: javascript/numbers-and-bigint/math-sumprecise
+- id: sumprecise-availability
+  front: "Can you call `Math.sumPrecise` unguarded in portable code?"
+  back: "No. It is Stage 3 and not available in Node 24 (`typeof` is `'undefined'`). Feature-detect it and fall back, for example to Neumaier compensated summation."
+  question: javascript/numbers-and-bigint/math-sumprecise
+- id: sumprecise-input-error
+  front: "Does `Math.sumPrecise([0.1, 0.2])` return `0.3`?"
+  back: "No, it returns `0.30000000000000004`. It removes accumulated rounding error, not the representation error already in the inputs."
+  question: javascript/numbers-and-bigint/math-sumprecise
+- id: sumprecise-empty-negative-zero
+  front: "Why is `-0` the additive identity for floating-point addition?"
+  back: "`-0 + x` is `x` for every `x`, including `-0`, whereas `0 + -0` is `0`."
+  question: javascript/numbers-and-bigint/math-sumprecise
+
+# 04 Strings and Unicode
+- id: string-is-utf16-code-units
+  front: "What does a JavaScript string's `length` count?"
+  back: "UTF-16 code units (16-bit elements), not characters or code points. `'😀'.length` is `2`."
+  question: javascript/strings-and-unicode/utf16-string-length
+- id: surrogate-pair-ranges
+  front: "What are the surrogate ranges that form a surrogate pair?"
+  back: "A leading (high) surrogate `0xD800` to `0xDBFF` followed by a trailing (low) surrogate `0xDC00` to `0xDFFF`. Code points above U+FFFF are stored this way."
+  question: javascript/strings-and-unicode/utf16-string-length
+- id: units-vs-code-points-apis
+  front: "Which string APIs work on code units and which on code points?"
+  back: "Units: `length`, indexing, `at`, `charAt`, `charCodeAt`, `slice`, `split('')`. Code points: the string iterator (`for...of`, spread, `Array.from`) and `codePointAt`."
+  question: javascript/strings-and-unicode/utf16-string-length
+- id: codepointat-lone-trailing
+  front: "What does `codePointAt(i)` return when `i` points at a trailing surrogate?"
+  back: "The lone trailing surrogate unit itself, not the full code point. It reads from the index you give it."
+  question: javascript/strings-and-unicode/utf16-string-length
+- id: utf16-length-vs-utf8-bytes
+  front: "Does `length` equal a string's byte size?"
+  back: "No. UTF-8 size differs: `new TextEncoder().encode('😀').length` is `4` while `'😀'.length` is `2`."
+  question: javascript/strings-and-unicode/utf16-string-length
+- id: three-text-levels
+  front: "Name the three levels of text in JavaScript and the tool for each."
+  back: "UTF-16 code unit (index loop), code point (`for...of`, spread, `codePointAt`), grapheme cluster (`Intl.Segmenter`)."
+  question: javascript/strings-and-unicode/graphemes-and-code-points
+- id: grapheme-cluster-definition
+  front: "What is a grapheme cluster?"
+  back: "A user-perceived character, defined by Unicode UAX #29. It can span several code points: `e` plus a combining accent, a flag (two regional indicators), or a family emoji joined by U+200D."
+  question: javascript/strings-and-unicode/graphemes-and-code-points
+- id: spread-length-not-characters
+  front: "Why is `[...s].length` not a count of user-visible characters?"
+  back: "It counts code points. A family emoji is 5, a flag is 2 and a decomposed `é` is 2, each of which is one grapheme."
+  question: javascript/strings-and-unicode/graphemes-and-code-points
+- id: segmenter-result-shape
+  front: "What does `Intl.Segmenter.segment(text)` return, and what does each item contain?"
+  back: "A lazy iterable `Segments` object, not an array. Each item is `{ segment, index, input }`, with `index` a UTF-16 offset. Construct the segmenter once and reuse it."
+  question: javascript/strings-and-unicode/graphemes-and-code-points
+- id: segmenter-word-granularity
+  front: "What does `Intl.Segmenter` with `granularity: 'word'` add?"
+  back: "Each segment gets `isWordLike`, `true` for words and numbers and `false` for spaces and punctuation. It also handles languages written without spaces."
+  question: javascript/strings-and-unicode/graphemes-and-code-points
+- id: lone-surrogate-definition
+  front: "What is a lone surrogate, and is such a string valid?"
+  back: "A leading surrogate not followed by a trailing one, or a trailing surrogate not preceded by a leading one. The string is legal in JavaScript but ill-formed UTF-16."
+  question: javascript/strings-and-unicode/well-formed-strings
+- id: towellformed-replacement
+  front: "What does `toWellFormed()` do to a lone surrogate?"
+  back: "Replaces it with U+FFFD and returns a new string (a copy even when nothing needed fixing). The fix is lossy and does not rejoin broken pairs."
+  question: javascript/strings-and-unicode/well-formed-strings
+- id: encodeuri-lone-surrogate
+  front: "What does `encodeURIComponent` do with a lone surrogate?"
+  back: "It throws `URIError`. By contrast `TextEncoder` substitutes U+FFFD and `JSON.stringify` escapes it, so those can silently pass the data through."
+  question: javascript/strings-and-unicode/well-formed-strings
+- id: reversed-pair-ill-formed
+  front: "Is a trailing surrogate followed by a leading surrogate a valid pair?"
+  back: "No. The order is wrong, so they are two lone surrogates and `isWellFormed()` returns `false`."
+  question: javascript/strings-and-unicode/well-formed-strings
+- id: tagged-template-call-shape
+  front: "What arguments does a tag function receive for tag`a${x}b${y}c`?"
+  back: "A frozen `strings` array of literal pieces (one more element than substitutions, with a frozen `strings.raw`), then the substitution values, not converted to strings."
+  question: javascript/strings-and-unicode/tagged-templates
+- id: tagged-template-site-caching
+  front: "How often is the `strings` array of a tagged template created?"
+  back: "Once per source location per realm, then cached. The same call site always passes the identical array; two textually identical templates at different sites get different arrays."
+  question: javascript/strings-and-unicode/tagged-templates
+- id: tagged-template-invalid-escape
+  front: "How are invalid escapes like `\\unicode` handled in tagged versus untagged templates?"
+  back: "An untagged template is a syntax error. In a tagged template the cooked piece is `undefined` and the raw text stays available in `strings.raw`."
+  question: javascript/strings-and-unicode/tagged-templates
+- id: string-raw-purpose
+  front: "What does `String.raw` do?"
+  back: "It is a built-in tag that joins the raw pieces (backslash sequences left as typed) with the substitutions converted to strings. Handy for Windows paths and regex source."
+  question: javascript/strings-and-unicode/tagged-templates
+- id: tagged-template-safety-benefit
+  front: "Why do tagged templates enable safe-by-construction APIs?"
+  back: "The tag sees the fixed text and the dynamic values separately, so it can escape or parameterize the values (HTML escaping, SQL placeholders). A plain template hands over only the merged string."
+  question: javascript/strings-and-unicode/tagged-templates
+- id: default-sort-code-unit-order
+  front: "How do `<`, `===` and `sort()` without a comparator order strings?"
+  back: "By code unit values, so uppercase ASCII sorts before lowercase and accented letters land after `z`. Use `Intl.Collator` for language-aware order."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: collator-compare-bound
+  front: "Why can you pass `collator.compare` directly to `sort`?"
+  back: "ECMA-402 defines `compare` as a getter returning a function already bound to the collator. Create the collator once and reuse it instead of calling `localeCompare` repeatedly."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: collator-numeric-option
+  front: "What does `numeric: true` do in `Intl.Collator` options?"
+  back: "It compares digit runs as numbers, so `file2` sorts before `file10`."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: collator-sensitivity-base
+  front: "What does `sensitivity: 'base'` ignore?"
+  back: "Case and accents: `a`, `A` and `á` compare as equal, which suits search."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: composed-vs-decomposed
+  front: "Why is `'é'` (U+00E9) not `===` to `'e'` plus U+0301, and how do you fix the comparison?"
+  back: "They are different code point sequences that render the same. Call `normalize()` on both sides (NFC by default) before comparing. `Intl.Collator` also treats them as equal."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: nfkc-lossy
+  front: "When should you use NFKC or NFKD instead of NFC?"
+  back: "Compatibility forms are lossy (`①` becomes `1`, `ﬁ` becomes `fi`). Use NFC for storage and equality, and compatibility forms only for search keys."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: compare-result-sign-only
+  front: "What does `compare` guarantee about its return value?"
+  back: "Only the sign. Do not assume exactly `-1`, `0` or `1`; engines may return other magnitudes."
+  question: javascript/strings-and-unicode/locale-comparison-normalization
+
+# 05 Coercion and equality
+- id: loose-equality-null-undefined
+  front: "What does `==` do with `null` and `undefined`?"
+  back: "They are equal to each other and to nothing else, so `null == 0` is `false`. This rule applies before any numeric conversion."
+  question: javascript/coercion-and-equality/loose-equality
+- id: loose-equality-boolean-first
+  front: "How does `==` handle a Boolean operand?"
+  back: "It converts the Boolean to a Number (`true` to `1`, `false` to `0`) and compares again. This happens before object conversion, so `[] == false` becomes `[] == 0`, then `'' == 0`."
+  question: javascript/coercion-and-equality/loose-equality
+- id: loose-equality-truthiness-never
+  front: "Why is `'true' == true` false?"
+  back: "`true` becomes `1` and `'true'` becomes `NaN`, so the comparison is `NaN == 1`. Truthiness is never consulted."
+  question: javascript/coercion-and-equality/loose-equality
+- id: loose-equality-not-transitive
+  front: "Is `==` transitive? Give an example."
+  back: "No. `'0' == 0` and `0 == ''` are `true`, but `'0' == ''` is `false` because two strings compare strictly."
+  question: javascript/coercion-and-equality/loose-equality
+- id: eq-null-idiom
+  front: "Why is `x == null` the accepted use of `==`?"
+  back: "Only `null` and `undefined` satisfy it, so it reads as an 'is nullish' check with no coercion surprises."
+  question: javascript/coercion-and-equality/loose-equality
+- id: loose-equality-bigint-string
+  front: "How does `==` compare a BigInt with a String?"
+  back: "It parses the string as a BigInt; if it is not a valid BigInt literal the result is `false`. So `1n == '1'` is `true` and `2n == '2.5'` is `false`."
+  question: javascript/coercion-and-equality/loose-equality
+- id: falsy-values-list
+  front: "List the exact falsy values in JavaScript."
+  back: "`false`, `0`, `-0`, `0n`, `''`, `null`, `undefined` and `NaN`. Everything else is truthy. Browsers add one legacy falsy object, `document.all`."
+  question: javascript/coercion-and-equality/truthy-falsy
+- id: all-objects-truthy
+  front: "Why are `[]`, `{}` and `new Boolean(false)` all truthy?"
+  back: "`ToBoolean` is a pure lookup on the value's type. It never calls `valueOf` or `toString`, so every object is truthy."
+  question: javascript/coercion-and-equality/truthy-falsy
+- id: falsy-not-loosely-false
+  front: "Is falsy the same as `== false`?"
+  back: "No. `ToBoolean` is a lookup; `==` uses `IsLooselyEqual`. `null` is falsy but `null == false` is `false`; `'0'` is truthy but `'0' == false` is `true`."
+  question: javascript/coercion-and-equality/truthy-falsy
+- id: or-vs-nullish-default
+  front: "How do `count || 10` and `count ?? 10` differ?"
+  back: "`||` replaces any falsy value, including `0` and `''`. `??` replaces only `null` and `undefined`."
+  question: javascript/coercion-and-equality/truthy-falsy
+- id: logical-operators-return-operands
+  front: "What do `&&` and `||` return?"
+  back: "One of their operands, not a Boolean. `ToBoolean` only decides which operand to return, so `0 || null` is `null`."
+  question: javascript/coercion-and-equality/truthy-falsy
+- id: logical-assignment-short-circuits
+  front: "Does `a ||= b` always invoke a setter on `a`?"
+  back: "No. If the current value of `a` already decides the result, the spec returns early without assigning, so no setter runs."
+  question: javascript/coercion-and-equality/truthy-falsy
+- id: toprimitive-hints
+  front: "Which hint does `ToPrimitive` get for template literals, unary `+` and binary `+`?"
+  back: "Template literals and property keys use `'string'`. Unary `+`, `Number(x)` and relational operators use `'number'`. Binary `+` and `==` use `'default'`."
+  question: javascript/coercion-and-equality/object-to-primitive
+- id: ordinary-to-primitive-order
+  front: "In what order does `OrdinaryToPrimitive` call methods?"
+  back: "Hint `'string'`: `toString()` then `valueOf()`. Hints `'number'` and `'default'`: `valueOf()` then `toString()`. The first non-object result wins; if none, `TypeError`."
+  question: javascript/coercion-and-equality/object-to-primitive
+- id: date-default-hint-string
+  front: "Why does `new Date() + 1` concatenate while `new Date() - 1` is numeric?"
+  back: "`Date`'s built-in `Symbol.toPrimitive` treats the `'default'` hint as `'string'`. Subtraction uses the `'number'` hint."
+  question: javascript/coercion-and-equality/object-to-primitive
+- id: symbol-toprimitive-overrides
+  front: "What happens if an object defines `Symbol.toPrimitive`?"
+  back: "It is called with the hint and overrides `valueOf` and `toString` entirely. If it returns an object, `TypeError` is thrown at once."
+  question: javascript/coercion-and-equality/object-to-primitive
+- id: object-string-conversions
+  front: "Why does `String({})` give `'[object Object]'` and `[] + []` give `''`?"
+  back: "`valueOf` returns the object itself (not a primitive), so `toString` is used. `Object.prototype.toString` gives `'[object Object]'`; an empty array's `toString` joins nothing and gives `''`."
+  question: javascript/coercion-and-equality/object-to-primitive
+- id: plus-operator-rule
+  front: "What is the rule for binary `+`?"
+  back: "Convert both operands with `ToPrimitive`. If either is a String, convert the other with `ToString` and concatenate. Otherwise convert both with `ToNumeric` and add."
+  question: javascript/coercion-and-equality/addition-operator-coercion
+- id: plus-left-associative
+  front: "Why is `1 + 2 + '3'` equal to `'33'` but `'3' + 1 + 2` equal to `'312'`?"
+  back: "`+` is left associative. `1 + 2` adds to `3` first, then concatenates. In the other case the leading string makes every step a concatenation."
+  question: javascript/coercion-and-equality/addition-operator-coercion
+- id: minus-always-numeric
+  front: "Why does `'5' - 2` give `3` while `'5' + 2` gives `'52'`?"
+  back: "Only `+` has a string-concatenation branch. `-`, `*` and `/` always convert operands to numbers."
+  question: javascript/coercion-and-equality/addition-operator-coercion
+- id: empty-block-plus-array
+  front: "Why does a console often show `0` for `{} + []` but `'[object Object]'` for `console.log({} + [])`?"
+  back: "At the start of a statement, `{}` parses as an empty block, leaving the expression `+[]`, which is `0`. In expression position `{}` is an object."
+  question: javascript/coercion-and-equality/addition-operator-coercion
+- id: plus-bigint-number-throws
+  front: "What does `1n + 1` do, and what does `1n + '1'` give?"
+  back: "`1n + 1` throws `TypeError`. `1n + '1'` is `'11'`, because a String operand triggers concatenation."
+  question: javascript/coercion-and-equality/addition-operator-coercion
+- id: three-equality-differences
+  front: "On which two inputs do IsStrictlyEqual, SameValue and SameValueZero differ?"
+  back: "`NaN` vs `NaN` and `+0` vs `-0`. Strict: NaN not equal, zeros equal. SameValue: NaN equal, zeros not equal. SameValueZero: both equal."
+  question: javascript/coercion-and-equality/equality-algorithms
+- id: equality-algorithm-users
+  front: "Which operations use IsStrictlyEqual, SameValue and SameValueZero?"
+  back: "Strict: `===`, `switch`, `indexOf`. SameValue: `Object.is` and `Object.defineProperty` redefinition checks. SameValueZero: `includes`, `Map` keys, `Set` values."
+  question: javascript/coercion-and-equality/equality-algorithms
+- id: indexof-vs-includes-nan
+  front: "What do `[NaN].indexOf(NaN)` and `[NaN].includes(NaN)` return?"
+  back: "`-1` and `true`. `indexOf` uses strict equality; `includes` uses SameValueZero."
+  question: javascript/coercion-and-equality/equality-algorithms
+- id: map-negative-zero-key
+  front: "How does a `Map` treat a `-0` key?"
+  back: "It canonicalizes `-0` to `+0` before storing, so `0` and `-0` are the same key and `Object.is(k, -0)` is `false` for every stored key. `NaN` works as a single key."
+  question: javascript/coercion-and-equality/equality-algorithms
+- id: object-is-no-coercion
+  front: "Does `Object.is` coerce its arguments?"
+  back: "No. `Object.is('1', 1)` and `Object.is(1n, 1)` are both `false`. For non-Number types the three equality algorithms agree."
+  question: javascript/coercion-and-equality/equality-algorithms
