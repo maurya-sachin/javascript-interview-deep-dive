@@ -19,10 +19,14 @@ After this chapter you can:
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
 - Type erasure; runtime validation (e.g. schema libraries); user-defined guards → 010
+- Runtime type metadata (`emitDecoratorMetadata`) → —
 - `tsc` vs Babel/esbuild/swc, `noEmit`, `isolatedModules` → 020
+- Per-tool feature gaps (const enums, namespaces, class-field semantics) and `isolatedDeclarations` → —
 - Type stripping, `--experimental-strip-types`, what it cannot handle → 030
 - Scanner, parser, binder, checker, emitter; language service → 040
+- Checker internals (type relations, inference, caching) and `tsserver` protocol → —
 - `tsgo`, TypeScript 7 native port, what changes for tooling → 050
+- TypeScript 7.1 API and migrating plugin-based tooling (Volar, typescript-eslint) → —
 - Intentional unsoundness: `any`, assertions, array covariance, index signatures → 060
 
 ## Questions
