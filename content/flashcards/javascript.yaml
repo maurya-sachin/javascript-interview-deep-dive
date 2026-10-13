@@ -2331,10 +2331,6 @@
   front: "How do well-known symbols act as extension points?"
   back: "The spec uses them as property keys that built-in algorithms look up on your object. Define the property and the built-in calls it. They are shared across realms but not in the global symbol registry."
   question: javascript/metaprogramming/well-known-symbols
-- id: symbol-toprimitive-hints
-  front: "Which `Symbol.toPrimitive` hint do template literals, `+`, and `*` or relational operators use?"
-  back: "Template literals use `\"string\"`. `+` uses `\"default\"`. `*` and relational operators use `\"number\"`. The method must return a primitive or it throws `TypeError`."
-  question: javascript/metaprogramming/well-known-symbols
 - id: date-default-hint
   front: "How does `Date` treat the `\"default\"` ToPrimitive hint?"
   back: "As `\"string\"`, so `new Date(0) + 1` concatenates instead of adding."
