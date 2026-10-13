@@ -3,11 +3,11 @@
 Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene.
 
 ## Now
-- Branch `v2`; tag `v1-archive` = v1 (local, not pushed); commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: Phase 5 drafted — 26 chapters (150 questions, all frequency-5 ones have a Deep dive) and 762 flashcards await maintainer review; next: review → `published`, then Phase 6. Topics split into 28 across 4 tracks (R12); new ones are README-only
-- Review flags: Node-only/spec-less claims ch 01–08, 10–14; 17 050 `Promise.try` spec≠Node 24; 18–22: browser/CSP/MDN claims not run; 23: Temporal polyfill-run; 26: V8 natives/flags run on Node 24.19 only, IC limits and fill() packing observed
-- Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed; app lists topics alphabetically, not by track; `typescript/README.md` still needs its Track line
-- Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
+- Branch `v2` merged to `main` by PR; tag `v1-archive` = v1; commits use repo-local email `sachinmaurya1710@gmail.com`
+- Doing: JavaScript (150 q, 762 cards) and TypeScript (47 q) all `draft`, awaiting maintainer review before `published`; UI redesigned (depth gauge, tracks)
+- Review flags: Node-only/spec-less claims JS ch 01–08, 10–14; 17 050 `Promise.try` spec≠Node 24; 18–22 browser/CSP/MDN not run; 23 Temporal polyfill-run; 26 V8 natives on Node 24.19 only; TS examples run on TS 7.0.2 and 5.9.3
+- Open: Vercel import + `learn.sachinmaurya.com` DNS (maintainer); other 26 topics are README-only; next topic's chapters need an order from the maintainer
+- Portfolio (`../sachin`): revamp on a feature branch, then merge to `develop` → `main`; retire `dev.sachinmaurya.com` after that
 
 ## Goal
 JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
@@ -33,7 +33,7 @@ Non-goals: backend service, accounts, paid AI.
   - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
   - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
 - R13 Design (approved mock: https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv): Geist + Geist Mono; zinc neutrals; accent `#2F4FD8` light / `#9DAEF7` dark; TL;DR tint `#EEF1FD` / `#171C33`; code GitHub light/dark with `// →` output highlighted; 720px prose column.
-- R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes.
+- R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes. Host: `learn.sachinmaurya.com`; `/portfolio` redirects to the portfolio via `vercel.json`.
 
 ## Content contract
 See `templates/README.md`. Write content with the `write-question` skill.
