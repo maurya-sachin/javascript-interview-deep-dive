@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What do `import type`, `isolatedModules`, and `verbatimModuleSyntax` do?](010-import-type-isolated-modules.md) | medium | 🔴 planned |
+| 010 | [What do `import type`, `isolatedModules`, and `verbatimModuleSyntax` do?](010-import-type-isolated-modules.md) | medium | 🟡 draft |
 | 020 | [How does `moduleResolution` work, and when do you use `bundler` or `nodenext`?](020-module-resolution.md) | hard | 🔴 planned |
 | 030 | [Why does importing a CommonJS module sometimes fail, and what does `esModuleInterop` do?](030-esm-cjs-interop.md) | hard | 🔴 planned |
 | 040 | [What is a `.d.ts` file, and how do you write one for an untyped library?](040-declaration-files.md) | medium | 🔴 planned |
