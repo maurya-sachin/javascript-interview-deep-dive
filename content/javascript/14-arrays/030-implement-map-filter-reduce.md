@@ -3,7 +3,7 @@ title: "Implement `map`, `filter`, and `reduce`."
 status: draft
 difficulty: medium
 frequency: 5
-core: false
+core: true
 tags: [array, map, filter, reduce, polyfill, callback, higher-order-function]
 related:
   - javascript/arrays/sparse-arrays
@@ -96,6 +96,105 @@ console.log(map([1, 2, 3], (n) => n * 2), filter([1, 2, 3, 4], (n) => n % 2 === 
 
 **Q:** Can `filter` be written with `reduce`?
 **A:** Yes: `reduce((out, x) => (pred(x) ? [...out, x] : out), [])`. Pushing onto `out` is O(n); the spread version is O(n²).
+
+## Deep dive
+
+### How it works
+
+The native `map` does this, in order: `ToObject(this)`, read `length` once with `LengthOfArrayLike`, check the callback is callable, create the result with `ArraySpeciesCreate(O, length)`, then for each `k < length`: test `HasProperty(O, k)`, and only if it is present, `Get` the value, `Call(callback, thisArg, « value, k, O »)`, and store it with `CreateDataPropertyOrThrow`. `reduce` is the same loop, except that with no initial value it first scans forward for the first *present* index (and throws a `TypeError` if there is none), and it calls the callback with `undefined` as `this`.
+
+Two details do most of the work:
+
+- `length` is read **once**. Elements appended during iteration are never visited. Elements removed during iteration are skipped, because `HasProperty` is checked at each index.
+- `HasProperty` walks the prototype chain, so the check is `i in array`, not `array[i] !== undefined`. That distinguishes a hole from an element that is `undefined`.
+
+A version that follows those two rules is only a few lines longer than the one in the Example, and you can check it against the native methods:
+
+```js
+function map(array, callback, thisArg) {
+  if (typeof callback !== 'function') throw new TypeError(`${callback} is not a function`);
+  const { length } = array; // read once: the range is fixed up front
+  const result = new Array(length);
+  for (let i = 0; i < length; i++) {
+    if (i in array) result[i] = callback.call(thisArg, array[i], i, array); // skip holes
+  }
+  return result;
+}
+
+function reduce(array, callback, ...initial) {
+  if (typeof callback !== 'function') throw new TypeError(`${callback} is not a function`);
+  const { length } = array;
+  let i = 0;
+  let accumulator;
+  if (initial.length > 0) {
+    [accumulator] = initial;
+  } else {
+    while (i < length && !(i in array)) i++; // first *present* element
+    if (i === length) throw new TypeError('Reduce of empty array with no initial value');
+    accumulator = array[i++];
+  }
+  for (; i < length; i++) {
+    if (i in array) accumulator = callback(accumulator, array[i], i, array);
+  }
+  return accumulator;
+}
+
+const sparse = [, 1, , 3];
+console.log(map(sparse, (n) => n * 2), sparse.map((n) => n * 2));
+// → [ <1 empty item>, 2, <1 empty item>, 6 ] [ <1 empty item>, 2, <1 empty item>, 6 ]
+console.log(reduce(sparse, (a, b) => a + b), sparse.reduce((a, b) => a + b)); // → 4 4
+
+const shrink = (array) => (n) => (array.pop(), n);
+const mine = [1, 2, 3, 4];
+const native = [1, 2, 3, 4];
+console.log(map(mine, shrink(mine)), native.map(shrink(native)));
+// → [ 1, 2, <2 empty items> ] [ 1, 2, <2 empty items> ]
+
+const grow = (array) => (n) => (array.push(n), n);
+const growing = [1, 2, 3];
+console.log(growing.map(grow(growing)), growing.length); // → [ 1, 2, 3 ] 6
+```
+
+This version still isn't a full polyfill: it has no `ToObject` for array-likes and no `ArraySpeciesCreate`. It does show why the callback in the shrinking case is called twice, not four times: after two iterations the remaining indices no longer exist.
+
+### Edge cases
+
+- **Species.** `ArraySpeciesCreate` reads `constructor`, then `constructor[Symbol.species]`, and constructs with the length. A subclass therefore gets its own type back, and `static get [Symbol.species]() { return Array; }` opts out. `filter` creates its result with length `0`, `map` with the source length.
+- **Callbacks are called with `thisArg`, except in `reduce`.** `reduce` passes `undefined`, so a non-arrow callback sees `this` as `undefined` (strict) or `globalThis` (sloppy).
+- **A callback that returns a Promise.** Neither method awaits it; the Promise is the value.
+
+```js
+class Stack extends Array {}
+const mapped = Stack.from([1, 2, 3]).map((n) => n);
+console.log(mapped instanceof Stack, mapped.constructor.name); // → true Stack
+
+class Plain extends Array {
+  static get [Symbol.species]() { return Array; }
+}
+console.log(Plain.from([1]).map((n) => n).constructor.name); // → Array
+
+const ids = [1, 2, 3];
+const promises = ids.map(async (id) => id * 2);
+console.log(promises); // → [ Promise { 2 }, Promise { 4 }, Promise { 6 } ]
+console.log(ids.filter(async (id) => id > 5)); // → [ 1, 2, 3 ]
+console.log(await Promise.all(promises)); // → [ 2, 4, 6 ]
+```
+
+### Real-world scenario
+
+The bug that reaches production most often is an `async` callback. `ids.map(async …)` is fine as long as you `await Promise.all(…)` the result, but `ids.filter(async …)` keeps *everything*, because every Promise is an object and objects are truthy, so the filter condition never excludes anything. The same applies to `some`, `every` and `find`. Resolve first, then filter on the resolved values:
+
+```js
+const results = await Promise.all(ids.map(async (id) => ({ id, ok: id > 1 })));
+const accepted = results.filter((result) => result.ok).map((result) => result.id);
+console.log(accepted); // → [ 2, 3 ]
+```
+
+If the work has to run one item at a time, a `for…of` loop with `await` is clearer than a `reduce` that chains promises through the accumulator.
+
+### Trade-offs
+
+Writing these by hand is an interview exercise; in production code use the built-ins. They are specified and handle holes, species and array-likes. A hand-written version is justified only when you need behaviour the built-ins can't give, such as early exit (`for…of`, `some`, `every`), async iteration, or a single pass that does `map` and `filter` together (one `reduce` or loop instead of two intermediate arrays). That last choice is about the allocation of the intermediate array; for typical sizes, readability should decide.
 
 ## Exercises
 
