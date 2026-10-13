@@ -4,9 +4,9 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2`; tag `v1-archive` = v1 (local, not pushed); commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: Phase 5 drafted — 26 chapters (150 questions, all frequency-5 ones have a Deep dive) and 762 flashcards await maintainer review; next: review → `published`, then Phase 6
+- Doing: Phase 5 drafted — 26 chapters (150 questions, all frequency-5 ones have a Deep dive) and 762 flashcards await maintainer review; next: review → `published`, then Phase 6. Topics split into 28 across 4 tracks (R12); new ones are README-only
 - Review flags: Node-only/spec-less claims ch 01–08, 10–14; 17 050 `Promise.try` spec≠Node 24; 18–22: browser/CSP/MDN claims not run; 23: Temporal polyfill-run; 26: V8 natives/flags run on Node 24.19 only, IC limits and fill() packing observed
-- Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed
+- Open: Phase 4 UI tested only with throwaway fixtures; Vercel deploy untested until pushed; app lists topics alphabetically, not by track; `typescript/README.md` still needs its Track line
 - Swap to v2 (R14): maintainer pushes `v2`→`main`, imports the repo in Vercel (Root Directory blank, Framework "Other"), then retires GitHub Pages
 
 ## Goal
@@ -27,7 +27,11 @@ Non-goals: backend service, accounts, paid AI.
 - R9 npm; scripts run on Node 24 native TypeScript.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
-- R12 One topic per subject: `javascript typescript browser nodejs html-and-css react nextjs accessibility web-performance web-security backend testing tooling`. A topic with no chapters keeps its planned structure in **Not yet mapped**.
+- R12 One topic per subject, grouped into tracks; each topic README has a `> **Track:**` line directly above its status line. A topic with no chapters keeps its planned structure in **Not yet mapped**.
+  - Frontend: `javascript typescript html-and-css browser accessibility react nextjs react-native state-and-data-fetching`
+  - Backend: `nodejs http-and-apis backend-patterns databases caching messaging-and-jobs authentication`
+  - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
+  - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
 - R13 Design (approved mock: https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv): Geist + Geist Mono; zinc neutrals; accent `#2F4FD8` light / `#9DAEF7` dark; TL;DR tint `#EEF1FD` / `#171C33`; code GitHub light/dark with `// →` output highlighted; 720px prose column.
 - R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes.
 
