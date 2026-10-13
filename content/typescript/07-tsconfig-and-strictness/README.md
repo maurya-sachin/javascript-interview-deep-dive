@@ -24,6 +24,9 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Path mapping (types only), `extends`, `include` / `exclude` / `files` → 040
 - Project references, `composite`, `tsc -b`, incremental builds → 050
 - `skipLibCheck`, `declaration`, `declarationMap`, `sourceMap`, `noEmit` → 060
+- `types` / `typeRoots` (default `[]` since 6.0), `rootDir` / `outDir` defaults → —
+- TS 6 → 7 migration: `ignoreDeprecations`, removed options, `--checkers` / `--builders` → —
+- `isolatedDeclarations`, `noUnusedLocals` / `noUnusedParameters`, `noFallthroughCasesInSwitch` (mentioned only in passing in 020) → —
 
 ## Questions
 
