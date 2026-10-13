@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does TypeScript infer types, and when should you annotate explicitly?](010-how-inference-works.md) | medium | 🔴 planned |
+| 010 | [How does TypeScript infer types, and when should you annotate explicitly?](010-how-inference-works.md) | medium | 🟡 draft |
 | 020 | [How does narrowing work, and what built-in checks narrow a type?](020-control-flow-narrowing.md) | medium | 🔴 planned |
 | 030 | [How do you write a user-defined type guard or assertion function?](030-custom-type-guards.md) | medium | 🔴 planned |
 | 040 | [What is a discriminated union, and how do you check it exhaustively?](040-discriminated-unions.md) | medium | 🔴 planned |
