@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [Why does importing a CommonJS module sometimes fail, and what does `esModuleInterop` do?](030-esm-cjs-interop.md) | hard | 🟡 draft |
 | 040 | [What is a `.d.ts` file, and how do you write one for an untyped library?](040-declaration-files.md) | medium | 🟡 draft |
 | 050 | [How do you augment a module or add a global type?](050-module-augmentation-globals.md) | medium | 🟡 draft |
-| 060 | [How can you type-check JavaScript with TypeScript?](060-checkjs-jsdoc.md) | easy | 🔴 planned |
+| 060 | [How can you type-check JavaScript with TypeScript?](060-checkjs-jsdoc.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
