@@ -2000,3 +2000,1083 @@
   front: "What does a fail-fast pool need so it stops after one failure?"
   back: "A `failed` flag that stops workers from claiming new tasks. Tasks already in flight cannot be cancelled and finish on their own."
   question: javascript/async-and-the-event-loop/concurrency-limit-retry
+# 19 Errors and cleanup
+- id: finally-return-operand-timing
+  front: "In `try { return value; } finally { value = 2; }`, why does the function still return the old primitive value?"
+  back: "The `return` operand is evaluated before `finally` runs. The value was already captured, so `finally` reassigning the variable changes nothing. An object return can still be mutated."
+  question: javascript/errors-and-cleanup/try-catch-finally
+- id: finally-abrupt-overrides
+  front: "What happens to a pending `throw` or `return` when `finally` itself contains `return`, `break` or `continue`?"
+  back: "The abrupt completion in `finally` replaces it. A `return` in `finally` silently swallows an error from `try`. If `finally` completes normally, the earlier outcome resumes."
+  question: javascript/errors-and-cleanup/try-catch-finally
+- id: try-completion-records
+  front: "How does the spec model the result of a `try` block, so `catch` and `finally` know what to do?"
+  back: "As a Completion Record with a type: normal, return, throw, break or continue. `catch` runs only for a throw completion. `finally` runs for every type."
+  question: javascript/errors-and-cleanup/try-catch-finally
+- id: throw-in-catch-replaces
+  front: "What happens to the original error if `catch` or `finally` throws a new one?"
+  back: "The new error replaces it with no trace. Nothing links them unless you do it yourself, for example with `new Error(message, { cause })`."
+  question: javascript/errors-and-cleanup/try-catch-finally
+- id: error-name-default
+  front: "Why does `class A extends Error {}` print `Error: hi` for `new A('hi')`?"
+  back: "`name` comes from `Error.prototype.name`, which is `\"Error\"`. The subclass's constructor name is not used, so set `name` yourself."
+  question: javascript/errors-and-cleanup/custom-errors
+- id: error-cause-presence-check
+  front: "Does `new Error('x', { cause: undefined })` create a `cause` property?"
+  back: "Yes. The constructor checks that the options object has a `cause` property, not that its value is defined. `new Error('x')` has no `cause`."
+  question: javascript/errors-and-cleanup/custom-errors
+- id: error-iserror-vs-instanceof
+  front: "Why is `Error.isError(value)` more reliable than `value instanceof Error`?"
+  back: "It checks for the internal `[[ErrorData]]` slot, so it is true for errors from another realm, where `instanceof` fails. It is false for `Object.create(Error.prototype)`, which has no slot."
+  question: javascript/errors-and-cleanup/custom-errors
+- id: error-name-own-enumerable
+  front: "What side effect does setting `name` via a class field or `this.name = ...` on a custom error have?"
+  back: "It creates an own enumerable property, so `name` shows in `Object.keys` and `JSON.stringify` output. Built-in errors keep `name` on the prototype."
+  question: javascript/errors-and-cleanup/custom-errors
+- id: error-stack-unspecified
+  front: "Does the ECMAScript spec define `Error.prototype.stack`?"
+  back: "No. Engines add a string `stack` with different formats. A Stage 3 proposal would standardize only that `stack` exists as an accessor, not its format."
+  question: javascript/errors-and-cleanup/custom-errors
+- id: aggregate-error-shape
+  front: "What does `Promise.any` reject with when every input rejects?"
+  back: "An `AggregateError`, which holds the individual rejection reasons in its `errors` array."
+  question: javascript/errors-and-cleanup/custom-errors
+- id: callback-try-lifetime
+  front: "Why can't `try`/`catch` around `setTimeout(fn)` catch a throw inside `fn`?"
+  back: "`setTimeout` only registers `fn`. The `try` block finishes normally, and the event loop later calls `fn` on an empty stack with no enclosing `try`."
+  question: javascript/errors-and-cleanup/async-error-boundaries
+- id: promise-throw-to-rejection
+  front: "Name the three places where the spec converts a throw into a promise rejection."
+  back: "The `Promise` constructor's executor, a `.then` reaction job (rejecting the derived promise), and an `async` function body via `AsyncBlockStart`."
+  question: javascript/errors-and-cleanup/async-error-boundaries
+- id: return-await-in-try
+  front: "In an async function, how does `return promise` differ from `return await promise` inside `try`?"
+  back: "`return promise` leaves the `try` at once, so `catch` never sees a later rejection. `return await promise` waits inside the `try`, so `catch` runs."
+  question: javascript/errors-and-cleanup/async-error-boundaries
+- id: callback-double-call-trap
+  front: "What bug appears in `try { callback(null, JSON.parse(text)); } catch (e) { callback(e); }`?"
+  back: "If the consumer's `callback` throws, the `catch` calls it a second time. Guard only the code that can fail and call `callback` outside the `try`."
+  question: javascript/errors-and-cleanup/async-error-boundaries
+- id: eventemitter-error-no-listener
+  front: "What happens when a Node.js `EventEmitter` emits `'error'` and has no `'error'` listener?"
+  back: "`emit` throws the error. Any other event with no listener is silently ignored."
+  question: javascript/errors-and-cleanup/async-error-boundaries
+- id: using-dispose-timing
+  front: "When does `using x = value` call `x[Symbol.dispose]()`?"
+  back: "When the enclosing block, function or module exits, however it exits: normal end, `return`, `break` or `throw`."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: using-reverse-order
+  front: "In what order are multiple `using` resources in one block disposed?"
+  back: "Reverse declaration order, last declared first, like a stack. That lets a later resource depend on an earlier one."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: using-suppressed-error
+  front: "What is thrown when a `using` disposer throws while an error is already pending?"
+  back: "A `SuppressedError`. Its `error` property is the new disposer error and its `suppressed` property is the earlier pending error."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: using-null-and-non-disposable
+  front: "How does a `using` declaration treat `null`, `undefined`, and an object without `Symbol.dispose`?"
+  back: "`null` and `undefined` are allowed and skipped. An object without the dispose method throws a `TypeError` at the declaration, not at block exit."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: await-using-fallback
+  front: "Which method does `await using` call, and what is the fallback?"
+  back: "It awaits `Symbol.asyncDispose`. If the object has only `Symbol.dispose`, that is used instead, wrapped so a sync throw becomes a rejection."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: using-dispose-method-captured
+  front: "When is the dispose method looked up for a `using` resource?"
+  back: "At declaration. Replacing `resource[Symbol.dispose]` afterwards does not change what runs at exit."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: disposable-stack-use-cases
+  front: "What is `DisposableStack` for, and what does `move()` do?"
+  back: "It collects cleanups at runtime when the number of resources is dynamic. `move()` returns a new stack holding the resources and marks the old one disposed, transferring ownership."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: using-not-gc
+  front: "Does `using` free memory or make the garbage collector run?"
+  back: "No. It runs your cleanup code at a known scope exit. `FinalizationRegistry` is no substitute, since whether and when its callbacks run is up to the engine."
+  question: javascript/errors-and-cleanup/explicit-resource-management
+- id: browser-error-event-shape
+  front: "How does the browser report an uncaught exception, and what does `window.onerror` receive?"
+  back: "It fires a cancelable `error` event (an `ErrorEvent`) on `window`. `onerror` gets `(message, source, lineno, colno, error)`, and returning `true` cancels the default console report."
+  question: javascript/errors-and-cleanup/uncaught-errors
+- id: unhandledrejection-event
+  front: "What does the browser `unhandledrejection` event carry, and what does `preventDefault()` do?"
+  back: "It carries `event.promise` and `event.reason`. `preventDefault()` cancels the event so the browser skips its default console report."
+  question: javascript/errors-and-cleanup/uncaught-errors
+- id: report-error-purpose
+  front: "What does `reportError(error)` do, and is it available in Node.js?"
+  back: "It reports an error as if it were uncaught, without throwing. It is a browser and worker API; `typeof reportError` is `\"undefined\"` in Node 24."
+  question: javascript/errors-and-cleanup/uncaught-errors
+- id: node-uncaught-exit-codes
+  front: "What are Node.js's exit codes for an uncaught exception with no listener, with a listener, and with a throwing listener?"
+  back: "1 with no listener (stack printed). 0 with a listener, unless `process.exitCode` is set. 7 if the `uncaughtException` handler itself throws."
+  question: javascript/errors-and-cleanup/uncaught-errors
+- id: node-unhandled-rejection-default
+  front: "What does Node's default `--unhandled-rejections=throw` mode do, and what changes if you add a listener?"
+  back: "It emits `unhandledRejection`; with no listener it raises the rejection as an uncaught exception. Adding any listener removes the default crash."
+  question: javascript/errors-and-cleanup/uncaught-errors
+- id: global-handler-purpose
+  front: "What should a Node.js `uncaughtException` handler do, according to the Node.js docs?"
+  back: "Log, clean up synchronously and exit so a supervisor restarts the process. The app is in an undefined state, so resuming normal operation is unsafe."
+  question: javascript/errors-and-cleanup/uncaught-errors
+- id: rejectionhandled-event
+  front: "What is `rejectionhandled` for?"
+  back: "It fires when a handler is attached to a promise already reported as unhandled, so tools can retract the earlier report."
+  question: javascript/errors-and-cleanup/uncaught-errors
+# 20 Modules
+- id: esm-three-phases
+  front: "What are the three phases an ES module graph goes through, and which run code?"
+  back: "Construct (parse and fetch every import, no code runs), link (create environments and bind imports), evaluate (run each body once, dependencies first). Only evaluate runs module code."
+  question: javascript/modules/es-module-loading
+- id: esm-live-binding
+  front: "What is an ES module import binding, and can the importer assign to it?"
+  back: "An immutable indirect binding that points at the exporter's variable, not a copy. Reads see later changes. Assigning from the importer throws `TypeError`; only the exporter can change it."
+  question: javascript/modules/es-module-loading
+- id: esm-link-time-errors
+  front: "When is a missing or ambiguous export reported, and what does that mean for module bodies?"
+  back: "At link time, as a `SyntaxError`, before any module body in the graph has run."
+  question: javascript/modules/es-module-loading
+- id: esm-link-initialization
+  front: "At link time, how are function, `let`/`const`/`class`, and `var` bindings in a module initialized?"
+  back: "Function declarations are initialized. `let`, `const` and `class` exist but are uninitialized (TDZ). `var` bindings are `undefined`."
+  question: javascript/modules/es-module-loading
+- id: esm-namespace-object-shape
+  front: "What kind of object is `import * as ns`?"
+  back: "A module namespace exotic object: null prototype, non-extensible, one live property per export. Assigning to a property fails."
+  question: javascript/modules/es-module-loading
+- id: esm-export-default-not-live
+  front: "Is `export default count` a live binding?"
+  back: "No. `export default <expression>` stores the expression's value once. `export { count as default }` is a live binding."
+  question: javascript/modules/es-module-loading
+- id: esm-evaluation-order
+  front: "In what order do ES module bodies evaluate, and how often?"
+  back: "Depth-first post-order: dependencies before dependents, siblings in import order, each body once. Import declarations are hoisted, so a dependency runs before the importer's first statement."
+  question: javascript/modules/es-module-loading
+- id: cjs-require-mechanics
+  front: "What does CommonJS `require('x')` do on first and later calls?"
+  back: "First call: resolve the path, run the file synchronously, cache `module.exports` and return it. Later calls return the same cached object."
+  question: javascript/modules/esm-vs-commonjs
+- id: cjs-value-copy-vs-esm-live
+  front: "Why does `exports.count = count` in CommonJS not track later changes, unlike an ESM `export let count`?"
+  back: "CommonJS stores the primitive's value on the exports object at that moment. An ESM import is an alias for the exporter's binding."
+  question: javascript/modules/esm-vs-commonjs
+- id: node-module-system-detection
+  front: "How does Node.js decide whether a file is ESM or CommonJS?"
+  back: "`.mjs` is ESM, `.cjs` is CommonJS, and `.js` follows the nearest `package.json` `\"type\"`."
+  question: javascript/modules/esm-vs-commonjs
+- id: import-cjs-default
+  front: "What does `import` give you from a CommonJS file in Node.js?"
+  back: "`module.exports` as the `default` export. Named exports are guessed by a static syntax scan and are snapshots, not live bindings."
+  question: javascript/modules/esm-vs-commonjs
+- id: require-esm-node24
+  front: "When can `require()` load an ES module in Node.js 24, and what does it return?"
+  back: "When no module in the graph uses top-level `await`. It returns the namespace object. Otherwise it throws `ERR_REQUIRE_ASYNC_MODULE`."
+  question: javascript/modules/esm-vs-commonjs
+- id: dual-package-hazard
+  front: "What is the dual package hazard?"
+  back: "A package with separate ESM and CommonJS builds can be loaded as two module instances with separate state, when both are loaded together."
+  question: javascript/modules/esm-vs-commonjs
+- id: esm-no-cache-clearing
+  front: "How does the module cache differ between CommonJS and ESM?"
+  back: "CommonJS exposes `require.cache`, so entries can be deleted. ESM instances are keyed by resolved URL for the life of the process. A different query string is a different URL."
+  question: javascript/modules/esm-vs-commonjs
+- id: esm-cycle-evaluation-order
+  front: "In an ES module cycle, which module's body runs first, and which runs last?"
+  back: "The last module reached in the cycle runs first. The entry module runs last, because a module already `evaluating` is skipped rather than waited for."
+  question: javascript/modules/circular-imports
+- id: esm-cycle-binding-states
+  front: "In an ES module cycle, what does reading an unrun partner's `function`, `const` and `var` exports give?"
+  back: "A function declaration works. `const`, `let` and `class` throw `ReferenceError` (TDZ). `var` reads `undefined`."
+  question: javascript/modules/circular-imports
+- id: cjs-cycle-partial-exports
+  front: "What does `require` return in a CommonJS cycle when the partner is still running?"
+  back: "The partner's partial `module.exports` as it is at that moment. Destructuring it or a later `module.exports = ...` replacement keeps the early view."
+  question: javascript/modules/circular-imports
+- id: cycle-entry-dependence
+  front: "Why can the same circular ESM code work from one entry point and throw from another?"
+  back: "Which module hits an uninitialized binding depends on which file starts the program or is reached first. Evaluation order changes with the entry."
+  question: javascript/modules/circular-imports
+- id: dynamic-import-not-function
+  front: "Is `import()` a function?"
+  back: "No. It is its own syntax (`ImportCall`), so it cannot be passed around, used with `call`, or reassigned. `import.call(...)` is a `SyntaxError`."
+  question: javascript/modules/dynamic-import
+- id: dynamic-import-result
+  front: "What does `import(specifier)` return, and where is a default export?"
+  back: "A promise for the module namespace object. The default export is on its `default` property."
+  question: javascript/modules/dynamic-import
+- id: dynamic-import-errors-reject
+  front: "How does `import()` report bad arguments, a missing file or an evaluation error?"
+  back: "It rejects the returned promise and never throws synchronously. Evaluation errors are remembered, so a second `import()` rejects with the same error."
+  question: javascript/modules/dynamic-import
+- id: dynamic-import-cached
+  front: "Does calling `import()` on the same module twice run its body twice?"
+  back: "No. Loaded modules are keyed by resolved URL (and module type), so the body runs once and later calls get the same namespace object."
+  question: javascript/modules/dynamic-import
+- id: dynamic-import-scope
+  front: "Where does `import()` work, and what do relative specifiers resolve against?"
+  back: "In classic scripts, CommonJS and ES modules. Relative specifiers resolve against the module containing the call, not the working directory."
+  question: javascript/modules/dynamic-import
+- id: tla-propagation
+  front: "What does top-level `await` in a module do to modules that import it?"
+  back: "Every direct or transitive importer waits until its evaluation promise fulfills before running its body. A rejection fails all of them."
+  question: javascript/modules/top-level-await
+- id: tla-sibling-overlap
+  front: "Two independent sibling modules each use top-level `await` on a timer. Do they run one after another?"
+  back: "No. Evaluation starts each body and moves on at its first `await`, so they overlap. The total wait is the longest chain, not the sum."
+  question: javascript/modules/top-level-await
+- id: tla-require-limit
+  front: "Why can't `require()` load a module graph containing top-level `await`?"
+  back: "`require()` is synchronous and cannot wait. In Node.js 24 it throws `ERR_REQUIRE_ASYNC_MODULE`; use `import()` instead."
+  question: javascript/modules/top-level-await
+- id: tla-never-settles
+  front: "What happens in Node.js if a top-level `await` never settles?"
+  back: "The module graph never finishes. Node.js prints a warning and exits with code 13 once nothing else keeps the event loop alive."
+  question: javascript/modules/top-level-await
+- id: import-attributes-syntax
+  front: "What is the syntax for import attributes on a static import and on `import()`?"
+  back: "`import x from './x.json' with { type: 'json' }` and `import('./x.json', { with: { type: 'json' } })`. The old `assert` keyword has been replaced by `with`."
+  question: javascript/modules/import-attributes-json-modules
+- id: json-module-default-only
+  front: "What exports does a JSON module have?"
+  back: "Only `default`, the parsed JSON value. `import { name } from './x.json'` is a `SyntaxError`. Every importer shares the same object."
+  question: javascript/modules/import-attributes-json-modules
+- id: json-module-type-required
+  front: "Why must a JSON import specify `type: 'json'`?"
+  back: "So the author asserts the expected type: a response that turns into JavaScript fails instead of running as code. Without it Node.js throws `ERR_IMPORT_ATTRIBUTE_MISSING`."
+  question: javascript/modules/import-attributes-json-modules
+- id: import-attributes-unsupported
+  front: "What happens when an import uses an unsupported attribute key?"
+  back: "A static `import` fails during loading. Node.js 24 reports `TypeError [ERR_IMPORT_ATTRIBUTE_UNSUPPORTED]`. In `import()` the promise rejects with `TypeError`."
+  question: javascript/modules/import-attributes-json-modules
+- id: import-meta-spec-properties
+  front: "Which properties of `import.meta` does ECMAScript define?"
+  back: "None. The host fills it in. It is a null-prototype object created on first read per module and cached."
+  question: javascript/modules/import-meta
+- id: import-meta-per-module
+  front: "Is there one `import.meta` object for the whole app?"
+  back: "No. Each module has its own, so `import.meta.url` always names the file it is written in."
+  question: javascript/modules/import-meta
+- id: import-meta-url-type
+  front: "Is `import.meta.url` a file path?"
+  back: "No, it is a URL string (a `file:` URL in Node.js). Pass it to `new URL(...)` or `fileURLToPath` rather than concatenating paths."
+  question: javascript/modules/import-meta
+- id: import-meta-resolve
+  front: "What does `import.meta.resolve(specifier)` do?"
+  back: "It resolves the specifier as `import` would, relative to this module, and returns a URL string. It loads nothing. In Node.js it is synchronous."
+  question: javascript/modules/import-meta
+- id: import-meta-dirname-node
+  front: "What do `import.meta.filename` and `import.meta.dirname` replace, and where do they exist?"
+  back: "They replace CommonJS `__filename` and `__dirname`. They are Node.js-only conventions, defined for `file:` modules."
+  question: javascript/modules/import-meta
+# 21 Metaprogramming
+- id: proxy-no-trap-forwards
+  front: "What happens when a Proxy handler lacks the trap for an operation?"
+  back: "The operation is forwarded to the target unchanged."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-invariant-check
+  front: "What happens after a Proxy trap returns a result that contradicts the target's non-configurable or non-extensible state?"
+  back: "The engine checks the result against the target and throws `TypeError`. A `get` trap cannot report a different value for a non-writable, non-configurable data property."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-ownkeys-invariant
+  front: "What must a Proxy `ownKeys` trap include and exclude?"
+  back: "It must include every non-configurable key of the target, with no duplicates. For a non-extensible target it must list exactly the target's keys."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-construct-invariant
+  front: "What must a Proxy `construct` trap return?"
+  back: "An object. Returning a primitive makes `new proxy()` throw `TypeError`."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-call-construct-fixed
+  front: "Which Proxy traps exist only for some targets, and when is that decided?"
+  back: "`apply` and `construct` apply only if the target is callable or a constructor. That is fixed at creation, so `typeof proxy` never changes."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-internal-slots
+  front: "Why does `new Proxy(new Map(), {}).set(1, 2)` throw?"
+  back: "`Map.prototype.set` needs the `[[MapData]]` slot on `this`. The proxy has only `[[ProxyTarget]]` and `[[ProxyHandler]]`. Binding the method to the target fixes it."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-revocable
+  front: "What does `Proxy.revocable(target, handler)` return, and what happens after `revoke()`?"
+  back: "It returns `{ proxy, revoke }`. After `revoke()` every operation on the proxy throws `TypeError`, so access can be handed out and taken back."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-set-false-strict
+  front: "What happens in strict code if a Proxy `set` trap returns `false`?"
+  back: "The assignment throws `TypeError`. Return `true` after a successful write."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: proxy-not-interceptable
+  front: "Can a Proxy intercept `typeof` or `===`?"
+  back: "No. They use no internal method with a trap. `typeof` depends only on whether the target was callable at creation."
+  question: javascript/metaprogramming/proxy-traps-invariants
+- id: reflect-purpose
+  front: "What is `Reflect`, and how do its methods relate to Proxy traps?"
+  back: "A plain namespace object with 13 static methods, one per essential internal method. Names and parameters match the Proxy traps, so a trap can forward with `Reflect.x(...args)`."
+  question: javascript/metaprogramming/reflect-api
+- id: reflect-receiver
+  front: "What is the `receiver` argument of `Reflect.get` and `Reflect.set`?"
+  back: "The `this` for a getter or setter, and where `set` creates a data property. `target[key]` always uses `target`."
+  question: javascript/metaprogramming/reflect-api
+- id: reflect-boolean-results
+  front: "How do `Reflect.defineProperty` and `Reflect.set` differ from their `Object.*` or assignment counterparts on failure?"
+  back: "`Reflect.defineProperty`, `deleteProperty`, `set`, `setPrototypeOf` and `preventExtensions` return `false` instead of throwing. That is the boolean a trap must return."
+  question: javascript/metaprogramming/reflect-api
+- id: reflect-no-coercion
+  front: "How does `Reflect.getPrototypeOf(1)` differ from `Object.getPrototypeOf(1)`?"
+  back: "`Reflect` throws `TypeError` for a non-object target. `Object.getPrototypeOf(1)` quietly boxes it and returns `Number.prototype`."
+  question: javascript/metaprogramming/reflect-api
+- id: reflect-construct-newtarget
+  front: "What can `Reflect.construct(target, args, newTarget)` do that `new` cannot?"
+  back: "Run a constructor with a different `new.target`, which also decides which prototype the instance gets."
+  question: javascript/metaprogramming/reflect-api
+- id: reflect-ownkeys-vs-object-keys
+  front: "How does `Reflect.ownKeys` differ from `Object.keys`?"
+  back: "`Reflect.ownKeys` returns every own key, strings and symbols, enumerable or not. `Object.keys` filters to enumerable strings."
+  question: javascript/metaprogramming/reflect-api
+- id: wks-hook-mechanism
+  front: "How do well-known symbols act as extension points?"
+  back: "The spec uses them as property keys that built-in algorithms look up on your object. Define the property and the built-in calls it. They are shared across realms but not in the global symbol registry."
+  question: javascript/metaprogramming/well-known-symbols
+- id: symbol-toprimitive-hints
+  front: "Which `Symbol.toPrimitive` hint do template literals, `+`, and `*` or relational operators use?"
+  back: "Template literals use `\"string\"`. `+` uses `\"default\"`. `*` and relational operators use `\"number\"`. The method must return a primitive or it throws `TypeError`."
+  question: javascript/metaprogramming/well-known-symbols
+- id: date-default-hint
+  front: "How does `Date` treat the `\"default\"` ToPrimitive hint?"
+  back: "As `\"string\"`, so `new Date(0) + 1` concatenates instead of adding."
+  question: javascript/metaprogramming/well-known-symbols
+- id: hasinstance-priority
+  front: "In what order does `instanceof` consult `Symbol.hasInstance` and the prototype chain?"
+  back: "It looks up `Symbol.hasInstance` first; if present, the result of calling it is used. Only if absent does it walk the prototype chain."
+  question: javascript/metaprogramming/well-known-symbols
+- id: tostringtag-scope
+  front: "What does `Symbol.toStringTag` change?"
+  back: "Only the tag in `Object.prototype.toString` output, `[object X]`. It does not change `typeof`, and the test is unreliable for program-defined objects."
+  question: javascript/metaprogramming/well-known-symbols
+- id: species-purpose
+  front: "What does `Symbol.species` control?"
+  back: "Which constructor methods like `map` and `filter` use to build a new instance. A subclass can set it to `Array` so results are plain arrays."
+  question: javascript/metaprogramming/well-known-symbols
+- id: symbol-match-isregexp
+  front: "Why does `'a/'.startsWith(/a/)` throw, and how can a regex opt out?"
+  back: "`IsRegExp` reads `Symbol.match`, and a regex is rejected as a pattern. Setting `re[Symbol.match] = false` makes it count as a plain string."
+  question: javascript/metaprogramming/well-known-symbols
+- id: symbol-unscopables
+  front: "What is `Symbol.unscopables` for?"
+  back: "It lists names a `with` statement must skip, so names added to a built-in later do not shadow outer variables. It only matters in sloppy-mode `with`."
+  question: javascript/metaprogramming/well-known-symbols
+- id: exotic-vs-ordinary
+  front: "What makes an object exotic rather than ordinary?"
+  back: "At least one essential internal method (`[[Get]]`, `[[DefineOwnProperty]]` and so on) behaves differently from the spec's default definition."
+  question: javascript/metaprogramming/exotic-objects
+- id: array-exotic-length
+  front: "What does the Array exotic `[[DefineOwnProperty]]` do to `length`?"
+  back: "Writing index `i >= length` sets `length` to `i + 1`. Lowering `length` deletes elements from the end. Only canonical array indices below 2^32 - 1 are special; `'02'` and `'-1'` are ordinary keys."
+  question: javascript/metaprogramming/exotic-objects
+- id: typedarray-numeric-keys
+  front: "How do TypedArrays treat a canonical numeric key that is out of range, such as `bytes[5]` on a 2-element array?"
+  back: "The write is silently ignored and the read is `undefined`. The prototype chain is never consulted for such keys. `Reflect.set` returns `true`."
+  question: javascript/metaprogramming/exotic-objects
+- id: namespace-exotic-write
+  front: "Why can't you add a property to a module namespace or assign to an export through it?"
+  back: "It is non-extensible and its keys mirror the exports. `[[Set]]` returns `false`, so strict-mode assignment throws `TypeError`, and `defineProperty` of a new key returns `false`."
+  question: javascript/metaprogramming/exotic-objects
+- id: bound-function-exotic
+  front: "What do a bound function's `[[Call]]` and `[[Construct]]` do?"
+  back: "`[[Call]]` ignores the caller's `this` and prepends the stored arguments. `[[Construct]]` ignores the bound `this`. Both forward to the target."
+  question: javascript/metaprogramming/exotic-objects
+- id: mapped-arguments
+  front: "When does the `arguments` object alias parameter bindings?"
+  back: "Only in sloppy-mode functions with simple parameter lists. A default value or `'use strict'` removes the aliasing."
+  question: javascript/metaprogramming/exotic-objects
+- id: immutable-prototype
+  front: "What is special about `Object.prototype`'s `[[SetPrototypeOf]]`?"
+  back: "It is an immutable prototype exotic object: it only accepts its current value. `Object.setPrototypeOf(Object.prototype, {})` throws `TypeError`."
+  question: javascript/metaprogramming/exotic-objects
+- id: isarray-through-proxy
+  front: "Is `Array.isArray` true for a Proxy wrapping an array?"
+  back: "Yes. `IsArray` looks through the proxy to its target, even though the proxy itself is a Proxy exotic object."
+  question: javascript/metaprogramming/exotic-objects
+- id: direct-eval-definition
+  front: "When is an `eval` call direct?"
+  back: "When the callee is the plain identifier `eval` and its value is the real `%eval%`. `(0, eval)(x)`, `eval?.(x)`, `o.eval(x)` and an aliased variable are all indirect."
+  question: javascript/metaprogramming/eval-direct-indirect
+- id: direct-eval-scope
+  front: "How do scope and `this` differ between direct and indirect eval?"
+  back: "Direct eval runs in the caller's scope and `this`. Indirect eval runs in the global environment with global `this`."
+  question: javascript/metaprogramming/eval-direct-indirect
+- id: eval-strictness
+  front: "How does strictness differ between direct and indirect eval?"
+  back: "Direct eval inherits the caller's strict mode, so its `var` stays local. Indirect eval is strict only if its code says `\"use strict\"`."
+  question: javascript/metaprogramming/eval-direct-indirect
+- id: eval-let-const-local
+  front: "Do `let`, `const` and `class` declared in eval code leak into the surrounding scope?"
+  back: "No. They are always local to that eval, whether it is direct or indirect."
+  question: javascript/metaprogramming/eval-direct-indirect
+- id: new-function-scope
+  front: "In which scope does `new Function(args, body)` compile, and is its body strict?"
+  back: "The global scope, like indirect eval, so it cannot see locals. Its body is sloppy unless it starts with `\"use strict\"`, even when called from a module."
+  question: javascript/metaprogramming/eval-direct-indirect
+- id: eval-csp
+  front: "What does a CSP `script-src` without `'unsafe-eval'` do to `eval` and `new Function`?"
+  back: "String compilation is blocked: the host throws `EvalError` and reports a violation. String arguments to `setTimeout` and `setInterval` are blocked too."
+  question: javascript/metaprogramming/eval-direct-indirect
+- id: eval-non-string
+  front: "What does `eval` return for a non-string argument, and for a string?"
+  back: "A non-string is returned as is. For a string, it returns the completion value of the last value-producing statement, or `undefined`."
+  question: javascript/metaprogramming/eval-direct-indirect
+# 22 Regular expressions
+- id: regex-lastindex-g-y
+  front: "Which regex flags make `lastIndex` matter, and what happens to it on a failed match?"
+  back: "`g` and `y`. `exec` and `test` read and update `lastIndex`, and a failed match resets it to `0`. Without `g` or `y`, `lastIndex` is ignored."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-g-reuse-alternating
+  front: "Why can one `/…/g` regex reused with `test` on different strings give alternating results?"
+  back: "`lastIndex` carries over from the previous match, so the next search starts mid-string. Create the regex per use, reset `lastIndex = 0`, or drop `g`."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-sticky-vs-caret
+  front: "How does the `y` flag differ from `g` and from a leading `^`?"
+  back: "`y` matches only at exactly `lastIndex` with no scanning forward, and a miss resets it to `0`. `^` anchors to the start of input, which does not move, so `y` is what lets you lex token by token."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-m-s-scope
+  front: "What do the `m` and `s` flags each change?"
+  back: "`m` changes only `^` and `$`, which also match at line breaks. `s` changes only `.`, which then also matches line terminators."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-u-v-unit
+  front: "What do the `u` and `v` flags change about matching?"
+  back: "The unit becomes the code point instead of the UTF-16 code unit, so `.` matches an astral character as one unit. `u` also enables `\\u{…}` and `\\p{…}`."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-v-vs-u
+  front: "What does the `v` flag add over `u`, and can they be combined?"
+  back: "Set subtraction `--`, intersection `&&`, nested classes, `\\q{…}` strings and properties of strings. Combining `u` and `v` is a `SyntaxError`."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-d-flag
+  front: "What does the `d` flag add to a match result?"
+  back: "An `indices` array (and `indices.groups`) with start and end offsets. It costs extra work per match, so enable it only when you need group positions."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-inline-modifiers
+  front: "What are inline regex modifiers such as `(?i:…)`, and which flags do they cover?"
+  back: "ES2025 syntax that applies `i`, `m` or `s` only inside the group; `(?-i:…)` turns it off. Other flags cannot be toggled."
+  question: javascript/regular-expressions/regex-flags
+- id: regex-flags-order
+  front: "In what order does `re.flags` list the flags?"
+  back: "Alphabetical: `dgimsuvy`."
+  question: javascript/regular-expressions/regex-flags
+- id: named-group-groups-object
+  front: "What does the `groups` property of a match hold, and when is it `undefined`?"
+  back: "A null-prototype object with one property per named group. It is `undefined` when the pattern has no named group, so reading `m.groups.year` then throws."
+  question: javascript/regular-expressions/named-groups-lookbehind
+- id: named-group-references
+  front: "How do you reference a named group in a pattern, a replacement string and a replacer function?"
+  back: "`\\k<name>` in the pattern, `$<name>` in the replacement string, and the last argument (the `groups` object) in a replacer function."
+  question: javascript/regular-expressions/named-groups-lookbehind
+- id: duplicate-named-groups
+  front: "When may a regex reuse the same group name?"
+  back: "Since ES2025, only when the two groups can never both participate, in practice in different alternatives. Two same-named groups in sequence is still a `SyntaxError`."
+  question: javascript/regular-expressions/named-groups-lookbehind
+- id: lookbehind-right-to-left
+  front: "In which direction is a lookbehind body matched, and is variable length allowed?"
+  back: "Right to left, so a greedy second group takes more than the first. JavaScript allows variable-length lookbehind."
+  question: javascript/regular-expressions/named-groups-lookbehind
+- id: lookaround-atomic
+  front: "Why are regex lookarounds called atomic?"
+  back: "Once the body matches, the engine never backtracks into it, so its captures are fixed. A negative lookaround never leaves captures set."
+  question: javascript/regular-expressions/named-groups-lookbehind
+- id: named-group-unknown-replacement
+  front: "What does `$<name>` become in a replacement if the group does not exist?"
+  back: "An empty string if the pattern has at least one named group. If it has none, `$<a>` is kept literally."
+  question: javascript/regular-expressions/named-groups-lookbehind
+- id: backtracking-definition
+  front: "Why do nested quantifiers like `^(a+)+$` take exponential time on a failing input?"
+  back: "The engine tries each way to split the same run among iterations, 2^(n-1) compositions, and each ends in a failed match. Each extra character roughly doubles the time."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: backtracking-on-failure
+  front: "Why must ReDoS tests use near-miss inputs rather than matching ones?"
+  back: "Backtracking blows up when the overall match fails. A long valid prefix plus one bad character at the end triggers it."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: no-atomic-groups-js
+  front: "Does JavaScript have atomic groups or possessive quantifiers, and how is one emulated?"
+  back: "No. Emulate with a lookahead and a backreference, `(?=(a+))\\1`, since lookarounds are atomic and the engine cannot re-split what the lookahead captured."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: lazy-not-a-fix
+  front: "Do lazy quantifiers such as `(a+?)+?` fix catastrophic backtracking?"
+  back: "No. Lazy quantifiers and `*` change the order of attempts, not the number of ways to split the text."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: anchor-quadratic-vs-exponential
+  front: "Does anchoring a regex with `^` or using `y` prevent catastrophic backtracking?"
+  back: "It removes the quadratic retry from every start position, but not the exponential case: `^(a+)+$` is anchored and still explodes."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: re2-limits
+  front: "Why are RE2-style linear-time engines not a drop-in replacement for JavaScript regexes?"
+  back: "Their guarantee comes from dropping backreferences and lookarounds. JavaScript semantics are defined as a backtracking search, so a general fix would change which patterns are legal."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: regex-vm-timeout
+  front: "How can Node.js cap the damage of a regex you cannot rewrite, and what does it not do?"
+  back: "Run it in a `vm` context with `timeout` (throws `ERR_SCRIPT_EXECUTION_TIMEOUT`) or a worker thread you terminate. It limits damage; it does not fix the pattern, and `vm` is not a security sandbox."
+  question: javascript/regular-expressions/catastrophic-backtracking
+- id: match-g-returns-strings
+  front: "What does `s.match(re)` return with the `g` flag compared with without it?"
+  back: "With `g`: an array of the matched strings only, or `null`. Without `g`: a detailed match array with `index`, `input` and `groups`."
+  question: javascript/regular-expressions/regex-methods
+- id: matchall-clone
+  front: "Why does `matchAll` leave your regex's `lastIndex` untouched, and what does it need?"
+  back: "It iterates on a clone of the regex. It requires the `g` flag and throws `TypeError` without it. `replaceAll` also requires `g` for a regex."
+  question: javascript/regular-expressions/regex-methods
+- id: exec-empty-match-loop
+  front: "Why can a manual `while (re.exec(s))` loop never end for a pattern like `/x*/g`?"
+  back: "`exec` does not advance `lastIndex` on an empty match. `matchAll`, `match` and `replace` advance one position for you."
+  question: javascript/regular-expressions/regex-methods
+- id: string-arg-literal-or-pattern
+  front: "Which `String` methods treat a string argument as a pattern, and which as literal text?"
+  back: "`match`, `matchAll` and `search` convert a string to a regex. `replace`, `replaceAll`, `split`, `includes` and `indexOf` treat it literally."
+  question: javascript/regular-expressions/regex-methods
+- id: replace-callback-args
+  front: "What arguments does a `replace` callback receive?"
+  back: "`(match, ...captures, offset, string, groups)`. `groups` is passed only when the pattern has named groups."
+  question: javascript/regular-expressions/regex-methods
+- id: replace-dollar-patterns
+  front: "Why pass a function instead of user text as the `replace` replacement?"
+  back: "A replacement string expands `$&`, `$1`, `$<name>` and similar patterns. A function such as `() => userText` is used verbatim."
+  question: javascript/regular-expressions/regex-methods
+- id: split-capture-groups
+  front: "What does `split` do with a capturing group in the regex?"
+  back: "The captured text is spliced into the result: `'a1b2'.split(/(\\d)/)` is `['a', '1', 'b', '2', '']`."
+  question: javascript/regular-expressions/regex-methods
+- id: regexp-escape-use
+  front: "What does `RegExp.escape` do, and when should you use it?"
+  back: "ES2025: it escapes every pattern-special character so user text matches literally in `new RegExp(...)`. Use it only when building a regex, not for `replaceAll` with a string."
+  question: javascript/regular-expressions/regex-methods
+# 23 Dates, Temporal and Intl
+- id: date-time-value
+  front: "What does a `Date` actually store?"
+  back: "One time value: integer milliseconds since 1970-01-01T00:00:00Z (within about ±273,790 years), or `NaN` if invalid. It stores an instant, not a calendar date or time zone."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-only-vs-datetime-parse
+  front: "How are `new Date('2026-03-08')` and `new Date('2026-03-08T00:00')` parsed differently?"
+  back: "A date-only ISO string with no offset is read as UTC. A date-time string with no offset is read as local time."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-non-iso-parse
+  front: "What does the spec guarantee about parsing non-ISO date strings like `'March 8, 2026'`?"
+  back: "Nothing. Only the `YYYY-MM-DDTHH:mm:ss.sssZ` format is specified; other strings are implementation-defined and can differ between engines."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-month-rollover
+  front: "How do `Date` constructor months, days and out-of-range fields behave?"
+  back: "Months are 0-based, days 1-based. Out-of-range fields roll over, so `new Date(2026, 1, 31)` is March 3. Two-digit years 0-99 map to 1900-1999."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-invalid-handling
+  front: "What does an invalid `Date` do, and which method throws on it?"
+  back: "Its time value is `NaN` and it prints `Invalid Date`. Only `toISOString()` throws a `RangeError`; getters return `NaN`. Check with `Number.isNaN(d.getTime())`."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-timezone-offset-sign
+  front: "What sign does `getTimezoneOffset()` use, and does it identify a zone?"
+  back: "The opposite of the usual notation: UTC-5 gives `300`. It describes only that instant's offset, not the zone or its rules."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-call-without-new
+  front: "What does calling `Date()` without `new` return?"
+  back: "A string for the current time, not a `Date`. Any arguments are ignored."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: date-json-roundtrip
+  front: "How does `JSON.stringify` treat a `Date`, and does `JSON.parse` reverse it?"
+  back: "It calls `toJSON()`, which returns `toISOString()` (or `null` if invalid). `JSON.parse` gives back a string; you must rebuild the `Date`."
+  question: javascript/dates-temporal-intl/date-pitfalls
+- id: temporal-type-choice-instant-zoned
+  front: "When do you pick `Temporal.Instant` versus `Temporal.ZonedDateTime`?"
+  back: "`Instant` is an exact moment with no zone: timestamps, logs, ordering. `ZonedDateTime` is a moment in a place, with zone and calendar: meetings, flights."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-plain-types
+  front: "What are `PlainDate`, `PlainTime` and `PlainDateTime` for?"
+  back: "Wall-clock values with no time zone, so no DST: a calendar date, a clock time, or both. They suit birthdays, alarms and local times not yet tied to a place."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-immutable
+  front: "Are Temporal objects mutable?"
+  back: "No. Every object is immutable; `add`, `with` and `round` return new objects."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-days-vs-hours
+  front: "On a `ZonedDateTime` across a DST change, how do `add({ days: 1 })` and `add({ hours: 24 })` differ?"
+  back: "`days: 1` keeps the same wall-clock time. `hours: 24` adds elapsed time, so the clock time shifts by the DST change."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-overflow
+  front: "What does Temporal's `overflow` option control on month-end dates?"
+  back: "`'constrain'` (default) clamps Jan 31 plus one month to Feb 28. `'reject'` throws a `RangeError`."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-instant-no-calendar-units
+  front: "Why does `instant.add({ days: 1 })` throw?"
+  back: "A day is not a fixed length, and `Instant` has no calendar or zone. It throws `RangeError`; use hours, or convert to `ZonedDateTime`."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-duration-relativeto
+  front: "Why does `Duration.total()` in months or years need `relativeTo`?"
+  back: "A month has no fixed length: one month totals 28 or 31 days depending on the reference date. Without `relativeTo` it throws `RangeError`."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-removed-timezone-calendar
+  front: "What happened to `Temporal.TimeZone` and `Temporal.Calendar`?"
+  back: "They were removed before stage 4. Time zones and calendars are now plain string identifiers like `'Asia/Tokyo'` passed as arguments."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-comparison
+  front: "How do you compare Temporal objects, and what happens with `<` or `+`?"
+  back: "Use `compare()` and `equals()`. `<` and `+` throw instead of coercing."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: temporal-date-bridge
+  front: "How do you convert a `Date` to Temporal and back?"
+  back: "`date.toTemporalInstant()`, then `.toZonedDateTimeISO(zone)` for a wall-clock view. Back: `new Date(instant.epochMilliseconds)`, which truncates to milliseconds."
+  question: javascript/dates-temporal-intl/temporal-types
+- id: intl-timezone-separate
+  front: "Which time zone does `Intl.DateTimeFormat` use if you pass only a locale?"
+  back: "The host's zone. The locale sets wording and order, not the zone; pass an IANA `timeZone` for consistent output across machines."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-datestyle-conflict
+  front: "Can `dateStyle` and `timeStyle` be combined with field options like `hour`?"
+  back: "No. V8 throws a `TypeError` at construction. `hour12` overrides `hourCycle`."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-pluralrules-categories
+  front: "Why select plural forms with `Intl.PluralRules` instead of `n === 1`?"
+  back: "Languages have different plural categories: English `one`/`other`, Polish `one`/`few`/`many`/`other`, Arabic six. Select a category and map it to a message."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-ordinal-english
+  front: "What are the English ordinal categories for 1, 2, 3, 4, 11 and 21?"
+  back: "`one`, `two`, `few`, `other`, `other`, `one`. Eleven is `other` because the rule excludes numbers ending in 11."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-reuse-formatters
+  front: "Why construct an `Intl` formatter once and reuse it?"
+  back: "Construction loads locale data. `toLocaleString(locale, options)` builds a formatter each call; in one measurement it was about 395 ms against about 7 ms for 20,000 reused-formatter calls."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-data-dependent
+  front: "Why should you not parse or assert on `Intl`-formatted strings across environments?"
+  back: "Output comes from the engine's ICU/CLDR data, so the same call can differ across engines and versions."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-formattoparts
+  front: "What does `formatToParts` return, and how should you use it?"
+  back: "`{ type, value }` entries in locale order. Render or compare by `type` instead of splitting the formatted string."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: intl-relativetime-auto
+  front: "What does `RelativeTimeFormat` with `numeric: 'auto'` do, and what is left to you?"
+  back: "It uses idioms where the locale has them: `format(-1, 'day')` gives `yesterday`. You supply the number and unit; computing the difference is your job."
+  question: javascript/dates-temporal-intl/intl-formatting
+- id: tz-three-concepts
+  front: "What is the difference between an instant, an offset and a time zone?"
+  back: "An instant is a UTC moment, the same everywhere. An offset is a fixed difference at one moment (`-04:00`). A zone is an IANA id naming a history of offset rules, including DST."
+  question: javascript/dates-temporal-intl/time-zones
+- id: tz-future-events
+  front: "How should you store a future local event such as a 09:00 meeting in London?"
+  back: "Wall time plus the zone id. A UTC instant computed today is wrong if the government changes the zone's rules before the event."
+  question: javascript/dates-temporal-intl/time-zones
+- id: tz-store-utc-past
+  front: "How should you store past events and when do you convert to a zone?"
+  back: "Store UTC instants (ISO with `Z`, or epoch milliseconds). Convert to a zone only for display, with an explicit `timeZone`."
+  question: javascript/dates-temporal-intl/time-zones
+- id: tz-dst-gap-overlap
+  front: "What are a DST gap and a DST overlap?"
+  back: "A gap is a range of local times skipped when clocks go forward. An overlap is a range that happens twice when clocks go back. You must pick a policy."
+  question: javascript/dates-temporal-intl/time-zones
+- id: date-dst-resolution
+  front: "How does `Date` resolve a skipped local time and a repeated local time?"
+  back: "A skipped time is moved forward by the gap. A repeated time resolves to the earlier instant."
+  question: javascript/dates-temporal-intl/time-zones
+- id: temporal-disambiguation
+  front: "What are Temporal's `disambiguation` options for gaps and overlaps?"
+  back: "`'compatible'` (default), `'earlier'`, `'later'` and `'reject'`. `'reject'` throws `RangeError`, useful for user-entered times that must be valid."
+  question: javascript/dates-temporal-intl/time-zones
+- id: tz-abbreviation-ambiguity
+  front: "Why avoid `EST` or `IST` as time zone identifiers?"
+  back: "Abbreviations are ambiguous, and IANA says to prefer ids like `America/New_York`. Engines also format them only for some locale and zone combinations."
+  question: javascript/dates-temporal-intl/time-zones
+- id: tz-day-length
+  front: "Can a calendar day be 23 or 25 hours long?"
+  back: "Yes, on DST transition days. In `America/New_York`, 2026-03-08 has 23 hours and 2026-11-01 has 25. Never add `24 * 3600 * 1000` to mean tomorrow."
+  question: javascript/dates-temporal-intl/time-zones
+- id: tz-user-zone
+  front: "How do you get the browser's IANA time zone?"
+  back: "`Intl.DateTimeFormat().resolvedOptions().timeZone`."
+  question: javascript/dates-temporal-intl/time-zones
+# 24 JSON and binary data
+- id: json-stringify-pipeline
+  front: "In what order does `JSON.stringify` apply `toJSON`, the replacer function, and wrapper unwrapping for each value?"
+  back: "First `toJSON(key)` if the value is an object or BigInt, then the replacer function with `this` as the holder, then unwrap `Number`, `String`, `Boolean` and `BigInt` wrappers, then serialize by type."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-stringify-undefined-function-symbol
+  front: "How does `JSON.stringify` handle `undefined`, functions and symbols in an object, in an array, and at top level?"
+  back: "Omitted from objects, `null` in arrays, and at top level `JSON.stringify` returns `undefined` (not a string)."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-stringify-nan-infinity
+  front: "What does `JSON.stringify` write for `NaN`, `Infinity` and `-0`?"
+  back: "`null` for `NaN` and `Infinity`/`-Infinity`. `-0` is written as `0`."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-stringify-bigint-throws
+  front: "What does `JSON.stringify` do with a BigInt value, and why is there no default?"
+  back: "It throws `TypeError`. Most consumers read JSON numbers as doubles, so you choose a format: a string, `BigInt.prototype.toJSON` or a replacer."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-stringify-own-enumerable
+  front: "Which properties does `JSON.stringify` write for an object?"
+  back: "Own enumerable string-keyed properties: integer keys first, then insertion order. Symbol keys, inherited, non-enumerable and `#private` fields are skipped, so `Map` and `Set` come out as `{}`."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-array-replacer
+  front: "How does an array replacer in `JSON.stringify` behave?"
+  back: "It is an allow-list of object keys applied at every depth. It does not filter array elements."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-cycle-vs-shared
+  front: "Why does `JSON.stringify` throw on a cycle but not on a shared reference?"
+  back: "The spec keeps a stack of objects currently being serialized. An object already on the stack is a cycle. Finishing an object pops it, so a sibling reference serializes again."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-clone-trap
+  front: "Why is `JSON.parse(JSON.stringify(x))` a poor deep clone?"
+  back: "It drops `undefined`, functions and symbols, turns `Date` into strings and `Map`/`Set` into `{}`, `NaN` into `null`, and throws on BigInt and cycles. Use `structuredClone`."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: json-invalid-date
+  front: "What does `JSON.stringify({ d: new Date(NaN) })` produce?"
+  back: "`{\"d\":null}`. `Date.prototype.toJSON` returns `null` for a non-finite time value, while `toISOString()` would throw `RangeError`."
+  question: javascript/json-and-binary-data/json-stringify-edge-cases
+- id: reviver-order
+  front: "In what order does a `JSON.parse` reviver visit values, and what does `this` refer to?"
+  back: "Post-order: children before parents, with the root last under key `\"\"`. `this` is the object holding the value."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: reviver-undefined-deletes
+  front: "What does returning `undefined` from a `JSON.parse` reviver do?"
+  back: "It deletes the property; an array element becomes a hole. Returning `undefined` for the root makes `JSON.parse` return `undefined`."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: reviver-precision-loss
+  front: "Why can't a reviver restore a large integer from its `value` argument?"
+  back: "The parser has already converted numbers to doubles, so `12345678901234567890` is `12345678901234567000`. Use `context.source` instead."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: reviver-context-source
+  front: "When is `context.source` available in a `JSON.parse` reviver?"
+  back: "For unmodified primitives (string, number, boolean, `null`) it is the exact input text, such as `\"1E2\"`. Objects and arrays have no `source`, nor does a value an earlier reviver call replaced."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: json-rawjson
+  front: "What does `JSON.rawJSON(text)` do?"
+  back: "It returns a frozen null-prototype object that `JSON.stringify` emits verbatim, so a BigInt can be written as a JSON number. It accepts only primitive text and throws `SyntaxError` on invalid text."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: reviver-validation-first
+  front: "Does the `JSON.parse` reviver run when the text is invalid?"
+  back: "No. `JSON.parse` validates the whole text first and throws `SyntaxError` before any reviver call. Revival is a second pass over the finished value."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: json-duplicate-keys
+  front: "What happens with duplicate keys like `{\"a\":1,\"a\":2}` in `JSON.parse`?"
+  back: "The last one wins, with no error reported. The reviver sees only `a: 2`."
+  question: javascript/json-and-binary-data/json-parse-reviver
+- id: arraybuffer-no-indexing
+  front: "What is an `ArrayBuffer`, and how do you read it?"
+  back: "A fixed block of zero-filled raw bytes with a `byteLength` and no indexing. You read and write through a view: a typed array or a `DataView`."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: typedarray-slice-subarray
+  front: "How do `slice()` and `subarray()` differ on a typed array?"
+  back: "`slice()` copies into a new buffer. `subarray()` returns a new view on the same buffer, so writes through one are visible in the other."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: dataview-endianness
+  front: "What byte order do typed arrays and `DataView` use by default?"
+  back: "Typed arrays use the host's byte order (little-endian on most hardware). `DataView` defaults to big-endian unless `littleEndian` is `true`."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: typedarray-alignment
+  front: "What alignment limits apply to a typed array on a buffer versus a `DataView`?"
+  back: "A typed array's `byteOffset` must be a multiple of its element size, or `RangeError`. A `DataView` reads unaligned at any byte offset."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: typedarray-write-conversion
+  front: "What happens on typed array writes that overflow or go out of range?"
+  back: "Integers wrap modulo 2^n; `Uint8ClampedArray` saturates. Writes never throw: an out-of-range index is ignored and reads give `undefined`."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: dataview-range-error
+  front: "What does a `DataView` getter do when the read would exceed the view?"
+  back: "It throws `RangeError`, unlike a typed array, which silently returns `undefined` for an out-of-range index."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: typedarray-sort-default
+  front: "How does default `sort()` differ between typed arrays and ordinary arrays?"
+  back: "Typed array `sort()` is numeric by default. `Array.prototype.sort` compares as strings."
+  question: javascript/json-and-binary-data/arraybuffer-typed-arrays
+- id: resizable-arraybuffer-views
+  front: "What happens to length-tracking and fixed-length views when a resizable `ArrayBuffer` shrinks?"
+  back: "A length-tracking view follows the new length. A view with fixed length or offset goes out of bounds when the buffer shrinks below it: `length` reads `0` and methods throw `TypeError`. It recovers if the buffer grows back."
+  question: javascript/json-and-binary-data/modern-binary-data
+- id: arraybuffer-transfer-detach
+  front: "What does `buffer.transfer(newLength)` do to the original buffer?"
+  back: "It moves the bytes into a new buffer and detaches the original: `detached` is `true`, `byteLength` is `0` and views report length `0`. `transfer` keeps resizability; `transferToFixedLength` drops it."
+  question: javascript/json-and-binary-data/modern-binary-data
+- id: typedarray-copying-methods
+  front: "Which non-mutating methods did typed arrays gain in ES2023?"
+  back: "`toSorted`, `toReversed` and `with`, which return a new typed array instead of mutating."
+  question: javascript/json-and-binary-data/modern-binary-data
+- id: float16-range
+  front: "What is `Float16Array`'s precision and range?"
+  back: "Half precision: 1 sign, 5 exponent and 10 fraction bits, about 3 decimal digits. The largest finite value is 65504, and larger values round to `Infinity`. ES2025, Node 24+."
+  question: javascript/json-and-binary-data/modern-binary-data
+- id: base64-uint8array-guard
+  front: "What is the status of `Uint8Array` base64 and hex methods, and how should you guard them?"
+  back: "Stage 4 (July 2025, ES2026), but only in Node 26+ among the Node versions measured. Check `typeof Uint8Array.fromBase64 === 'function'` and keep a `btoa` or `Buffer` fallback."
+  question: javascript/json-and-binary-data/modern-binary-data
+- id: sab-purpose
+  front: "How does `postMessage` of a `SharedArrayBuffer` differ from a normal `ArrayBuffer`?"
+  back: "A normal one is copied or transferred so one side owns it. A `SharedArrayBuffer` sends a handle to the same memory that several agents see at once."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: sab-data-race
+  front: "Why can `counter[0]++` on shared memory lose updates?"
+  back: "It is a read, an add and a write. Two threads can both read 5 and both write 6. `Atomics.add` performs the update as one indivisible step."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: atomics-wait-requirements
+  front: "What does `Atomics.wait` need, and where does it throw?"
+  back: "An `Int32Array` or `BigInt64Array` on a `SharedArrayBuffer`. It throws `TypeError` where the agent may not block, such as a browser's main thread. `Atomics.waitAsync` avoids blocking."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: atomics-wait-results
+  front: "What can `Atomics.wait` return, and when does it sleep?"
+  back: "`\"ok\"`, `\"not-equal\"` or `\"timed-out\"`. It sleeps only if the slot still equals `expected`; otherwise it returns `\"not-equal\"` at once."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: atomics-return-old
+  front: "What do `Atomics.add` and `Atomics.compareExchange` return?"
+  back: "The old value at the slot. `compareExchange` stores the new value only if the old one matched the expected value."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: sab-cross-origin-isolation
+  front: "What does a browser require to expose `SharedArrayBuffer`?"
+  back: "A secure, cross-origin isolated page: `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` (or `credentialless`). Check `crossOriginIsolated`. Node has no such restriction."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: sab-when-not-needed
+  front: "When is `SharedArrayBuffer` unnecessary?"
+  back: "When one thread owns the data at a time. A `postMessage` transfer list moves an `ArrayBuffer` without copying and is race-free."
+  question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+# 25 Memory and garbage collection
+- id: gc-reachability-not-refcount
+  front: "When does a JavaScript engine free an object: when its reference count hits zero, or when it is unreachable?"
+  back: "When it is unreachable from a root (live stack variables, the global object, engine handles). Reference counting fails on cycles; tracing handles them because reachability is measured from the roots."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-mark-sweep-phases
+  front: "What are the phases of mark-and-sweep, including V8's optional extra step?"
+  back: "Mark everything reachable from the roots, sweep (reclaim unmarked objects), and optionally compact (move survivors together to reduce fragmentation, as V8 does)."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-spec-no-guarantee
+  front: "What does the ECMAScript spec guarantee about garbage collection?"
+  back: "Nothing. It makes no guarantee that any object will be collected; objects may be released after long periods or never. There is no standard `gc()`; V8 exposes one only behind `--expose-gc`."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-liveness-approximation
+  front: "How does the spec define liveness, and what do engines use in practice?"
+  back: "A value is live if the program can still observe its identity (or it is kept alive). The spec notes this is undecidable, so engines use conservative approximations such as reachability."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-null-assignment
+  front: "Does `x = null` free the object `x` referred to?"
+  back: "No. It removes one reference. The object survives if anything else reaches it, and is reclaimed at the engine's convenience, not immediately."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-weak-edges
+  front: "Are `WeakMap` entries, `WeakRef`s and `FinalizationRegistry` registrations followed when deciding liveness?"
+  back: "No. Weak edges are not paths to the target, which is what the weak collections are for."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-tricolour-marking
+  front: "What are V8's three marking colours?"
+  back: "White (not yet discovered), grey (discovered, children not processed), black (fully processed). Marking ends when no grey objects remain; remaining white objects are unreachable."
+  question: javascript/memory-and-gc/garbage-collection
+- id: gc-live-variable-roots
+  front: "Are all variables in scope GC roots?"
+  back: "No. Roots are live variables. V8 can collect an object whose variable is in scope but never read again, though this is engine behaviour, not specified."
+  question: javascript/memory-and-gc/garbage-collection
+- id: leak-definition
+  front: "What is a memory leak in a garbage-collected language like JavaScript?"
+  back: "Data you will never use again that is still reachable, so the collector must keep it. Unreachable memory cannot leak."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-usual-retainers
+  front: "Name the usual retainers behind JavaScript memory leaks."
+  back: "Unbounded caches and collections, event listeners never removed, live timers, closures capturing too much, detached DOM nodes still referenced, and accidental globals or module-level state."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-confirm-after-gc
+  front: "How do you confirm that rising memory is a real leak?"
+  back: "Repeat identical work and compare the heap after a forced collection. A rising floor after GC is a leak; the normal sawtooth of allocation and collection is not."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-heap-snapshot-method
+  front: "How do you locate a leak with Chrome DevTools heap snapshots?"
+  back: "Take a snapshot, repeat the action, take another, and use the Comparison view. Read the Retainers pane for the path from a root back to the leaked object."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-node-snapshot
+  front: "How can you capture a heap snapshot of a Node.js process?"
+  back: "`v8.writeHeapSnapshot()`, `--heapsnapshot-signal=SIGUSR2`, or `--heapsnapshot-near-heap-limit=N`, then load the `.heapsnapshot` file in DevTools."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-detached-dom
+  front: "What is a detached DOM node leak?"
+  back: "An element removed from the page but still referenced from JavaScript, which keeps its whole subtree alive."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-anonymous-listener
+  front: "Why can't an anonymous event handler be removed later, and what removes listeners in bulk?"
+  back: "`removeEventListener` needs the same function reference. Pass `{ signal }` from an `AbortController` to `addEventListener` and abort it to remove listeners in bulk."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-max-old-space
+  front: "Does raising `--max-old-space-size` fix a leak?"
+  back: "No, it only delays the crash. Hitting the old-generation cap aborts with `FATAL ERROR: Reached heap limit … JavaScript heap out of memory`."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-shallow-vs-retained
+  front: "What is the difference between shallow size and retained size in heap snapshots?"
+  back: "Shallow size is the memory the object itself holds. Retained size is what would become unreachable if the object were deleted."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-non-heap-memory
+  front: "What does rising `rss` with flat `heapUsed` suggest?"
+  back: "Growth outside ordinary JS objects: `external` (native memory tied to JS objects) or `arrayBuffers`."
+  question: javascript/memory-and-gc/memory-leaks
+- id: leak-map-object-keys
+  front: "Why is a `Map` keyed by objects a leaky cache?"
+  back: "The `Map` holds its keys strongly forever. Use a `WeakMap` when data should live exactly as long as the key object."
+  question: javascript/memory-and-gc/memory-leaks
+- id: weakref-deref
+  front: "What does `WeakRef.prototype.deref()` return?"
+  back: "The target, or `undefined` if the engine has reclaimed it. The reference alone does not keep the target alive, and each use needs the `undefined` check."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: weakref-keepduringjob
+  front: "What does the spec's KeepDuringJob guarantee for `WeakRef`?"
+  back: "`new WeakRef(target)` and `deref()` hold the target strongly until the end of the current synchronous job. It cannot vanish between two `deref()` calls in the same job, but can between jobs."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: finalization-no-guarantee
+  front: "Is a `FinalizationRegistry` callback guaranteed to run?"
+  back: "No. Implementations may omit callbacks for any reason, such as shutdown. Callbacks run as a separate job after synchronous code ends, so never use them as the only cleanup."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: finalization-held-value-cycle
+  front: "Why must a registry's held value not reference the target?"
+  back: "The registry holds the held value strongly, so that keeps the target alive and the callback never fires. `register(o, o)` throws `TypeError` for the direct case."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: weakref-valid-targets
+  front: "What can a `WeakRef` target or registry token be?"
+  back: "An object or a non-registered symbol (`CanBeHeldWeakly`). Primitives and `Symbol.for` symbols throw `TypeError`."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: finalization-unregister
+  front: "How do you cancel a `FinalizationRegistry` registration?"
+  back: "Pass an unregister token as the third argument to `register`, then call `unregister(token)`. It returns `true` if something was removed, `false` otherwise."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: weakref-vs-weakmap
+  front: "When prefer `WeakMap` over `WeakRef`?"
+  back: "`WeakMap` attaches data to an object for as long as it lives, and its timing is unobservable. `WeakRef` lets you observe whether the object is still there, exposing GC timing."
+  question: javascript/memory-and-gc/weakref-finalizationregistry
+- id: v8-generational-hypothesis
+  front: "What is the generational hypothesis behind V8's heap layout?"
+  back: "Most objects die young. V8 splits the heap into a small young generation collected often and a large old generation collected less often."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-scavenger
+  front: "How does V8's scavenger collect the young generation?"
+  back: "The young area is two semi-spaces, one in use. When the nursery fills, the scavenger copies live objects to the other half, so only survivors are touched. Surviving one scavenge makes an object intermediate; another promotes it to the old generation."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-write-barrier-remembered
+  front: "How can a V8 scavenge be correct without scanning the old generation?"
+  back: "Write barriers keep a list of old-to-new references, and those slots act as extra roots for the scavenge."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-major-gc-phases
+  front: "What are the phases of V8's old-generation (major) GC?"
+  back: "Marking (tri-colour traversal from the roots), sweeping (freed gaps go on free-lists) and compacting (some fragmented pages are evacuated)."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-orinoco-techniques
+  front: "What are the three pause-shortening techniques of V8's Orinoco project?"
+  back: "Parallel (main thread and helpers split a pause), incremental (small slices on the main thread) and concurrent (helpers work while JavaScript runs). Marking is concurrent."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-semispace-tradeoff
+  front: "Why does V8 copy young objects instead of mark-sweeping them, and what is the cost?"
+  back: "Work is proportional to the few live objects and copying compacts for free. The cost is that half the semi-space is always empty."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-gc-engine-specific
+  front: "Is the generational scheme with scavenge and mark-compact part of the ECMAScript spec?"
+  back: "No. It is V8 behaviour (Chrome, Node, Deno) described in V8's blog posts. Other engines differ, so say \"in V8\"."
+  question: javascript/memory-and-gc/v8-generational-gc
+- id: v8-node-gc-flags
+  front: "Which Node.js flags control the old-generation cap, the young generation and GC logging?"
+  back: "`--max-old-space-size` (old-generation cap in MiB), `--max-semi-space-size` (young generation) and `--trace-gc` (log each collection)."
+  question: javascript/memory-and-gc/v8-generational-gc
+# 26 Inside the engine
+- id: v8-lazy-compilation
+  front: "How does V8 compile inner functions, and which ones are compiled eagerly?"
+  back: "The preparser skips them and V8 compiles each to bytecode on first call. Parenthesised function expressions, likely invoked at once, are compiled eagerly. This is V8 behaviour (Node 24.19 observation)."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: v8-ignition-bytecode
+  front: "What is Ignition, and what shape does its bytecode have?"
+  back: "V8's interpreter. Bytecode is for a register machine with an implicit accumulator, and it is an internal representation that may change with any V8 release."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: v8-feedback-vector
+  front: "What is V8's feedback vector, and who reads it?"
+  back: "Ignition records what it sees at each operation (number kinds, object shapes, call targets) in the feedback vector. Every later tier compiles using it. A slot widens, for example SignedSmall to Number to Any, and never narrows."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: v8-tiers
+  front: "What are V8's compilation tiers above Ignition, and what does each trade?"
+  back: "Sparkplug (baseline, single pass, no IR), Maglev (fast optimizing compiler) and TurboFan (top tier: slowest to compile, fastest code). Maglev is roughly 10x slower to compile than Sparkplug and 10x faster than TurboFan."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: v8-turbofan-input
+  front: "What does TurboFan compile from?"
+  back: "Bytecode plus type feedback, not source. The parser's work is not repeated."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: v8-bytecode-flushing
+  front: "What happens to bytecode a function has not run recently?"
+  back: "It is flushed by age during major GCs and recompiled on demand, so a cold call can pay compile time again. The age resets when the function runs."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: v8-not-all-optimized
+  front: "Is every function optimized by TurboFan or Maglev in V8?"
+  back: "No. Most run only in Ignition. Tier-up needs the function to be hot, and V8's trace gives the reason as \"hot and stable\"."
+  question: javascript/inside-the-engine/v8-pipeline
+- id: hidden-class-map
+  front: "What is a hidden class (Map) in V8?"
+  back: "A descriptor of an object's property names and where each lives, so the object stores only values. Objects with the same properties in the same order share a Map. Other engines call this idea a shape."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: hidden-class-transition-tree
+  front: "What happens to an object's Map when you add a property?"
+  back: "The object moves to another Map, linked in a transition tree by a back pointer. Objects built through the same sequence of additions end up sharing a Map."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: hidden-class-property-order
+  front: "Do `{ x: 1, y: 2 }` and `{ y: 2, x: 1 }` share a hidden class in V8?"
+  back: "No. Property order matters, and the creation route does too: an object built incrementally can have a different Map than a literal with the same keys (Node 24.19 observation)."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: inline-cache-mechanism
+  front: "What does an inline cache do at a property access like `o.x`?"
+  back: "It sits in a feedback vector slot and remembers the Maps seen there and where `x` lives. The next access checks the Map and loads from a known offset, skipping a general lookup."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: ic-states
+  front: "What are the inline cache states and the observed cut-off to megamorphic?"
+  back: "Uninitialised, monomorphic (one Map), polymorphic (a few) and megamorphic (too many). For property loads, 2-4 shapes were polymorphic and 5 megamorphic on Node 24.19 / V8 13.6; this is an observation, not a spec."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: delete-dictionary-mode
+  front: "What does `delete` on a property other than the last added do to a V8 object?"
+  back: "It switched the object to slow dictionary mode in the Node 24.19 run, where inline caches do not work and the Map is no longer shared. Assign `undefined` or build a new object instead."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: conditional-field-two-maps
+  front: "Why does conditionally adding a field in a constructor hurt V8 performance?"
+  back: "It creates two Maps for what you think of as one type, making every access site polymorphic. Always initialise the property, for example `this.isNegative = x < 0`."
+  question: javascript/inside-the-engine/hidden-classes-inline-caches
+- id: deopt-definition
+  front: "What is deoptimization in V8?"
+  back: "Optimized code is compiled from feedback and guarded by checks. When a guard fails, V8 discards the machine code, resumes in bytecode and may recompile later with new feedback. It is a correctness mechanism, not an error."
+  question: javascript/inside-the-engine/deoptimization
+- id: deopt-common-reasons
+  front: "What are common V8 deoptimization reason categories?"
+  back: "Shape (`wrong map`), number representation (`not a Smi`, `overflow`), types (`not a Number`), array access (`out of bounds`, `hole`), `wrong call target`, and `Insufficient type feedback` for a path that never ran."
+  question: javascript/inside-the-engine/deoptimization
+- id: deopt-recompile
+  front: "Does a deoptimized function stay unoptimized forever?"
+  back: "No. After a `wrong map` bailout, `getX` was marked and recompiled again from the updated feedback (Node 24.19 observation). The cost is in repeated optimize/deopt cycles."
+  question: javascript/inside-the-engine/deoptimization
+- id: deopt-no-feedback
+  front: "Why can a branch deopt the first time it is taken after optimization?"
+  back: "The optimizer had no feedback for that path, so it compiled a guard that bails out when reached. These are the `Insufficient type feedback …` reasons."
+  question: javascript/inside-the-engine/deoptimization
+- id: deopt-trace-flags
+  front: "How do you see optimization and deoptimization in Node?"
+  back: "Run with `--trace-opt --trace-deopt`. Output wording is not a stable interface, and `%`-natives need `--allow-natives-syntax` and are not public API."
+  question: javascript/inside-the-engine/deoptimization
+- id: deopt-microbenchmark
+  front: "Why can a micro-benchmark with one kind of input mislead?"
+  back: "It measures whichever tier and feedback it reached, and one different input mid-run can deoptimize it. Warm up with realistic inputs and check the traces."
+  question: javascript/inside-the-engine/deoptimization
+- id: elements-kinds-categories
+  front: "What two dimensions make up a V8 elements kind?"
+  back: "Value kind (`SMI`, `DOUBLE`, generic `ELEMENTS`) crossed with packing (`PACKED` or `HOLEY`). Very sparse arrays move to `DICTIONARY_ELEMENTS`, a hash table."
+  question: javascript/inside-the-engine/elements-kinds
+- id: elements-kinds-one-way
+  front: "In which direction do V8 elements kind transitions go?"
+  back: "One way, from specific to general: Smi to double to generic, and packed to holey. Pushing `4.5` makes a Smi array double; a string makes it generic. Emptying the array does not reset the kind."
+  question: javascript/inside-the-engine/elements-kinds
+- id: elements-kinds-minus-zero-nan
+  front: "Does `-0` or `NaN` keep an array as `PACKED_SMI_ELEMENTS`?"
+  back: "No. `-0`, `NaN` and `Infinity` count as doubles, so `[1, 2, 3, -0]` is `PACKED_DOUBLE_ELEMENTS` (confirmed on Node 24.19)."
+  question: javascript/inside-the-engine/elements-kinds
+- id: elements-holey-lookup
+  front: "Why is reading a hole in a holey array slower in V8?"
+  back: "A missing index may find a value on `Array.prototype`, so it forces a prototype-chain lookup. Packed arrays avoid that check."
+  question: javascript/inside-the-engine/elements-kinds
+- id: elements-integer-in-double
+  front: "Does pushing an integer into a double array change its kind?"
+  back: "No. `[1.5, 2.5]` followed by `push(1)` stayed `PACKED_DOUBLE_ELEMENTS`; the value is stored as a double."
+  question: javascript/inside-the-engine/elements-kinds
+- id: smi-vs-heapnumber
+  front: "What is the difference between a Smi and a HeapNumber in V8?"
+  back: "A Smi is a small integer stored in the tagged word itself, with no allocation. Anything else (fractions, `-0`, `NaN`, large integers) is a heap object holding a boxed double. The language has only one Number type."
+  question: javascript/inside-the-engine/smi-and-heap-numbers
+- id: smi-range
+  front: "What is the Smi range in V8?"
+  back: "31 bits with pointer compression and 32 bits without. Node 24.19's build had compression off, so `2**31 - 1` was a Smi and `2**31` was not. Chrome ships with compression on."
+  question: javascript/inside-the-engine/smi-and-heap-numbers
+- id: smi-value-dependent
+  front: "Is `10 / 2` a Smi in V8? What about `7 / 2` and `-0`?"
+  back: "`10 / 2` is a Smi; whether a number is a Smi depends on its value, not how it was written. `7 / 2` and `-0` are not, since they need a double."
+  question: javascript/inside-the-engine/smi-and-heap-numbers
+- id: smi-overflow-not-error
+  front: "Is a Smi overflow an error?"
+  back: "No. The result simply becomes a HeapNumber. Optimized code that assumed Smis deoptimizes with `overflow` or `not a Smi`."
+  question: javascript/inside-the-engine/smi-and-heap-numbers
+- id: pointer-compression-node
+  front: "What does V8 pointer compression do, and does Node 24.19 use it?"
+  back: "Per V8's post it cut heap size by up to 43% and limits the heap to a 4 GB range. In the Node 24.19 build, `v8_enable_pointer_compression` was `0`."
+  question: javascript/inside-the-engine/smi-and-heap-numbers
