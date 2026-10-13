@@ -3,7 +3,7 @@ title: "Predict the order: `setTimeout` vs promises vs `queueMicrotask`."
 status: draft
 difficulty: medium
 frequency: 5
-core: false
+core: true
 tags: [microtask, task, settimeout, queuemicrotask, promise, nexttick, timer-clamping, starvation]
 related:
   - javascript/async-and-the-event-loop/event-loop
@@ -18,6 +18,8 @@ sources:
   - https://tc39.es/ecma262/#sec-newpromisereactionjob
   - https://tc39.es/ecma262/#sec-newpromiseresolvethenablejob
   - https://nodejs.org/docs/latest-v24.x/api/process.html#when-to-use-queuemicrotask-vs-processnexttick
+  - https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick
+  - https://html.spec.whatwg.org/multipage/webappapis.html#clean-up-after-running-script
   - https://nodejs.org/docs/latest-v24.x/api/timers.html#settimeoutcallback-delay-args
   - https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide
 tldr: >
@@ -86,6 +88,100 @@ console.log('2 script end');
 
 **Q:** Why does Node.js log `timeout 0` and `timeout 1` in call order?
 **A:** Node treats a delay below 1 ms as 1 ms. Both timers have the same delay, so they fire in the order they were created.
+
+## Deep dive
+
+### How it works
+
+ECMAScript defines *jobs* but not the loop. A promise reaction becomes a `PromiseReactionJob`, and the spec hands it to the host with `HostEnqueuePromiseJob`; the host decides when to run it. Browsers and Node.js both run it from a microtask queue.
+
+The HTML Standard says when the queue is drained:
+
+- After every task, the event loop performs a microtask checkpoint.
+- Also whenever a script finishes running and the JavaScript execution context stack is empty ("clean up after running script"). That covers callbacks that are not tasks of their own, such as the listeners of one event. If a script calls `el.click()`, the stack isn't empty when the listeners run, so their microtasks wait until the outermost script ends; for a real user click the stack is empty after each listener, so microtasks run between listeners. (This follows from the spec text; it is not something the examples here run.)
+- Timers are tasks. `setTimeout` queues a task only after the timer's delay has elapsed (with the clamping in the Answer), so a timer can never run before pending microtasks.
+
+Node.js has the same rule with different machinery: libuv runs callbacks in phases (timers, poll, check, and so on), and Node runs the `nextTick` queue and then the microtask queue between callbacks. The observable result in Node 24.19 is that microtasks run *between* two timers that expire together, not after both:
+
+```js
+setTimeout(() => {
+  console.log('timer 1');
+  Promise.resolve().then(() => console.log('  microtask from timer 1'));
+}, 0);
+setTimeout(() => console.log('timer 2'), 0);
+// → timer 1
+// →   microtask from timer 1
+// → timer 2
+```
+
+A model of "run all timers, then all microtasks" gets this wrong.
+
+### Edge cases
+
+- **`setTimeout(f, 0)` vs `setImmediate(f)`.** From the main module, the Node.js docs say the order is non-deterministic, bound by process performance. From inside an I/O callback, `setImmediate` always runs first, because the check phase follows the poll phase that ran the callback.
+- **`nextTick` queued from a promise job.** In CommonJS, `nextTick` callbacks run before promise jobs. But a `nextTick` queued *during* the microtask drain waits until that drain is empty, so it runs after later promise handlers.
+- **Starvation.** A microtask that always queues another microtask never lets the drain finish.
+
+```js
+import { readFile } from 'node:fs';
+
+readFile(import.meta.filename, () => {
+  setTimeout(() => console.log('timeout'), 0);
+  setImmediate(() => console.log('immediate'));
+});
+// → immediate
+// → timeout
+```
+
+```js
+// File: order.cjs (CommonJS; run with node)
+Promise.resolve().then(() => {
+  console.log('promise 1');
+  process.nextTick(() => console.log('nextTick from promise'));
+}).then(() => console.log('promise 2'));
+process.nextTick(() => console.log('nextTick 1'));
+// → nextTick 1
+// → promise 1
+// → promise 2
+// → nextTick from promise
+```
+
+### Real-world scenario
+
+UI frameworks and state stores use the microtask queue to *coalesce* work: many synchronous updates, one flush, which runs before the next timer, I/O event or paint. The pattern is a "scheduled" flag plus `queueMicrotask`:
+
+```js
+const pending = new Set();
+let flushScheduled = false;
+let flushes = 0;
+
+function setState(key) {
+  pending.add(key);
+  if (flushScheduled) return;
+  flushScheduled = true;
+  queueMicrotask(() => {
+    flushScheduled = false;
+    flushes++;
+    console.log('render with', [...pending]);
+    pending.clear();
+  });
+}
+
+setTimeout(() => console.log('timer ran, flushes so far:', flushes), 0);
+setState('a');
+setState('b');
+setState('a');
+console.log('sync done, flushes so far:', flushes);
+// → sync done, flushes so far: 0
+// → render with [ 'a', 'b' ]
+// → timer ran, flushes so far: 1
+```
+
+Three calls produced one flush, and the flush ran after the current synchronous code but before the timer. The flag must be reset before the work runs, so that an update made during the flush schedules a new microtask instead of being lost.
+
+### Trade-offs
+
+A microtask is the right tool when work must finish before anything else observable happens (coalescing, consistent state before returning to the event loop). It is the wrong tool for yielding: because the drain doesn't stop until the queue is empty, rendering and I/O wait for it. For heavy work, split it into tasks (`setTimeout`, `setImmediate` in Node) so other work can interleave. Prefer `queueMicrotask` over `process.nextTick` in new Node code, as the Node.js docs recommend, because its ordering doesn't depend on whether the code is CommonJS or an ES module.
 
 ## Exercises
 
