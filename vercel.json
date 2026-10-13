@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd app && npm ci",
+  "buildCommand": "cd app && npm run build",
+  "outputDirectory": "app/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/portfolio",
+      "destination": "https://www.sachinmaurya.com",
+      "permanent": false
+    }
+  ]
+}

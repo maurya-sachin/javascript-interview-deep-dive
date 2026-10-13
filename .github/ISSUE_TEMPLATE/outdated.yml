@@ -1,0 +1,23 @@
+name: Outdated
+description: A question no longer matches the current language, engines, or runtimes
+title: "Outdated: "
+body:
+  - type: input
+    id: question
+    attributes:
+      label: Question
+      description: The question's id, e.g. javascript/promises/promise-all-vs-allsettled
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What changed?
+      description: The new behaviour, and which version or release introduced it.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: Release notes, a spec change, or a proposal reaching Stage 4.

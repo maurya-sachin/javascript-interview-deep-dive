@@ -1,0 +1,25 @@
+name: New question
+description: Propose a question or a flashcard that is missing
+title: "New question: "
+body:
+  - type: input
+    id: topic
+    attributes:
+      label: Topic and chapter
+      description: e.g. javascript / closures. If no chapter fits, say which area is missing.
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Question
+      description: Phrased the way an interviewer would ask it.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it belongs
+      description: Is it asked in interviews? Is it covered anywhere in the repo already?
+    validations:
+      required: true

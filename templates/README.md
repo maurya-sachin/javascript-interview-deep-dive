@@ -1,0 +1,172 @@
+# Writing guide
+
+How content in this repo is organised and written. Follow it for every topic, chapter, and question —
+it's the contract the build checks against.
+
+Templates to copy:
+
+| You're adding | Copy |
+|---|---|
+| A topic (e.g. `javascript`) | [`topic-README.md`](topic-README.md) → `content/<topic>/README.md` |
+| A chapter | [`chapter-README.md`](chapter-README.md) → `content/<topic>/<NN-chapter>/README.md` |
+| A question | [`question.md`](question.md) → `content/<topic>/<NN-chapter>/<NNN-slug>.md` |
+
+## Layout
+
+```
+content/
+  javascript/
+    README.md                                   topic overview
+    04-closures/
+      README.md                                 chapter overview
+      010-what-is-a-closure.md                  one question per file
+      020-what-a-closure-keeps-alive.md
+```
+
+- **Numbers set reading order.** Chapters use two digits (`01`, `02`, …). Questions use three digits in steps of 10 (`010`, `020`, …) so a question can be inserted (`015`) without renumbering. Inserting a chapter renumbers the folders after it; ids don't change.
+- **The id comes from the path**, with number prefixes and `.md` removed: `javascript/closures/what-a-closure-keeps-alive`. Reordering never breaks an id. Never write ids, topic names, or counts by hand.
+- **Slugs** are kebab-case, ≤ 6 words, and name the concept rather than repeat the title.
+
+## Adding content
+
+Start from the concept, not from a free file number:
+
+1. **Topic.** Each topic README's **Scope** says what it owns and links to where the rest lives (e.g. DOM APIs → browser runtime, not `javascript`).
+2. **Chapter.** Pick one from the topic's chapter table. If none fits, add the area to the topic's **Not yet mapped** list.
+3. **Coverage.** Find the concept in the chapter's **Sub-topics**. Covered → improve that question instead. Ends in `→ —` → it's a known gap; take it. Missing → add it as a sub-topic.
+4. **Stub.** Create it with `npm run content:new` (pass `--number 015` to insert between neighbours), then point the sub-topic at it.
+
+Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mapped** lists — so browsing the repo shows what's missing and where it goes.
+
+## Question lifecycle
+
+| `status` | Meaning | Required |
+|---|---|---|
+| `planned` | The question exists; nothing written yet | `title`, `difficulty`, `frequency`, `core` |
+| `draft` | Written and self-checked, awaiting maintainer review | everything below |
+| `published` | Reviewed and live | everything below |
+
+## Question format
+
+### Frontmatter
+
+| Field | Type | Notes |
+|---|---|---|
+| `title` | string | Phrased the way an interviewer asks it |
+| `status` | `planned` \| `draft` \| `published` | |
+| `difficulty` | `easy` \| `medium` \| `hard` | |
+| `frequency` | 1–5 | How often it's asked; 5 = almost every interview |
+| `core` | boolean | `true` makes the deep dive required |
+| `tags` | string[] | Lowercase, kebab-case |
+| `related` | id[] | Other questions this builds on or leads to |
+| `verified` | `YYYY-MM` | When the facts were last checked against `sources` |
+| `sources` | URL[] | Primary sources only — see [Research](#research) |
+| `tldr` | string | ≤ 60 words — the 30-second answer |
+
+### Sections
+
+Use exactly these `##` headings, in this order. Leave out optional ones entirely; don't add others.
+
+| Section | Required | Limit | Job |
+|---|---|---|---|
+| `## Answer` | yes | ≤ 300 words | The full interview answer |
+| `## Example` | yes | 1 code block, ≤ 30 lines | The one example that makes it click |
+| `## Pitfalls` | yes | 1–4 bullets | Mistakes interviewers probe for |
+| `## Follow-ups` | no | 0–4 pairs, answers ≤ 50 words | `**Q:**` / `**A:**` lines |
+| `## Deep dive` | if `core: true` | ≤ 1,500 words, ≤ 5 code blocks | `###` subsections from: How it works · Edge cases · Real-world scenario · Trade-offs |
+| `## Exercises` | no | 1–3 items | Each a `###` heading, a code block, and an `**Answer:**` line |
+
+## Writing rules
+
+- **Interview first.** `tldr` and `## Answer` are what you'd say out loud; depth goes in `## Deep dive`.
+- **Current behaviour.** Describe the current ECMAScript edition and current engines. Legacy behaviour gets one sentence starting with *Legacy:*.
+- **One concept per question.** If you're explaining a second concept, link it in `related` instead.
+- **Be exact.** Name the spec mechanism (e.g. *Environment Record*, *[[Prototype]]*) when it explains the behaviour; say when something is engine-specific (e.g. *In V8, …*).
+- **No filler.** No emoji headings, no "In this article…", no "Great question".
+- **Code:**
+  - JavaScript; TypeScript only in TypeScript topics.
+  - Must run as written in current Node.js or a modern browser.
+  - Assume module code (strict mode); say so when sloppy mode matters.
+  - Show output as `// → value` comments.
+
+## Research
+
+Every claim must be traceable to a primary source listed in `sources`:
+
+1. ECMAScript specification — [tc39.es/ecma262](https://tc39.es/ecma262/)
+2. TC39 proposals — [github.com/tc39/proposals](https://github.com/tc39/proposals)
+3. MDN — [developer.mozilla.org](https://developer.mozilla.org/)
+4. Engine and runtime teams — [v8.dev](https://v8.dev/), [nodejs.org/docs](https://nodejs.org/docs/latest/api/), WebKit/SpiderMonkey blogs
+5. Official docs of the library or tool in question
+
+Blog posts and tutorials can point you somewhere; they're never the source.
+Never copy text from other books or courses — write your own explanation.
+Run every code example and exercise; the printed output must match the `// →` comments.
+
+## README status lines
+
+Topic and chapter READMEs start with a status line:
+
+```
+> **Status:** 🔴 planned · **Published:** 0/12 · **Last verified:** —
+```
+
+🔴 planned (nothing published) · 🟡 in progress (some published) · 🟢 complete (all published).
+**Last verified** is the oldest `verified` among published questions.
+
+Topic READMEs (not chapters) put a hand-written track line directly above it, in the same blockquote:
+
+```
+> **Track:** Backend
+> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+```
+
+| Track | Topics |
+|---|---|
+| Frontend | `javascript` `typescript` `html-and-css` `browser` `accessibility` `react` `nextjs` `react-native` `state-and-data-fetching` |
+| Backend | `nodejs` `http-and-apis` `backend-patterns` `databases` `caching` `messaging-and-jobs` `authentication` |
+| Infrastructure and delivery | `git` `ci-cd` `containers-and-kubernetes` `cloud-and-iac` `networking` `observability` |
+| Engineering practice | `testing` `web-performance` `web-security` `tooling` `system-design` `data-structures-and-algorithms` |
+
+The status line and the blocks between `<!-- generated:… -->` markers are generated — run `npm run content:sync`, never edit them by hand.
+Elsewhere, mark unknowns with ❓ — never guess.
+
+## Flashcards
+
+Flashcards are short recall prompts, separate from questions (R8). One file per topic: `content/flashcards/<topic>.yaml`, where `<topic>` is an existing topic folder. The file is a list of cards:
+
+```yaml
+- id: closure-captures-binding
+  front: What does a closure capture — a value or a binding?
+  back: The binding. It sees later assignments to the variable.
+  question: javascript/closures/what-is-a-closure
+```
+
+| Field | Required | Rule |
+|---|---|---|
+| `id` | yes | Kebab-case, unique within the file. It keys the learner's review history, so **never change it** once published — add a new card instead |
+| `front` | yes | ≤ 30 words; inline Markdown only |
+| `back` | yes | ≤ 60 words; inline Markdown only |
+| `question` | no | Id of the question that explains it; must exist |
+
+One fact per card. If the back needs a code block, it belongs in a question instead.
+
+## Contributing
+
+1. Pick a `planned` question (or propose a new one in an issue first).
+2. Research it and write it to this guide. Set `status: draft` and `verified`.
+3. Run `npm run content:check` — it must pass.
+4. Open a PR with one question per PR. A maintainer reviews it and sets `status: published`.
+
+Commands (Node 24, run in `app/`):
+
+| Command | What it does |
+|---|---|
+| `npm run content:check` | Validates every topic, chapter, and question against this guide; fails on any problem |
+| `npm run content:sync` | Regenerates README status lines and `generated:` tables |
+| `npm run content:status [topic]` | Published counts per chapter and every `→ —` gap |
+| `npm run content:new -- <topic>/<chapter> <slug> "<title>" --difficulty <d> --frequency <1-5> [--core] [--number NNN]` | Creates a `planned` stub, then syncs READMEs |
+| `npm run content:build [-- --drafts]` | Compiles content into `app/public/data/` (published only; `--drafts` adds drafts) |
+| `npm run dev` | Builds content with drafts and starts the app |
+
+Fixes to existing questions are welcome the same way. Content is licensed under the repo's [MIT License](../LICENSE).

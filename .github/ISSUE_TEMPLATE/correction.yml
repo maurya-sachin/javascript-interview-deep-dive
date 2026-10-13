@@ -1,0 +1,28 @@
+name: Correction
+description: Something in a question is wrong or misleading
+title: "Fix: "
+body:
+  - type: input
+    id: question
+    attributes:
+      label: Question
+      description: The question's id, e.g. javascript/closures/what-is-a-closure
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page address
+      description: Filled in automatically when you use "Suggest a fix" on the site.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+      description: Quote the sentence or code, and say what it should be.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: A link to the spec, MDN, or engine docs that shows the correct behaviour.

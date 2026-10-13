@@ -1,0 +1,20 @@
+name: Site bug
+description: Something on the website is broken
+title: "Bug: "
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page address
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      description: e.g. Safari 19 on iPhone
