@@ -563,3 +563,645 @@
   front: "Does `Object.is` coerce its arguments?"
   back: "No. `Object.is('1', 1)` and `Object.is(1n, 1)` are both `false`. For non-Number types the three equality algorithms agree."
   question: javascript/coercion-and-equality/equality-algorithms
+# 06 Operators and syntax
+- id: destructuring-default-trigger
+  front: "In destructuring, which values trigger a default: `undefined`, `null`, `0`, `''`?"
+  back: "Only `undefined` (or a missing key). `null`, `0`, `''` and `false` are kept. The default expression is evaluated lazily, left to right, and may use earlier bindings."
+  question: javascript/operators-and-syntax/destructuring
+- id: destructuring-object-pattern-throws
+  front: "When does an object destructuring pattern throw a `TypeError`?"
+  back: "When the right-hand side is `null` or `undefined`, because `RequireObjectCoercible` fails. This includes the empty pattern `const {} = null`. Primitives are boxed instead, so `const { length } = 'abc'` works."
+  question: javascript/operators-and-syntax/destructuring
+- id: destructuring-array-pattern-iterator
+  front: "Does an array destructuring pattern read by index or by iteration protocol?"
+  back: "By the iteration protocol, so it works on any iterable (strings, `Set`, generators). It pulls only as many values as it has elements, then calls `return()` on the iterator if unfinished."
+  question: javascript/operators-and-syntax/destructuring
+- id: destructuring-nested-missing-parent
+  front: "Why does `const { a: { b } } = {}` throw, and how do you prevent it?"
+  back: "It reads `b` from `undefined`. Give the parent a default: `{ a: { b } = {} }`. That still throws if `a` is `null`, since defaults only fire for `undefined`."
+  question: javascript/operators-and-syntax/destructuring
+- id: spread-vs-rest-position
+  front: "What decides whether `...` is spread or rest?"
+  back: "Position. Spread is an expression that expands a value into items (calls, array and object literals). Rest is a binding that collects the remainder (parameters, patterns) and must be last."
+  question: javascript/operators-and-syntax/spread-vs-rest
+- id: spread-object-copy-semantics
+  front: "Which properties does `{ ...src }` copy, and how does it read them?"
+  back: "Own enumerable properties, string and symbol keys, via `Get`, so getters run and the copy gets plain data properties. Inherited and non-enumerable properties are skipped, and `null` or `undefined` are ignored."
+  question: javascript/operators-and-syntax/spread-vs-rest
+- id: spread-array-needs-iterable
+  front: "Why does `[...{ a: 1 }]` throw while `({ ...{ a: 1 } })` works?"
+  back: "Array and call spread use the iteration protocol, and plain objects are not iterable (`TypeError`). Object-literal spread uses `CopyDataProperties`, which accepts any object."
+  question: javascript/operators-and-syntax/spread-vs-rest
+- id: spread-assign-vs-spread-define
+  front: "How does `{ ...a }` differ from `Object.assign({}, a)` when the target has setters?"
+  back: "Spread defines new properties with `CreateDataPropertyOrThrow`, so setters cannot intercept. `Object.assign` uses `Set`, which calls setters, including inherited ones, on its target."
+  question: javascript/operators-and-syntax/spread-vs-rest
+- id: nullish-vs-or-fallback
+  front: "Which left-hand values make `a ?? b` return `b`, versus `a || b`?"
+  back: "`??` falls back only for `null` and `undefined`. `||` falls back for any falsy value: `0`, `''`, `false`, `NaN`. So `0 ?? 3` is `0` and `0 || 3` is `3`."
+  question: javascript/operators-and-syntax/nullish-and-optional-chaining
+- id: nullish-mixing-syntax-error
+  front: "Why is `a ?? b || c` a `SyntaxError`, and what fixes it?"
+  back: "The grammar refuses to guess precedence: `CoalesceExpression` does not accept bare `||` or `&&` operands. Parenthesise explicitly: `(a ?? b) || c`."
+  question: javascript/operators-and-syntax/nullish-and-optional-chaining
+- id: optional-chain-short-circuit-scope
+  front: "How far does `a?.b.c.d()` short-circuit when `a` is nullish, and what ends the chain?"
+  back: "The whole chain to the right yields `undefined` without touching `.c` or `.d`. Parentheses end the chain: `(a?.b).c` still reads `.c` from `undefined` and throws."
+  question: javascript/operators-and-syntax/nullish-and-optional-chaining
+- id: optional-chain-guard-limits
+  front: "What does `?.` guard against, and what does it not?"
+  back: "Only a nullish base at the exact spot written. `a?.b.c` still throws if `a.b` is `undefined`. `a.fn?.()` throws if `fn` is a non-function like `5`. An undeclared variable still throws `ReferenceError`."
+  question: javascript/operators-and-syntax/nullish-and-optional-chaining
+- id: logical-assignment-no-write
+  front: "How does `a ||= b` differ from `a = a || b` when `a` is truthy?"
+  back: "No assignment happens at all: `b` is not evaluated, no setter runs, and no write is attempted on a frozen property. `a = a || b` still performs the write."
+  question: javascript/operators-and-syntax/nullish-and-optional-chaining
+- id: for-in-keys-and-order
+  front: "What does `for…in` enumerate, and in what order?"
+  back: "Enumerable string keys, own and inherited through the prototype chain, as strings. Integer-like keys come first in ascending order, then other keys in insertion order. Symbols and non-enumerable keys are skipped."
+  question: javascript/operators-and-syntax/loop-statements
+- id: for-of-iterator-return
+  front: "What does `break` inside `for…of` do to the iterable?"
+  back: "It calls `iterator.return()` if the iterator has one, so a generator's `finally` block runs. An array iterator has no `return`, so nothing happens."
+  question: javascript/operators-and-syntax/loop-statements
+- id: foreach-async-callback
+  front: "Why does `await` inside a `forEach` callback not pause the loop?"
+  back: "`forEach` is synchronous and discards the callback's return value. An `async` callback returns a promise that nothing waits for, and its rejection goes unhandled. Use `for…of` with `await`, or `Promise.all(items.map(…))`."
+  question: javascript/operators-and-syntax/loop-statements
+- id: foreach-range-fixed
+  front: "If you push to an array inside `forEach`, is the new element visited?"
+  back: "No. `forEach` fixes its range to the original length before the first callback. A `for…of` loop over the same array would visit the pushed element."
+  question: javascript/operators-and-syntax/loop-statements
+- id: asi-three-cases
+  front: "In which three cases does automatic semicolon insertion add a `;`?"
+  back: "At an offending token that follows a line terminator or is `}`, at the end of input, and where a newline breaks a restricted production (`return`, `throw`, `break`, `continue`, `yield`, postfix `++`/`--`, arrow `=>`)."
+  question: javascript/operators-and-syntax/automatic-semicolon-insertion
+- id: asi-no-insertion-before-paren
+  front: "Why does a line starting with `(` or `[` join the previous line, even after a newline?"
+  back: "ASI inserts a `;` only when the next token is illegal. `(`, `[`, a template literal, `+`, `-` and `/` are legal continuations, so no `;` is added and the lines merge into a call or access."
+  question: javascript/operators-and-syntax/automatic-semicolon-insertion
+- id: asi-return-newline
+  front: "What does `return` followed by a newline and `{ ok: true }` return, and why?"
+  back: "`undefined`. `return` is a restricted production, so a newline after it makes the parser insert `;`. The value on the next line is dead code. A multi-line comment containing a newline counts too."
+  question: javascript/operators-and-syntax/automatic-semicolon-insertion
+- id: asi-override-limits
+  front: "Which semicolon insertions does ASI refuse to make?"
+  back: "One that would become an empty statement, and one that would become either semicolon in a `for(;;)` header. So `for (let i = 0⏎i < 3⏎i++)` is a `SyntaxError`; ASI cannot repair real syntax errors."
+  question: javascript/operators-and-syntax/automatic-semicolon-insertion
+# 07 Scope and execution contexts
+- id: var-let-const-scope-redeclare
+  front: "How do `var`, `let` and `const` differ in scope and redeclaration?"
+  back: "`var` is function-scoped (or script/module) and may be redeclared. `let` and `const` are block-scoped, and redeclaring them in the same scope is an early `SyntaxError`."
+  question: javascript/scope-and-execution-contexts/var-let-const
+- id: const-binding-not-value
+  front: "What does `const` make immutable: the binding or the value?"
+  back: "The binding only. Reassigning throws `TypeError`, but a `const` object or array can still be mutated. `Object.freeze` gives shallow immutability of the value."
+  question: javascript/scope-and-execution-contexts/var-let-const
+- id: var-global-property-classic-script
+  front: "Which top-level declarations become global object properties in a classic script?"
+  back: "`var` and function declarations (non-configurable). `let`, `const` and `class` become global bindings but not properties. Module code has no such link."
+  question: javascript/scope-and-execution-contexts/var-let-const
+- id: const-for-loop-increment
+  front: "What happens with `for (const i = 0; i < 2; i++) {}`, and why does `for (const x of list)` work?"
+  back: "The first throws `TypeError` at the increment: `const` gets no per-iteration copy in a classic `for`. `for…of` creates a fresh binding each pass, so `const` is fine."
+  question: javascript/scope-and-execution-contexts/var-let-const
+- id: hoisting-spec-term
+  front: "What does the spec say about 'hoisting'?"
+  back: "Nothing; it moves no code. When a scope is entered, declaration instantiation creates all its bindings first, then the code runs top to bottom. 'Hoisting' names the visible effect."
+  question: javascript/scope-and-execution-contexts/hoisting
+- id: hoisting-initial-state-by-declaration
+  front: "What is each declaration's state at scope entry: `var`, function declaration, `let`/`const`/`class`?"
+  back: "`var`: initialized to `undefined`. Function declaration: initialized with the function object. `let`, `const`, `class`: created but uninitialized (temporal dead zone)."
+  question: javascript/scope-and-execution-contexts/hoisting
+- id: hoisting-function-beats-var
+  front: "Given `var item = 1; function item() {}` in one scope, what is `typeof item` before the `var` line runs?"
+  back: "`'function'`. The function declaration is initialized at instantiation, and `var item` without an initializer does not overwrite it. After `item = 1` runs it is `'number'`."
+  question: javascript/scope-and-execution-contexts/hoisting
+- id: hoisting-function-expression
+  front: "Why can you call a function declaration early but not `var f = function () {}`?"
+  back: "The declaration is created with its function object at scope entry. For `var f`, only the binding is hoisted, as `undefined`; the function is created when the assignment runs. With `let` or `const` it is a TDZ error."
+  question: javascript/scope-and-execution-contexts/hoisting
+- id: tdz-definition
+  front: "What is the temporal dead zone?"
+  back: "The time between entering a scope and evaluating a `let`, `const` or `class` declaration. The binding exists but is uninitialized, so reading or writing it throws `ReferenceError`. It is defined by execution time, not source position."
+  question: javascript/scope-and-execution-contexts/temporal-dead-zone
+- id: tdz-typeof-throws
+  front: "Does `typeof` avoid the TDZ error, and how does it differ for undeclared names?"
+  back: "No. `typeof undeclared` returns `'undefined'` because the name is unresolvable. `typeof tdzName` throws `ReferenceError`, because the name resolves to an uninitialized binding."
+  question: javascript/scope-and-execution-contexts/temporal-dead-zone
+- id: tdz-proves-hoisting
+  front: "How does the TDZ show that `let` is hoisted?"
+  back: "An inner `let x` makes an earlier read of `x` in the same block throw instead of falling through to an outer `x`. The inner binding already exists from block entry."
+  question: javascript/scope-and-execution-contexts/temporal-dead-zone
+- id: tdz-default-parameter-order
+  front: "Why does `function f(a = b, b = 1) {}` throw when called as `f()`?"
+  back: "Parameters are initialized left to right. Evaluating `a`'s default reads `b` before it is initialized, which is a TDZ `ReferenceError`."
+  question: javascript/scope-and-execution-contexts/temporal-dead-zone
+- id: lexical-scope-definition
+  front: "What does 'lexical scope' mean, and what is the contrast case?"
+  back: "Variable visibility is fixed by the nesting of the source text, not by the call stack. Dynamic scope, where a function sees its caller's variables, does not exist for identifiers; only `this` depends on the call site."
+  question: javascript/scope-and-execution-contexts/lexical-scope-chain
+- id: scope-chain-outerenv-lookup
+  front: "How is a function's scope chain built and walked in spec terms?"
+  back: "Creation stores the current environment in `[[Environment]]`. Each call makes a record whose `[[OuterEnv]]` is that stored environment, never the caller's. Lookup follows `[[OuterEnv]]` until a binding is found or `null` (`ReferenceError`)."
+  question: javascript/scope-and-execution-contexts/lexical-scope-chain
+- id: named-function-expression-scope
+  front: "Where is the name of a named function expression visible?"
+  back: "Only inside the function itself. The name lives in a private scope between the function and its surroundings, so `typeof inner` outside is `'undefined'`."
+  question: javascript/scope-and-execution-contexts/lexical-scope-chain
+- id: scope-chain-vs-call-stack
+  front: "How does the scope chain differ from the call stack?"
+  back: "The call stack records who called whom. The scope chain records where each function was written. They line up only for a function defined inside the function that calls it."
+  question: javascript/scope-and-execution-contexts/lexical-scope-chain
+- id: execution-context-contents
+  front: "What does an execution context carry?"
+  back: "The function being run, its realm, the script or module, a LexicalEnvironment, a VariableEnvironment, and enough state to suspend and resume. The running context is the top of the stack."
+  question: javascript/scope-and-execution-contexts/execution-context-call-stack
+- id: lexical-vs-variable-environment
+  front: "What is the difference between LexicalEnvironment and VariableEnvironment?"
+  back: "`var` bindings live in the VariableEnvironment, fixed for the context's lifetime. LexicalEnvironment is where lookups start and is swapped for a new record when execution enters a block."
+  question: javascript/scope-and-execution-contexts/execution-context-call-stack
+- id: execution-context-per-call
+  front: "Does a function have one execution context, or one per call?"
+  back: "One per call, so recursion creates many. Contexts pop on return, but Environment Records they referenced survive if a closure captured them."
+  question: javascript/scope-and-execution-contexts/execution-context-call-stack
+- id: await-suspends-context
+  front: "What happens to an async function's execution context at `await`?"
+  back: "It is suspended and removed from the stack, so other code runs. The continuation later resumes from the job queue on an almost empty stack, which is why async stack traces look shorter."
+  question: javascript/scope-and-execution-contexts/execution-context-call-stack
+- id: environment-record-kinds
+  front: "What kinds of Environment Record does the spec define?"
+  back: "Declarative, Function (adds `this`, function object, `new.target`), Module (adds indirect import bindings), Object (`with` and the global object), and Global (an Object record plus a Declarative record)."
+  question: javascript/scope-and-execution-contexts/environment-records
+- id: environment-record-spec-only
+  front: "Can JavaScript code access an Environment Record?"
+  back: "No. They are a specification device; engines may keep bindings in registers, stack slots or heap objects. `globalThis` is only one part of the global record."
+  question: javascript/scope-and-execution-contexts/environment-records
+- id: module-import-indirect-binding
+  front: "What is an immutable indirect binding in a Module Environment Record?"
+  back: "An import binding. It is read-only for the importer, and reads go to the exporting module's own binding, which is why imports are live and cannot be reassigned."
+  question: javascript/scope-and-execution-contexts/environment-records
+- id: global-record-composite
+  front: "Why is the Global Environment Record a composite of two records?"
+  back: "Historical `var` and function declarations must become global object properties (Object record), while later `let`, `const` and `class` must not (Declarative record). The Declarative part is searched first."
+  question: javascript/scope-and-execution-contexts/environment-records
+- id: globalthis-purpose
+  front: "Why was `globalThis` added?"
+  back: "There was no portable way to reach the global object: `window` fails in workers and Node, `global` fails in browsers. `globalThis` is the same everywhere."
+  question: javascript/scope-and-execution-contexts/global-object-globalthis
+- id: top-level-this-by-host
+  front: "What is top-level `this` in a classic script, an ES module and a Node CommonJS file?"
+  back: "Classic script: `globalThis`. ES module: `undefined`. CommonJS file: `module.exports`, because the file is wrapped in a function."
+  question: javascript/scope-and-execution-contexts/global-object-globalthis
+- id: global-let-redeclare-across-scripts
+  front: "Why do two classic scripts both declaring a top-level `let x` collide?"
+  back: "The global Declarative record is shared by all scripts in the realm, so the second declaration is a `SyntaxError`. Top-level `var` would not collide."
+  question: javascript/scope-and-execution-contexts/global-object-globalthis
+- id: global-var-delete
+  front: "Can you `delete` a top-level `var` in a classic script, versus an implicit global?"
+  back: "No for `var` and function declarations: they are non-configurable. Implicit globals created by sloppy assignment are configurable and can be deleted."
+  question: javascript/scope-and-execution-contexts/global-object-globalthis
+- id: stack-overflow-cause
+  front: "What causes 'Maximum call stack size exceeded', and does the spec define the limit?"
+  back: "Each call pushes an execution context onto a fixed-size host stack. Too-deep or endless recursion throws `RangeError` in V8 and JavaScriptCore. The spec defines neither the limit nor the error type."
+  question: javascript/scope-and-execution-contexts/stack-overflow-tail-calls
+- id: proper-tail-calls-support
+  front: "Does the spec require proper tail calls, and which engines implement them?"
+  back: "ES2015 requires them in strict code, but only JavaScriptCore (Safari) implements them. V8 does not, so a tail-recursive function still overflows in Node and Chrome."
+  question: javascript/scope-and-execution-contexts/stack-overflow-tail-calls
+- id: tail-position-definition
+  front: "Which calls are in tail position?"
+  back: "In strict code, a call that is the value of a `return`, a concise arrow body, a `?:` branch, or the right of `&&`, `||`, `??`, with nothing left to do. `return 1 + f(n)`, `return await f()` and calls inside `try` are not."
+  question: javascript/scope-and-execution-contexts/stack-overflow-tail-calls
+- id: realm-definition
+  front: "What is a realm, and what creates a new one?"
+  back: "A set of intrinsic objects plus a global environment. A same-origin iframe or popup and a Node `vm` context each get new intrinsics, so `iframe.contentWindow.Array` is a different function from `Array`."
+  question: javascript/scope-and-execution-contexts/realms
+- id: instanceof-fails-across-realms
+  front: "Why does `foreignArray instanceof Array` return `false`?"
+  back: "`instanceof` checks whether `Array.prototype` is in the prototype chain. A foreign array inherits from its own realm's `Array.prototype`, a different object. `Array.isArray` checks the internal exotic kind and works."
+  question: javascript/scope-and-execution-contexts/realms
+- id: realm-shared-values
+  front: "Which values are the same across realms?"
+  back: "Well-known symbols (`Symbol.iterator`) and registered symbols (`Symbol.for('k')`). Primitives have no realm at all."
+  question: javascript/scope-and-execution-contexts/realms
+- id: realm-not-security-boundary
+  front: "Is a `node:vm` context a security boundary?"
+  back: "No. It shares the process, and its objects can reach back into yours. Node's docs say not to use it as a sandbox for untrusted code."
+  question: javascript/scope-and-execution-contexts/realms
+# 08 Functions
+- id: function-forms-creation-time
+  front: "When does the function object exist for a declaration versus an expression?"
+  back: "A declaration's function is created at scope entry, before any line runs. An expression's function is created when evaluation reaches it, so the binding follows `var`/`let`/`const` rules."
+  question: javascript/functions/function-forms
+- id: function-forms-constructors
+  front: "Which function forms have `[[Construct]]` so that `new` works?"
+  back: "Declarations and `function` expressions. Arrows, methods, getters/setters and async functions do not. Generators have a `prototype` property but no `[[Construct]]`."
+  question: javascript/functions/function-forms
+- id: arrow-no-own-bindings
+  front: "Which bindings does an arrow function lack?"
+  back: "`this`, `arguments`, `super` and `new.target`: it reads them from the enclosing environment. It also has no `prototype` and no `[[Construct]]`, so `new` throws `TypeError`."
+  question: javascript/functions/function-forms
+- id: function-name-inference
+  front: "What determines the `name` of an anonymous function?"
+  back: "The assignment syntax, not the function form: `const f = () => {}` gives `'f'`. The function takes its name from the binding or property it is assigned to."
+  question: javascript/functions/function-forms
+- id: default-param-evaluated-per-call
+  front: "When is a default parameter expression evaluated?"
+  back: "On each call where the argument is missing or `undefined`, not at definition time. So `list = []` gives every call a fresh array. `null` does not trigger it."
+  question: javascript/functions/default-and-rest-parameters
+- id: function-length-stops-at-default
+  front: "What does `fn.length` count when a function has defaults or rest?"
+  back: "Only the parameters before the first default or rest parameter. `function f(a, b = 1, c)` has `length` 1."
+  question: javascript/functions/default-and-rest-parameters
+- id: non-simple-params-use-strict
+  front: "Why is `'use strict'` in the body a `SyntaxError` for `function f(a = 1)`?"
+  back: "The parameter list is non-simple (defaults, rest or destructuring), and the spec makes the directive an early error there. Put it in an enclosing function or module instead."
+  question: javascript/functions/default-and-rest-parameters
+- id: param-scope-split
+  front: "When parameters contain expressions, can a default see body-level `var` declarations?"
+  back: "No. The parameters get their own Environment Record and the body's `var`s go in a separate one, so closures in the parameter list cannot see body declarations."
+  question: javascript/functions/default-and-rest-parameters
+- id: arguments-array-like
+  front: "What is `arguments` and what does it lack?"
+  back: "An array-like object with `length`, index keys and `Symbol.iterator`. It inherits from `Object.prototype`, so `map` and `slice` are missing and `Array.isArray` is `false`. Spread or `Array.from` converts it."
+  question: javascript/functions/arguments-object
+- id: arguments-mapped-sloppy
+  front: "When is `arguments[i]` aliased to the named parameter?"
+  back: "Only in sloppy functions with a simple parameter list, and only for indices below the number of arguments passed. Strict code, defaults, rest or destructuring give an unmapped copy."
+  question: javascript/functions/arguments-object
+- id: arguments-in-arrow
+  front: "What does `arguments` refer to inside an arrow function?"
+  back: "The enclosing function's `arguments`, since arrows have none of their own. Use rest parameters instead."
+  question: javascript/functions/arguments-object
+- id: arguments-callee-strict
+  front: "What happens when you read `arguments.callee` in strict code?"
+  back: "It throws `TypeError`. Unmapped `arguments` objects have a poison-pill accessor there; only sloppy mapped objects expose the running function."
+  question: javascript/functions/arguments-object
+- id: hof-definition
+  front: "What makes a function higher-order, and why does JavaScript allow it?"
+  back: "It accepts a function, returns a function, or both. Functions are first-class: objects with `[[Call]]` that can be assigned, passed and returned like any value."
+  question: javascript/functions/higher-order-functions
+- id: map-parseint-radix
+  front: "Why does `['10','10','10'].map(parseInt)` misbehave?"
+  back: "`map` calls the callback with `(element, index, array)`, so `index` is passed to `parseInt` as the radix. Wrap it or use a single-purpose function."
+  question: javascript/functions/higher-order-functions
+- id: callbacks-not-always-async
+  front: "Are callbacks always asynchronous?"
+  back: "No. Callbacks of `map`, `filter` and `sort` run synchronously before the method returns. Callbacks to `setTimeout` or `then` run later."
+  question: javascript/functions/higher-order-functions
+- id: wrapper-forwarding
+  front: "What must a function wrapper forward to behave like the original?"
+  back: "The arguments (`...args`), the return value, and `this` via `fn.apply(this, args)`. An arrow wrapper loses the receiver, and a `...args` wrapper has its own `name` and a `length` of 0."
+  question: javascript/functions/higher-order-functions
+- id: iife-why-parentheses
+  front: "Why does `function () {}()` fail as a statement, and what fixes it?"
+  back: "A statement cannot start with `function`; the grammar treats it as a declaration, which needs a name and cannot be called. Parentheses or an operator like `!` or `void` force expression context."
+  question: javascript/functions/iife
+- id: iife-modern-replacements
+  front: "What replaced the IIFE module pattern for private scope?"
+  back: "ES modules, which give each file its own scope with explicit exports, plus `{ let x }` blocks and per-iteration `let`. Private state uses module variables, factories or `#private` fields."
+  question: javascript/functions/iife
+- id: iife-async-use
+  front: "When is an IIFE still useful?"
+  back: "An `async` IIFE to use `await` where top-level `await` is unavailable (CommonJS, older scripts), and one-off initialisation that needs statements but yields a `const` value."
+  question: javascript/functions/iife
+- id: iife-this-value
+  front: "What is `this` inside a non-arrow IIFE?"
+  back: "A plain call passes `undefined`: that is `this` in strict code, and `globalThis` in sloppy code. It is not the outer `this`."
+  question: javascript/functions/iife
+- id: currying-vs-partial
+  front: "How do currying and partial application differ?"
+  back: "Partial application fixes some arguments of an existing function once (`fn.bind(null, a)`). Currying reshapes the function into a sequence of calls, so every partial application is available afterwards."
+  question: javascript/functions/currying-partial-application
+- id: curry-arity-from-length
+  front: "How does a typical `curry` decide when to call the original, and when does it fail?"
+  back: "It collects arguments in a closure and calls once `args.length >= fn.length`. Defaults and rest are not counted in `length`, so it fires too early or never waits; variadic functions have no fixed arity."
+  question: javascript/functions/currying-partial-application
+- id: bind-length-adjustment
+  front: "What does `bind` do to the bound function's `length`?"
+  back: "It is the target's `length` minus the number of preset arguments, floored at 0. So `add3.bind(null, 1).length` is 2."
+  question: javascript/functions/currying-partial-application
+- id: pipe-vs-compose-direction
+  front: "In what order do `pipe(f, g, h)` and `compose(f, g, h)` run their functions?"
+  back: "`pipe` runs left to right: `h(g(f(x)))`, using `reduce`. `compose` runs right to left: `f(g(h(x)))`, using `reduceRight`."
+  question: javascript/functions/compose-and-pipe
+- id: compose-empty-identity
+  front: "Why does passing the input as the `reduce` initial value make an empty `pipe` the identity function?"
+  back: "With no functions, `reduce` returns the initial value untouched, so the result is the input, with no special-case code."
+  question: javascript/functions/compose-and-pipe
+- id: compose-single-value
+  front: "What happens to a second argument passed to a composed function?"
+  back: "It is dropped. Only one value flows through the chain, so `pipe(parseInt)('10', 2)` uses the default radix. Adapt other shapes with currying or partial application."
+  question: javascript/functions/compose-and-pipe
+# 09 Closures
+- id: closure-spec-mechanism
+  front: "In spec terms, how does a function become a closure?"
+  back: "At creation, `OrdinaryFunctionCreate` stores the current Environment Record in `[[Environment]]`. Each call makes a new record whose `[[OuterEnv]]` is that stored environment, and lookup walks outward."
+  question: javascript/closures/what-is-a-closure
+- id: closure-binding-not-value
+  front: "Does a closure capture a value or a binding?"
+  back: "The binding. It holds a reference to the environment, so it sees later assignments and can assign too. Nothing is copied."
+  question: javascript/closures/what-is-a-closure
+- id: closure-one-env-per-call
+  front: "Do two calls of an outer function share the closure state they create?"
+  back: "No. Each call creates its own record, so returned functions have independent state. Functions created during the same call share one record."
+  question: javascript/closures/what-is-a-closure
+- id: react-stale-closure
+  front: "What is a React 'stale closure' in terms of bindings?"
+  back: "Not a snapshot. Each render is a new call with its own `count`, and a callback registered once keeps pointing at the first render's environment."
+  question: javascript/closures/what-is-a-closure
+- id: new-function-global-env
+  front: "Can `new Function('...')` see local variables of the surrounding function?"
+  back: "No. `CreateDynamicFunction` uses the realm's global environment as `[[Environment]]`, so it cannot see function or module scope."
+  question: javascript/closures/what-is-a-closure
+- id: var-loop-shared-binding
+  front: "Why does `for (var i = 0; i < 3; i++) setTimeout(() => console.log(i))` log `3` three times?"
+  back: "`var` gives one binding for the whole loop, and the callbacks run after the loop exits. The loop stops when `i < 3` fails, so `i` is `3`, not `2`."
+  question: javascript/closures/closures-in-loops
+- id: let-loop-per-iteration
+  front: "What makes `for (let i …)` give each closure its own `i`?"
+  back: "`CreatePerIterationEnvironment` copies the bindings into a new Declarative record before the first test and after each body, before the increment. Plain block scoping alone would give one `i`."
+  question: javascript/closures/closures-in-loops
+- id: loop-increment-new-record
+  front: "In a `let` loop, why does `i++` not change the previous iteration's closure?"
+  back: "The increment runs in the new record created by the per-iteration copy. The previous record keeps the value it had at the end of its body."
+  question: javascript/closures/closures-in-loops
+- id: for-of-fresh-binding
+  front: "Which loop heads create a fresh binding per iteration?"
+  back: "`for…of` and `for…in` with `let` or `const`, and `for (let …)` via the per-iteration copy. A classic `for (const …)` makes no copy, and a `var` head is always one binding."
+  question: javascript/closures/closures-in-loops
+- id: v8-context-allocation
+  front: "In V8, which variables does a closure keep alive?"
+  back: "Only variables some inner function references; they are context-allocated on the heap. Unreferenced locals are not retained. This is an engine optimisation; the spec only defines reachability through Environment Records."
+  question: javascript/closures/closure-memory
+- id: closure-sibling-sharing
+  front: "Why can a tiny callback keep a large object alive in V8?"
+  back: "Closures created in one scope share a single `Context`. If any sibling closure references `big`, every closure from that call keeps it alive."
+  question: javascript/closures/closure-memory
+- id: closure-direct-eval-retention
+  front: "How does a direct `eval` in a closure affect retention?"
+  back: "It can name any binding at run time, so nothing in the enclosing scopes can be dropped. Indirect eval runs in global scope and does not have this effect."
+  question: javascript/closures/closure-memory
+- id: closure-leak-cause
+  front: "What actually causes a closure-related memory leak?"
+  back: "A long-lived reference to the closure: an unremoved listener, uncleared interval, subscription or cached callback. The closure is the retainer path; the missing cleanup is the bug."
+  question: javascript/closures/closure-memory
+- id: closure-private-state-why
+  front: "Why can only code inside a factory touch a closure's private variable?"
+  back: "Environment Records cannot be accessed or manipulated by programs, and there is no reflection API for them. Only code written lexically inside the function can reach the binding."
+  question: javascript/closures/private-state
+- id: closure-privacy-escape
+  front: "How can a closure-private array still leak mutable access?"
+  back: "The binding is private, but returning the array itself (`getItems: () => items`) hands out a mutable reference. Return copies or read-only views."
+  question: javascript/closures/private-state
+- id: closure-vs-private-fields
+  front: "What is the main cost of closure privacy versus `#private` class fields?"
+  back: "Each factory call creates new function objects per instance, while class methods are shared on the prototype. Both give hard privacy."
+  question: javascript/closures/private-state
+- id: debounce-vs-throttle
+  front: "How do `debounce` and `throttle` differ in when `fn` runs?"
+  back: "Debounce restarts a timer on each call and runs `fn` after calls stop for `wait` ms. Throttle runs `fn` at most once per `wait` window while calls continue."
+  question: javascript/closures/debounce-throttle-once
+- id: debounce-this-arrow-timer
+  front: "How should a debounce wrapper preserve `this` and arguments?"
+  back: "Make the wrapper a regular `function` taking `...args`, and call `fn.apply(this, args)` from an arrow inside `setTimeout`. The arrow has no `this`, so it uses the wrapper's."
+  question: javascript/closures/debounce-throttle-once
+- id: debounce-wrapper-created-once
+  front: "Why must a debounced function be created once, not inside the handler or render?"
+  back: "Each creation makes a new closure with its own timer, so nothing is ever debounced. Create it once and reuse it."
+  question: javascript/closures/debounce-throttle-once
+- id: once-mark-before-call
+  front: "Why should `once` mark itself called before invoking `fn`?"
+  back: "So a re-entrant call cannot run `fn` twice. Dropping the reference to `fn` also lets it and its captured closure be collected."
+  question: javascript/closures/debounce-throttle-once
+- id: debounce-not-out-of-order
+  front: "Why does debouncing alone not prevent stale search results?"
+  back: "It only limits when requests start. Two requests can still be in flight and resolve out of order. Abort the previous one with an `AbortController` as well."
+  question: javascript/closures/debounce-throttle-once
+# 10 this
+- id: this-binding-order
+  front: "In what order are the `this` binding rules checked for a non-arrow function?"
+  back: "`new`, then bound function, then explicit `call`/`apply`, then implicit `obj.method()`, then default. The default passes `undefined`: that stays in strict code, and becomes `globalThis` in sloppy code."
+  question: javascript/this/this-binding-rules
+- id: this-strictness-of-callee
+  front: "Whose strict mode decides whether `undefined` `this` becomes `globalThis`: the caller's or the callee's?"
+  back: "The called function's own mode. A sloppy function called from a module still sees `globalThis`. Class bodies and modules are always strict."
+  question: javascript/this/this-binding-rules
+- id: comma-operator-loses-this
+  front: "Why does `(0, obj.fn)()` lose `this` while `(obj.fn)()` keeps it?"
+  back: "Parentheses return the Reference Record unchanged, so the call still sees the base object. The comma operator applies `GetValue`, producing a plain function value with no base."
+  question: javascript/this/this-binding-rules
+- id: this-before-super
+  front: "Why does reading `this` before `super()` in a derived constructor throw?"
+  back: "The derived constructor's `this` binding starts uninitialised; only `super()` creates the object and binds it. Reading `this` earlier throws `ReferenceError`."
+  question: javascript/this/this-binding-rules
+- id: arrow-this-thismode-lexical
+  front: "How does the spec make an arrow function's `this` lexical?"
+  back: "`[[ThisMode]]` is lexical, so `OrdinaryCallBindThis` binds nothing and the Function Environment Record is flagged lexical. The `this` lookup passes over it to the nearest scope that has a binding."
+  question: javascript/this/arrow-functions-this
+- id: arrow-ignores-call-apply-bind
+  front: "What do `call`, `apply` and `bind` do to an arrow's `this`?"
+  back: "The `thisArg` is silently ignored; the other arguments are still applied. `new` on an arrow throws `TypeError`."
+  question: javascript/this/arrow-functions-this
+- id: arrow-object-method-this
+  front: "What is `this` in an arrow used as an object-literal property?"
+  back: "The surrounding scope's `this`, not the object. At module level that is `undefined`."
+  question: javascript/this/arrow-functions-this
+- id: class-field-arrow-per-instance
+  front: "What does a class-field arrow `handler = () => {}` do, and what is its cost?"
+  back: "The initialiser runs with `this` set to the new instance, so each instance gets a function bound to itself. It is created per instance and is not on the prototype."
+  question: javascript/this/arrow-functions-this
+- id: call-apply-bind-differences
+  front: "How do `call`, `apply` and `bind` differ?"
+  back: "`call` invokes now with arguments listed. `apply` invokes now with one array or array-like. `bind` does not invoke; it returns a new function with `this` and leading arguments fixed."
+  question: javascript/this/call-apply-bind
+- id: bound-this-immutable
+  front: "Can `call`, `apply` or a second `bind` change a bound function's `this`?"
+  back: "No. Its `[[Call]]` uses the saved `[[BoundThis]]`. Extra `bind` arguments still accumulate in order, but only the first `thisArg` counts."
+  question: javascript/this/call-apply-bind
+- id: bound-function-new
+  front: "What happens when you call `new` on a bound function?"
+  back: "The bound `this` is ignored, but bound arguments are prepended and the target is constructed. If `new.target` is the bound function, it becomes the target, so `instanceof` works against either."
+  question: javascript/this/call-apply-bind
+- id: bound-function-name-length
+  front: "What are a bound function's `name`, `length` and `prototype`?"
+  back: "`name` is `'bound ' + target.name`, `length` is the target's minus bound arguments (never below 0), and it has no `prototype`."
+  question: javascript/this/call-apply-bind
+- id: call-null-this-sloppy
+  front: "What does passing `null` as `thisArg` do for a sloppy versus a strict target?"
+  back: "A sloppy target turns `null`/`undefined` into `globalThis` and boxes primitives, hiding bugs. A strict target receives `null` as given and throws on property access."
+  question: javascript/this/call-apply-bind
+- id: lost-this-reference-record
+  front: "Why does `const f = counter.increment; f()` lose `this`?"
+  back: "`counter.increment` evaluates to a Reference Record with base `counter`. `GetValue` discards the reference when the function is read into a value, so the call has no receiver."
+  question: javascript/this/lost-this-callbacks
+- id: lost-this-failure-mode
+  front: "What does a method with a lost `this` do in strict versus sloppy code?"
+  back: "Strict: `this` is `undefined`, so `this.count` throws. Sloppy: `this` is `globalThis`, so it silently reads or writes globals, which is worse."
+  question: javascript/this/lost-this-callbacks
+- id: lost-this-destructuring
+  front: "Does `const { method } = obj` keep `obj` as `this`?"
+  back: "No. Only a call made on the reference carries the receiver; destructuring reads the function into a plain value."
+  question: javascript/this/lost-this-callbacks
+- id: remove-listener-bound-identity
+  front: "Why does `el.removeEventListener('click', fn.bind(x))` remove nothing?"
+  back: "`bind` creates a new function each time, so identity does not match. Store the bound function once and pass the same reference to both calls."
+  question: javascript/this/lost-this-callbacks
+- id: dom-listener-this
+  front: "What is `this` in a regular-function DOM event listener, and who decides?"
+  back: "The element the listener was registered on (`currentTarget`). It is host-defined by the DOM spec, not language semantics. An arrow ignores it and keeps its lexical `this`."
+  question: javascript/this/lost-this-callbacks
+- id: bound-function-internal-methods
+  front: "What do a bound function's `[[Call]]` and `[[Construct]]` do?"
+  back: "`[[Call]]` calls the target with `[[BoundThis]]` and bound arguments first, ignoring the call's `this`. `[[Construct]]` constructs the target with bound arguments prepended, ignoring `[[BoundThis]]`."
+  question: javascript/this/implement-bind
+- id: implement-bind-new-target
+  front: "How can a userland `bind` tell a plain call from a `new` call?"
+  back: "Through `new.target`, which is `undefined` for a plain call. Use `Reflect.apply` for calls and `Reflect.construct` with an explicit `new.target` so the object gets the right prototype."
+  question: javascript/this/implement-bind
+- id: implement-bind-limits
+  front: "What can a userland `bind` not replicate?"
+  back: "It has an own non-configurable `prototype`, so `new bound() instanceof bound` is `false`. Its `[[Prototype]]` is `Function.prototype`, `toString` shows source, and `name` and `length` must be defined by hand."
+  question: javascript/this/implement-bind
+- id: implement-bind-arrow-pitfall
+  front: "Why can a userland `bind` not be written as an arrow function?"
+  back: "Arrows have no `new.target` and cannot be constructed, so the `new` path is unreachable. `new bound()` would throw `TypeError`, where a native bound function constructs the target."
+  question: javascript/this/implement-bind
+# 11 Objects and properties
+- id: property-key-types
+  front: "What can a property key be, and how are other values converted?"
+  back: "A String or a Symbol. Other values go through `ToPropertyKey`: `ToPrimitive` with string preference, then `ToString`. So `obj[1]` and `obj['1']` are one property, and objects collide as `'[object Object]'`."
+  question: javascript/objects-and-properties/property-keys-and-order
+- id: own-property-key-order
+  front: "In what order does an ordinary object list its own keys?"
+  back: "Array indices (`'0'` to `'4294967294'`) in ascending order, then other strings in creation order, then symbols in creation order. `{ b: 1, 10: 1, 9: 1 }` lists `'9'`, `'10'`, `'b'`."
+  question: javascript/objects-and-properties/property-keys-and-order
+- id: symbol-keys-visibility
+  front: "Which APIs skip symbol keys, and which show them?"
+  back: "`for…in`, `Object.keys`, `Object.entries` and `JSON.stringify` skip them. `Object.getOwnPropertySymbols` and `Reflect.ownKeys` list them. Symbols are not private."
+  question: javascript/objects-and-properties/property-keys-and-order
+- id: proto-literal-key
+  front: "How do `{ __proto__: x }`, `{ ['__proto__']: x }` and `JSON.parse('{\"__proto__\":1}')` differ?"
+  back: "The plain literal sets the prototype. The computed key and the parsed JSON create an own property named `__proto__`."
+  question: javascript/objects-and-properties/property-keys-and-order
+- id: map-vs-object-keys
+  front: "How does `Map` key handling differ from plain objects?"
+  back: "A `Map` keeps pure insertion order and uses SameValueZero, so `1` and `'1'` are different keys and any value, including an object, can be a key."
+  question: javascript/objects-and-properties/property-keys-and-order
+- id: descriptor-kinds
+  front: "Which fields make up a data descriptor versus an accessor descriptor?"
+  back: "Data: `value`, `writable`. Accessor: `get`, `set`. Both have `enumerable` and `configurable`. Mixing `get`/`set` with `value`/`writable` throws `TypeError`."
+  question: javascript/objects-and-properties/property-descriptors
+- id: define-property-defaults
+  front: "What attribute defaults does `Object.defineProperty` use for a new property?"
+  back: "Every omitted flag is `false`, and `value` or `get`/`set` is `undefined`. Literals and assignment give all three flags `true`. For an existing property, omitted fields are left unchanged."
+  question: javascript/objects-and-properties/property-descriptors
+- id: non-writable-failure-mode
+  front: "What happens when you assign to a `writable: false` property?"
+  back: "A silent no-op in sloppy mode, a `TypeError` in strict and module code."
+  question: javascript/objects-and-properties/property-descriptors
+- id: inherited-readonly-blocks-set
+  front: "Does a read-only property on the prototype stop assignment on the child?"
+  back: "Yes. `[[Set]]` finds the inherited non-writable data property and fails instead of creating an own property. Use `defineProperty` on the child to shadow it."
+  question: javascript/objects-and-properties/property-descriptors
+- id: copy-with-descriptors
+  front: "How do you copy an object keeping its getters and attributes?"
+  back: "`Object.defineProperties({}, Object.getOwnPropertyDescriptors(src))`. Spread and `Object.assign` create plain data properties instead, running getters once and resetting flags."
+  question: javascript/objects-and-properties/property-descriptors
+- id: integrity-levels-table
+  front: "How do `preventExtensions`, `seal` and `freeze` differ?"
+  back: "`preventExtensions`: no adding. `seal`: also no deleting or reconfiguring (`configurable: false`). `freeze`: also `writable: false` on data properties. Each includes the previous level."
+  question: javascript/objects-and-properties/freeze-seal-preventextensions
+- id: freeze-shallow
+  front: "Is `Object.freeze` deep?"
+  back: "No. Only own properties change. Nested objects stay mutable, as do the internal slots of a `Map`, `Set` or `Date`. There is no unfreeze."
+  question: javascript/objects-and-properties/freeze-seal-preventextensions
+- id: freeze-accessors-still-run
+  front: "Do accessors on a frozen object stop working?"
+  back: "No. Getters and setters still run; freeze only locks the property's configuration. It sets `writable: false` on data properties alone."
+  question: javascript/objects-and-properties/freeze-seal-preventextensions
+- id: frozen-write-failure
+  front: "How do rejected writes on a frozen object behave across modes?"
+  back: "Strict code (modules, classes) throws `TypeError`; sloppy code silently ignores. Built-in methods like `push` throw even in sloppy code."
+  question: javascript/objects-and-properties/freeze-seal-preventextensions
+- id: freeze-vs-const
+  front: "How do `Object.freeze` and `const` differ?"
+  back: "`const` stops re-binding the variable. `freeze` stops changing the object's properties. Use both for a true constant object."
+  question: javascript/objects-and-properties/freeze-seal-preventextensions
+- id: accessor-property-definition
+  front: "What is an accessor property, and where does its data live?"
+  back: "A property with `get`, `set`, `enumerable` and `configurable` instead of `value` and `writable`. It holds functions, not data; the value lives in another property, a closure or a private field."
+  question: javascript/objects-and-properties/getters-and-setters
+- id: getter-receiver-this
+  front: "What is `this` in an inherited getter or setter?"
+  back: "The receiver: the object you read from or assigned to. So `child.balance = 10` runs the inherited setter with `this === child`, and the data lands on `child`."
+  question: javascript/objects-and-properties/getters-and-setters
+- id: getter-only-assignment
+  front: "What happens when you assign to a getter-only property?"
+  back: "The write fails: silently in sloppy code, with a `TypeError` in strict code. Modules and classes reveal the bug while scripts hide it."
+  question: javascript/objects-and-properties/getters-and-setters
+- id: class-accessor-enumerability
+  front: "Do class accessors appear in `Object.keys` or `JSON.stringify` of an instance?"
+  back: "No. They live on the prototype and are non-enumerable. Accessors in an object literal are own, enumerable and configurable, and `Object.entries` calls their getters."
+  question: javascript/objects-and-properties/getters-and-setters
+- id: accessor-self-recursion
+  front: "Why does `set balance(v) { this.balance = v }` never finish?"
+  back: "It calls the same setter forever, ending in `RangeError`. A getter that reads its own name recurses the same way. Use a differently named backing field."
+  question: javascript/objects-and-properties/getters-and-setters
+- id: enumeration-api-matrix
+  front: "How do `Object.keys`, `getOwnPropertyNames` and `Reflect.ownKeys` differ?"
+  back: "`Object.keys`: own enumerable string keys. `getOwnPropertyNames`: own strings including non-enumerable. `Reflect.ownKeys`: own strings and symbols, enumerable or not. None include inherited keys."
+  question: javascript/objects-and-properties/enumerating-properties
+- id: for-in-shadowing
+  front: "Does `for…in` visit an inherited enumerable key when the object has a non-enumerable own key of the same name?"
+  back: "No. The spec tracks visited names regardless of enumerability, so the own non-enumerable property shadows the inherited one."
+  question: javascript/objects-and-properties/enumerating-properties
+- id: object-hasown
+  front: "Why prefer `Object.hasOwn(obj, key)` over `obj.hasOwnProperty(key)`?"
+  back: "It works on `Object.create(null)` objects and on objects that define their own `hasOwnProperty`, where the method call fails with `TypeError`. `'k' in obj` also searches the prototype chain."
+  question: javascript/objects-and-properties/enumerating-properties
+- id: object-keys-primitive-null
+  front: "What do `Object.keys('ab')` and `Object.keys(null)` do, versus `for…in` over `null`?"
+  back: "`Object.keys('ab')` coerces with `ToObject` and returns `['0','1']`. `null` and `undefined` throw `TypeError`, while `for…in` over them does nothing."
+  question: javascript/objects-and-properties/enumerating-properties
+- id: shallow-copy-shares-nested
+  front: "What does a shallow copy share with the original?"
+  back: "Nested objects, by reference. Only the top level is new, so `{ ...state }` followed by `next.user.name = 'x'` also changes `state.user.name`."
+  question: javascript/objects-and-properties/shallow-vs-deep-copy
+- id: structured-clone-cycles
+  front: "How does `structuredClone` handle cycles and shared references?"
+  back: "It records each seen object in a memory map, so cycles and shared references are preserved: two properties pointing at one object still point at one object in the clone."
+  question: javascript/objects-and-properties/shallow-vs-deep-copy
+- id: structured-clone-throws
+  front: "What does `structuredClone` throw `DataCloneError` for?"
+  back: "Functions (including methods), symbol values, `Promise`, `WeakMap`/`WeakSet`, `Proxy`, and non-serializable platform objects such as DOM nodes."
+  question: javascript/objects-and-properties/shallow-vs-deep-copy
+- id: structured-clone-class-instance
+  front: "What does `structuredClone` return for a class instance?"
+  back: "A plain `Object` with its data and no methods or prototype chain. Symbol keys and non-enumerable properties are dropped, and a frozen object comes back unfrozen."
+  question: javascript/objects-and-properties/shallow-vs-deep-copy
+- id: json-clone-losses
+  front: "What does `JSON.parse(JSON.stringify(x))` lose or break on?"
+  back: "It drops `undefined` and functions, turns `Date` into a string, `Map` into `{}` and `NaN` into `null`, and throws on cycles and `BigInt`."
+  question: javascript/objects-and-properties/shallow-vs-deep-copy
+- id: assign-proto-pollution
+  front: "Why is `Object.assign` riskier than spread for untrusted parsed JSON?"
+  back: "A parsed own `__proto__` key reaches `[[Set]]` and changes the target's prototype. Spread defines it as an ordinary property."
+  question: javascript/objects-and-properties/shallow-vs-deep-copy
+- id: object-identity-equality
+  front: "Are `{} === {}` and `Object.is({}, {})` true?"
+  back: "Both are `false`. Objects compare by reference. Deep equality must compare structure, and each step is a policy decision such as whether `-0` equals `0`."
+  question: javascript/objects-and-properties/deep-equality
+- id: deep-equal-cycle-guard
+  front: "How does a deep-equality function avoid infinite recursion on cycles?"
+  back: "It remembers the `(a, b)` pairs currently being compared and assumes equal when a pair repeats. Without the guard, self-referencing data overflows the stack with `RangeError`."
+  question: javascript/objects-and-properties/deep-equality
+- id: json-stringify-equality-trap
+  front: "Why is `JSON.stringify(a) === JSON.stringify(b)` unreliable for equality?"
+  back: "It depends on key order, turns `NaN` into `null`, drops `undefined` and functions, and throws on cycles and `BigInt`. Unequal values can stringify identically."
+  question: javascript/objects-and-properties/deep-equality
+- id: deep-equal-prototype-check
+  front: "Why should a deep-equality function compare prototypes?"
+  back: "Otherwise instances of different classes with the same fields compare equal. It is a policy choice; `util.isDeepStrictEqual` treats them as different."
+  question: javascript/objects-and-properties/deep-equality
