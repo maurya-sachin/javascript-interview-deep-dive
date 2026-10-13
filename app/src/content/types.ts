@@ -21,12 +21,16 @@ export interface ChapterSummary {
   number: string
   slug: string
   title: string
+  /** The README's opening paragraph, as inline HTML. */
+  summaryHtml: string
   questions: QuestionSummary[]
 }
 
 export interface TopicSummary {
   slug: string
   title: string
+  /** The README's opening paragraph, as inline HTML. */
+  summaryHtml: string
   chapters: ChapterSummary[]
   /** Cards in this topic's flashcard deck; 0 when it has none. */
   flashcardCount: number

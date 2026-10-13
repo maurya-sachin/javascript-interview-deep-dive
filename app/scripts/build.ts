@@ -129,17 +129,34 @@ async function summarize(question: Question): Promise<QuestionSummary> {
   }
 }
 
+/** The README's opening paragraph: the first block of text after the `> **Status:**` line. */
+async function summaryHtml(readme: string): Promise<string> {
+  const lines = readme.split('\n')
+  const start = lines.findIndex((line) => line.startsWith('> **Status:**'))
+  const paragraph: string[] = []
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() === '') {
+      if (paragraph.length > 0) break
+      continue
+    }
+    paragraph.push(line.trim())
+  }
+  return (await renderInline(paragraph.join(' '))).html
+}
+
 const index: ContentIndex = {
   topics: await Promise.all(
     content.topics.map(async (topic) => ({
       slug: topic.slug,
       title: topic.title,
+      summaryHtml: await summaryHtml(topic.readme),
       flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
       chapters: await Promise.all(
         topic.chapters.map(async (chapter) => ({
           number: chapter.number,
           slug: chapter.slug,
           title: chapter.title,
+          summaryHtml: await summaryHtml(chapter.readme),
           questions: await Promise.all(chapter.questions.map(summarize)),
         })),
       ),
