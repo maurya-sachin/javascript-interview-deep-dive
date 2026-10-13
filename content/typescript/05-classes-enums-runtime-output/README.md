@@ -34,7 +34,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [When do you use `abstract` classes versus `implements` an interface?](030-abstract-classes-implements.md) | medium | 🟡 draft |
 | 040 | [What is declaration merging, and are namespaces still used?](040-declaration-merging-namespaces.md) | medium | 🟡 draft |
 | 050 | [How do decorators work in TypeScript?](050-decorators.md) | hard | 🟡 draft |
-| 060 | [Which TypeScript syntax has runtime output, and why does `erasableSyntaxOnly` exist?](060-erasable-syntax-only.md) | hard | 🔴 planned |
+| 060 | [Which TypeScript syntax has runtime output, and why does `erasableSyntaxOnly` exist?](060-erasable-syntax-only.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
