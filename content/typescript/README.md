@@ -1,5 +1,6 @@
 # TypeScript
 
+> **Track:** Frontend
 > **Status:** 🔴 planned · **Published:** 0/47 · **Last verified:** —
 
 TypeScript's type system and compiler: how types are checked, inferred, and erased.
