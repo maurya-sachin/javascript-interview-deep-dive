@@ -22,17 +22,17 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Heap snapshots and allocation timelines → 020
 - `WeakRef`, `FinalizationRegistry`, non-determinism → 030
 - Young and old generations, scavenger, mark-compact, concurrent marking (Orinoco) → 040
-- Heap limits (`--max-old-space-size`) → —
+- Heap limits (`--max-old-space-size`) → 020
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does garbage collection work in JavaScript?](010-garbage-collection.md) | medium | 🔴 planned |
-| 020 | [What causes memory leaks, and how do you find them?](020-memory-leaks.md) | medium | 🔴 planned |
-| 030 | [What are `WeakRef` and `FinalizationRegistry`, and why use them rarely?](030-weakref-finalizationregistry.md) | hard | 🔴 planned |
-| 040 | [How does V8's generational GC work?](040-v8-generational-gc.md) | hard | 🔴 planned |
+| 010 | [How does garbage collection work in JavaScript?](010-garbage-collection.md) | medium | 🟡 draft |
+| 020 | [What causes memory leaks, and how do you find them?](020-memory-leaks.md) | medium | 🟡 draft |
+| 030 | [What are `WeakRef` and `FinalizationRegistry`, and why use them rarely?](030-weakref-finalizationregistry.md) | hard | 🟡 draft |
+| 040 | [How does V8's generational GC work?](040-v8-generational-gc.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
