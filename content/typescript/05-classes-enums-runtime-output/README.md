@@ -18,10 +18,13 @@ After this chapter you can:
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
 - Numeric, string, and `const` enums; emitted code; `as const` objects → 010
-- `public` / `private` / `protected` / `readonly`, parameter properties, `override`; Mixins → 020
+- `public` / `private` / `protected` / `readonly`, parameter properties, `override` → 020
+- Mixins (constructor-type pattern, constrained mixins; only a follow-up answer in 020) → —
+- `static` blocks, `declare` fields, `useDefineForClassFields` field-order semantics (only the parameter-property pitfall in 020) → —
 - `abstract` classes, `implements` vs `extends` → 030
 - Interface merging, namespace merging, namespaces vs modules → 040
 - Standard (TC39) decorators vs `experimentalDecorators` → 050
+- Decorator metadata, `emitDecoratorMetadata` with DI frameworks, `accessor` auto-accessors in depth (named in 050 only) → —
 - Enums, namespaces, parameter properties, `import =`; `erasableSyntaxOnly` → 060
 
 ## Questions
