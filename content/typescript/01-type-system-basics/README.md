@@ -23,7 +23,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Top type, bottom type, and the escape hatch; `never` in exhaustiveness and unreachable code → 030
 - Literal types, widening, `const` vs `let` inference, `as const`, `unique symbol` → 040
 - Excess property checks and fresh object literals; Object types: optional, `readonly`, index signatures, `exactOptionalPropertyTypes` → 050
-- Function type expressions, call signatures, overloads, `this` parameters; Parameter bivariance and `void` return assignability; Typing iterators and generators → 060
+- Function type expressions, call signatures, overloads, `this` parameters; Parameter bivariance and `void` return assignability → 060
+- Typing iterators and generators (`Iterator`, `Generator<T, TReturn, TNext>`, `AsyncIterable`) beyond one follow-up in 060 → —
 
 ## Questions
 
@@ -35,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What is the difference between `any`, `unknown`, and `never`?](030-any-unknown-never.md) | medium | 🟡 draft |
 | 040 | [What are literal types, and what does `as const` do?](040-literal-types-as-const.md) | medium | 🟡 draft |
 | 050 | [Why does TypeScript report an error on an object literal but not on a variable with the same shape?](050-excess-property-checks.md) | medium | 🟡 draft |
-| 060 | [How do function types, overloads, and the `void` return type work?](060-function-types-overloads.md) | medium | 🔴 planned |
+| 060 | [How do function types, overloads, and the `void` return type work?](060-function-types-overloads.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
