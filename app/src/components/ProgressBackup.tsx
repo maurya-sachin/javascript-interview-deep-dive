@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { loadReviews, saveReviews, type Reviews } from '@/content/review'
+import { loadReviews, saveReviews } from '@/content/review'
 import { createBackup, mergeBackup, parseBackup } from '@/lib/backup'
 import { replaceProgress, useProgress } from '@/lib/progress'
 
 /** Download and restore the learner's progress; this browser is the only place it is kept. */
 const MAX_BACKUP_BYTES = 5 * 1024 * 1024
 
-export function ProgressBackup({ onImported }: { onImported: (reviews: Reviews) => void }) {
+export function ProgressBackup() {
   const progress = useProgress()
   const fileInput = useRef<HTMLInputElement>(null)
   const [message, setMessage] = useState('')
@@ -33,7 +33,6 @@ export function ProgressBackup({ onImported }: { onImported: (reviews: Reviews) 
       const merged = mergeBackup({ progress, reviews: loadReviews() }, parseBackup(await file.text()))
       const progressStored = replaceProgress(merged.progress)
       const reviewsStored = saveReviews(merged.reviews)
-      onImported(merged.reviews)
       if (!progressStored || !reviewsStored) {
         setMessage("Imported for this visit only: this browser's storage is full or blocked.")
         return

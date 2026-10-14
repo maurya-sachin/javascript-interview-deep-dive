@@ -1,14 +1,13 @@
-import { useState } from 'react'
 import { Link } from 'react-router'
 import { PageShell } from '@/components/PageShell'
 import { ProgressBackup } from '@/components/ProgressBackup'
 import { useManifest } from '@/content/index-data'
-import { deckStatus, loadReviews } from '@/content/review'
+import { deckStatus, useReviews } from '@/content/review'
 import { SITE_NAME } from '@/lib/site'
 
 export function PracticeHubPage() {
   const { topics } = useManifest()
-  const [reviews, setReviews] = useState(loadReviews)
+  const reviews = useReviews()
   const practisable = topics.filter((topic) => topic.stats.readable > 0)
   const decks = topics.filter((topic) => topic.flashcardCount > 0)
   const now = new Date()
@@ -66,7 +65,7 @@ export function PracticeHubPage() {
         )}
       </section>
 
-      <ProgressBackup onImported={setReviews} />
+      <ProgressBackup />
     </PageShell>
   )
 }

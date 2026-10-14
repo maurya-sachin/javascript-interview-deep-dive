@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, useLoaderData, useParams } from 'react-router'
+import { Link, useLoaderData, useLocation, useParams } from 'react-router'
 import { DepthRail } from '@/components/DepthRail'
 import { ChapterNav } from '@/components/question/ChapterNav'
 import { Exercises } from '@/components/question/Exercises'
@@ -13,13 +13,14 @@ import { findChapter, neighbours, questionId, questionPath, useTopic } from '@/c
 import type { QuestionPage as QuestionData } from '@/content/types'
 import { markRead } from '@/lib/progress'
 import { editUrl, suggestFixUrl } from '@/lib/repo'
-import { SITE_NAME } from '@/lib/site'
+import { SITE_NAME, SITE_URL } from '@/lib/site'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 export function QuestionPage() {
   const params = useParams()
+  const { pathname } = useLocation()
   // The route's loader returns the question's content, or null when it has no page yet.
   const content = useLoaderData<QuestionData | null>()
   const topic = useTopic()
@@ -144,7 +145,7 @@ export function QuestionPage() {
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-2">
                   <a
-                    href={suggestFixUrl(content.id, content.title, window.location.origin + window.location.pathname)}
+                    href={suggestFixUrl(content.id, content.title, SITE_URL + pathname)}
                     target="_blank"
                     rel="noreferrer"
                     className="text-link hover:text-link-hover"

@@ -1,6 +1,7 @@
 // Spaced-repetition state for flashcards, kept in this browser's localStorage (there are no accounts).
 // Each reviewed card maps to its ts-fsrs card, stored as JSON (dates become ISO strings, which ts-fsrs accepts back).
 
+import { useSyncExternalStore } from 'react'
 import { createEmptyCard, fsrs, type CardInput, type Grade } from 'ts-fsrs'
 import type { Flashcard } from './types.ts'
 
@@ -54,14 +55,36 @@ export function dueQueue(cards: Flashcard[], reviews: Reviews, now: Date): Flash
   return [...overdue, ...unseen]
 }
 
+const listeners = new Set<() => void>()
+const NO_REVIEWS: Reviews = Object.freeze({})
+let cached: Reviews | undefined
+
 /** Stores the review history and reports whether it was stored; if not (storage blocked or full), the session still works but progress won't survive a reload. */
 export function saveReviews(reviews: Reviews): boolean {
+  cached = reviews
+  let stored = true
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews))
-    return true
   } catch {
-    return false
+    stored = false
   }
+  listeners.forEach((listener) => listener())
+  return stored
+}
+
+function snapshot(): Reviews {
+  cached ??= loadReviews()
+  return cached
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+/** The review history, kept current as ratings and imports are saved; empty while rendering on the server. */
+export function useReviews(): Reviews {
+  return useSyncExternalStore(subscribe, snapshot, () => NO_REVIEWS)
 }
 
 /** Records a rating and returns the updated reviews. */
