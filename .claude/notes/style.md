@@ -12,3 +12,5 @@ Record here only conventions not covered there (e.g., maintainer corrections). D
 - Modules shared by `src/` and `scripts/` (e.g. `src/content/stats.ts`, `src/lib/contours.ts`) import relatively with `.ts` extensions; `@/` doesn't resolve in Node or the scripts tsconfig.
 - Depth colours: use `depthStrokeClass` (`src/lib/depth.ts`) for contour rings; the `--depth-*` ramp must keep ≥ 3:1 against background and muted in both themes.
 - Before deleting code, use two signals (grep including dynamic imports, plus git history) and name both in the commit message.
+- Pages are prerendered (R19): never read `window`, `document` or `localStorage` at module load or during the first render; use `useSyncExternalStore` with a server snapshot. Every prerendered page must render a `<title>`.
+- Session focus and keys: `useShortcuts` (Enter/Space stay native on links and buttons) and `useSessionFocus`.

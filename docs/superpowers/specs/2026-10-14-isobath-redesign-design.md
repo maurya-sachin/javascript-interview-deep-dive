@@ -55,6 +55,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 - Browser-only state (progress, theme) renders neutral on the server and applies after hydration, so there is no hydration mismatch.
 - Also generated: `sitemap.xml`, `robots.txt`, canonical `https://learn.sachinmaurya.com`, per-page title/description/OG.
 - Hosting stays as in R14 (Vercel, `vercel.json`).
+- As built: `npm run build` = content build, `tsc -b`, client build, SSR build of `src/entry-server.tsx`, then `scripts/prerender.ts` writes `dist/<path>.html` for home, paths, roadmap, practice hub and topic pickers, every topic, chapter and readable question (71 pages in production today, 270 with drafts), plus `sitemap.xml` and `robots.txt`. Each page's `<title>` (rendered by the page) is moved into `<head>` with description, canonical and OG/Twitter text tags. Vercel: `cleanUrls` serves the files; unknown paths and session pages rewrite to `app-shell.html` and render client-side. OG images are still deferred.
 
 ## 7. Evergreen
 - Each topic README declares **Covers** (e.g. "ECMAScript 2025, Node 24") and last-reviewed date; shown on the topic page.
