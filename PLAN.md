@@ -4,7 +4,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. **Step 3 (navigation) plan written: `docs/superpowers/plans/2026-10-14-navigation.md`, executing inline.** Next after it: step 4 (home + paths), write its plan first; steps 5–7 get a plan each just before they start
+- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. **Step 3 (navigation) built on `v2`, review pending (plan `docs/superpowers/plans/2026-10-14-navigation.md`).** Next: step 4 (home + paths), write its plan first; steps 5–7 get a plan each just before they start
 - Brand drafts for the designer: 3-level covers never use the deepest colour; dark-mode deepest ring is low-contrast; JavaScript cover is near-concentric (tune `heightField` in `app/src/lib/contours.ts`)
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only

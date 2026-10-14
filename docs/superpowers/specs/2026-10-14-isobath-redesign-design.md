@@ -36,6 +36,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 - Topic page: filterable chapter outline, collapsible; "On this page" rail on questions.
 - **Mobile:** question first, chapter list behind a "Chapters" disclosure (fixes the buried title).
 - Breadcrumbs stay.
+- Header links to Paths, Practice and Roadmap are added by the steps that create those pages; the topic switcher ships first. The manifest needs no chapter lists: the switcher uses topic titles and tracks, and the outline uses the topic shard.
 
 ## 4. Home and paths
 - Home: hero with tagline → "What are you preparing as?" (Frontend · Backend · Full-stack · Infra/DevOps · Any engineer) → **Start here** (one recommended first question) → **Available now** (topics with content) → **Roadmap** (planned topics: status + contribute link).
