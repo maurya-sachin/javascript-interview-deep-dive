@@ -8,10 +8,14 @@ import { parseMarkdown } from './markdown.ts'
 import { staleReadmes } from './readme.ts'
 import { checkBody } from './sections.ts'
 
+function questionIdsOf(topics: Content['topics']): Set<string> {
+  return new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((question) => question.id))))
+}
+
 /** Problems that need more than one file to see. */
 function checkReferences({ topics }: Content): Problem[] {
   const problems: Problem[] = []
-  const ids = new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((q) => q.id))))
+  const ids = questionIdsOf(topics)
 
   for (const chapter of topics.flatMap((topic) => topic.chapters)) {
     const readme = repoRelative(chapter.readmeFile)
@@ -73,7 +77,7 @@ function checkQuestionLinks({ topics }: Content): Problem[] {
 function checkDecks({ topics, decks }: Content): Problem[] {
   const problems: Problem[] = []
   const topicSlugs = new Set(topics.map((topic) => topic.slug))
-  const questionIds = new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((q) => q.id))))
+  const questionIds = questionIdsOf(topics)
 
   for (const deck of decks) {
     const file = repoRelative(deck.file)
@@ -95,7 +99,7 @@ const RESERVED_TOPIC_SLUGS = ['practice', 'roadmap']
 
 /** Topic names that clash with app routes, and role paths that don't resolve. */
 function checkRolePaths({ topics, paths }: Content): Problem[] {
-  const questionIds = new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((question) => question.id))))
+  const questionIds = questionIdsOf(topics)
   const reserved = topics
     .filter((topic) => RESERVED_TOPIC_SLUGS.includes(topic.slug))
     .map((topic): Problem => ({ file: repoRelative(topic.dir), message: `\`${topic.slug}\` is a reserved route name; pick another folder name` }))
