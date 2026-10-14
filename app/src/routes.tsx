@@ -1,5 +1,7 @@
 import { createBrowserRouter, Outlet, type LoaderFunctionArgs } from 'react-router'
 import { Layout } from '@/components/Layout'
+import { NotFound } from '@/components/PageShell'
+import { RouteError } from '@/components/RouteError'
 import { loadFlashcards, loadManifest, loadPractice, loadQuestion, loadTopic, MANIFEST_ROUTE_ID, TOPIC_ROUTE_ID } from '@/content/index-data'
 import { ChapterPage } from '@/pages/ChapterPage'
 import { FlashcardsPage } from '@/pages/FlashcardsPage'
@@ -16,28 +18,36 @@ export const router = createBrowserRouter(
       id: MANIFEST_ROUTE_ID,
       path: '/',
       element: <Layout />,
+      errorElement: <RouteError />,
       loader: loadManifest,
       children: [
-        { index: true, element: <HomePage /> },
+        // Pages sit under a pathless route so a failed load renders inside the layout, keeping the header.
         {
-          path: 'practice/:topic/:chapter',
-          element: <PracticePage />,
-          loader: ({ params }: LoaderFunctionArgs) => loadPractice(params.topic, params.chapter),
-        },
-        { path: 'flashcards/:topic', element: <FlashcardsPage />, loader: ({ params }: LoaderFunctionArgs) => loadFlashcards(params.topic) },
-        {
-          id: TOPIC_ROUTE_ID,
-          path: ':topic',
-          element: <Outlet />,
-          loader: ({ params }: LoaderFunctionArgs) => loadTopic(params.topic),
+          errorElement: <RouteError />,
           children: [
-            { index: true, element: <TopicPage /> },
-            { path: ':chapter', element: <ChapterPage /> },
+            { index: true, element: <HomePage /> },
             {
-              path: ':chapter/:question',
-              element: <QuestionPage />,
-              loader: ({ params }: LoaderFunctionArgs) => loadQuestion(`${params.topic}/${params.chapter}/${params.question}`),
+              path: 'practice/:topic/:chapter',
+              element: <PracticePage />,
+              loader: ({ params }: LoaderFunctionArgs) => loadPractice(params.topic, params.chapter),
             },
+            { path: 'flashcards/:topic', element: <FlashcardsPage />, loader: ({ params }: LoaderFunctionArgs) => loadFlashcards(params.topic) },
+            {
+              id: TOPIC_ROUTE_ID,
+              path: ':topic',
+              element: <Outlet />,
+              loader: ({ params }: LoaderFunctionArgs) => loadTopic(params.topic),
+              children: [
+                { index: true, element: <TopicPage /> },
+                { path: ':chapter', element: <ChapterPage /> },
+                {
+                  path: ':chapter/:question',
+                  element: <QuestionPage />,
+                  loader: ({ params }: LoaderFunctionArgs) => loadQuestion(`${params.topic}/${params.chapter}/${params.question}`),
+                },
+              ],
+            },
+            { path: '*', element: <NotFound what="Page" /> },
           ],
         },
       ],
