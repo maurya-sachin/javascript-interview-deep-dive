@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run content:build -- --drafts && vite",
-    "build": "npm run content:build && tsc -b && vite build",
+    "build": "npm run content:build && tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server",
     "lint": "eslint .",
     "test": "node --test 'scripts/**/*.test.ts'",
     "preview": "vite preview",
