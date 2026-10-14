@@ -48,6 +48,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 - Hubs at `/practice` and `/flashcards`: pick topic/chapter, due count, streak-free (no gamification pressure).
 - Session: keyboard shortcuts (reveal, rate, next), progress on the depth scale, end-of-session summary.
 - Progress stays in localStorage; **JSON export/import** is the backup story. ts-fsrs stays.
+- As built: one hub at `/practice` (Questions, Flashcards with due/new counts, Your progress) and a chapter picker at `/practice/:topic`; sessions take Space/Enter to reveal, 1–2 (practice) or 1–4 (flashcards) to rate, show a depth-gradient progress bar and an end summary; at most 20 new cards per session; backup format `isobath-progress` v1, import merges (union of read questions, most recent review per card) and never carries HTML.
 
 ## 6. Prerendering (approach B)
 - Build step renders every route with react-router's `createStaticHandler` / `createStaticRouter` / `StaticRouterProvider` (v8.4.0 exports verified), writes static HTML, then the client hydrates.

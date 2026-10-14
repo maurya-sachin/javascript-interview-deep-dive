@@ -4,12 +4,12 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. Step 3 (navigation) done; steps 1–3 re-audited 2026-10-14 (contrast to 3:1, cover colours, dead code, depth rail). Step 4 (home + paths) done. **Next: step 5 (practice and flashcards hubs), write its plan first;** steps 5–7 get a plan each just before they start
+- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. Step 3 (navigation) done; steps 1–3 re-audited 2026-10-14 (contrast to 3:1, cover colours, dead code, depth rail). Steps 4 (home + paths) and 5 (practice + flashcards) done. **Next: step 6 (prerender + SEO), write its plan first;** steps 6–7 get a plan each just before they start
 - For step 6 (prerender): `src/lib/theme.ts` reads `window.matchMedia` at module load, which breaks rendering in Node; move it behind a function first
 - Brand draft for the designer: the JavaScript cover reads as near-concentric rings (tune `heightField` in `app/src/lib/contours.ts`)
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
-- Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
+- Open: flashcards have no draft/published status, so a deck shows in production even when its questions are unpublished (decide: gate decks on published questions, or accept); confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
@@ -34,6 +34,7 @@ Non-goals: backend service, accounts, paid AI.
   - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
   - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
 - R17 Paths: `content/paths/<role>.yaml` (ordered `<topic>` or `<topic>/<chapter>` entries with a one-line `why`, unique `order`, optional `start` question), validated by `content:check`; format in `templates/README.md` → Paths.
+- R18 Progress backup: JSON `isobath-progress` v1; import merges and never carries HTML; max 20 new flashcards per session.
 - R16 Licence: code MIT (`LICENSE`); questions and flashcards in `content/` CC BY-NC-SA 4.0 (`content/LICENSE`).
 - R13 Brand: **isobath, by Sachin Maurya**, "engineering interviews, in depth". Mark = nested irregular contours (draft; a human designer redraws the final); topic covers are generated from slug + data (`app/src/lib/contours.ts`); depth scale = `--depth-1..4`. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent #2F4FD8 / #9DAEF7; prose column 720px. Originals only.
 - R15 Data: `manifest.json` + `topics/<slug>/{index,search,flashcards}.json`; a topic's shard loads on demand, never one big file.
