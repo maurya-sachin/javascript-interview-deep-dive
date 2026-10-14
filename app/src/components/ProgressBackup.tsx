@@ -47,15 +47,15 @@ export function ProgressBackup() {
 
   return (
     <section aria-labelledby="your-progress" className="mt-16 border-t pt-10">
-      <h2 id="your-progress" className="font-serif text-2xl font-medium tracking-tight">
+      <h2 id="your-progress" className="text-base font-semibold">
         Your progress
       </h2>
-      <p className="mt-2 max-w-xl text-muted-foreground">Reading progress and flashcard history live only in this browser. Download a copy to keep it, or to move it to another device; importing adds to what is here.</p>
-      <div className="mt-5 flex flex-wrap gap-3">
-        <Button variant="outline" onClick={download}>
+      <p className="mt-2 max-w-xl text-sm text-muted-foreground">Reading progress and flashcard history live only in this browser. Download a copy to keep it, or to move it to another device; importing adds to what is here.</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" onClick={download}>
           Download progress
         </Button>
-        <Button variant="outline" onClick={() => fileInput.current?.click()}>
+        <Button variant="outline" size="sm" onClick={() => fileInput.current?.click()}>
           Import progress
         </Button>
         <input
