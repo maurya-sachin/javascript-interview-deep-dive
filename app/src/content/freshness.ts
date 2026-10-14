@@ -1,7 +1,7 @@
 // When facts were last checked, and when that counts as stale. Dates are `YYYY-MM` months.
 
 /** Questions verified this many months ago or more are flagged for re-checking. */
-export const STALE_AFTER_MONTHS = 12
+const STALE_AFTER_MONTHS = 12
 
 function monthIndex(month: string): number {
   const [year, monthOfYear] = month.split('-').map(Number)

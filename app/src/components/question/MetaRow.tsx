@@ -50,7 +50,7 @@ export function MetaRow({ status, difficulty, frequency, verified, stale, legacy
 const LABEL_STYLE = 'rounded-full border px-2 py-0.5 font-medium'
 
 /** Draft, Reviewed or Legacy; a legacy question is labelled so whatever its status. */
-export function LifecycleLabel({ status, legacy }: { status: Status; legacy: boolean }) {
+function LifecycleLabel({ status, legacy }: { status: Status; legacy: boolean }) {
   if (legacy) return <span className={cn(LABEL_STYLE, 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300')}>Legacy</span>
   if (status === 'published') return <span className={cn(LABEL_STYLE, 'border-link text-link')}>Reviewed</span>
   return <span className={cn(LABEL_STYLE, 'text-muted-foreground')}>Draft</span>
