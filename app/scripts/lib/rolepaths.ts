@@ -87,6 +87,7 @@ export function validateRolePaths(paths: RolePathSource[], topics: TopicRef[], q
   const owners = new Map<number, string>()
   for (const rolePath of paths) {
     const { file } = rolePath
+    if (!new RegExp(`^${KEBAB}$`).test(rolePath.slug)) problems.push({ file, message: 'file name must be kebab-case: it becomes the URL `/paths/<name>`' })
     const owner = owners.get(rolePath.order)
     if (owner !== undefined) problems.push({ file, message: `order ${rolePath.order} is already used by \`${owner}\`` })
     else owners.set(rolePath.order, rolePath.slug)

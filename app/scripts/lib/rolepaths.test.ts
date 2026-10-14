@@ -77,3 +77,8 @@ test('a chapter entry may not repeat a topic that is already on the path', () =>
   const reversed = validateRolePaths([path({ steps: [{ ref: 'javascript/engine', why: 'b' }, { ref: 'javascript', why: 'a' }] })], topics, questionIds)
   assert.match(reversed.map((problem) => problem.message).join('\n'), /`javascript\/engine` is already covered by `javascript`/)
 })
+
+test('the file name, which becomes the URL, must be kebab-case', () => {
+  const problems = validateRolePaths([path({ slug: 'Front End', file: 'content/paths/Front End.yaml' })], topics, questionIds)
+  assert.match(problems.map((problem) => problem.message).join('\n'), /file name must be kebab-case/)
+})
