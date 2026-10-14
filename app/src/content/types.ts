@@ -93,7 +93,7 @@ export interface QuestionPage {
   exercises: Exercise[]
 }
 
-/** One entry of `data/search.json`; the app builds its MiniSearch index from these. */
+/** One entry of `data/topics/<slug>/search.json`; the app builds its MiniSearch index from these. */
 export interface SearchDoc {
   id: string
   title: string
@@ -105,7 +105,7 @@ export interface SearchDoc {
   hasPage: boolean
 }
 
-/** One entry of `data/flashcards.json`. */
+/** One entry of `data/topics/<slug>/flashcards.json`. */
 export interface Flashcard {
   /** `<topic>/<card id>`; keys the learner's review history. */
   id: string

@@ -3,8 +3,6 @@
 import { useRouteLoaderData } from 'react-router'
 import type { ChapterSummary, ContentManifest, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
 
-export { chapterStats } from './stats.ts'
-
 export const MANIFEST_ROUTE_ID = 'root'
 export const TOPIC_ROUTE_ID = 'topic'
 
@@ -72,14 +70,9 @@ export function useManifest(): ContentManifest {
   return useRouteLoaderData(MANIFEST_ROUTE_ID) as ContentManifest
 }
 
-/** The topic of the current `:topic` route, or `null` when the URL names no topic. */
+/** The topic of the current `:topic` route, or `null` when the URL names no topic. Call it only from pages under that route. */
 export function useTopic(): TopicSummary | null {
   return useRouteLoaderData(TOPIC_ROUTE_ID) as TopicSummary | null
-}
-
-export function questionCount(chapters: ChapterSummary[]) {
-  const questions = chapters.flatMap((chapter) => chapter.questions)
-  return { published: questions.filter((q) => q.status === 'published').length, total: questions.length }
 }
 
 export function findChapter(topic: TopicSummary, slug: string | undefined): ChapterSummary | undefined {
