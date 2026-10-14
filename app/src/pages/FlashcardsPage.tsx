@@ -4,27 +4,28 @@ import { InlineHtml } from '@/components/question/InlineHtml'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/Kbd'
+import { SegmentBar, SessionCard, SessionHeader } from '@/components/SessionLayout'
 import { SessionProgress } from '@/components/SessionProgress'
 import { SITE_NAME } from '@/lib/site'
-import { formatUntil } from '@/lib/time'
+import { formatInterval, formatUntil } from '@/lib/time'
 import { useSessionFocus } from '@/lib/useSessionFocus'
 import { useShortcuts } from '@/lib/useShortcuts'
 import type { loadFlashcards } from '@/content/index-data'
-import { deckStatus, dueQueue, loadReviews, NEW_CARDS_PER_SESSION, nextDue, rateCard } from '@/content/review'
+import { deckStatus, dueQueue, loadReviews, NEW_CARDS_PER_SESSION, nextDue, previewIntervals, rateCard } from '@/content/review'
 import type { Flashcard } from '@/content/types'
 import { Rating, type Grade } from 'ts-fsrs'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 type Counts = Record<'again' | 'hard' | 'good' | 'easy', number>
-const RATINGS: { label: string; key: string; grade: Grade; count: keyof Counts }[] = [
-  { label: 'Again', key: '1', grade: Rating.Again, count: 'again' },
-  { label: 'Hard', key: '2', grade: Rating.Hard, count: 'hard' },
-  { label: 'Good', key: '3', grade: Rating.Good, count: 'good' },
-  { label: 'Easy', key: '4', grade: Rating.Easy, count: 'easy' },
+const RATINGS: { label: string; key: string; grade: Grade; count: keyof Counts; bar: string }[] = [
+  { label: 'Again', key: '1', grade: Rating.Again, count: 'again', bar: 'bg-depth-1' },
+  { label: 'Hard', key: '2', grade: Rating.Hard, count: 'hard', bar: 'bg-depth-2' },
+  { label: 'Good', key: '3', grade: Rating.Good, count: 'good', bar: 'bg-depth-3' },
+  { label: 'Easy', key: '4', grade: Rating.Easy, count: 'easy', bar: 'bg-depth-4' },
 ]
 
-function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; cards: Flashcard[]; isLaterRound: boolean; onNextRound: () => void }) {
+function Session({ topic, topicTitle, cards, isLaterRound, onNextRound }: { topic: string; topicTitle: string; cards: Flashcard[]; isLaterRound: boolean; onNextRound: () => void }) {
   const [reviews, setReviews] = useState(loadReviews)
   const [queue, setQueue] = useState(() => dueQueue(cards, reviews, new Date()))
   const [revealed, setRevealed] = useState(false)
@@ -51,60 +52,97 @@ function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; c
     const { unseen } = deckStatus(topic, cards.length, reviews, now)
     return (
       <>
-        <h1 ref={doneRef} tabIndex={-1} className="text-3xl font-bold tracking-tight outline-none">
-          {rated === 0 ? 'Nothing is due' : 'Session done'}
-        </h1>
-        {rated > 0 && (
-          <p className="mt-3 text-muted-foreground">
-            You did {rated} {rated === 1 ? 'review' : 'reviews'}: {counts.again} again, {counts.hard} hard, {counts.good} good, {counts.easy} easy.
-          </p>
-        )}
-        <p className="mt-3 text-muted-foreground">{next ? `The next card is due ${formatUntil(next, new Date())}.` : 'No cards are scheduled.'}</p>
-        {unseen > 0 && <p className="mt-3 text-muted-foreground">{unseen} new {unseen === 1 ? 'card' : 'cards'} left.</p>}
-        <div className="mt-8 flex flex-wrap gap-3">
-          {unseen > 0 && <Button onClick={onNextRound}>Study {Math.min(unseen, NEW_CARDS_PER_SESSION)} more</Button>}
-          <Button asChild variant="outline">
-            <Link to="/practice">Back to practice</Link>
-          </Button>
-        </div>
+        <SessionHeader title={`Flashcards · ${topicTitle}`} />
+        <SessionProgress done={rated} total={rated} label="Cards reviewed" />
+        <SessionCard>
+          <h1 ref={doneRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
+            {rated === 0 ? 'Nothing is due' : 'Session done'}
+          </h1>
+          {rated > 0 && (
+            <>
+              <p className="mt-3 text-muted-foreground">
+                You did {rated} {rated === 1 ? 'review' : 'reviews'}.
+              </p>
+              <div className="mt-5">
+                <SegmentBar
+                  label={`${counts.again} again, ${counts.hard} hard, ${counts.good} good, ${counts.easy} easy`}
+                  segments={RATINGS.map(({ count, bar }) => ({
+                    count: counts[count],
+                    className: bar,
+                  }))}
+                />
+                <p className="mt-2 text-sm text-muted-foreground" aria-hidden="true">
+                  {counts.again} again · {counts.hard} hard · {counts.good} good · {counts.easy} easy
+                </p>
+              </div>
+            </>
+          )}
+          <p className="mt-5 text-muted-foreground">{next ? `The next card is due ${formatUntil(next, now)}.` : 'No cards are scheduled.'}</p>
+          {unseen > 0 && (
+            <p className="mt-1 text-muted-foreground">
+              {unseen} new {unseen === 1 ? 'card' : 'cards'} left.
+            </p>
+          )}
+          <div className="mt-auto flex flex-wrap gap-3 pt-8">
+            {unseen > 0 && <Button onClick={onNextRound}>Study {Math.min(unseen, NEW_CARDS_PER_SESSION)} more</Button>}
+            <Button asChild variant="outline">
+              <Link to="/practice">Back to practice</Link>
+            </Button>
+          </div>
+        </SessionCard>
       </>
     )
   }
 
+  const now = new Date()
+  const intervals = revealed ? previewIntervals(reviews, card.id, now) : null
   return (
     <>
+      <SessionHeader title={`Flashcards · ${topicTitle}`} status={`${queue.length} left`} />
       <SessionProgress done={rated} total={rated + queue.length} label="Cards reviewed" />
-      <p className="mt-2 font-mono text-sm text-muted-foreground" aria-live="polite">
-        {queue.length} left
-      </p>
-      <p ref={promptRef} tabIndex={-1} className="mt-4 text-2xl leading-snug font-semibold outline-none">
-        <InlineHtml html={card.frontHtml} className={CODE_STYLE} />
-      </p>
-      {revealed ? (
-        <>
-          <section ref={answerRef} tabIndex={-1} aria-label="Answer" className="mt-6 rounded-xl bg-tldr px-6 py-5 text-lg leading-relaxed outline-none">
-            <InlineHtml html={card.backHtml} className={CODE_STYLE} />
-          </section>
-          {card.question && (
-            <Link to={`/${card.question}`} className="mt-4 inline-block text-link hover:text-link-hover">
-              Read the full question
-            </Link>
-          )}
-          <div className="mt-8 flex flex-wrap gap-3">
-            {RATINGS.map(({ label, key, grade, count }) => (
-              <Button key={label} variant="outline" aria-keyshortcuts={key} onClick={() => rate(grade, count)}>
+      <SessionCard>
+        <p className="text-sm text-muted-foreground">
+          Card {rated + 1} of {rated + queue.length}
+        </p>
+        <p ref={promptRef} tabIndex={-1} className="mt-4 font-serif text-2xl leading-snug outline-none sm:text-3xl">
+          <InlineHtml html={card.frontHtml} className={CODE_STYLE} />
+        </p>
+        {revealed && (
+          <>
+            <hr className="my-6" />
+            <section ref={answerRef} tabIndex={-1} aria-label="Answer" className="font-serif text-lg leading-relaxed outline-none">
+              <InlineHtml html={card.backHtml} className={CODE_STYLE} />
+            </section>
+            {card.question && (
+              <Link to={`/${card.question}`} className="mt-4 self-start text-sm text-link hover:text-link-hover">
+                Read the full question
+              </Link>
+            )}
+          </>
+        )}
+      </SessionCard>
+      {intervals ? (
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {RATINGS.map(({ label, key, grade, count }) => (
+            <Button key={label} variant="outline" className="h-auto flex-col gap-0.5 py-2.5" aria-keyshortcuts={key} onClick={() => rate(grade, count)}>
+              <span>
                 {label}
                 <Kbd>{key}</Kbd>
-              </Button>
-            ))}
-          </div>
-        </>
+              </span>
+              <span className="text-xs font-normal text-muted-foreground">
+                <span className="sr-only">, next in </span>
+                {formatInterval(intervals[grade], now)}
+              </span>
+            </Button>
+          ))}
+        </div>
       ) : (
-        <Button className="mt-8" aria-keyshortcuts="Space" onClick={() => setRevealed(true)}>
+        <Button className="mt-4 w-full sm:w-auto" aria-keyshortcuts="Space" onClick={() => setRevealed(true)}>
           Show answer
           <Kbd>Space</Kbd>
         </Button>
       )}
+      <p className="mt-4 hidden text-xs text-muted-foreground sm:block">Space shows the answer · 1–4 rate it</p>
     </>
   )
 }
@@ -126,7 +164,9 @@ export function FlashcardsPage() {
         <p className="text-muted-foreground">This topic has no flashcards yet.</p>
       ) : (
         // Keyed so moving between topics, or starting the next round, begins a fresh session.
-        <Session key={`${topic.slug}-${round}`} topic={topic.slug} cards={cards} isLaterRound={round > 0} onNextRound={() => setRound(round + 1)} />
+        <div className="mx-auto max-w-2xl">
+          <Session key={`${topic.slug}-${round}`} topic={topic.slug} topicTitle={topic.title} cards={cards} isLaterRound={round > 0} onNextRound={() => setRound(round + 1)} />
+        </div>
       )}
     </PageShell>
   )

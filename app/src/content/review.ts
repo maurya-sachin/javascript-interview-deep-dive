@@ -5,7 +5,7 @@
 /// <reference lib="dom" />
 
 import { useSyncExternalStore } from 'react'
-import { createEmptyCard, fsrs, type CardInput, type Grade } from 'ts-fsrs'
+import { createEmptyCard, fsrs, Rating, type CardInput, type Grade } from 'ts-fsrs'
 import type { Flashcard } from './types.ts'
 
 const STORAGE_KEY = 'flashcard-reviews'
@@ -107,6 +107,17 @@ export function rateCard(reviews: Reviews, cardId: string, grade: Grade, now: Da
   const updated = { ...reviews, [cardId]: card }
   saveReviews(updated)
   return updated
+}
+
+/** When a card would next be due for each grade, so the rating buttons can show the wait before one is chosen. */
+export function previewIntervals(reviews: Reviews, cardId: string, now: Date): Record<Grade, Date> {
+  const outcomes = scheduler.repeat(reviews[cardId] ?? createEmptyCard(now), now)
+  return {
+    [Rating.Again]: outcomes[Rating.Again].card.due,
+    [Rating.Hard]: outcomes[Rating.Hard].card.due,
+    [Rating.Good]: outcomes[Rating.Good].card.due,
+    [Rating.Easy]: outcomes[Rating.Easy].card.due,
+  }
 }
 
 function reviewsOf(topic: string, reviews: Reviews) {

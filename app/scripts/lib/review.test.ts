@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { fsrs, Rating } from 'ts-fsrs'
-import { deckStatus, dueQueue, isValidCard, loadReviews, NEW_CARDS_PER_SESSION, nextDue, saveReviews, type Reviews } from '../../src/content/review.ts'
+import { fsrs, Rating, type Grade } from 'ts-fsrs'
+import { deckStatus, dueQueue, isValidCard, loadReviews, NEW_CARDS_PER_SESSION, nextDue, previewIntervals, saveReviews, type Reviews } from '../../src/content/review.ts'
 
 const now = new Date('2026-10-14T12:00:00Z')
 const card = (due: string) => ({ due, state: 2, stability: 1, difficulty: 5, elapsed_days: 0, scheduled_days: 1, learning_steps: 0, reps: 1, lapses: 0 })
@@ -77,4 +77,11 @@ test('saving reports whether the history was stored', () => {
     configurable: true,
   })
   assert.equal(saveReviews({}), false)
+})
+
+test('a new card previews strictly longer waits for Again, Hard, Good, Easy', () => {
+  const due = previewIntervals({}, 'javascript/new', now)
+  const grades: Grade[] = [Rating.Again, Rating.Hard, Rating.Good, Rating.Easy]
+  const times = grades.map((grade) => due[grade].getTime())
+  times.forEach((time, index) => index > 0 && assert.ok(time > times[index - 1]))
 })
