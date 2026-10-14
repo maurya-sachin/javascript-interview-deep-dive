@@ -4,12 +4,14 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import type { ContentIndex, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
+import type { ContentIndex, ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
-import { loadContent, type Question } from './lib/content.ts'
+import { loadContent, type Question, type Topic } from './lib/content.ts'
+import type { Deck } from './lib/flashcards.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
 import { renderBlock, renderInline } from './lib/markdown.ts'
 import { repoRelative } from './lib/paths.ts'
+import { toOverview } from './lib/shards.ts'
 import { EXERCISE_ANSWER, FOLLOW_UP_ANSWER, FOLLOW_UP_QUESTION, splitSections, type Section } from './lib/sections.ts'
 
 type WrittenMeta = Exclude<Frontmatter, { status: 'planned' }>
@@ -169,33 +171,28 @@ const index: ContentIndex = {
     })),
   ),
 }
-await writeJson(path.join(outDir, 'index.json'), index)
-
-async function searchDocs(): Promise<SearchDoc[]> {
+async function searchDocs(topic: Topic): Promise<SearchDoc[]> {
   const docs: SearchDoc[] = []
-  for (const topic of content.topics) {
-    for (const chapter of topic.chapters) {
-      for (const question of chapter.questions) {
-        const meta = metaOf(question)
-        const written = hasPage(meta)
-        docs.push({
-          id: question.id,
-          title: (await renderInline(meta.title)).text,
-          topic: topic.title,
-          chapter: chapter.title,
-          tags: written ? meta.tags : [],
-          tldr: written ? (await renderInline(meta.tldr)).text : '',
-          hasPage: written,
-        })
-      }
+  for (const chapter of topic.chapters) {
+    for (const question of chapter.questions) {
+      const meta = metaOf(question)
+      const written = hasPage(meta)
+      docs.push({
+        id: question.id,
+        title: (await renderInline(meta.title)).text,
+        topic: topic.title,
+        chapter: chapter.title,
+        tags: written ? meta.tags : [],
+        tldr: written ? (await renderInline(meta.tldr)).text : '',
+        hasPage: written,
+      })
     }
   }
   return docs
 }
-await writeJson(path.join(outDir, 'search.json'), await searchDocs())
 
-const flashcards: Flashcard[] = await Promise.all(
-  content.decks.flatMap((deck) =>
+async function flashcardsOf(deck: Deck): Promise<Flashcard[]> {
+  return Promise.all(
     deck.cards.map(async (card) => ({
       id: `${deck.topic}/${card.id}`,
       topic: deck.topic,
@@ -203,8 +200,34 @@ const flashcards: Flashcard[] = await Promise.all(
       backHtml: (await renderInline(card.back)).html,
       question: card.question ?? null,
     })),
-  ),
-)
-await writeJson(path.join(outDir, 'flashcards.json'), flashcards)
+  )
+}
 
-console.log(`✔ built ${pageCount} question page(s), an index of ${questions.length} questions and ${flashcards.length} flashcard(s) → ${repoRelative(outDir)}`)
+await writeJson(path.join(outDir, 'index.json'), index) // TODO: removed in Task 5, once the app reads the manifest
+
+const manifest: ContentManifest = { topics: index.topics.map(toOverview) }
+await writeJson(path.join(outDir, 'manifest.json'), manifest)
+
+const topicDir = (slug: string) => path.join(outDir, 'topics', slug)
+for (const topic of index.topics) await writeJson(path.join(topicDir(topic.slug), 'index.json'), topic)
+
+const allSearchDocs: SearchDoc[] = []
+for (const topic of content.topics) {
+  if (topic.chapters.length === 0) continue
+  const docs = await searchDocs(topic)
+  allSearchDocs.push(...docs)
+  await writeJson(path.join(topicDir(topic.slug), 'search.json'), docs)
+}
+await writeJson(path.join(outDir, 'search.json'), allSearchDocs) // TODO: removed in Task 5
+
+const allFlashcards: Flashcard[] = []
+for (const deck of content.decks) {
+  const cards = await flashcardsOf(deck)
+  allFlashcards.push(...cards)
+  await writeJson(path.join(topicDir(deck.topic), 'flashcards.json'), cards)
+}
+await writeJson(path.join(outDir, 'flashcards.json'), allFlashcards) // TODO: removed in Task 5
+
+console.log(
+  `✔ built ${pageCount} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s) and ${allFlashcards.length} flashcard(s) → ${repoRelative(outDir)}`,
+)
