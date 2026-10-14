@@ -185,7 +185,7 @@ steps:
 | `steps[].ref` | yes | `<topic>` or `<topic>/<chapter>`; must exist and appear once per path; don't list a chapter when its whole topic is already on the path. A topic with no chapters yet can be named by topic only. A step shows as planned until it has published questions |
 | `steps[].why` | yes | ≤ 25 words: why this step is on the path |
 
-Counts, readiness and reading time are derived at build time; never write them. Topic folders can't be named `paths`, `practice`, `flashcards` or `roadmap` (those are app routes). `content:check` validates all of this.
+Counts, readiness and reading time are derived at build time; never write them. Topic folders can't be named `paths`, `practice`, `flashcards`, `roadmap` or `changelog` (those are app routes). `content:check` validates all of this.
 
 ## Contributing
 
