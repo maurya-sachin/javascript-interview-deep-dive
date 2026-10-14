@@ -9,6 +9,7 @@ import { useReviews } from '@/content/reviewStore'
 import type { TopicOverview } from '@/content/types'
 import { SITE_NAME } from '@/lib/site'
 import { formatUntil } from '@/lib/time'
+import { useHydrated } from '@/lib/useHydrated'
 
 interface Deck {
   topic: TopicOverview
@@ -31,7 +32,7 @@ function NextUp({ decks, reviews, now }: { decks: Deck[]; reviews: Reviews; now:
       : decks.flatMap(({ topic }) => nextDue(topic.slug, reviews, now) ?? []).sort((a, b) => a.getTime() - b.getTime())[0]
 
   return (
-    <section aria-labelledby="next-up" className="mt-8 rounded-xl border bg-card p-6">
+    <section aria-labelledby="next-up" className="mt-8 min-h-44 rounded-xl border bg-card p-6">
       {totalDue > 0 ? (
         <>
           <h2 id="next-up" className="font-serif text-2xl leading-snug">
@@ -54,7 +55,7 @@ function NextUp({ decks, reviews, now }: { decks: Deck[]; reviews: Reviews; now:
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">Each session introduces up to {NEW_CARDS_PER_SESSION} new cards.</p>
           <Button asChild className="mt-5">
-            <Link to={`/flashcards/${mostNew.topic.slug}`}>Start with {NEW_CARDS_PER_SESSION}</Link>
+            <Link to={`/flashcards/${mostNew.topic.slug}`}>Start with {Math.min(mostNew.unseen, NEW_CARDS_PER_SESSION)}</Link>
           </Button>
         </>
       ) : (
@@ -73,6 +74,7 @@ export function PracticeHubPage() {
   const { topics } = useManifest()
   const reviews = useReviews()
   const practisable = topics.filter((topic) => topic.stats.readable > 0)
+  const hydrated = useHydrated()
   const now = new Date()
   const decks: Deck[] = topics
     .filter((topic) => topic.flashcardCount > 0)
@@ -84,7 +86,13 @@ export function PracticeHubPage() {
       <h1 className="font-serif text-4xl font-medium tracking-tight">Practice</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">Answer questions out loud before you reveal the answer, or review flashcards when they are due.</p>
 
-      {decks.length > 0 && <NextUp decks={decks} reviews={reviews} now={now} />}
+      {decks.length > 0 &&
+        (hydrated ? (
+          <NextUp decks={decks} reviews={reviews} now={now} />
+        ) : (
+          // Review history is browser-only: reserve the panel's space and fill it after hydration.
+          <section aria-busy="true" className="mt-8 min-h-44 rounded-xl border bg-card p-6" />
+        ))}
 
       <section aria-labelledby="practice-questions" className="mt-12">
         <h2 id="practice-questions" className="font-serif text-2xl font-medium tracking-tight">
@@ -125,7 +133,9 @@ export function PracticeHubPage() {
               <li key={topic.slug} className="border-b">
                 <Link to={`/flashcards/${topic.slug}`} className="flex items-baseline justify-between gap-4 py-4 hover:text-link">
                   <span className="font-semibold">{topic.title}</span>
-                  <span className="text-sm text-muted-foreground">{[due > 0 && `${due} due`, unseen > 0 && `${unseen} new`].filter(Boolean).join(', ') || 'Nothing due'}</span>
+                  {hydrated && (
+                    <span className="text-sm text-muted-foreground">{[due > 0 && `${due} due`, unseen > 0 && `${unseen} new`].filter(Boolean).join(', ') || 'Nothing due'}</span>
+                  )}
                 </Link>
               </li>
             ))}
