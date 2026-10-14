@@ -174,7 +174,7 @@ steps:
 | `summary` | yes | ≤ 30 words |
 | `order` | yes | Position on the home page; unique across paths |
 | `start` | no | Id of the question to open first; must exist. The home page's "Start here" uses the first path that sets one |
-| `steps[].ref` | yes | `<topic>` or `<topic>/<chapter>`; must exist and appear once per path. A topic with no chapters yet can be named by topic only and shows as a planned step |
+| `steps[].ref` | yes | `<topic>` or `<topic>/<chapter>`; must exist and appear once per path; don't list a chapter when its whole topic is already on the path. A topic with no chapters yet can be named by topic only. A step shows as planned until it has published questions |
 | `steps[].why` | yes | ≤ 25 words: why this step is on the path |
 
 Counts, readiness and reading time are derived at build time; never write them. Topic folders can't be named `paths`, `practice`, `flashcards` or `roadmap` (those are app routes). `content:check` validates all of this.

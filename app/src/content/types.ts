@@ -62,9 +62,9 @@ export interface PathStep {
   chapterTitle: string | null
   /** One line on why this step is on the path. */
   why: string
-  /** Whether there is content to read: the topic has chapters. Planned topics are roadmap steps. */
+  /** Whether the step has anything to read in this build. Steps without are shown as planned. */
   ready: boolean
-  /** Questions in the chapter, or in the topic when no chapter is named. */
+  /** Readable questions in the chapter, or in the topic when no chapter is named. */
   questionCount: number
 }
 

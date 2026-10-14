@@ -213,7 +213,7 @@ async function startQuestion(id: string | null): Promise<StartQuestion | null> {
 }
 
 const paths: RolePath[] = await Promise.all(
-  resolveRolePaths(content.paths, content.topics).map(async ({ startId, ...rolePath }) => ({ ...rolePath, start: await startQuestion(startId) })),
+  resolveRolePaths(content.paths, topics).map(async ({ startId, ...rolePath }) => ({ ...rolePath, start: await startQuestion(startId) })),
 )
 
 const manifest: ContentManifest = { topics: topics.map(toOverview), paths }

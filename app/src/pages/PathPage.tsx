@@ -29,7 +29,7 @@ export function PathPage() {
       <p className="mt-4 text-sm text-muted-foreground">
         {ready.length === 0
           ? 'Roadmap only: nothing written for this path yet.'
-          : `${ready.length} of ${path.steps.length} topics written · ${total} questions · about ${hours} ${hours === 1 ? 'hour' : 'hours'} of reading${done > 0 ? ` · ${done} read by you` : ''}`}
+          : `${ready.length} of ${path.steps.length} steps ready · ${total} questions · about ${hours} ${hours === 1 ? 'hour' : 'hours'} of reading${done > 0 ? ` · ${done} read by you` : ''}`}
       </p>
       {next && (
         <Button asChild size="lg" className="mt-5">

@@ -4,7 +4,8 @@ import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { z } from 'zod'
-import type { PathStep, RolePath } from '../../src/content/types.ts'
+import { chapterStats } from '../../src/content/stats.ts'
+import type { PathStep, RolePath, TopicSummary } from '../../src/content/types.ts'
 import { countWords } from './frontmatter.ts'
 import { contentDir, repoRelative, type Problem } from './paths.ts'
 
@@ -31,11 +32,10 @@ export interface RolePathSource extends z.infer<typeof pathSchema> {
   file: string
 }
 
-/** The parts of a topic the path rules need; both the content loader's `Topic` and the app's summary fit. */
-export interface TopicLike {
+/** What validation needs from a topic; the content loader's `Topic` fits. */
+export interface TopicRef {
   slug: string
-  title: string
-  chapters: { slug: string; title: string; questions: unknown[] }[]
+  chapters: { slug: string }[]
 }
 
 /** A resolved path before its start question is rendered (the build adds that). */
@@ -78,8 +78,11 @@ async function parsePath(file: string, problems: Problem[]) {
   return undefined
 }
 
-/** Every entry names an existing topic (and chapter), appears once, and `start` is a real question. */
-export function validateRolePaths(paths: RolePathSource[], topics: TopicLike[], questionIds: ReadonlySet<string>): Problem[] {
+/**
+ * Every entry names an existing topic (and chapter) and appears once; a chapter entry can't sit beside its whole
+ * topic (its questions would count twice); `order` is unique; `start` is a real question.
+ */
+export function validateRolePaths(paths: RolePathSource[], topics: TopicRef[], questionIds: ReadonlySet<string>): Problem[] {
   const problems: Problem[] = []
   const owners = new Map<number, string>()
   for (const rolePath of paths) {
@@ -95,6 +98,9 @@ export function validateRolePaths(paths: RolePathSource[], topics: TopicLike[], 
       if (seen.has(ref)) problems.push({ file, message: `entry \`${ref}\` appears twice` })
       seen.add(ref)
       const [topicSlug, chapterSlug] = ref.split('/')
+      if (chapterSlug !== undefined && rolePath.steps.some((step) => step.ref === topicSlug)) {
+        problems.push({ file, message: `\`${ref}\` is already covered by \`${topicSlug}\`` })
+      }
       const topic = topics.find((candidate) => candidate.slug === topicSlug)
       if (!topic) problems.push({ file, message: `unknown topic \`${topicSlug}\` in entry \`${ref}\`` })
       else if (chapterSlug !== undefined && !topic.chapters.some((chapter) => chapter.slug === chapterSlug)) {
@@ -105,8 +111,11 @@ export function validateRolePaths(paths: RolePathSource[], topics: TopicLike[], 
   return problems
 }
 
-/** Resolves valid paths (run `validateRolePaths` first) against the content, sorted by `order`. */
-export function resolveRolePaths(paths: RolePathSource[], topics: TopicLike[]): ResolvedPath[] {
+/**
+ * Resolves valid paths (run `validateRolePaths` first) against the built topics, sorted by `order`.
+ * Counts and readiness use readable questions only (those with a page in this build).
+ */
+export function resolveRolePaths(paths: RolePathSource[], topics: TopicSummary[]): ResolvedPath[] {
   return [...paths]
     .sort((a, b) => a.order - b.order)
     .map(({ slug, title, summary, start, steps }) => ({
@@ -118,14 +127,14 @@ export function resolveRolePaths(paths: RolePathSource[], topics: TopicLike[]): 
         const [topicSlug, chapterSlug] = ref.split('/')
         const topic = topics.find((candidate) => candidate.slug === topicSlug)!
         const chapter = chapterSlug === undefined ? null : topic.chapters.find((candidate) => candidate.slug === chapterSlug)!
-        const questionCount = (chapter ? [chapter] : topic.chapters).reduce((sum, entry) => sum + entry.questions.length, 0)
+        const questionCount = chapterStats(chapter ? [chapter] : topic.chapters).readable
         return {
           topic: topic.slug,
           topicTitle: topic.title,
           chapter: chapter?.slug ?? null,
           chapterTitle: chapter?.title ?? null,
           why,
-          ready: topic.chapters.length > 0,
+          ready: questionCount > 0,
           questionCount,
         }
       }),
