@@ -9,7 +9,7 @@ export function Layout() {
     <>
       <header className="flex items-center gap-4 border-b bg-background/85 px-6 py-3 backdrop-blur">
         <div className="flex items-baseline gap-2.5">
-          <Link to="/" className="flex items-center gap-2 text-link">
+          <Link to="/" className="flex items-baseline gap-2 text-link">
             <Mark className="size-7 self-center" />
             <span className="font-serif text-xl font-semibold tracking-tight text-foreground">{SITE_NAME}</span>
           </Link>
