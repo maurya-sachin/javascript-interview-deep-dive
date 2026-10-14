@@ -14,6 +14,7 @@ import type { QuestionPage as QuestionData } from '@/content/types'
 import { markRead } from '@/lib/progress'
 import { editUrl, suggestFixUrl } from '@/lib/repo'
 import { SITE_NAME } from '@/lib/site'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
@@ -27,6 +28,8 @@ export function QuestionPage() {
   const question = chapter?.questions.find((candidate) => candidate.id === id)
   const readableId = content !== null ? question?.id : undefined
   const titleHtml = content?.titleHtml
+  // The depth rail only fits in the xl layout; mounting it only there keeps its scroll listener off smaller screens.
+  const showDepthRail = useMediaQuery('(min-width: 80rem)')
   useEffect(() => {
     if (readableId && titleHtml) markRead(readableId, titleHtml)
   }, [readableId, titleHtml])
@@ -174,8 +177,8 @@ export function QuestionPage() {
           </nav>
       </main>
 
-      {sections.length > 0 && (
-        <aside className="hidden xl:block">
+      {showDepthRail && sections.length > 0 && (
+        <aside>
           <DepthRail stops={sections} />
         </aside>
       )}
