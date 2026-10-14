@@ -2,6 +2,7 @@ import { Link, Outlet, ScrollRestoration } from 'react-router'
 import { Mark } from '@/components/Mark'
 import { SearchDialog } from '@/components/SearchDialog'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { REPO_URL } from '@/lib/repo'
 import { AUTHOR, AUTHOR_URL, SITE_NAME } from '@/lib/site'
 
 export function Layout() {
@@ -23,6 +24,12 @@ export function Layout() {
         </div>
       </header>
       <Outlet />
+      <footer className="mt-16 border-t px-6 py-6 text-sm text-muted-foreground">
+        {SITE_NAME}, by {AUTHOR}. Questions are CC BY-NC-SA 4.0; code is MIT.{' '}
+        <a href={REPO_URL} className="text-link hover:text-link-hover">
+          GitHub
+        </a>
+      </footer>
       <ScrollRestoration />
     </>
   )

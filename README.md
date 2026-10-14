@@ -61,4 +61,4 @@ Every question is one Markdown file. See [`templates/README.md`](templates/READM
 
 ## License
 
-[MIT](LICENSE)
+Code: [MIT](LICENSE). Questions and flashcards in `content/`: [CC BY-NC-SA 4.0](content/LICENSE).
