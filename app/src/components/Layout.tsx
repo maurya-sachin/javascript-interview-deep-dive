@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 
 const MAIN_LINKS = [
   { to: '/paths', label: 'Paths' },
+  { to: '/practice', label: 'Practice' },
   { to: '/roadmap', label: 'Roadmap' },
 ]
 

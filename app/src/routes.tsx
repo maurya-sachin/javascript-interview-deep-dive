@@ -8,7 +8,9 @@ import { FlashcardsPage } from '@/pages/FlashcardsPage'
 import { HomePage } from '@/pages/HomePage'
 import { PathPage } from '@/pages/PathPage'
 import { PathsPage } from '@/pages/PathsPage'
+import { PracticeHubPage } from '@/pages/PracticeHubPage'
 import { PracticePage } from '@/pages/PracticePage'
+import { PracticeTopicPage } from '@/pages/PracticeTopicPage'
 import { QuestionPage } from '@/pages/QuestionPage'
 import { RoadmapPage } from '@/pages/RoadmapPage'
 import { TopicPage } from '@/pages/TopicPage'
@@ -32,6 +34,8 @@ export const router = createBrowserRouter(
             { path: 'paths', element: <PathsPage /> },
             { path: 'paths/:slug', element: <PathPage /> },
             { path: 'roadmap', element: <RoadmapPage /> },
+            { path: 'practice', element: <PracticeHubPage /> },
+            { path: 'practice/:topic', element: <PracticeTopicPage />, loader: ({ params }: LoaderFunctionArgs) => loadTopic(params.topic) },
             {
               path: 'practice/:topic/:chapter',
               element: <PracticePage />,
