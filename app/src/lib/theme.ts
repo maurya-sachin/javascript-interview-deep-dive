@@ -18,8 +18,12 @@ function readStoredTheme(): Theme {
   }
 }
 
+let systemDarkQuery: MediaQueryList | undefined
+
+/** One shared query list, so the listener is removed from the same object it was added to. */
 function systemDark(): MediaQueryList {
-  return window.matchMedia('(prefers-color-scheme: dark)')
+  systemDarkQuery ??= window.matchMedia('(prefers-color-scheme: dark)')
+  return systemDarkQuery
 }
 
 function snapshot(): Theme {
