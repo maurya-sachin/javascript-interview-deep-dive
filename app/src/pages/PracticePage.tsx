@@ -17,17 +17,15 @@ const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 interface SessionProps {
   questions: QuestionData[]
-  /** The kind of session, shown above the card; the breadcrumbs already name the topic and chapter. */
-  title: string
   /** Where to go after the last question, when a later chapter has questions to practise. */
   next: { title: string; to: string } | undefined
 }
 
-function Summary({ questions, missed, title, next, headingRef, onRestart }: SessionProps & { missed: QuestionData[]; headingRef: Ref<HTMLHeadingElement>; onRestart: () => void }) {
+function Summary({ questions, missed, next, headingRef, onRestart }: SessionProps & { missed: QuestionData[]; headingRef: Ref<HTMLHeadingElement>; onRestart: () => void }) {
   const knew = questions.length - missed.length
   return (
     <>
-      <SessionHeader title={title} />
+      <SessionHeader title="Questions" />
       <SessionProgress done={questions.length} total={questions.length} label="Questions answered" />
       <SessionCard>
         <h1 ref={headingRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
@@ -72,7 +70,7 @@ function Summary({ questions, missed, title, next, headingRef, onRestart }: Sess
   )
 }
 
-function Session({ questions, title, next }: SessionProps) {
+function Session({ questions, next }: SessionProps) {
   const [position, setPosition] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [missed, setMissed] = useState<QuestionData[]>([])
@@ -93,12 +91,12 @@ function Session({ questions, title, next }: SessionProps) {
   const { promptRef, answerRef, doneRef } = useSessionFocus<HTMLHeadingElement, HTMLElement>(position, revealed, finished)
   useShortcuts(finished ? {} : revealed ? { '1': () => record(false), '2': () => record(true) } : { ' ': () => setRevealed(true), Enter: () => setRevealed(true) })
 
-  if (finished) return <Summary questions={questions} missed={missed} title={title} next={next} headingRef={doneRef} onRestart={restart} />
+  if (finished) return <Summary questions={questions} missed={missed} next={next} headingRef={doneRef} onRestart={restart} />
 
   const question = questions[position]
   return (
     <>
-      <SessionHeader title={title} status={`${position + 1} of ${questions.length}`} />
+      <SessionHeader title="Questions" status={`${position + 1} of ${questions.length}`} />
       <SessionProgress done={position} total={questions.length} label="Questions answered" />
       <SessionCard>
         <h1 ref={promptRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
@@ -168,7 +166,7 @@ export function PracticePage() {
       ) : (
         // Keyed so moving between chapters starts a fresh session.
         <div className="mx-auto max-w-2xl">
-          <Session key={chapter.slug} questions={questions} title="Questions" next={nextChapter && { title: nextChapter.title, to: `/practice/${topic.slug}/${nextChapter.slug}` }} />
+          <Session key={chapter.slug} questions={questions} next={nextChapter && { title: nextChapter.title, to: `/practice/${topic.slug}/${nextChapter.slug}` }} />
         </div>
       )}
     </PageShell>

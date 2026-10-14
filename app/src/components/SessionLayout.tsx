@@ -1,25 +1,26 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { cn } from '@/lib/utils'
 
 /** The top line of a session: what is being studied, how far along, and a way out. Put the progress bar right after it. */
 export function SessionHeader({ title, status }: { title: string; status?: string }) {
   return (
     <div className="mb-3 flex items-baseline justify-between gap-4 text-sm text-muted-foreground">
       <p className="min-w-0 truncate">{title}</p>
-      <p className="flex shrink-0 items-baseline gap-4">
-        {status && <span aria-live="polite">{status}</span>}
-        <Link to="/practice" className="hover:text-foreground">
-          End session
-        </Link>
-      </p>
+      {status && (
+        <p className="flex shrink-0 items-baseline gap-4">
+          <span aria-live="polite">{status}</span>
+          <Link to="/practice" className="hover:text-foreground">
+            End session
+          </Link>
+        </p>
+      )}
     </div>
   )
 }
 
 /** The surface a card, question or summary sits on. */
-export function SessionCard({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('mt-6 flex min-h-72 flex-col rounded-xl border bg-card p-5 [overflow-wrap:anywhere] sm:p-10', className)}>{children}</div>
+export function SessionCard({ children }: { children: ReactNode }) {
+  return <div className="mt-6 flex min-h-72 flex-col rounded-xl border bg-card p-5 [overflow-wrap:anywhere] sm:p-10">{children}</div>
 }
 
 interface Segment {
