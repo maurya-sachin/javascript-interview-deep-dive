@@ -7,6 +7,7 @@ import { Kbd } from '@/components/Kbd'
 import { SessionProgress } from '@/components/SessionProgress'
 import { SITE_NAME } from '@/lib/site'
 import { formatUntil } from '@/lib/time'
+import { useSessionFocus } from '@/lib/useSessionFocus'
 import { useShortcuts } from '@/lib/useShortcuts'
 import type { loadFlashcards } from '@/content/index-data'
 import { dueQueue, loadReviews, nextDue, rateCard } from '@/content/review'
@@ -30,9 +31,9 @@ function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
   const [counts, setCounts] = useState<Counts>({ again: 0, hard: 0, good: 0, easy: 0 })
   const rated = counts.again + counts.hard + counts.good + counts.easy
   const card = queue[0]
+  const { promptRef, answerRef } = useSessionFocus<HTMLParagraphElement, HTMLElement>(rated, revealed)
 
   function rate(grade: Grade, count: keyof Counts) {
-    if (!card || !revealed) return // a second key press before re-render
     setReviews(rateCard(reviews, card.id, grade, new Date()))
     // A card you missed comes round again in this sitting.
     setQueue(grade === Rating.Again ? [...queue.slice(1), card] : queue.slice(1))
@@ -68,14 +69,14 @@ function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
       <p className="mt-2 font-mono text-sm text-muted-foreground" aria-live="polite">
         {queue.length} left
       </p>
-      <p className="mt-4 text-2xl leading-snug font-semibold">
+      <p ref={promptRef} tabIndex={-1} className="mt-4 text-2xl leading-snug font-semibold outline-none">
         <InlineHtml html={card.frontHtml} className={CODE_STYLE} />
       </p>
       {revealed ? (
         <>
-          <p className="mt-6 rounded-xl bg-tldr px-6 py-5 text-lg leading-relaxed">
+          <section ref={answerRef} tabIndex={-1} aria-label="Answer" className="mt-6 rounded-xl bg-tldr px-6 py-5 text-lg leading-relaxed outline-none">
             <InlineHtml html={card.backHtml} className={CODE_STYLE} />
-          </p>
+          </section>
           {card.question && (
             <Link to={`/${card.question}`} className="mt-4 inline-block text-link hover:text-link-hover">
               Read the full question

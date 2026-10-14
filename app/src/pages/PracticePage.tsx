@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/Kbd'
 import { SessionProgress } from '@/components/SessionProgress'
 import { SITE_NAME } from '@/lib/site'
+import { useSessionFocus } from '@/lib/useSessionFocus'
 import { useShortcuts } from '@/lib/useShortcuts'
 import { findChapter, type loadPractice } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
@@ -52,12 +53,12 @@ function Session({ questions }: { questions: QuestionData[] }) {
   }
 
   function record(gotIt: boolean) {
-    if (position >= questions.length) return // a second key press before re-render
     if (!gotIt) setMissed((previous) => [...previous, questions[position]])
     setPosition(position + 1)
     setRevealed(false)
   }
 
+  const { promptRef, answerRef } = useSessionFocus<HTMLHeadingElement, HTMLElement>(position, revealed)
   const finished = position >= questions.length
   useShortcuts(finished ? {} : revealed ? { '1': () => record(false), '2': () => record(true) } : { ' ': () => setRevealed(true), Enter: () => setRevealed(true) })
 
@@ -70,18 +71,20 @@ function Session({ questions }: { questions: QuestionData[] }) {
       <p className="mt-2 font-mono text-sm text-muted-foreground" aria-live="polite">
         {position + 1} / {questions.length}
       </p>
-      <h1 className="mt-3 text-3xl leading-tight font-bold tracking-tight">
+      <h1 ref={promptRef} tabIndex={-1} className="mt-3 text-3xl leading-tight font-bold tracking-tight outline-none">
         <InlineHtml html={question.titleHtml} className={CODE_STYLE} />
       </h1>
 
       {revealed ? (
         <>
-          <section aria-label="TL;DR" className="mt-8 rounded-xl bg-tldr px-6 py-5 text-lg leading-relaxed">
-            <InlineHtml html={question.tldrHtml} className={CODE_STYLE} />
+          <section ref={answerRef} tabIndex={-1} aria-label="Answer" className="outline-none">
+            <section aria-label="TL;DR" className="mt-8 rounded-xl bg-tldr px-6 py-5 text-lg leading-relaxed">
+              <InlineHtml html={question.tldrHtml} className={CODE_STYLE} />
+            </section>
+            <div className="mt-6">
+              <Html html={question.answerHtml} />
+            </div>
           </section>
-          <div className="mt-6">
-            <Html html={question.answerHtml} />
-          </div>
           <Link to={`/${question.id}`} className="mt-4 inline-block text-link hover:text-link-hover">
             Read the full question
           </Link>
