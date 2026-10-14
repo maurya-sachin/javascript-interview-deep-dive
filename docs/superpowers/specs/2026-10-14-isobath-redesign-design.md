@@ -25,7 +25,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 
 ## 2. Brand
 - Tokens: Geist, Geist Mono, Newsreader (SIL OFL); accent `#2F4FD8` light / `#9DAEF7` dark; prose column 720px. R13 is updated to match what the app really uses.
-- **Topic covers** are contour maps generated at build time from topic slug + data: chapters = levels, difficulty mix = crowding. Chaining marching-squares segments removes stray fragments. Original by construction, zero drawing per topic.
+- **Topic covers** are contour maps generated from topic slug + data by a pure function (`app/src/lib/contours.ts`), so the same code runs in the browser and, later, in the prerender step: chapters = levels, difficulty mix = crowding. Chaining marching-squares segments removes stray fragments. Original by construction, zero drawing per topic.
 - **Charts** use the 4-level depth scale (30-second answer · full answer · follow-ups · spec/engine) instead of generic bars. Built with the `dataviz` skill rules.
 - **OG images:** moved to the prerender step (§6): resvg-js needs TTF/OTF fonts and `@fontsource` ships only woff/woff2, so the font source and rasterizer are chosen and verified there, together with per-page meta tags.
 - Legal: the maintainer makes the creative choices and keeps the drafts as a record; a human designer redraws the final mark; trademark clearance only if the brand outgrows the personal name. Remind the maintainer before the logo is final.
