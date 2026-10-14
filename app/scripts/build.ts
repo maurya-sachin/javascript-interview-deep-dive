@@ -124,6 +124,7 @@ for (const question of questions) {
 async function summarize(question: Question): Promise<QuestionSummary> {
   const meta = metaOf(question)
   const title = await renderInline(meta.title)
+  const written = hasPage(meta)
   return {
     id: question.id,
     number: question.number,
@@ -133,10 +134,11 @@ async function summarize(question: Question): Promise<QuestionSummary> {
     difficulty: meta.difficulty,
     frequency: meta.frequency,
     core: meta.core,
-    hasPage: hasPage(meta),
-    verified: meta.status === 'planned' ? null : meta.verified,
-    stale: meta.status !== 'planned' && isStale(meta.verified, BUILD_DATE),
-    legacy: meta.status === 'planned' ? null : (meta.legacy ?? null),
+    hasPage: written,
+    // Freshness is only published for questions a reader can open in this build.
+    verified: written ? meta.verified : null,
+    stale: written && isStale(meta.verified, BUILD_DATE),
+    legacy: written ? (meta.legacy ?? null) : null,
   }
 }
 
