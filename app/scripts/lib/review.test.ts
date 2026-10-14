@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { deckStatus, dueQueue, NEW_CARDS_PER_SESSION, nextDue, type Reviews } from '../../src/content/review.ts'
+import { fsrs, Rating } from 'ts-fsrs'
+import { deckStatus, dueQueue, isValidCard, loadReviews, NEW_CARDS_PER_SESSION, nextDue, type Reviews } from '../../src/content/review.ts'
 
 const now = new Date('2026-10-14T12:00:00Z')
-const card = (due: string) => ({ due, stability: 1, difficulty: 5, elapsed_days: 0, scheduled_days: 1, learning_steps: 0, reps: 1, lapses: 0 })
+const card = (due: string) => ({ due, state: 2, stability: 1, difficulty: 5, elapsed_days: 0, scheduled_days: 1, learning_steps: 0, reps: 1, lapses: 0 })
 
 const reviews = {
   'javascript/a': card('2026-10-13T00:00:00Z'), // overdue
@@ -38,4 +39,28 @@ test('a session takes every overdue card, oldest first, then at most 20 new ones
   assert.deepEqual(queue.slice(0, 1), ['javascript/a'])
   assert.equal(queue.length, 1 + NEW_CARDS_PER_SESSION)
   assert.ok(!queue.includes('javascript/b') && !queue.includes('javascript/c'))
+})
+
+test('a card is valid only with every field the scheduler reads', () => {
+  const valid = card('2026-10-20T00:00:00Z')
+  assert.ok(isValidCard(valid))
+  assert.ok(isValidCard({ ...valid, last_review: '2026-10-10T00:00:00Z' }))
+  assert.ok(isValidCard({ ...valid, last_review: null }))
+  assert.ok(!isValidCard({ ...valid, state: undefined }))
+  assert.ok(!isValidCard({ ...valid, state: 7 }))
+  assert.ok(!isValidCard({ ...valid, state: 1.5 }))
+  assert.ok(!isValidCard({ ...valid, stability: Number.NaN }))
+  assert.ok(!isValidCard({ ...valid, due: 'garbage' }))
+  assert.ok(!isValidCard({ ...valid, last_review: 'garbage' }))
+  assert.ok(!isValidCard(null) && !isValidCard([]) && !isValidCard('card'))
+})
+
+test('a valid card can be rated', () => {
+  assert.doesNotThrow(() => fsrs().next(card('2026-10-20T00:00:00Z'), new Date(), Rating.Good))
+})
+
+test('loading history drops damaged entries and keeps valid ones', () => {
+  const stored = JSON.stringify({ 'javascript/a': card('2026-10-20T00:00:00Z'), 'javascript/b': { due: 'garbage' } })
+  Object.defineProperty(globalThis, 'localStorage', { value: { getItem: () => stored }, configurable: true })
+  assert.deepEqual(Object.keys(loadReviews()), ['javascript/a'])
 })

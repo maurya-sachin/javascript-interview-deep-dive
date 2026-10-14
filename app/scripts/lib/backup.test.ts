@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { Reviews } from '../../src/content/review.ts'
+import { fsrs, Rating } from 'ts-fsrs'
 import { createBackup, mergeBackup, parseBackup } from '../../src/lib/backup.ts'
 import type { Progress } from '../../src/lib/progress.ts'
 
 const now = new Date('2026-10-14T12:00:00Z')
 const card = (due: string, lastReview: string | null) =>
-  ({ due, last_review: lastReview, stability: 1, difficulty: 5, elapsed_days: 0, scheduled_days: 1, learning_steps: 0, reps: 1, lapses: 0 }) as unknown as Reviews[string]
+  ({ due, state: 2, last_review: lastReview, stability: 1, difficulty: 5, elapsed_days: 0, scheduled_days: 1, learning_steps: 0, reps: 1, lapses: 0 }) as unknown as Reviews[string]
 const progress: Progress = { read: ['javascript/a/b'], last: 'javascript/a/b', lastTitleHtml: '<code>x</code>' }
 const reviews: Reviews = { 'javascript/one': card('2026-10-20T00:00:00Z', '2026-10-10T00:00:00Z') }
 
@@ -25,6 +26,9 @@ test('rejects files that are not isobath progress, with a reader-facing message'
   assert.throws(() => parseBackup(JSON.stringify({ ...valid, progress: { read: [1] } })), /reading progress is damaged/)
   assert.throws(() => parseBackup(JSON.stringify({ ...valid, reviews: { 'javascript/one': { due: true } } })), /flashcard history is damaged/)
   assert.throws(() => parseBackup(JSON.stringify({ ...valid, reviews: { 'Not An Id': card('2026-10-20T00:00:00Z', null) } })), /flashcard history is damaged/)
+  for (const damaged of [{ ...card('2026-10-20T00:00:00Z', null), state: undefined }, { ...card('2026-10-20T00:00:00Z', null), state: 7 }, { ...card('2026-10-20T00:00:00Z', null), stability: Number.NaN }, card('garbage', null), card('2026-10-20T00:00:00Z', 'garbage')]) {
+    assert.throws(() => parseBackup(JSON.stringify({ ...valid, reviews: { 'javascript/one': damaged } })), /flashcard history is damaged/)
+  }
   assert.throws(() => parseBackup('{"format":"isobath-progress","version":1,"progress":{"read":[]},"reviews":{"__proto__":{"due":"2026-10-20"}}}'), /flashcard history is damaged/)
 })
 
@@ -53,4 +57,9 @@ test('merge keeps the most recently reviewed copy of each card and adds new ones
   assert.equal(String(merged.reviews['javascript/one'].due), '2026-11-01T00:00:00Z')
   assert.ok('javascript/two' in merged.reviews)
   assert.equal(String(mergeBackup({ progress, reviews }, older).reviews['javascript/one'].due), '2026-10-20T00:00:00Z')
+})
+
+test('a parsed card can be rated', () => {
+  const parsed = parseBackup(JSON.stringify(createBackup(progress, reviews, now)))
+  assert.doesNotThrow(() => fsrs().next(parsed.reviews['javascript/one'], new Date(), Rating.Good))
 })

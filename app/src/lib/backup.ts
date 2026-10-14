@@ -1,6 +1,6 @@
 // Export and import of the learner's progress (reading and flashcards), the only backup there is: no accounts.
 
-import type { Reviews } from '../content/review.ts'
+import { isValidCard, type Reviews } from '../content/review.ts'
 import type { Progress } from './progress.ts'
 
 export const BACKUP_FORMAT = 'isobath-progress'
@@ -39,7 +39,7 @@ export function parseBackup(text: string): Backup {
   }
   const reviewsValid =
     isRecord(reviews) &&
-    Object.entries(reviews).every(([id, card]) => CARD_ID.test(id) && isRecord(card) && (typeof card.due === 'string' || typeof card.due === 'number'))
+    Object.entries(reviews).every(([id, card]) => CARD_ID.test(id) && isValidCard(card))
   if (!reviewsValid) throw new Error("The file's flashcard history is damaged.")
 
   return {

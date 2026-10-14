@@ -10,12 +10,33 @@ const scheduler = fsrs()
 /** Review state by flashcard id. A card with no entry is new. */
 export type Reviews = Record<string, CardInput>
 
+const NUMERIC_FIELDS = ['stability', 'difficulty', 'elapsed_days', 'scheduled_days', 'learning_steps', 'reps', 'lapses']
+
+function isTime(value: unknown): boolean {
+  return (typeof value === 'string' || typeof value === 'number') && Number.isFinite(new Date(value).getTime())
+}
+
+/** Whether `value` has every field ts-fsrs reads, so a damaged stored or imported card can't break scheduling. */
+export function isValidCard(value: unknown): value is CardInput {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
+  const card = value as Record<string, unknown>
+  return (
+    Number.isInteger(card.state) &&
+    (card.state as number) >= 0 &&
+    (card.state as number) <= 3 &&
+    NUMERIC_FIELDS.every((field) => Number.isFinite(card[field])) &&
+    isTime(card.due) &&
+    (card.last_review == null || isTime(card.last_review))
+  )
+}
+
 export function loadReviews(): Reviews {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     const data: unknown = raw ? JSON.parse(raw) : {}
-    // Anything that isn't a plain object (or can't be read) counts as no history.
-    return typeof data === 'object' && data !== null && !Array.isArray(data) ? (data as Reviews) : {}
+    // Anything that isn't a plain object (or can't be read) counts as no history; damaged cards are dropped.
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) return {}
+    return Object.fromEntries(Object.entries(data).filter(([, card]) => isValidCard(card)))
   } catch {
     return {}
   }
