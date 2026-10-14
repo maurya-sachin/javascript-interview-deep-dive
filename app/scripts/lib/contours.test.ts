@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { contourRings, ringPath } from '../../src/lib/contours.ts'
+import { contourRings, furthestPoint, ringAtLevel, ringPath } from '../../src/lib/contours.ts'
 
 const SEEDS = Array.from({ length: 120 }, (_, index) => `topic-${index}`)
 
@@ -38,4 +38,20 @@ test('size scales the coordinates', () => {
 
 test('ringPath closes the path and rounds to one decimal', () => {
   assert.equal(ringPath([[1, 2], [3.456, 4], [5, 6.04]]), 'M1.0 2.0L3.5 4.0L5.0 6.0Z')
+})
+
+test('ringAtLevel returns the ring with the most points at that level', () => {
+  const rings = contourRings({ seed: 'javascript', levels: 6 })
+  const ring = ringAtLevel(rings, 2)
+  assert.ok(ring)
+  assert.ok(rings.filter((candidate) => candidate.level === 2).every((candidate) => candidate.points.length <= ring.points.length))
+  assert.equal(ringAtLevel(rings, 99), undefined)
+})
+
+test('furthestPoint picks the point furthest in a direction (angle 0 is right, y grows downward)', () => {
+  const square: [number, number][] = [[0, 0], [10, 0], [10, 10], [0, 10]]
+  assert.equal(furthestPoint(square, 0)[0], 10)
+  assert.equal(furthestPoint(square, Math.PI)[0], 0)
+  assert.equal(furthestPoint(square, Math.PI / 2)[1], 10)
+  assert.equal(furthestPoint(square, -Math.PI / 2)[1], 0)
 })

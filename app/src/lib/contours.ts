@@ -167,3 +167,14 @@ export function contourRings({ seed, levels, steepness = 0, size = 100 }: Contou
 export function ringPath(points: readonly Point[]): string {
   return points.map(([x, y], index) => `${index === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join('') + 'Z'
 }
+
+/** The ring with the most points at a level (a level can have several rings); `undefined` when the level has none. */
+export function ringAtLevel(rings: Ring[], level: number): Ring | undefined {
+  return rings.filter((ring) => ring.level === level).reduce<Ring | undefined>((best, ring) => (!best || ring.points.length > best.points.length ? ring : best), undefined)
+}
+
+/** The point furthest in a direction: `angle` 0 is right and grows clockwise on screen (y grows downward). */
+export function furthestPoint(points: readonly Point[], angle: number): Point {
+  const reach = ([x, y]: Point) => x * Math.cos(angle) + y * Math.sin(angle)
+  return points.reduce((best, point) => (reach(point) > reach(best) ? point : best))
+}
