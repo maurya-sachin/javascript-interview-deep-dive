@@ -33,7 +33,7 @@ function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; c
   const [counts, setCounts] = useState<Counts>({ again: 0, hard: 0, good: 0, easy: 0 })
   const rated = counts.again + counts.hard + counts.good + counts.easy
   const card = queue[0]
-  const { promptRef, answerRef, doneRef } = useSessionFocus<HTMLParagraphElement, HTMLElement>(rated, revealed, !card, isLaterRound)
+  const { promptRef, answerRef, doneRef } = useSessionFocus<HTMLHeadingElement, HTMLElement>(rated, revealed, !card, isLaterRound)
 
   function rate(grade: Grade, count: keyof Counts) {
     setReviews(recordRating(reviews, card.id, grade, new Date()))
@@ -102,9 +102,9 @@ function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; c
       <SessionHeader title="Flashcards" status={`${rated + 1} of ${rated + queue.length}`} />
       <SessionProgress done={rated} total={rated + queue.length} label="Cards reviewed" />
       <SessionCard>
-        <p ref={promptRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
+        <h1 ref={promptRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
           <InlineHtml html={card.frontHtml} className={CODE_STYLE} />
-        </p>
+        </h1>
         {revealed && (
           <>
             <hr className="my-6" />
