@@ -4,6 +4,7 @@ import { Html } from '@/components/question/Html'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { Button } from '@/components/ui/button'
+import { SITE_NAME } from '@/lib/site'
 import { findChapter, type loadPractice } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
 
@@ -106,7 +107,7 @@ export function PracticePage() {
         { label: chapter.title, to: `/${topic.slug}/${chapter.slug}` },
       ]}
     >
-      <title>{`Practice: ${chapter.title} · Deep Dive`}</title>
+      <title>{`Practice: ${chapter.title} · ${SITE_NAME}`}</title>
       {questions.length === 0 ? (
         <p className="text-muted-foreground">No published questions in this chapter yet.</p>
       ) : (

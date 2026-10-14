@@ -13,6 +13,7 @@ import { findChapter, neighbours, questionId, questionPath, useTopic } from '@/c
 import type { QuestionPage as QuestionData } from '@/content/types'
 import { markRead } from '@/lib/progress'
 import { editUrl, suggestFixUrl } from '@/lib/repo'
+import { SITE_NAME } from '@/lib/site'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
@@ -56,7 +57,7 @@ export function QuestionPage() {
             { label: chapter.title, to: `/${topic.slug}/${chapter.slug}` },
           ]}
         />
-          <title>{`${question.title} · Deep Dive`}</title>
+          <title>{`${question.title} · ${SITE_NAME}`}</title>
           <h1 className="text-[2.5rem] leading-[1.1] font-bold tracking-[-0.03em]">
             <QuestionTitle html={question.titleHtml} />
           </h1>

@@ -15,6 +15,10 @@
     --font-serif: 'Newsreader Variable', Georgia, serif;
     --color-depth-from: var(--depth-from);
     --color-depth-to: var(--depth-to);
+    --color-depth-1: var(--depth-1);
+    --color-depth-2: var(--depth-2);
+    --color-depth-3: var(--depth-3);
+    --color-depth-4: var(--depth-4);
     --color-link: var(--link);
     --color-link-hover: var(--link-hover);
     --color-tldr: var(--tldr);
@@ -98,6 +102,11 @@
     --tldr-foreground: #1E3A8A;
     --depth-from: #BCD0FF;
     --depth-to: #1B2A6B;
+    /* Four stops down the ramp: shallow (1, the 30-second answer) to deep (4, spec and engine). */
+    --depth-1: var(--depth-from);
+    --depth-2: color-mix(in oklab, var(--depth-from) 67%, var(--depth-to));
+    --depth-3: color-mix(in oklab, var(--depth-from) 33%, var(--depth-to));
+    --depth-4: var(--depth-to);
 }
 
 .dark {

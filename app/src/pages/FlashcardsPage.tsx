@@ -3,6 +3,7 @@ import { Link, useLoaderData } from 'react-router'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { Button } from '@/components/ui/button'
+import { SITE_NAME } from '@/lib/site'
 import type { loadFlashcards } from '@/content/index-data'
 import { dueQueue, loadReviews, rateCard } from '@/content/review'
 import type { Flashcard } from '@/content/types'
@@ -87,7 +88,7 @@ export function FlashcardsPage() {
         { label: topic.title, to: `/${topic.slug}` },
       ]}
     >
-      <title>{`Flashcards: ${topic.title} · Deep Dive`}</title>
+      <title>{`Flashcards: ${topic.title} · ${SITE_NAME}`}</title>
       {cards.length === 0 ? (
         <p className="text-muted-foreground">This topic has no flashcards yet.</p>
       ) : (
