@@ -1,4 +1,4 @@
-# isobath (Deep Dive)
+# isobath
 
 Interview questions for any software engineer, from language to spec/engine to infrastructure — not introductory.
 One Markdown file per question in `content/`; the client-only app in `app/` reads generated JSON.

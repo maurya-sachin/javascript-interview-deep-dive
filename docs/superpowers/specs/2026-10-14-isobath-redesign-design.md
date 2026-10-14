@@ -27,7 +27,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 - Tokens: Geist, Geist Mono, Newsreader (SIL OFL); accent `#2F4FD8` light / `#9DAEF7` dark; prose column 720px. R13 is updated to match what the app really uses.
 - **Topic covers** are contour maps generated at build time from topic slug + data: chapters = levels, difficulty mix = crowding. Chaining marching-squares segments removes stray fragments. Original by construction, zero drawing per topic.
 - **Charts** use the 4-level depth scale (30-second answer · full answer · follow-ups · spec/engine) instead of generic bars. Built with the `dataviz` skill rules.
-- **OG images:** SVG → PNG. The plan must pick a rasterizer and verify it on Node 24 before depending on it.
+- **OG images:** moved to the prerender step (§6): resvg-js needs TTF/OTF fonts and `@fontsource` ships only woff/woff2, so the font source and rasterizer are chosen and verified there, together with per-page meta tags.
 - Legal: the maintainer makes the creative choices and keeps the drafts as a record; a human designer redraws the final mark; trademark clearance only if the brand outgrows the personal name. Remind the maintainer before the logo is final.
 
 ## 3. Navigation
@@ -75,7 +75,7 @@ The plan breaks these into small commits; each step keeps `npm run build` and `c
 - Prerender + hydration mismatches → neutral server state, tested by building and loading with JS disabled.
 - Contour generator produces ugly shapes for sparse topics → fixed-seed from slug, review all covers once, add a minimum-levels floor.
 - Search quality drops when sharded → manifest-level title search always available; verify with a fixed query list.
-- Rasterizer unavailable/inconsistent → decided and verified in the plan before OG work.
+- Rasterizer or font source unavailable/inconsistent → decided and verified in the prerender plan before OG work.
 
 ## Decision: content licence
 CC BY-NC-SA 4.0 for question text (protects against resale; PR contributions stay simple), code stays MIT. Applying it (LICENSE files, README, site footer) is its own task, done with the brand step.

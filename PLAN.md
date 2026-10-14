@@ -31,7 +31,7 @@ Non-goals: backend service, accounts, paid AI.
   - Backend: `nodejs http-and-apis backend-patterns databases caching messaging-and-jobs authentication`
   - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
   - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
-- R13 Brand: **isobath, by Sachin Maurya** — tagline "engineering interviews, in depth"; mark = nested irregular contour lines (a human designer redraws the final); calm editorial + depth-strata motif; originals only. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent `#2F4FD8` / `#9DAEF7`; prose column 720px. Final spec supersedes this once approved.
+- R13 Brand: **isobath, by Sachin Maurya**, "engineering interviews, in depth". Mark = nested irregular contours (draft; a human designer redraws the final); topic covers are generated from slug + data (`app/src/lib/contours.ts`); depth scale = `--depth-1..4`. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent #2F4FD8 / #9DAEF7; prose column 720px. Originals only.
 - R15 Data: `manifest.json` + `topics/<slug>/{index,search,flashcards}.json`; a topic's shard loads on demand, never one big file.
 - R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes. Host: `learn.sachinmaurya.com`; `/portfolio` redirects to the portfolio via `vercel.json`.
 

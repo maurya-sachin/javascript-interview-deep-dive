@@ -1,4 +1,6 @@
-# Deep Dive
+# isobath
+
+*Engineering interviews, in depth.* By Sachin Maurya.
 
 Interview questions for frontend, backend and infrastructure engineers, answered the way a strong candidate would: a 30-second answer first, then the mechanism underneath.
 Not an introduction: work through a topic and you should be able to explain *why* it behaves the way it does.
