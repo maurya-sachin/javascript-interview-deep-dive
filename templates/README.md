@@ -201,6 +201,7 @@ Commands (Node 24, run in `app/`):
 | `npm run content:check` | Validates every topic, chapter, and question against this guide; fails on any problem |
 | `npm run content:sync` | Regenerates README status lines and `generated:` tables |
 | `npm run content:status [topic]` | Published counts per chapter and every `→ —` gap |
+| `npm run content:status -- --stale [topic]` | Written questions to re-check, oldest first: stale ones and any with `perishable` notes |
 | `npm run content:new -- <topic>/<chapter> <slug> "<title>" --difficulty <d> --frequency <1-5> [--core] [--number NNN]` | Creates a `planned` stub, then syncs READMEs |
 | `npm run content:build [-- --drafts]` | Compiles content into `app/public/data/` (published only; `--drafts` adds drafts) |
 | `npm run dev` | Builds content with drafts and starts the app |
