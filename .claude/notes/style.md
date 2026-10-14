@@ -14,3 +14,5 @@ Record here only conventions not covered there (e.g., maintainer corrections). D
 - Before deleting code, use two signals (grep including dynamic imports, plus git history) and name both in the commit message.
 - Pages are prerendered (R19): never read `window`, `document` or `localStorage` at module load or during the first render; use `useSyncExternalStore` with a server snapshot. Every prerendered page must render a `<title>`.
 - Session focus and keys: `useShortcuts` (Enter/Space stay native on links and buttons) and `useSessionFocus`.
+- Browser-only stores live apart from pure logic so Node tests never compile DOM code: `src/content/reviewStore.ts` (flashcard history) vs `src/content/review.ts`; `src/lib/progress.ts` vs `src/lib/progressTypes.ts`. Never add `/// <reference lib="dom" />` to shared modules.
+- Prerendered pages show browser-only counts only after hydration (`useHydrated`), with the space reserved, so the first paint is neutral.

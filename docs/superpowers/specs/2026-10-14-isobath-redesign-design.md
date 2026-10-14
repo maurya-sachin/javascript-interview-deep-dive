@@ -64,6 +64,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 - Generated `/changelog` from git history of `content/`.
 - Lifecycle labels: Draft · Reviewed · Legacy (honest, visible).
 - Perishable facts (versions, dates) are tagged in question frontmatter so a review pass can find them.
+- As built: optional `> **Covers:**` line directly above Track (≤ 15 words, enforced); topic rail shows Covers, oldest "Last verified" and how many need re-checking; stale = verified 12+ months before the build month, computed at build; labels Draft / Reviewed / Legacy (optional `legacy` reason); optional `perishable` notes listed by `content:status -- --stale`; `/changelog` lists, per day and topic, the published questions whose files changed (drafts, stubs and tooling commits never appear; unshallow only on CI).
 
 ## 8. Rollout order (each step ships on its own)
 1. Data shards + manifest
@@ -83,4 +84,4 @@ The plan breaks these into small commits; each step keeps `npm run build` and `c
 - Rasterizer or font source unavailable/inconsistent → decided and verified in the prerender plan before OG work.
 
 ## Decision: content licence
-CC BY-NC-SA 4.0 for question text (protects against resale; PR contributions stay simple), code stays MIT. Applying it (LICENSE files, README, site footer) is its own task, done with the brand step.
+CC BY-NC-SA 4.0 for question text (protects against resale; PR contributions stay simple), code stays MIT. Applied in `LICENSE`, `content/LICENSE` and the README. The maintainer chose (2026-10-14) not to repeat it in the site footer.

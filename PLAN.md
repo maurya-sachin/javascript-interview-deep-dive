@@ -4,7 +4,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. Step 3 (navigation) done; steps 1–3 re-audited 2026-10-14 (contrast to 3:1, cover colours, dead code, depth rail). Steps 4 (home + paths), 5 (practice + flashcards) and 6 (prerender + SEO) done. **Next: step 7 (evergreen), write its plan first;** step 7 gets its plan just before it starts
+- Doing: UI first, content after. Redesign steps 1–7 are built and reviewed on `v2` (spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md`, mockups in `specs/mockups/`), plus a practice-page redesign and the ring-"o" wordmark. **Next: maintainer review of `v2`, then push/merge (needs OK); then Phase 5 content review/publish.**
 - Brand draft for the designer: the JavaScript cover reads as near-concentric rings (tune `heightField` in `app/src/lib/contours.ts`)
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
@@ -35,6 +35,7 @@ Non-goals: backend service, accounts, paid AI.
 - R17 Paths: `content/paths/<role>.yaml` (ordered `<topic>` or `<topic>/<chapter>` entries with a one-line `why`, unique `order`, optional `start` question), validated by `content:check`; format in `templates/README.md` → Paths.
 - R18 Progress backup: JSON `isobath-progress` v1; import merges and never carries HTML; max 20 new flashcards per session.
 - R19 Prerender: every content page ships as `dist/<path>.html` and hydrates; no module touches `window`/`document`/`localStorage` at import time; browser-only state renders neutral on the server; unknown paths fall back to `app-shell.html`.
+- R20 Freshness: stale = verified 12+ months before the build month; labels Draft/Reviewed/Legacy come from `status` and `legacy`; `Covers` is authored in topic READMEs directly above Track; the changelog lists published questions only.
 - R16 Licence: code MIT (`LICENSE`); questions and flashcards in `content/` CC BY-NC-SA 4.0 (`content/LICENSE`).
 - R13 Brand: **isobath, by Sachin Maurya**, "engineering interviews, in depth". Wordmark = "isobath" with a contour ring as its "o"; the favicon is that ring (draft lettering; a human designer redraws the final); topic covers are generated from slug + data (`app/src/lib/contours.ts`); depth scale = `--depth-1..4`. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent #2F4FD8 / #9DAEF7; prose column 720px. Originals only.
 - R15 Data: `manifest.json` + `topics/<slug>/{index,search,flashcards}.json`; a topic's shard loads on demand, never one big file.
@@ -61,8 +62,6 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 ### 5 — Review and publish
 - [ ] Per question: maintainer review → `published`; update README status lines
 
-### 6 — Redesign (isobath)
-- [ ] Spec → plan → build, in the order the spec sets
 
 ### 7 — Next topics
 - [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content; plus TypeScript flashcards
