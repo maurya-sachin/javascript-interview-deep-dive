@@ -3,11 +3,13 @@ import { useState } from 'react'
 import { DifficultyMix } from '@/components/DifficultyMix'
 import { ComingSoon, NotFound, PageShell } from '@/components/PageShell'
 import { TopicCover } from '@/components/TopicCover'
+import { WARNING_TEXT } from '@/components/question/MetaRow'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { QuestionTitle } from '@/components/QuestionTitle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { questionPath, useTopic } from '@/content/index-data'
+import { formatMonth } from '@/content/freshness'
 import { filterOutline } from '@/content/outline'
 import { chapterStats } from '@/content/stats'
 import type { TopicSummary } from '@/content/types'
@@ -60,6 +62,16 @@ function Topic({ topic }: { topic: TopicSummary }) {
                 {topic.flashcardCount > 0 && <Stat value={topic.flashcardCount} label="flashcards" />}
                 {readCount > 0 && <Stat value={readCount} label="read by you" />}
               </dl>
+              <ul className="mt-4 flex flex-col gap-1 text-sm text-muted-foreground">
+                {topic.covers !== null && <li>Covers {topic.covers}</li>}
+                {stats.readable > 0 && (
+                  <li>
+                    {stats.reviewed} reviewed of {stats.readable}
+                  </li>
+                )}
+                {stats.lastVerified !== null && <li>Last verified {formatMonth(stats.lastVerified)}</li>}
+                {stats.stale > 0 && <li className={WARNING_TEXT}>{stats.stale} need re-checking</li>}
+              </ul>
               <div className="mt-6 flex flex-wrap gap-3 lg:flex-col">
                 {start && (
                   <Button asChild size="lg">
@@ -134,7 +146,11 @@ function Topic({ topic }: { topic: TopicSummary }) {
                                 <li key={question.id} className="border-t border-dashed first:border-t-0">
                                   {question.hasPage ? (
                                     <Link to={questionPath(question)} className="flex items-baseline justify-between gap-4 py-2 hover:text-link">
-                                      <QuestionTitle html={question.titleHtml} />
+                                      <span>
+                                        <QuestionTitle html={question.titleHtml} />
+                                        {question.legacy !== null && <span className={cn('ml-2 text-xs font-medium', WARNING_TEXT)}>Legacy</span>}
+                                        {question.stale && <span className={cn('ml-2 text-xs', WARNING_TEXT)}>may be out of date</span>}
+                                      </span>
                                       {read.includes(question.id) && <span className="shrink-0 text-xs text-muted-foreground">read</span>}
                                     </Link>
                                   ) : (

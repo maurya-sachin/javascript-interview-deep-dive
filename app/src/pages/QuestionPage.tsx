@@ -82,7 +82,14 @@ export function QuestionPage() {
             </p>
           ) : (
             <>
-              <MetaRow difficulty={content.difficulty} frequency={content.frequency} verified={content.verified} />
+              <MetaRow
+                status={content.status}
+                difficulty={content.difficulty}
+                frequency={content.frequency}
+                verified={content.verified}
+                stale={content.stale}
+                legacy={content.legacy}
+              />
 
               <section aria-labelledby="tldr" className="mt-10 scroll-mt-8 rounded-r-xl border-l-4 border-link bg-tldr py-5 pr-6 pl-6 text-tldr-foreground">
                 <h2 id="tldr" className="text-sm font-medium">
