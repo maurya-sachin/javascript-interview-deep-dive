@@ -30,14 +30,38 @@ export function dueQueue(cards: Flashcard[], reviews: Reviews, now: Date): Flash
   return [...overdue, ...unseen]
 }
 
+/** Stores the review history; if storage is blocked or full, the session still works but progress won't survive a reload. */
+export function saveReviews(reviews: Reviews): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews))
+  } catch {
+    // See above: nothing else to do without storage.
+  }
+}
+
 /** Records a rating and returns the updated reviews. */
 export function rateCard(reviews: Reviews, cardId: string, grade: Grade, now: Date): Reviews {
   const { card } = scheduler.next(reviews[cardId] ?? createEmptyCard(now), now, grade)
   const updated = { ...reviews, [cardId]: card }
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-  } catch {
-    // Storage is blocked or full: the session still works, but progress won't survive a reload.
-  }
+  saveReviews(updated)
   return updated
+}
+
+function reviewsOf(topic: string, reviews: Reviews) {
+  return Object.entries(reviews).filter(([id]) => id.startsWith(`${topic}/`))
+}
+
+/** Cards due now and cards never seen, for one topic's deck of `cardCount` cards. Ids of cards since removed are clamped away. */
+export function deckStatus(topic: string, cardCount: number, reviews: Reviews, now: Date): { due: number; unseen: number } {
+  const seen = reviewsOf(topic, reviews)
+  const due = seen.filter(([, card]) => new Date(card.due) <= now).length
+  return { due: Math.min(due, cardCount), unseen: Math.max(cardCount - seen.length, 0) }
+}
+
+/** When the soonest not-yet-due card in a topic comes due; `null` if none is scheduled. */
+export function nextDue(topic: string, reviews: Reviews, now: Date): Date | null {
+  const upcoming = reviewsOf(topic, reviews)
+    .map(([, card]) => new Date(card.due))
+    .filter((due) => due > now)
+  return upcoming.length === 0 ? null : new Date(Math.min(...upcoming.map((due) => due.getTime())))
 }

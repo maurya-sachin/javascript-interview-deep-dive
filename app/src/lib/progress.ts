@@ -43,16 +43,21 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener)
 }
 
-/** Records that a question was opened. */
-export function markRead(id: string, titleHtml: string) {
-  const { read } = snapshot()
-  cached = { read: read.includes(id) ? read : [...read, id], last: id, lastTitleHtml: titleHtml }
+/** Replaces the stored reading progress, e.g. after an import, and updates every reader. */
+export function replaceProgress(next: Progress) {
+  cached = next
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cached))
   } catch {
     // Storage is blocked or full: progress lasts for this session only.
   }
   listeners.forEach((listener) => listener())
+}
+
+/** Records that a question was opened. */
+export function markRead(id: string, titleHtml: string) {
+  const { read } = snapshot()
+  replaceProgress({ read: read.includes(id) ? read : [...read, id], last: id, lastTitleHtml: titleHtml })
 }
 
 export function useProgress(): Progress {
