@@ -1,42 +1,40 @@
 import { Link } from 'react-router'
-import { DepthLadder } from '@/components/DepthLadder'
 import { DifficultyMix } from '@/components/DifficultyMix'
 import { PageShell } from '@/components/PageShell'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { QuestionTitle } from '@/components/QuestionTitle'
-import { useManifest } from '@/content/index-data'
+import { Roadmap } from '@/components/Roadmap'
+import { RoleList } from '@/components/RoleList'
+import { StrataFigure } from '@/components/StrataFigure'
+import { TopicCover } from '@/components/TopicCover'
+import { Button } from '@/components/ui/button'
+import { questionPath, useManifest } from '@/content/index-data'
 import type { TopicOverview } from '@/content/types'
 import { useProgress } from '@/lib/progress'
-import { groupByTrack } from '@/lib/tracks'
-import { cn } from '@/lib/utils'
+import { SITE_NAME, TAGLINE } from '@/lib/site'
+
+const INLINE_CODE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 export function HomePage() {
-  const { topics } = useManifest()
-  const { read, last, lastTitleHtml } = useProgress()
+  const { topics, paths } = useManifest()
+  const { last, lastTitleHtml } = useProgress()
   const available = topics.filter((topic) => topic.chapterCount > 0)
-  const questionTotal = available.reduce((sum, topic) => sum + topic.stats.total, 0)
-  const cards = available.reduce((sum, topic) => sum + topic.flashcardCount, 0)
+  const start = paths.find((path) => path.start)?.start ?? null
   const lastQuestion = last && lastTitleHtml ? { id: last, titleHtml: lastTitleHtml } : null
 
   return (
     <PageShell crumbs={[]} wide>
-      <section className="grid gap-12 lg:grid-cols-[1fr_22rem] lg:items-center lg:gap-20">
+      <title>{`${SITE_NAME}: ${TAGLINE}`}</title>
+      <section className="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
         <div>
-          <h1 className="max-w-xl text-[2.75rem] leading-[1.08] font-bold tracking-[-0.03em] sm:text-5xl">
-            Know the answer, and why it is true.
-          </h1>
+          <h1 className="font-serif text-[2.75rem] leading-[1.05] font-medium tracking-[-0.025em] sm:text-6xl">Engineering interviews, in depth.</h1>
           <p className="mt-5 max-w-lg font-serif text-xl leading-relaxed text-muted-foreground">
-            Interview questions phrased the way they are asked. Each one starts with the 30-second answer and goes down to the spec
-            and the engine.
+            Every question opens with the answer you would give in the room, then goes down to the mechanism, the edge cases, and the spec or engine underneath.
           </p>
-          <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-3">
-            <Stat value={available.length} label={available.length === 1 ? 'topic' : 'topics'} />
-            <Stat value={questionTotal} label="questions" />
-            <Stat value={cards} label="flashcards" />
-            {read.length > 0 && <Stat value={read.length} label="read by you" />}
-          </dl>
+          <h2 className="mt-9 mb-1 text-sm font-semibold">What are you preparing as?</h2>
+          <RoleList paths={paths} />
           {lastQuestion && (
-            <Link to={`/${lastQuestion.id}`} className="group mt-8 flex max-w-lg items-baseline gap-3 border-l-2 border-link pl-4">
+            <Link to={questionPath(lastQuestion)} className="group mt-8 flex max-w-lg items-baseline gap-3 border-l-2 border-link pl-4">
               <span>
                 <span className="block text-sm text-muted-foreground">Continue where you left off</span>
                 <span className="block font-medium group-hover:text-link">
@@ -46,67 +44,67 @@ export function HomePage() {
             </Link>
           )}
         </div>
-        <DepthLadder />
+        <StrataFigure className="max-lg:order-first" />
       </section>
 
-      <div className="mt-20 flex flex-col gap-14">
-        {groupByTrack(topics).map((group) => (
-          <section key={group.name} aria-labelledby={`track-${group.name}`}>
-            <h2 id={`track-${group.name}`} className="text-2xl font-semibold tracking-tight">
-              {group.name}
+      {start && (
+        <section className="mt-20 grid gap-10 border-t pt-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16" aria-labelledby="start-here">
+          <div>
+            <h2 id="start-here" className="font-serif text-3xl font-medium tracking-tight">
+              Start here
             </h2>
-            <ul className="mt-4 border-t">
-              {group.topics.map((topic) => (
-                <TopicRow key={topic.slug} topic={topic} readCount={countRead(topic, read)} />
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
+            <p className="mt-2 text-muted-foreground">If you read one question first, read this one. It sets up the vocabulary the rest of the language uses.</p>
+            <p className="mt-6 font-serif text-3xl leading-tight font-medium tracking-tight">
+              <QuestionTitle html={start.titleHtml} />
+            </p>
+            <Button asChild size="lg" className="mt-6">
+              <Link to={questionPath(start)}>Read the question</Link>
+            </Button>
+          </div>
+          <div className="rounded-r-xl border-l-4 border-link bg-tldr py-5 pr-6 pl-6 text-tldr-foreground">
+            <p className="text-sm font-medium">30-second answer</p>
+            <InlineHtml html={start.tldrHtml} className={`mt-2 block font-serif text-xl leading-snug text-foreground ${INLINE_CODE}`} />
+          </div>
+        </section>
+      )}
+
+      <section className="mt-20 border-t pt-12" aria-labelledby="available">
+        <h2 id="available" className="font-serif text-3xl font-medium tracking-tight">
+          Available now
+        </h2>
+        <p className="mt-2 text-muted-foreground">Written and researched against primary sources.</p>
+        <div className="mt-8 grid gap-10 md:grid-cols-2">
+          {available.map((topic) => (
+            <AvailableTopic key={topic.slug} topic={topic} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-20 border-t pt-12" aria-labelledby="roadmap">
+        <h2 id="roadmap" className="font-serif text-3xl font-medium tracking-tight">
+          Roadmap
+        </h2>
+        <div className="mt-2">
+          <Roadmap topics={topics} />
+        </div>
+      </section>
     </PageShell>
   )
 }
 
-/** Question ids are `<topic>/<chapter>/<question>`, so a topic's reads share its slug as a prefix. */
-function countRead(topic: TopicOverview, read: readonly string[]) {
-  return read.filter((id) => id.startsWith(`${topic.slug}/`)).length
-}
-
-function Stat({ value, label }: { value: number; label: string }) {
+function AvailableTopic({ topic }: { topic: TopicOverview }) {
+  const { stats } = topic
   return (
-    <div className="flex items-baseline gap-2">
-      <dd className="order-first text-3xl font-semibold tracking-tight tabular-nums">{value}</dd>
-      <dt className="text-muted-foreground">{label}</dt>
-    </div>
-  )
-}
-
-function TopicRow({ topic, readCount }: { topic: TopicOverview; readCount: number }) {
-  const stats = topic.stats
-  const planned = topic.chapterCount === 0
-  return (
-    <li className="border-b">
-      <Link to={`/${topic.slug}`} className="group grid gap-x-8 gap-y-2 py-5 sm:grid-cols-[1fr_14rem]">
-        <span>
-          <span className={cn('text-lg font-semibold group-hover:text-link', planned && 'text-muted-foreground')}>{topic.title}</span>
-          <InlineHtml
-            html={topic.summaryHtml}
-            className="mt-1 line-clamp-2 block max-w-2xl text-sm leading-relaxed text-muted-foreground [&_code]:font-mono"
-          />
+    <Link to={`/${topic.slug}`} className="group grid grid-cols-[7.5rem_1fr] gap-5">
+      <TopicCover slug={topic.slug} chapterCount={topic.chapterCount} hardShare={stats.total === 0 ? 0 : stats.byDifficulty.hard / stats.total} className="size-30 rounded-md bg-muted" />
+      <span>
+        <span className="block font-serif text-2xl leading-tight font-medium group-hover:text-link">{topic.title}</span>
+        <InlineHtml html={topic.summaryHtml} className={`mt-1 mb-3 line-clamp-2 block text-sm text-muted-foreground ${INLINE_CODE}`} />
+        <DifficultyMix counts={stats.byDifficulty} className="max-w-64" />
+        <span className="mt-2 block text-xs text-muted-foreground">
+          {stats.total} questions{topic.flashcardCount > 0 && ` · ${topic.flashcardCount} flashcards`}
         </span>
-        {planned ? (
-          <span className="text-sm text-muted-foreground sm:text-right">Planned</span>
-        ) : (
-          <span className="flex flex-col gap-2 text-sm text-muted-foreground sm:text-right">
-            <DifficultyMix counts={stats.byDifficulty} />
-            <span>
-              {topic.chapterCount} chapters, {stats.total} questions
-              {topic.flashcardCount > 0 && `, ${topic.flashcardCount} cards`}
-            </span>
-            {readCount > 0 && <span className="text-link">{readCount} read</span>}
-          </span>
-        )}
-      </Link>
-    </li>
+      </span>
+    </Link>
   )
 }
