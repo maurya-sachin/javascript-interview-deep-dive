@@ -35,6 +35,9 @@ function Topic({ topic }: { topic: TopicSummary }) {
   const questions = topic.chapters.flatMap((chapter) => chapter.questions)
   // Continue at the first readable question not read yet; fall back to the first readable one.
   const start = questions.find((question) => question.hasPage && !read.includes(question.id)) ?? questions.find((question) => question.hasPage)
+  // Drafts are readable but not reviewed: only a drafts build has any.
+  const unreviewed = stats.readable - stats.reviewed
+  const hasFacts = topic.covers !== null || unreviewed > 0 || stats.lastVerified !== null || stats.stale > 0
   const readCount = questions.filter((question) => read.includes(question.id)).length
   const filtering = query.trim() !== '' || unreadOnly
   const shown = filterOutline(topic.chapters, read, { query, unreadOnly })
@@ -54,37 +57,35 @@ function Topic({ topic }: { topic: TopicSummary }) {
           <InlineHtml html={topic.summaryHtml} className={`mt-3 block font-serif text-xl leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
 
           {topic.chapters.length > 0 && (
-            <>
-              <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 lg:grid lg:grid-cols-2">
-                <Stat value={topic.chapters.length} label="chapters" />
-                <Stat value={stats.total} label="questions" />
-                <Stat value={stats.core} label="core" />
-                {topic.flashcardCount > 0 && <Stat value={topic.flashcardCount} label="flashcards" />}
-                {readCount > 0 && <Stat value={readCount} label="read by you" />}
-              </dl>
-              <ul className="mt-4 flex flex-col gap-1 text-sm text-muted-foreground">
-                {topic.covers !== null && <li>Covers {topic.covers}</li>}
-                {stats.readable > 0 && (
-                  <li>
-                    {stats.reviewed} reviewed of {stats.readable}
-                  </li>
-                )}
-                {stats.lastVerified !== null && <li>Last verified {formatMonth(stats.lastVerified)}</li>}
-                {stats.stale > 0 && <li className={WARNING_TEXT}>{stats.stale} need re-checking</li>}
-              </ul>
-              <div className="mt-6 flex flex-wrap gap-3 lg:flex-col">
-                {start && (
-                  <Button asChild size="lg">
-                    <Link to={questionPath(start)}>{readCount > 0 ? 'Continue reading' : 'Start reading'}</Link>
-                  </Button>
-                )}
-                {topic.flashcardCount > 0 && (
-                  <Button asChild variant="outline" size="lg">
-                    <Link to={`/flashcards/${topic.slug}`}>Study {topic.flashcardCount} flashcards</Link>
-                  </Button>
-                )}
-              </div>
-            </>
+            <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 lg:grid lg:grid-cols-2">
+              <Stat value={topic.chapters.length} label="chapters" />
+              <Stat value={stats.total} label="questions" />
+              <Stat value={stats.core} label="core" />
+              {topic.flashcardCount > 0 && <Stat value={topic.flashcardCount} label="flashcards" />}
+              {readCount > 0 && <Stat value={readCount} label="read by you" />}
+            </dl>
+          )}
+          {hasFacts && (
+            <ul className="mt-4 flex flex-col gap-1 text-sm text-muted-foreground">
+              {topic.covers !== null && <li>Covers {topic.covers}</li>}
+              {unreviewed > 0 && <li>{unreviewed} not yet reviewed</li>}
+              {stats.lastVerified !== null && <li>Last verified {formatMonth(stats.lastVerified)}</li>}
+              {stats.stale > 0 && <li className={WARNING_TEXT}>{stats.stale === 1 ? '1 needs re-checking' : `${stats.stale} need re-checking`}</li>}
+            </ul>
+          )}
+          {topic.chapters.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-3 lg:flex-col">
+              {start && (
+                <Button asChild size="lg">
+                  <Link to={questionPath(start)}>{readCount > 0 ? 'Continue reading' : 'Start reading'}</Link>
+                </Button>
+              )}
+              {topic.flashcardCount > 0 && (
+                <Button asChild variant="outline" size="lg">
+                  <Link to={`/flashcards/${topic.slug}`}>Study {topic.flashcardCount} flashcards</Link>
+                </Button>
+              )}
+            </div>
           )}
         </header>
 
