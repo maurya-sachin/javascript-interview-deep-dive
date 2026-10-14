@@ -1,14 +1,10 @@
-// Spaced-repetition state for flashcards, kept in this browser's localStorage (there are no accounts).
-// Each reviewed card maps to its ts-fsrs card, stored as JSON (dates become ISO strings, which ts-fsrs accepts back).
+// Spaced-repetition logic for flashcards. Each reviewed card maps to its ts-fsrs card, stored as JSON
+// (dates become ISO strings, which ts-fsrs accepts back). Browser storage lives in reviewStore.ts, so the
+// Node scripts' tsconfig, which has no DOM types, can compile this file for its tests.
 
-// The Node scripts' tsconfig (which compiles this file for its test) has no DOM types; `window` and `StorageEvent` need them.
-/// <reference lib="dom" />
-
-import { useSyncExternalStore } from 'react'
 import { createEmptyCard, fsrs, Rating, type CardInput, type Grade } from 'ts-fsrs'
 import type { Flashcard } from './types.ts'
 
-const STORAGE_KEY = 'flashcard-reviews'
 const scheduler = fsrs()
 
 /** Review state by flashcard id. A card with no entry is new. */
@@ -34,11 +30,10 @@ export function isValidCard(value: unknown): value is CardInput {
   )
 }
 
-export function loadReviews(): Reviews {
+/** Reads stored review history; anything that isn't a plain object counts as no history, and damaged cards are dropped. */
+export function parseReviews(raw: string | null): Reviews {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
     const data: unknown = raw ? JSON.parse(raw) : {}
-    // Anything that isn't a plain object (or can't be read) counts as no history; damaged cards are dropped.
     if (typeof data !== 'object' || data === null || Array.isArray(data)) return {}
     return Object.fromEntries(Object.entries(data).filter(([, card]) => isValidCard(card)))
   } catch {
@@ -58,55 +53,10 @@ export function dueQueue(cards: Flashcard[], reviews: Reviews, now: Date): Flash
   return [...overdue, ...unseen]
 }
 
-const listeners = new Set<() => void>()
-const NO_REVIEWS: Reviews = Object.freeze({})
-let cached: Reviews | undefined
-
-/** Stores the review history and reports whether it was stored; if not (storage blocked or full), the session still works but progress won't survive a reload. */
-export function saveReviews(reviews: Reviews): boolean {
-  cached = reviews
-  let stored = true
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews))
-  } catch {
-    stored = false
-  }
-  listeners.forEach((listener) => listener())
-  return stored
-}
-
-function snapshot(): Reviews {
-  cached ??= loadReviews()
-  return cached
-}
-
-/** Another tab changed (or cleared) the stored value: drop the cache so the next snapshot re-reads it. */
-function handleStorage(event: StorageEvent): void {
-  if (event.key !== null && event.key !== STORAGE_KEY) return
-  cached = undefined
-  listeners.forEach((listener) => listener())
-}
-
-function subscribe(listener: () => void): () => void {
-  if (listeners.size === 0) window.addEventListener('storage', handleStorage)
-  listeners.add(listener)
-  return () => {
-    listeners.delete(listener)
-    if (listeners.size === 0) window.removeEventListener('storage', handleStorage)
-  }
-}
-
-/** The review history, kept current as ratings and imports are saved; empty while rendering on the server. */
-export function useReviews(): Reviews {
-  return useSyncExternalStore(subscribe, snapshot, () => NO_REVIEWS)
-}
-
-/** Records a rating and returns the updated reviews. */
+/** The reviews after rating a card; does not store them. */
 export function rateCard(reviews: Reviews, cardId: string, grade: Grade, now: Date): Reviews {
   const { card } = scheduler.next(reviews[cardId] ?? createEmptyCard(now), now, grade)
-  const updated = { ...reviews, [cardId]: card }
-  saveReviews(updated)
-  return updated
+  return { ...reviews, [cardId]: card }
 }
 
 /** When a card would next be due for each grade, so the rating buttons can show the wait before one is chosen. */

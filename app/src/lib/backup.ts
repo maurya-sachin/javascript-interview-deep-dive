@@ -1,7 +1,7 @@
 // Export and import of the learner's progress (reading and flashcards), the only backup there is: no accounts.
 
 import { isValidCard, type Reviews } from '../content/review.ts'
-import type { Progress } from './progress.ts'
+import type { Progress } from './progressTypes.ts'
 
 export const BACKUP_FORMAT = 'isobath-progress'
 const CARD_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/

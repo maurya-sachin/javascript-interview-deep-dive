@@ -1,17 +1,10 @@
 // Which questions the learner has opened, kept in this browser's localStorage (there are no accounts).
 
 import { useSyncExternalStore } from 'react'
+import type { Progress } from './progressTypes.ts'
 
 const STORAGE_KEY = 'questions-read'
 const listeners = new Set<() => void>()
-
-/** The last question opened, so the home page can offer to continue. */
-export interface Progress {
-  read: readonly string[]
-  last: string | null
-  /** Title of `last`, kept so the home page can show it without loading the topic. `null` for progress saved before it existed. */
-  lastTitleHtml: string | null
-}
 
 const EMPTY: Progress = { read: [], last: null, lastTitleHtml: null }
 let cached: Progress | undefined

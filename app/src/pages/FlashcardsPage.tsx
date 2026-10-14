@@ -11,7 +11,8 @@ import { formatInterval, formatUntil } from '@/lib/time'
 import { useSessionFocus } from '@/lib/useSessionFocus'
 import { useShortcuts } from '@/lib/useShortcuts'
 import type { loadFlashcards } from '@/content/index-data'
-import { deckStatus, dueQueue, loadReviews, NEW_CARDS_PER_SESSION, nextDue, previewIntervals, rateCard } from '@/content/review'
+import { deckStatus, dueQueue, NEW_CARDS_PER_SESSION, nextDue, previewIntervals } from '@/content/review'
+import { loadReviews, recordRating } from '@/content/reviewStore'
 import type { Flashcard } from '@/content/types'
 import { Rating, type Grade } from 'ts-fsrs'
 
@@ -35,7 +36,7 @@ function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; c
   const { promptRef, answerRef, doneRef } = useSessionFocus<HTMLParagraphElement, HTMLElement>(rated, revealed, !card, isLaterRound)
 
   function rate(grade: Grade, count: keyof Counts) {
-    setReviews(rateCard(reviews, card.id, grade, new Date()))
+    setReviews(recordRating(reviews, card.id, grade, new Date()))
     // A card you missed comes round again in this sitting.
     setQueue(grade === Rating.Again ? [...queue.slice(1), card] : queue.slice(1))
     setCounts({ ...counts, [count]: counts[count] + 1 })

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { loadReviews, saveReviews } from '@/content/review'
+import { loadReviews, saveReviews } from '@/content/reviewStore'
 import { createBackup, mergeBackup, parseBackup } from '@/lib/backup'
 import { replaceProgress, useProgress } from '@/lib/progress'
 
