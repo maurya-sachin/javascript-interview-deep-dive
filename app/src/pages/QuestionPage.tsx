@@ -62,7 +62,8 @@ export function QuestionPage() {
             <QuestionTitle html={question.titleHtml} />
           </h1>
 
-          <details className="mt-6 rounded-lg border lg:hidden">
+          {/* Keyed so the list closes when you pick another question. */}
+          <details key={question.id} className="mt-6 rounded-lg border lg:hidden">
             <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
               Chapter {chapter.number}: {chapter.title}
             </summary>

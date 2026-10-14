@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useState } from 'react'
 import { DifficultyMix } from '@/components/DifficultyMix'
-import { NotFound, PageShell } from '@/components/PageShell'
+import { ComingSoon, NotFound, PageShell } from '@/components/PageShell'
 import { TopicCover } from '@/components/TopicCover'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { QuestionTitle } from '@/components/QuestionTitle'
@@ -130,10 +130,17 @@ function Topic({ topic }: { topic: TopicSummary }) {
                             <ul className="mt-3 flex flex-col">
                               {chapter.questions.map((question) => (
                                 <li key={question.id} className="border-t border-dashed first:border-t-0">
-                                  <Link to={questionPath(question)} className="flex items-baseline justify-between gap-4 py-2 hover:text-link">
-                                    <QuestionTitle html={question.titleHtml} />
-                                    {read.includes(question.id) && <span className="shrink-0 text-xs text-muted-foreground">read</span>}
-                                  </Link>
+                                  {question.hasPage ? (
+                                    <Link to={questionPath(question)} className="flex items-baseline justify-between gap-4 py-2 hover:text-link">
+                                      <QuestionTitle html={question.titleHtml} />
+                                      {read.includes(question.id) && <span className="shrink-0 text-xs text-muted-foreground">read</span>}
+                                    </Link>
+                                  ) : (
+                                    <div className="flex items-baseline justify-between gap-4 py-2 text-muted-foreground">
+                                      <QuestionTitle html={question.titleHtml} />
+                                      <ComingSoon />
+                                    </div>
+                                  )}
                                 </li>
                               ))}
                             </ul>
