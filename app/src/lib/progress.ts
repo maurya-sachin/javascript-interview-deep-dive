@@ -38,9 +38,20 @@ function snapshot(): Progress {
   return cached
 }
 
-function subscribe(listener: () => void) {
+/** Another tab changed (or cleared) the stored value: drop the cache so the next snapshot re-reads it. */
+function handleStorage(event: StorageEvent): void {
+  if (event.key !== null && event.key !== STORAGE_KEY) return
+  cached = undefined
+  listeners.forEach((listener) => listener())
+}
+
+function subscribe(listener: () => void): () => void {
+  if (listeners.size === 0) window.addEventListener('storage', handleStorage)
   listeners.add(listener)
-  return () => listeners.delete(listener)
+  return () => {
+    listeners.delete(listener)
+    if (listeners.size === 0) window.removeEventListener('storage', handleStorage)
+  }
 }
 
 /**

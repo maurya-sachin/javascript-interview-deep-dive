@@ -1,6 +1,9 @@
 // Spaced-repetition state for flashcards, kept in this browser's localStorage (there are no accounts).
 // Each reviewed card maps to its ts-fsrs card, stored as JSON (dates become ISO strings, which ts-fsrs accepts back).
 
+// The Node scripts' tsconfig (which compiles this file for its test) has no DOM types; `window` and `StorageEvent` need them.
+/// <reference lib="dom" />
+
 import { useSyncExternalStore } from 'react'
 import { createEmptyCard, fsrs, type CardInput, type Grade } from 'ts-fsrs'
 import type { Flashcard } from './types.ts'
@@ -77,9 +80,20 @@ function snapshot(): Reviews {
   return cached
 }
 
+/** Another tab changed (or cleared) the stored value: drop the cache so the next snapshot re-reads it. */
+function handleStorage(event: StorageEvent): void {
+  if (event.key !== null && event.key !== STORAGE_KEY) return
+  cached = undefined
+  listeners.forEach((listener) => listener())
+}
+
 function subscribe(listener: () => void): () => void {
+  if (listeners.size === 0) window.addEventListener('storage', handleStorage)
   listeners.add(listener)
-  return () => listeners.delete(listener)
+  return () => {
+    listeners.delete(listener)
+    if (listeners.size === 0) window.removeEventListener('storage', handleStorage)
+  }
 }
 
 /** The review history, kept current as ratings and imports are saved; empty while rendering on the server. */
