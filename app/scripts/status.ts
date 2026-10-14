@@ -37,24 +37,24 @@ function questionsToRecheck(): string[] {
   ]
 }
 
-if (values.stale) {
-  console.log(questionsToRecheck().join('\n'))
-  process.exit(0)
-}
+function printProgress(): void {
+  for (const topic of shown) {
+    const questions = topic.chapters.flatMap((chapter) => chapter.questions)
+    const gapCount = topic.chapters.flatMap(gapsOf).length
+    const coverage = topic.chapters.length > 0 ? `${gapCount} gaps` : 'no chapters yet'
+    console.log(`\n${topic.slug}  ${published(questions)}/${questions.length} published · ${coverage}`)
 
-for (const topic of shown) {
-  const questions = topic.chapters.flatMap((chapter) => chapter.questions)
-  const gapCount = topic.chapters.flatMap(gapsOf).length
-  const coverage = topic.chapters.length > 0 ? `${gapCount} gaps` : 'no chapters yet'
-  console.log(`\n${topic.slug}  ${published(questions)}/${questions.length} published · ${coverage}`)
-
-  for (const chapter of topic.chapters) {
-    const progress = `${published(chapter.questions)}/${chapter.questions.length}`
-    console.log(`  ${chapter.number} ${chapter.title.padEnd(44)} ${progress.padStart(5)}`)
-    for (const gap of gapsOf(chapter)) {
-      console.log(`       → — ${gap.text}`)
+    for (const chapter of topic.chapters) {
+      const progress = `${published(chapter.questions)}/${chapter.questions.length}`
+      console.log(`  ${chapter.number} ${chapter.title.padEnd(44)} ${progress.padStart(5)}`)
+      for (const gap of gapsOf(chapter)) {
+        console.log(`       → — ${gap.text}`)
+      }
     }
   }
 }
+
+if (values.stale) console.log(questionsToRecheck().join('\n'))
+else printProgress()
 
 if (problems.length > 0) console.error(`\n⚠ ${problems.length} problem(s) — counts may be off; run npm run content:check`)
