@@ -4,7 +4,10 @@ import { Html } from '@/components/question/Html'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { Button } from '@/components/ui/button'
+import { Kbd } from '@/components/Kbd'
+import { SessionProgress } from '@/components/SessionProgress'
 import { SITE_NAME } from '@/lib/site'
+import { useShortcuts } from '@/lib/useShortcuts'
 import { findChapter, type loadPractice } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
 
@@ -49,17 +52,22 @@ function Session({ questions }: { questions: QuestionData[] }) {
   }
 
   function record(gotIt: boolean) {
+    if (position >= questions.length) return // a second key press before re-render
     if (!gotIt) setMissed((previous) => [...previous, questions[position]])
     setPosition(position + 1)
     setRevealed(false)
   }
 
-  if (position >= questions.length) return <Summary questions={questions} missed={missed} onRestart={restart} />
+  const finished = position >= questions.length
+  useShortcuts(finished ? {} : revealed ? { '1': () => record(false), '2': () => record(true) } : { ' ': () => setRevealed(true), Enter: () => setRevealed(true) })
+
+  if (finished) return <Summary questions={questions} missed={missed} onRestart={restart} />
 
   const question = questions[position]
   return (
     <>
-      <p className="font-mono text-sm text-muted-foreground" aria-live="polite">
+      <SessionProgress done={position} total={questions.length} label="Questions answered" />
+      <p className="mt-2 font-mono text-sm text-muted-foreground" aria-live="polite">
         {position + 1} / {questions.length}
       </p>
       <h1 className="mt-3 text-3xl leading-tight font-bold tracking-tight">
@@ -75,18 +83,23 @@ function Session({ questions }: { questions: QuestionData[] }) {
             <Html html={question.answerHtml} />
           </div>
           <Link to={`/${question.id}`} className="mt-4 inline-block text-link hover:text-link-hover">
-            Full question →
+            Read the full question
           </Link>
           <div className="mt-8 flex gap-3">
             <Button variant="outline" onClick={() => record(false)}>
               Missed it
+              <Kbd>1</Kbd>
             </Button>
-            <Button onClick={() => record(true)}>Got it</Button>
+            <Button onClick={() => record(true)}>
+              Got it
+              <Kbd>2</Kbd>
+            </Button>
           </div>
         </>
       ) : (
         <Button className="mt-8" onClick={() => setRevealed(true)}>
           Reveal answer
+          <Kbd>Space</Kbd>
         </Button>
       )}
     </>
@@ -102,8 +115,8 @@ export function PracticePage() {
   return (
     <PageShell
       crumbs={[
-        { label: 'Topics', to: '/' },
-        { label: topic.title, to: `/${topic.slug}` },
+        { label: 'Practice', to: '/practice' },
+        { label: topic.title, to: `/practice/${topic.slug}` },
         { label: chapter.title, to: `/${topic.slug}/${chapter.slug}` },
       ]}
     >
