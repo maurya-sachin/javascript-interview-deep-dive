@@ -4,6 +4,7 @@
 import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { coversProblem } from './covers.ts'
 import { loadDecks, type Deck } from './flashcards.ts'
 import { loadRolePaths, type RolePathSource } from './rolepaths.ts'
 import { frontmatterSchema, type Frontmatter } from './frontmatter.ts'
@@ -106,9 +107,8 @@ async function loadTopic(slug: string, dir: string, problems: Problem[]): Promis
   }
 
   requireGenerated(readme, readmeFile, 'chapters', problems)
-  if (/^> \*\*Covers:\*\*\s*$/m.test(readme)) {
-    problems.push({ file: repoRelative(readmeFile), message: '`> **Covers:**` line is empty; fill it in or remove it' })
-  }
+  const covers = coversProblem(readme)
+  if (covers !== null) problems.push({ file: repoRelative(readmeFile), message: covers })
   return { slug, title: readHeading(readme, readmeFile, problems), dir, readmeFile, readme, chapters }
 }
 

@@ -127,8 +127,8 @@ Topic READMEs (not chapters) put a hand-written track line directly above it, in
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 ```
 
-A topic README may add one more hand-written line to the same blockquote, directly under the track: `> **Covers:** …`.
-It names the versions and engines the topic is checked against, in 15 words or fewer. Leave it out when the topic has no versions to name; an empty line fails `content:check`.
+A topic README may add one more hand-written line to the same blockquote, directly above the track: `> **Covers:** …`.
+It names the versions and engines the topic is checked against, in 15 words or fewer. Leave it out when the topic has no versions to name. `content:check` fails an empty line, one over 15 words, or one that is not immediately followed by the track line.
 
 | Track | Topics |
 |---|---|
