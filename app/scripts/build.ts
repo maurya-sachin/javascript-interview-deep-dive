@@ -6,7 +6,7 @@ import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { isStale } from '../src/content/freshness.ts'
 import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, RolePath, SearchDoc, StartQuestion, TopicSummary } from '../src/content/types.ts'
-import { readChangelog } from './lib/changelog.ts'
+import { readChangelog, type ChangelogQuestion } from './lib/changelog.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, type Question, type Topic } from './lib/content.ts'
 import type { Deck } from './lib/flashcards.ts'
@@ -234,7 +234,17 @@ const paths: RolePath[] = await Promise.all(
 const manifest: ContentManifest = { topics: topics.map(toOverview), paths }
 await writeJson(path.join(outDir, 'manifest.json'), manifest)
 
-const changelog = readChangelog()
+const changelogQuestions = new Map<string, ChangelogQuestion>()
+for (const topic of content.topics) {
+  for (const chapter of topic.chapters) {
+    for (const question of chapter.questions) {
+      const meta = metaOf(question)
+      if (!hasPage(meta)) continue
+      changelogQuestions.set(repoRelative(question.file), { id: question.id, title: (await renderInline(meta.title)).text, topic: topic.slug, topicTitle: topic.title })
+    }
+  }
+}
+const changelog = readChangelog(changelogQuestions)
 await writeJson(path.join(outDir, 'changelog.json'), changelog)
 
 const topicDir = (slug: string) => path.join(outDir, 'topics', slug)
@@ -256,5 +266,5 @@ for (const deck of content.decks) {
 }
 
 console.log(
-  `✔ built ${pageCount} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s), ${allFlashcards.length} flashcard(s) and ${changelog.entries.length} changelog entries → ${repoRelative(outDir)}`,
+  `✔ built ${pageCount} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s), ${allFlashcards.length} flashcard(s) and ${changelog.days.length} changelog day(s) → ${repoRelative(outDir)}`,
 )

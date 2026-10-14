@@ -102,23 +102,23 @@ export interface RolePath {
   steps: PathStep[]
 }
 
-/** One commit that changed content/. */
-export interface ChangelogEntry {
-  hash: string
+/** The published questions that changed on one day, in one topic. */
+export interface ChangelogDay {
   /** `YYYY-MM-DD`. */
   date: string
-  /** The commit subject without its conventional prefix; plain text. */
-  subject: string
-  /** Slugs of the topics the commit touched. */
-  topics: string[]
+  topics: {
+    slug: string
+    title: string
+    questions: { id: string; title: string }[]
+  }[]
 }
 
 /** `data/changelog.json` */
 export interface Changelog {
   /** False when older changes exist that this list leaves out (shallow clone, no git, or more than the cap). */
   complete: boolean
-  /** Newest first. */
-  entries: ChangelogEntry[]
+  /** Newest day first. */
+  days: ChangelogDay[]
 }
 
 /** `data/manifest.json` */
