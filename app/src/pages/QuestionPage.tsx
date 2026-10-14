@@ -44,12 +44,12 @@ export function QuestionPage() {
   ].filter((section) => section.shown)
 
   return (
-    <div className="mx-auto flex max-w-340 flex-wrap gap-12 px-6 py-8">
-      <aside className="max-w-72 min-w-56 flex-1 basis-60">
+    <div className="mx-auto grid max-w-340 gap-12 px-6 py-8 lg:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,45rem)_14rem] xl:justify-center">
+      <aside className="hidden lg:block">
         <ChapterNav topicSlug={topic.slug} chapter={chapter} currentId={question.id} />
       </aside>
 
-      <main className="min-w-0 max-w-180 flex-999 basis-140">
+      <main className="min-w-0">
         <Breadcrumbs
           crumbs={[
             { label: 'Topics', to: '/' },
@@ -61,6 +61,15 @@ export function QuestionPage() {
           <h1 className="text-[2.5rem] leading-[1.1] font-bold tracking-[-0.03em]">
             <QuestionTitle html={question.titleHtml} />
           </h1>
+
+          <details className="mt-6 rounded-lg border lg:hidden">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
+              Chapter {chapter.number}: {chapter.title}
+            </summary>
+            <div className="px-4 pb-4">
+              <ChapterNav topicSlug={topic.slug} chapter={chapter} currentId={question.id} />
+            </div>
+          </details>
 
           {content === null ? (
             <p className="mt-4">
@@ -165,7 +174,7 @@ export function QuestionPage() {
       </main>
 
       {sections.length > 0 && (
-        <aside className="max-w-56 min-w-40 flex-1 basis-44">
+        <aside className="hidden xl:block">
           <DepthRail stops={sections} />
         </aside>
       )}
