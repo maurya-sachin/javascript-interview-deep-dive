@@ -1,11 +1,11 @@
-# JavaScript Interview Deep Dive
+# isobath (Deep Dive)
 
-JavaScript from language to spec/engine to runtimes, as interview questions — not introductory.
+Interview questions for any software engineer, from language to spec/engine to infrastructure — not introductory.
 One Markdown file per question in `content/`; the client-only app in `app/` reads generated JSON.
 
 ## Every session
 1. Read `PLAN.md` → **Now**. Its rules are settled.
-2. Work one phase task or one chapter.
+2. Work one phase task or one chapter. Design work follows `docs/superpowers/specs/` once approved; no product code before that.
 3. Before ending, apply Plan hygiene.
 
 ## Plan hygiene (tracker)
@@ -20,11 +20,11 @@ One Markdown file per question in `content/`; the client-only app in `app/` read
 ## Token rules
 - Never bulk-read `content/`, `app/public/data/`, or `app/dist/`. Find through READMEs, script output, or a title grep; open one file.
 - v1 lives only on tag `v1-archive` (built site on `gh-pages`) — never read it or reuse its text.
-- Batch writing through a subagent per chapter; it returns ≤ 5 lines.
-- Validate with `content:check` (in `app/`, from Phase 4); don't re-read files you just wrote.
+- Batch writing through one subagent per chapter, run serially; it returns ≤ 5 lines. Verify each hand-back (`git status`, `git log`, `content:check`) before the next.
+- Validate with `content:check` (in `app/`); don't re-read files you just wrote.
 
 ## Working rules
 - Branch `v2`. Commit after every finished task — small, one concern (deletion, docs, dependency, feature, one question or chapter). Conventional messages (`feat:`, `docs:`, `content:`, `chore:`). No big catch-all commits.
-- Heatmap: GitHub only counts commits on `main`. At the end of each phase, fast-forward `main` to `v2` — never squash. Live v1 site is served from `gh-pages`, so `main` changes don't affect it.
-- Push only with the maintainer's OK.
+- GitHub's heatmap only counts commits on `main`: merge `v2` by PR with a merge commit — never squash. v1 is served from `gh-pages`, unaffected.
+- Push, deploy, DNS and `published` need the maintainer's OK (an explicit instruction counts).
 - Content follows `templates/README.md`; write it with the `write-question` skill.

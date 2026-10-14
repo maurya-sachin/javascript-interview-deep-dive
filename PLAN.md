@@ -3,15 +3,14 @@
 Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene.
 
 ## Now
-- Branch `v2` merged to `main` by PR; tag `v1-archive` = v1; commits use repo-local email `sachinmaurya1710@gmail.com`
-- Doing: JavaScript (150 q, 762 cards) and TypeScript (47 q) all `draft`, awaiting maintainer review before `published`; UI redesigned (depth gauge, tracks)
-- Review flags: Node-only/spec-less claims JS ch 01–08, 10–14; 17 050 `Promise.try` spec≠Node 24; 18–22 browser/CSP/MDN not run; 23 Temporal polyfill-run; 26 V8 natives on Node 24.19 only; TS examples run on TS 7.0.2 and 5.9.3
-- Open: confirm `learn.sachinmaurya.com` resolves (CNAME added, SSL issuing); other 26 topics are README-only; next topic's chapters need an order from the maintainer
-- Portfolio (`../sachin`): revamp done on `revamp/portfolio-2026` (16 commits, verify + e2e green, unpushed); next: maintainer review + TODOs, PR → `develop` → `main`, then delete `develop`; Vercel: make www primary and 308 the apex to it, delete `NEXT_PUBLIC_SITE_URL`
+- Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
+- Doing: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review; UI/brand/structure redesign is in brainstorming (architectural path) — decisions in `~/.claude/handoffs/deep-dive-ui-2026-10-14/HANDOFF.md`; **next: write the spec** to `docs/superpowers/specs/`, maintainer reviews, then `writing-plans`. No product code before that
+- Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
+- Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
+- Portfolio (`../sachin`): revamp on `revamp/portfolio-2026` (unpushed) awaits review → PR `develop` → `main`; then delete `develop`
 
 ## Goal
-JavaScript in depth, as interview Q&A — language → spec/engine → runtimes (browser, Node) → ecosystem.
-Not introductory. Useful for frontend, backend, and full-stack.
+Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
 Each question: interview answer first, then mechanism, edge cases, exercises. A topic reads in order like a book.
 Non-goals: backend service, accounts, paid AI.
 
@@ -32,7 +31,7 @@ Non-goals: backend service, accounts, paid AI.
   - Backend: `nodejs http-and-apis backend-patterns databases caching messaging-and-jobs authentication`
   - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
   - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
-- R13 Design (approved mock: https://claude.ai/artifact/7A7y5YfbMWKjJiCFAbCVQv): Geist + Geist Mono; zinc neutrals; accent `#2F4FD8` light / `#9DAEF7` dark; TL;DR tint `#EEF1FD` / `#171C33`; code GitHub light/dark with `// →` output highlighted; 720px prose column.
+- R13 Brand: **isobath, by Sachin Maurya** — tagline "engineering interviews, in depth"; mark = nested irregular contour lines (a human designer redraws the final); calm editorial + depth-strata motif; originals only. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent `#2F4FD8` / `#9DAEF7`; prose column 720px. Final spec supersedes this once approved.
 - R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes. Host: `learn.sachinmaurya.com`; `/portfolio` redirects to the portfolio via `vercel.json`.
 
 ## Content contract
@@ -52,14 +51,14 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 
 ## Phases
 
-### 5 — JavaScript content · Opus (first chapter sets the bar; try Sonnet on the next and compare)
-- [ ] Per question, top to bottom: research → write → `content:check` → maintainer review → `published`; update README status lines
+### 5 — Review and publish
+- [ ] Per question: maintainer review → `published`; update README status lines
 
-### 6 — Go live · Sonnet
-- [ ] Merge `v2` → `main`
+### 6 — Redesign (isobath)
+- [ ] Spec → plan → build, in the order the spec sets
 
-### 7 — Next topics (order confirmed after Phase 5)
-- [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content
+### 7 — Next topics
+- [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content; plus TypeScript flashcards
 
 ## Parked (don't start without maintainer)
 Supabase sync/votes · in-browser AI (WebLLM + retrieval; no paid APIs, no fine-tuning) · PWA offline · runnable challenges (Sandpack)
