@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type Ref } from 'react'
 import { Link, useLoaderData, useParams } from 'react-router'
 import { Html } from '@/components/question/Html'
 import { InlineHtml } from '@/components/question/InlineHtml'
@@ -14,10 +14,10 @@ import type { QuestionPage as QuestionData } from '@/content/types'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
-function Summary({ questions, missed, onRestart }: { questions: QuestionData[]; missed: QuestionData[]; onRestart: () => void }) {
+function Summary({ questions, missed, headingRef, onRestart }: { questions: QuestionData[]; missed: QuestionData[]; headingRef: Ref<HTMLHeadingElement>; onRestart: () => void }) {
   return (
     <>
-      <h1 className="text-3xl font-bold tracking-tight">
+      <h1 ref={headingRef} tabIndex={-1} className="text-3xl font-bold tracking-tight outline-none">
         {questions.length - missed.length} of {questions.length} correct
       </h1>
       {missed.length > 0 && (
@@ -58,11 +58,11 @@ function Session({ questions }: { questions: QuestionData[] }) {
     setRevealed(false)
   }
 
-  const { promptRef, answerRef } = useSessionFocus<HTMLHeadingElement, HTMLElement>(position, revealed)
   const finished = position >= questions.length
+  const { promptRef, answerRef, doneRef } = useSessionFocus<HTMLHeadingElement, HTMLElement>(position, revealed, finished)
   useShortcuts(finished ? {} : revealed ? { '1': () => record(false), '2': () => record(true) } : { ' ': () => setRevealed(true), Enter: () => setRevealed(true) })
 
-  if (finished) return <Summary questions={questions} missed={missed} onRestart={restart} />
+  if (finished) return <Summary questions={questions} missed={missed} headingRef={doneRef} onRestart={restart} />
 
   const question = questions[position]
   return (

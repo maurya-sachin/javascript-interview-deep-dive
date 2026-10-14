@@ -24,14 +24,14 @@ const RATINGS: { label: string; key: string; grade: Grade; count: keyof Counts }
   { label: 'Easy', key: '4', grade: Rating.Easy, count: 'easy' },
 ]
 
-function Session({ topic, cards, onNextRound }: { topic: string; cards: Flashcard[]; onNextRound: () => void }) {
+function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; cards: Flashcard[]; isLaterRound: boolean; onNextRound: () => void }) {
   const [reviews, setReviews] = useState(loadReviews)
   const [queue, setQueue] = useState(() => dueQueue(cards, reviews, new Date()))
   const [revealed, setRevealed] = useState(false)
   const [counts, setCounts] = useState<Counts>({ again: 0, hard: 0, good: 0, easy: 0 })
   const rated = counts.again + counts.hard + counts.good + counts.easy
   const card = queue[0]
-  const { promptRef, answerRef } = useSessionFocus<HTMLParagraphElement, HTMLElement>(rated, revealed)
+  const { promptRef, answerRef, doneRef } = useSessionFocus<HTMLParagraphElement, HTMLElement>(rated, revealed, !card, isLaterRound)
 
   function rate(grade: Grade, count: keyof Counts) {
     setReviews(rateCard(reviews, card.id, grade, new Date()))
@@ -51,7 +51,9 @@ function Session({ topic, cards, onNextRound }: { topic: string; cards: Flashcar
     const { unseen } = deckStatus(topic, cards.length, reviews, now)
     return (
       <>
-        <h1 className="text-3xl font-bold tracking-tight">{rated === 0 ? 'Nothing is due' : 'Session done'}</h1>
+        <h1 ref={doneRef} tabIndex={-1} className="text-3xl font-bold tracking-tight outline-none">
+          {rated === 0 ? 'Nothing is due' : 'Session done'}
+        </h1>
         {rated > 0 && (
           <p className="mt-3 text-muted-foreground">
             You did {rated} {rated === 1 ? 'review' : 'reviews'}: {counts.again} again, {counts.hard} hard, {counts.good} good, {counts.easy} easy.
@@ -124,7 +126,7 @@ export function FlashcardsPage() {
         <p className="text-muted-foreground">This topic has no flashcards yet.</p>
       ) : (
         // Keyed so moving between topics, or starting the next round, begins a fresh session.
-        <Session key={`${topic.slug}-${round}`} topic={topic.slug} cards={cards} onNextRound={() => setRound(round + 1)} />
+        <Session key={`${topic.slug}-${round}`} topic={topic.slug} cards={cards} isLaterRound={round > 0} onNextRound={() => setRound(round + 1)} />
       )}
     </PageShell>
   )
