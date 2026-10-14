@@ -4,7 +4,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Rollout step 1 (data shards) built and reviewed on `v2`; **next: step 2, brand — write its plan first** (first confirm whether step 3 needs chapter lists in the manifest); steps 3–7 get a plan each, written just before they start
+- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Step 1 (data shards) done. Step 2 (brand) plan written: `docs/superpowers/plans/2026-10-14-brand.md`, executing inline; its Task 5 (apply CC BY-NC-SA) waits for the maintainer's OK. Before step 3, confirm whether navigation needs chapter lists in the manifest; steps 3–7 get a plan each, written just before they start
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
 - Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
