@@ -4,7 +4,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts approved via `specs/mockups/page-layouts.html`). Rollout step 1 plan written: `docs/superpowers/plans/2026-10-14-data-shards.md` — **next: maintainer picks an execution method, then run the plan**; steps 2–7 get a plan each, written just before they start
+- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Rollout step 1 (data shards) built on `v2`, review pending; **next: step 2, brand — write its plan first**; steps 3–7 get a plan each, written just before they start
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
 - Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
@@ -32,6 +32,7 @@ Non-goals: backend service, accounts, paid AI.
   - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
   - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
 - R13 Brand: **isobath, by Sachin Maurya** — tagline "engineering interviews, in depth"; mark = nested irregular contour lines (a human designer redraws the final); calm editorial + depth-strata motif; originals only. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent `#2F4FD8` / `#9DAEF7`; prose column 720px. Final spec supersedes this once approved.
+- R15 Data: `manifest.json` + `topics/<slug>/{index,search,flashcards}.json`; a topic's shard loads on demand, never one big file.
 - R14 Hosting (final): Vercel. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`. v1 stays on `gh-pages` until v2 has published content; the github.io URL keeps serving v1 until Pages is disabled or redirected. Maintainer connects the repo and pushes. Host: `learn.sachinmaurya.com`; `/portfolio` redirects to the portfolio via `vercel.json`.
 
 ## Content contract

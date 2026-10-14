@@ -58,11 +58,6 @@ export interface ContentManifest {
   topics: TopicOverview[]
 }
 
-/** `data/index.json` */
-export interface ContentIndex {
-  topics: TopicSummary[]
-}
-
 export interface FollowUp {
   questionHtml: string
   answerHtml: string

@@ -4,7 +4,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import type { ContentIndex, ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
+import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc, TopicSummary } from '../src/content/types.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, type Question, type Topic } from './lib/content.ts'
 import type { Deck } from './lib/flashcards.ts'
@@ -151,26 +151,25 @@ function trackOf(readme: string): string {
   return readme.match(/^> \*\*Track:\*\* (.+)$/m)?.[1].trim() ?? 'Other'
 }
 
-const index: ContentIndex = {
-  topics: await Promise.all(
-    content.topics.map(async (topic) => ({
-      slug: topic.slug,
-      title: topic.title,
-      track: trackOf(topic.readme),
-      summaryHtml: await summaryHtml(topic.readme),
-      flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
-      chapters: await Promise.all(
-        topic.chapters.map(async (chapter) => ({
-          number: chapter.number,
-          slug: chapter.slug,
-          title: chapter.title,
-          summaryHtml: await summaryHtml(chapter.readme),
-          questions: await Promise.all(chapter.questions.map(summarize)),
-        })),
-      ),
-    })),
-  ),
-}
+const topics: TopicSummary[] = await Promise.all(
+  content.topics.map(async (topic) => ({
+    slug: topic.slug,
+    title: topic.title,
+    track: trackOf(topic.readme),
+    summaryHtml: await summaryHtml(topic.readme),
+    flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
+    chapters: await Promise.all(
+      topic.chapters.map(async (chapter) => ({
+        number: chapter.number,
+        slug: chapter.slug,
+        title: chapter.title,
+        summaryHtml: await summaryHtml(chapter.readme),
+        questions: await Promise.all(chapter.questions.map(summarize)),
+      })),
+    ),
+  })),
+)
+
 async function searchDocs(topic: Topic): Promise<SearchDoc[]> {
   const docs: SearchDoc[] = []
   for (const chapter of topic.chapters) {
@@ -203,13 +202,11 @@ async function flashcardsOf(deck: Deck): Promise<Flashcard[]> {
   )
 }
 
-await writeJson(path.join(outDir, 'index.json'), index) // TODO: removed in Task 5, once the app reads the manifest
-
-const manifest: ContentManifest = { topics: index.topics.map(toOverview) }
+const manifest: ContentManifest = { topics: topics.map(toOverview) }
 await writeJson(path.join(outDir, 'manifest.json'), manifest)
 
 const topicDir = (slug: string) => path.join(outDir, 'topics', slug)
-for (const topic of index.topics) await writeJson(path.join(topicDir(topic.slug), 'index.json'), topic)
+for (const topic of topics) await writeJson(path.join(topicDir(topic.slug), 'index.json'), topic)
 
 const allSearchDocs: SearchDoc[] = []
 for (const topic of content.topics) {
@@ -218,7 +215,6 @@ for (const topic of content.topics) {
   allSearchDocs.push(...docs)
   await writeJson(path.join(topicDir(topic.slug), 'search.json'), docs)
 }
-await writeJson(path.join(outDir, 'search.json'), allSearchDocs) // TODO: removed in Task 5
 
 const allFlashcards: Flashcard[] = []
 for (const deck of content.decks) {
@@ -226,7 +222,6 @@ for (const deck of content.decks) {
   allFlashcards.push(...cards)
   await writeJson(path.join(topicDir(deck.topic), 'flashcards.json'), cards)
 }
-await writeJson(path.join(outDir, 'flashcards.json'), allFlashcards) // TODO: removed in Task 5
 
 console.log(
   `✔ built ${pageCount} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s) and ${allFlashcards.length} flashcard(s) → ${repoRelative(outDir)}`,
