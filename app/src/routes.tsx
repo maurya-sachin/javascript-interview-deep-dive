@@ -1,5 +1,6 @@
 import { Outlet, type LoaderFunctionArgs, type RouteObject } from 'react-router'
 import { Layout } from '@/components/Layout'
+import { LoadingShell } from '@/components/LoadingShell'
 import { NotFound } from '@/components/PageShell'
 import { RouteError } from '@/components/RouteError'
 import { loadFlashcards, loadManifest, loadPractice, loadQuestion, loadTopic, MANIFEST_ROUTE_ID, TOPIC_ROUTE_ID } from '@/content/index-data'
@@ -23,6 +24,7 @@ export const routes: RouteObject[] = [
     path: '/',
     element: <Layout />,
     errorElement: <RouteError />,
+    HydrateFallback: LoadingShell,
     loader: loadManifest,
     children: [
       // Pages sit under a pathless route so a failed load renders inside the layout, keeping the header.

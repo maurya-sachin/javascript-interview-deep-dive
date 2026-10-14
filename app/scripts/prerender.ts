@@ -129,7 +129,7 @@ async function writePage(file: string, contents: string): Promise<void> {
 
 const template = await readFile(path.join(distDir, 'index.html'), 'utf8')
 for (const placeholder of ['<!--app-head-->', '<!--app-html-->']) {
-  if (!template.includes(placeholder)) throw new Error(`dist/index.html has no ${placeholder}; was it built from index.html?`)
+  if (!template.includes(placeholder)) throw new Error(`dist/index.html has no ${placeholder}: prerender has already run on it. Run \`vite build\` again first.`)
 }
 const fillTemplate = (head: string, markup: string) => template.replace('<!--app-head-->', () => head).replace('<!--app-html-->', () => markup)
 
