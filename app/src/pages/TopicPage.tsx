@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { DifficultyMix } from '@/components/DifficultyMix'
 import { NotFound, PageShell } from '@/components/PageShell'
+import { TopicCover } from '@/components/TopicCover'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { Button } from '@/components/ui/button'
 import { questionPath, useTopic } from '@/content/index-data'
@@ -22,8 +23,18 @@ export function TopicPage() {
 
   return (
     <PageShell crumbs={[{ label: 'Topics', to: '/' }]} wide>
-      <h1 className="text-4xl font-bold tracking-[-0.03em]">{topic.title}</h1>
-      <InlineHtml html={topic.summaryHtml} className={`mt-3 block max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
+      <div className="flex items-start justify-between gap-8">
+        <div>
+          <h1 className="text-4xl font-bold tracking-[-0.03em]">{topic.title}</h1>
+          <InlineHtml html={topic.summaryHtml} className={`mt-3 block max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
+        </div>
+        <TopicCover
+          slug={topic.slug}
+          chapterCount={topic.chapters.length}
+          hardShare={stats.total === 0 ? 0 : stats.byDifficulty.hard / stats.total}
+          className="hidden size-32 shrink-0 rounded-lg bg-muted sm:block"
+        />
+      </div>
 
       {topic.chapters.length === 0 ? (
         <p className="mt-8 rounded-xl border border-dashed p-5 text-muted-foreground">Chapters for this topic are planned.</p>

@@ -73,13 +73,13 @@ function seededRandom(seed: string): () => number {
   }
 }
 
-/** Two or three Gaussian hills kept away from the frame, so the field is lowest along the border. */
+/** Three or four Gaussian hills kept away from the frame, so the field is lowest along the border. */
 function heightField(random: () => number, steepness: number): number[][] {
-  const hills = Array.from({ length: 2 + Math.floor(random() * 2) }, () => ({
-    x: 0.3 + random() * 0.4,
-    y: 0.3 + random() * 0.4,
-    height: 0.6 + random() * 0.4,
-    spread: (0.12 + random() * 0.08) * (1 - 0.35 * steepness),
+  const hills = Array.from({ length: 3 + Math.floor(random() * 2) }, () => ({
+    x: 0.28 + random() * 0.44,
+    y: 0.28 + random() * 0.44,
+    height: 0.7 + random() * 0.3,
+    spread: (0.13 + random() * 0.09) * (1 - 0.3 * steepness),
   }))
   return Array.from({ length: GRID + 1 }, (_, row) =>
     Array.from({ length: GRID + 1 }, (_, column) => {
