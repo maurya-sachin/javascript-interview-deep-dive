@@ -1,0 +1,28 @@
+title: Full-stack engineer
+summary: The language first, then both sides of the wire, then the questions that span them.
+order: 3
+steps:
+  - ref: javascript
+    why: One language across the stack.
+  - ref: typescript
+    why: Shared types between client and server.
+  - ref: html-and-css
+    why: The client's foundation.
+  - ref: react
+    why: The most common client framework.
+  - ref: nodejs
+    why: The most common server runtime for JavaScript teams.
+  - ref: http-and-apis
+    why: The contract between the two sides.
+  - ref: databases
+    why: Where the data lives.
+  - ref: authentication
+    why: Crosses client and server.
+  - ref: nextjs
+    why: Where the two sides meet in one framework.
+  - ref: web-security
+    why: Attacks on both sides.
+  - ref: testing
+    why: Tests at each layer.
+  - ref: system-design
+    why: End-to-end design rounds.

@@ -152,6 +152,33 @@ Flashcards are short recall prompts, separate from questions (R8). One file per 
 
 One fact per card. If the back needs a code block, it belongs in a question instead.
 
+## Paths
+
+A path is an ordered route through the topics for one kind of engineer; the home page's "What are you preparing as?" list shows them. One file per role: `content/paths/<role>.yaml`, where the filename is the URL slug (`/paths/<role>`).
+
+```yaml
+title: Frontend engineer
+summary: The language first, then the browser and frameworks, then performance, security and design.
+order: 1
+start: javascript/how-javascript-runs/ecmascript-engine-host
+steps:
+  - ref: javascript
+    why: Every frontend interview starts at the language.
+  - ref: react
+    why: The most-asked framework.
+```
+
+| Field | Required | Rule |
+|---|---|---|
+| `title` | yes | The role, as the reader would say it |
+| `summary` | yes | ≤ 30 words |
+| `order` | yes | Position on the home page; unique across paths |
+| `start` | no | Id of the question to open first; must exist. The home page's "Start here" uses the first path that sets one |
+| `steps[].ref` | yes | `<topic>` or `<topic>/<chapter>`; must exist and appear once per path. A topic with no chapters yet can be named by topic only and shows as a planned step |
+| `steps[].why` | yes | ≤ 25 words: why this step is on the path |
+
+Counts, readiness and reading time are derived at build time; never write them. Topic folders can't be named `paths`, `practice`, `flashcards` or `roadmap` (those are app routes). `content:check` validates all of this.
+
 ## Contributing
 
 1. Pick a `planned` question (or propose a new one in an issue first).

@@ -53,6 +53,37 @@ export interface TopicOverview extends Omit<TopicSummary, 'chapters'> {
   stats: TopicStats
 }
 
+/** One entry of a role path, resolved against the content. */
+export interface PathStep {
+  topic: string
+  topicTitle: string
+  /** Set when the entry names a chapter. */
+  chapter: string | null
+  chapterTitle: string | null
+  /** One line on why this step is on the path. */
+  why: string
+  /** Whether there is content to read: the topic has chapters. Planned topics are roadmap steps. */
+  ready: boolean
+  /** Questions in the chapter, or in the topic when no chapter is named. */
+  questionCount: number
+}
+
+/** The question a path suggests opening first. */
+export interface StartQuestion {
+  id: string
+  titleHtml: string
+  tldrHtml: string
+}
+
+/** An ordered, cross-topic route for one kind of engineer; built from `content/paths/<slug>.yaml`. */
+export interface RolePath {
+  slug: string
+  title: string
+  summary: string
+  start: StartQuestion | null
+  steps: PathStep[]
+}
+
 /** `data/manifest.json` */
 export interface ContentManifest {
   topics: TopicOverview[]
