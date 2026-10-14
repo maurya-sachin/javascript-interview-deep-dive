@@ -3,6 +3,8 @@ import { depthStrokeClass } from '@/lib/depth'
 import { cn } from '@/lib/utils'
 
 const LEVELS = 8
+/** Space, in percent of the figure, between an anchor dot and its label. */
+const GAP = 2.5
 // Each depth is labelled from a different corner so the labels never collide.
 const LABELS = [
   { name: '30-second answer', detail: 'What you say first', angle: (-3 * Math.PI) / 4, side: 'left' },
@@ -18,7 +20,7 @@ export function StrataFigure({ className }: { className?: string }) {
     const ring = ringAtLevel(rings, Math.round((depth * (LEVELS - 1)) / (LABELS.length - 1)))
     if (!ring) return []
     const [x, y] = furthestPoint(ring.points, label.angle)
-    // Keep both text lines inside the frame; the leader line bends to meet the label.
+    // Keep both text lines inside the frame; the leader line bends to meet the label if this moves it.
     return [{ ...label, x, y, labelY: Math.min(Math.max(y, 8), 92) }]
   })
 
@@ -32,18 +34,23 @@ export function StrataFigure({ className }: { className?: string }) {
         </g>
         {anchors.map(({ name, x, y, labelY, side }) => (
           <g key={name}>
-            <polyline points={`${x},${y} ${side === 'left' ? 4 : 96},${labelY}`} fill="none" strokeWidth="0.25" className="stroke-muted-foreground" />
+            <polyline points={`${x},${y} ${side === 'left' ? x - GAP : x + GAP},${labelY}`} fill="none" strokeWidth="0.3" className="stroke-muted-foreground" />
             <circle cx={x} cy={y} r="0.8" className="fill-foreground" />
           </g>
         ))}
       </svg>
       <figcaption className="sr-only">The four depths of every answer: the 30-second answer, the full answer, follow-ups, and the spec and engine.</figcaption>
-      {anchors.map(({ name, detail, labelY, side }) => (
+      {/* Each label sits beside its own anchor and is never wider than the space on that side, so it can't cover the dot. */}
+      {anchors.map(({ name, detail, x, labelY, side }) => (
         <p
           key={name}
           aria-hidden="true"
-          style={{ top: `${labelY}%` }}
-          className={cn('absolute max-w-[45%] -translate-y-1/2 bg-background/90 px-1 leading-tight', side === 'left' ? 'left-0 text-left' : 'right-0 text-right')}
+          style={
+            side === 'left'
+              ? { top: `${labelY}%`, right: `${100 - x + GAP}%`, maxWidth: `${x - GAP}%` }
+              : { top: `${labelY}%`, left: `${x + GAP}%`, maxWidth: `${100 - x - GAP}%` }
+          }
+          className={cn('absolute -translate-y-1/2 bg-background/90 px-1 leading-tight text-balance', side === 'left' ? 'text-right' : 'text-left')}
         >
           <span className="block font-serif text-sm font-medium sm:text-base">{name}</span>
           <span className="block text-xs text-muted-foreground">{detail}</span>
