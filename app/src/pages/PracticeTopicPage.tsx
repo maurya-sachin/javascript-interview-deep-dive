@@ -24,7 +24,7 @@ export function PracticeTopicPage() {
               <Link to={`/practice/${topic.slug}/${chapter.slug}`} className="grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-4 py-4 hover:text-link">
                 <span className="font-mono text-sm text-muted-foreground">{chapter.number}</span>
                 <span className="text-lg font-semibold">{chapter.title}</span>
-                <span className="text-sm text-muted-foreground">{readable} questions</span>
+                <span className="text-sm text-muted-foreground">{readable} {readable === 1 ? 'question' : 'questions'}</span>
               </Link>
             </li>
           ))}

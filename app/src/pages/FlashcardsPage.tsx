@@ -10,7 +10,7 @@ import { formatUntil } from '@/lib/time'
 import { useSessionFocus } from '@/lib/useSessionFocus'
 import { useShortcuts } from '@/lib/useShortcuts'
 import type { loadFlashcards } from '@/content/index-data'
-import { dueQueue, loadReviews, nextDue, rateCard } from '@/content/review'
+import { deckStatus, dueQueue, loadReviews, NEW_CARDS_PER_SESSION, nextDue, rateCard } from '@/content/review'
 import type { Flashcard } from '@/content/types'
 import { Rating, type Grade } from 'ts-fsrs'
 
@@ -24,7 +24,7 @@ const RATINGS: { label: string; key: string; grade: Grade; count: keyof Counts }
   { label: 'Easy', key: '4', grade: Rating.Easy, count: 'easy' },
 ]
 
-function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
+function Session({ topic, cards, onNextRound }: { topic: string; cards: Flashcard[]; onNextRound: () => void }) {
   const [reviews, setReviews] = useState(loadReviews)
   const [queue, setQueue] = useState(() => dueQueue(cards, reviews, new Date()))
   const [revealed, setRevealed] = useState(false)
@@ -46,19 +46,25 @@ function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
   )
 
   if (!card) {
-    const next = nextDue(topic, reviews, new Date())
+    const now = new Date()
+    const next = nextDue(topic, reviews, now)
+    const { unseen } = deckStatus(topic, cards.length, reviews, now)
     return (
       <>
         <h1 className="text-3xl font-bold tracking-tight">{rated === 0 ? 'Nothing is due' : 'Session done'}</h1>
         {rated > 0 && (
           <p className="mt-3 text-muted-foreground">
-            You reviewed {rated} {rated === 1 ? 'card' : 'cards'}: {counts.again} again, {counts.hard} hard, {counts.good} good, {counts.easy} easy.
+            You did {rated} {rated === 1 ? 'review' : 'reviews'}: {counts.again} again, {counts.hard} hard, {counts.good} good, {counts.easy} easy.
           </p>
         )}
         <p className="mt-3 text-muted-foreground">{next ? `The next card is due ${formatUntil(next, new Date())}.` : 'No cards are scheduled.'}</p>
-        <Button asChild variant="outline" className="mt-8">
-          <Link to="/practice">Back to practice</Link>
-        </Button>
+        {unseen > 0 && <p className="mt-3 text-muted-foreground">{unseen} new {unseen === 1 ? 'card' : 'cards'} left.</p>}
+        <div className="mt-8 flex flex-wrap gap-3">
+          {unseen > 0 && <Button onClick={onNextRound}>Study {Math.min(unseen, NEW_CARDS_PER_SESSION)} more</Button>}
+          <Button asChild variant="outline">
+            <Link to="/practice">Back to practice</Link>
+          </Button>
+        </div>
       </>
     )
   }
@@ -84,7 +90,7 @@ function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
           )}
           <div className="mt-8 flex flex-wrap gap-3">
             {RATINGS.map(({ label, key, grade, count }) => (
-              <Button key={label} variant="outline" onClick={() => rate(grade, count)}>
+              <Button key={label} variant="outline" aria-keyshortcuts={key} onClick={() => rate(grade, count)}>
                 {label}
                 <Kbd>{key}</Kbd>
               </Button>
@@ -92,7 +98,7 @@ function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
           </div>
         </>
       ) : (
-        <Button className="mt-8" onClick={() => setRevealed(true)}>
+        <Button className="mt-8" aria-keyshortcuts="Space" onClick={() => setRevealed(true)}>
           Show answer
           <Kbd>Space</Kbd>
         </Button>
@@ -103,6 +109,7 @@ function Session({ topic, cards }: { topic: string; cards: Flashcard[] }) {
 
 export function FlashcardsPage() {
   const { topic, cards } = useLoaderData<Awaited<ReturnType<typeof loadFlashcards>>>()
+  const [round, setRound] = useState(0)
   if (!topic) return <NotFound what="Topic" />
 
   return (
@@ -116,8 +123,8 @@ export function FlashcardsPage() {
       {cards.length === 0 ? (
         <p className="text-muted-foreground">This topic has no flashcards yet.</p>
       ) : (
-        // Keyed so moving between topics starts a fresh session.
-        <Session key={topic.slug} topic={topic.slug} cards={cards} />
+        // Keyed so moving between topics, or starting the next round, begins a fresh session.
+        <Session key={`${topic.slug}-${round}`} topic={topic.slug} cards={cards} onNextRound={() => setRound(round + 1)} />
       )}
     </PageShell>
   )

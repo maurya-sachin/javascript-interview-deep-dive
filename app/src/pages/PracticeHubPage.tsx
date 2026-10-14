@@ -33,7 +33,7 @@ export function PracticeHubPage() {
               <li key={topic.slug} className="border-b">
                 <Link to={`/practice/${topic.slug}`} className="flex items-baseline justify-between gap-4 py-4 hover:text-link">
                   <span className="text-lg font-semibold">{topic.title}</span>
-                  <span className="text-sm text-muted-foreground">{topic.stats.readable} questions</span>
+                  <span className="text-sm text-muted-foreground">{topic.stats.readable} {topic.stats.readable === 1 ? 'question' : 'questions'}</span>
                 </Link>
               </li>
             ))}

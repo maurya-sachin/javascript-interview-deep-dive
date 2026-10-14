@@ -89,18 +89,18 @@ function Session({ questions }: { questions: QuestionData[] }) {
             Read the full question
           </Link>
           <div className="mt-8 flex gap-3">
-            <Button variant="outline" onClick={() => record(false)}>
+            <Button variant="outline" aria-keyshortcuts="1" onClick={() => record(false)}>
               Missed it
               <Kbd>1</Kbd>
             </Button>
-            <Button onClick={() => record(true)}>
+            <Button aria-keyshortcuts="2" onClick={() => record(true)}>
               Got it
               <Kbd>2</Kbd>
             </Button>
           </div>
         </>
       ) : (
-        <Button className="mt-8" onClick={() => setRevealed(true)}>
+        <Button className="mt-8" aria-keyshortcuts="Space" onClick={() => setRevealed(true)}>
           Reveal answer
           <Kbd>Space</Kbd>
         </Button>
