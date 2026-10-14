@@ -13,6 +13,7 @@ Turn the current question browser into a site for **any software engineer** that
 - **Identity:** calm editorial + depth-strata motif. No illustration-led style.
 - **Name:** isobath, shown "isobath, by Sachin Maurya"; tagline "engineering interviews, in depth". Hosted at `learn.sachinmaurya.com`; the lockup links to the portfolio. No separate domain or trademark now.
 - **Mark:** five nested irregular contours; a bolder 3-line version for the favicon. A human designer redraws the final mark and customizes the wordmark.
+- **Revised (maintainer, 2026-10-14):** the contour ring becomes the "o" of the wordmark ("is◎bath"), sized to the x-height; one bold ring with a centre dot below 24px, more contours at large sizes; the favicon is the ring. Screen readers get the plain word.
 - **Rendering:** keep the Vite app and prerender every route to static HTML, then hydrate (approach B).
 - **Out of scope:** accounts, backend, new content formats, translations.
 
