@@ -26,33 +26,39 @@ export function Layout() {
             by {AUTHOR}
           </a>
         </div>
-        <TopicSwitcher />
-        <nav aria-label="Main" className="hidden items-center gap-1 text-sm md:flex">
-          {MAIN_LINKS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => cn('rounded-md px-2.5 py-1.5 hover:text-foreground', isActive ? 'font-medium text-foreground' : 'text-muted-foreground')}
-            >
-              {label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="flex items-center gap-1">
+          <TopicSwitcher />
+          <nav aria-label="Main" className="hidden items-center gap-1 text-sm md:flex">
+            {MAIN_LINKS.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) => cn('rounded-md px-2.5 py-1.5 hover:text-foreground', isActive ? 'font-medium text-foreground' : 'text-muted-foreground')}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
         <div className="ml-auto flex items-center gap-2">
           <SearchDialog />
           <ThemeToggle />
         </div>
       </header>
       <Outlet />
-      <footer className="mt-16 border-t px-6 py-6 text-sm text-muted-foreground">
-        {SITE_NAME}, by {AUTHOR}. Questions are CC BY-NC-SA 4.0; code is MIT.{' '}
-        <a href={REPO_URL} className="text-link hover:text-link-hover">
-          GitHub
-        </a>
-        {' · '}
+      <footer className="mt-16 flex flex-wrap items-center gap-x-4 gap-y-1 border-t px-6 py-6 text-sm text-muted-foreground">
+        <span>
+          {SITE_NAME}, by{' '}
+          <a href={AUTHOR_URL} className="text-link hover:text-link-hover">
+            {AUTHOR}
+          </a>
+        </span>
         <Link to="/changelog" className="text-link hover:text-link-hover">
           Changelog
         </Link>
+        <a href={REPO_URL} className="text-link hover:text-link-hover">
+          GitHub
+        </a>
       </footer>
       <ScrollRestoration />
     </>

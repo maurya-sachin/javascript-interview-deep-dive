@@ -1,7 +1,6 @@
 import { LayoutGrid } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Button } from '@/components/ui/button'
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { useManifest } from '@/content/index-data'
 import { groupByTrack } from '@/lib/tracks'
@@ -14,10 +13,10 @@ export function TopicSwitcher() {
 
   return (
     <>
-      <Button variant="ghost" onClick={() => setOpen(true)} aria-label="Topics" className="px-2.5">
-        <LayoutGrid />
+      <button type="button" onClick={() => setOpen(true)} aria-label="Topics" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <LayoutGrid className="size-4" />
         <span className="hidden sm:inline">Topics</span>
-      </Button>
+      </button>
 
       <CommandDialog open={open} onOpenChange={setOpen} title="Topics" description="Jump to a topic.">
         <Command>
