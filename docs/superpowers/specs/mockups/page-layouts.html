@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>isobath UI mockups</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+
+:root {
+  --paper: #F9FAFC;
+  --card: #FFFFFF;
+  --ink: #0E1424;
+  --muted: #4A5368;
+  --line: #E1E5EE;
+  --wash: #EEF1F6;
+  --accent: #2F4FD8;
+  --d1: #D5DCF8;
+  --d2: #A9B7F0;
+  --d3: #6F86E4;
+  --d4: #2F4FD8;
+  --serif: 'Newsreader', Georgia, serif;
+  --sans: 'Geist', system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font: 15px/1.5 var(--sans); color: var(--ink); background: #CDD3E0; padding: 32px 16px 96px; }
+a { color: inherit; text-decoration: none; }
+
+.label { max-width: 1200px; margin: 48px auto 12px; font: 500 13px var(--sans); color: var(--muted); }
+.label:first-of-type { margin-top: 0; }
+.frame { background: var(--paper); max-width: 1200px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 20px 50px -30px rgba(14,20,36,.35); }
+.pair { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 390px 1fr; gap: 24px; align-items: start; }
+.pair .frame { max-width: none; }
+
+/* header */
+.bar { display: flex; align-items: center; gap: 28px; padding: 14px 32px; border-bottom: 1px solid var(--line); background: var(--paper); }
+.lockup { display: flex; align-items: center; gap: 10px; }
+.lockup svg { width: 26px; height: 26px; color: var(--accent); }
+.word { font: 600 21px/1 var(--serif); letter-spacing: -.01em; }
+.by { font-size: 12px; color: var(--muted); margin-left: 2px; }
+.nav { display: flex; gap: 22px; font-size: 14px; color: var(--muted); }
+.nav a.on { color: var(--ink); box-shadow: 0 2px 0 var(--accent); padding-bottom: 3px; }
+.sp { flex: 1; }
+.search { display: flex; align-items: center; gap: 10px; width: 250px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); font-size: 13px; color: var(--muted); }
+.kbd { margin-left: auto; font: 11px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+
+/* home */
+.hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; padding: 64px 32px 56px; align-items: center; }
+h1 { font: 500 clamp(40px, 5.4vw, 66px)/1.02 var(--serif); letter-spacing: -.025em; }
+.lede { font: 400 19px/1.55 var(--serif); color: var(--muted); max-width: 30em; margin: 20px 0 36px; }
+.ask { font: 600 14px var(--sans); margin-bottom: 4px; }
+.roles a { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.roles a:last-child { border-bottom: 1px solid var(--line); }
+.roles .r { font: 500 22px/1.2 var(--serif); }
+.roles .m { font-size: 13px; color: var(--muted); display: block; margin-top: 2px; }
+.roles .go { font-size: 13px; color: var(--accent); opacity: 0; }
+.roles a:hover .go, .roles a:first-child .go { opacity: 1; }
+.roles a:hover { background: linear-gradient(90deg, var(--wash), transparent); }
+
+.strata { position: relative; aspect-ratio: 1/1; }
+.strata svg { width: 100%; height: 100%; display: block; }
+.strata .tag { position: absolute; font: 500 12px var(--sans); background: var(--paper); padding: 2px 8px 2px 0; }
+.strata .tag b { display: block; font: 500 15px var(--serif); }
+.strata .tag span { color: var(--muted); }
+
+.section { padding: 48px 32px; border-top: 1px solid var(--line); }
+h2 { font: 500 28px/1.15 var(--serif); letter-spacing: -.015em; margin-bottom: 6px; }
+.sub { color: var(--muted); margin-bottom: 28px; max-width: 40em; }
+
+.start { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: start; }
+.start .q { font: 500 30px/1.18 var(--serif); letter-spacing: -.015em; }
+.tldr { border-left: 3px solid var(--accent); background: var(--card); padding: 16px 20px; font: 400 17px/1.6 var(--serif); }
+.tldr small { display: block; font: 500 12px var(--sans); color: var(--accent); margin-bottom: 4px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: 500; font-size: 14px; margin-top: 20px; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); margin-left: 8px; }
+
+.avail { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.topic { display: grid; grid-template-columns: 120px 1fr; gap: 20px; }
+.cover { width: 120px; height: 120px; background: var(--wash); border-radius: 6px; overflow: hidden; }
+.cover svg { width: 100%; height: 100%; display: block; }
+.topic h3 { font: 500 24px/1.15 var(--serif); }
+.topic p { color: var(--muted); font-size: 14px; margin: 4px 0 10px; }
+.mix { display: flex; height: 6px; gap: 2px; width: 100%; max-width: 260px; }
+.mix i { display: block; height: 100%; border-radius: 1px; }
+.meta { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.pill { font: 500 11px var(--sans); border: 1px solid var(--line); border-radius: 99px; padding: 1px 8px; color: var(--muted); background: var(--card); }
+
+.road { columns: 4; column-gap: 32px; }
+.road section { break-inside: avoid; margin-bottom: 24px; }
+.road h4 { font: 600 13px var(--sans); margin-bottom: 8px; }
+.road li { list-style: none; display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; border-top: 1px solid var(--line); color: var(--muted); }
+.road li.has { color: var(--ink); }
+.road ul { padding: 0; }
+.foot { padding: 28px 32px; border-top: 1px solid var(--line); display: flex; gap: 24px; font-size: 13px; color: var(--muted); }
+
+/* topic page */
+.tp { display: grid; grid-template-columns: 300px 1fr; }
+.tp aside { padding: 32px; border-right: 1px solid var(--line); }
+.tp aside .cover { width: 100%; height: auto; aspect-ratio: 16/10; margin-bottom: 20px; }
+.tp aside h1 { font-size: 40px; }
+.facts { margin: 14px 0 18px; font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+.facts b { color: var(--ink); font-weight: 500; }
+.depth { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; margin: 8px 0 4px; }
+.depth i { height: 8px; border-radius: 1px; background: var(--wash); }
+.depth i.f { background: var(--c); }
+.act { display: grid; gap: 8px; margin-top: 20px; }
+.act a { display: flex; justify-content: space-between; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); font-size: 14px; font-weight: 500; }
+.act a span { color: var(--muted); font-weight: 400; }
+.tp main { padding: 32px 40px 48px; }
+.filter { display: flex; gap: 12px; margin-bottom: 20px; }
+.filter .search { flex: 1; width: auto; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 13px; background: var(--card); }
+.seg span { padding: 7px 12px; color: var(--muted); }
+.seg span.on { background: var(--ink); color: #fff; }
+.ch { border-top: 1px solid var(--line); }
+.ch > summary { list-style: none; display: grid; grid-template-columns: 36px 1fr auto 90px; gap: 12px; align-items: center; padding: 14px 0; cursor: pointer; }
+.ch > summary::-webkit-details-marker { display: none; }
+.ch .n { font: 400 13px var(--mono); color: var(--muted); }
+.ch .t { font: 500 20px/1.2 var(--serif); }
+.ch .c { font-size: 13px; color: var(--muted); }
+.qs { padding: 0 0 14px 48px; }
+.qs a { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 8px 0; font-size: 15px; border-top: 1px dashed var(--line); }
+.qs a:first-child { border-top: 0; }
+.qs a .done { color: var(--muted); }
+.dots { display: inline-flex; gap: 3px; vertical-align: middle; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.dots i.f { background: var(--accent); }
+
+/* question (mobile) */
+.phone .bar { padding: 12px 16px; gap: 12px; }
+.phone .word { font-size: 18px; }
+.phone .body { padding: 20px 16px 32px; }
+.crumb { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.phone h1 { font-size: 30px; line-height: 1.1; margin-bottom: 14px; }
+.disc { display: flex; justify-content: space-between; align-items: center; margin: 16px 0 20px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; background: var(--card); }
+.disc span { color: var(--muted); font-size: 13px; }
+.prose { font: 400 17px/1.65 var(--serif); }
+.prose p + p { margin-top: 14px; }
+.railm { position: sticky; bottom: 0; display: flex; gap: 3px; padding: 10px 16px; border-top: 1px solid var(--line); background: var(--paper); font-size: 11px; color: var(--muted); }
+.railm div { flex: 1; }
+.railm div::before { content: ''; display: block; height: 4px; background: var(--c); border-radius: 1px; margin-bottom: 4px; }
+.railm .cur { color: var(--ink); font-weight: 500; }
+
+/* flashcards */
+.fc { padding: 28px 32px 40px; }
+.fc .top { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--muted); }
+.fc .top b { color: var(--ink); font-weight: 500; }
+.fc .depth { flex: 1; max-width: 260px; margin: 0; }
+.card { max-width: 640px; margin: 36px auto 24px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 36px 40px; min-height: 280px; display: flex; flex-direction: column; }
+.card .src { font-size: 12px; color: var(--muted); }
+.card .q { font: 500 28px/1.25 var(--serif); letter-spacing: -.01em; margin: 18px 0; }
+.card .a { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); font: 400 17px/1.6 var(--serif); color: var(--muted); }
+.rate { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.rate a { text-align: center; border: 1px solid var(--line); border-radius: 8px; padding: 10px 6px; background: var(--card); font-size: 14px; font-weight: 500; }
+.rate a small { display: block; font: 400 11px var(--mono); color: var(--muted); }
+.hint { text-align: center; font-size: 12px; color: var(--muted); margin-top: 16px; }
+
+@media (max-width: 900px) {
+  .hero, .start, .avail, .tp, .pair { grid-template-columns: 1fr; }
+  .road { columns: 2; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 17c0-8 6-13 13.5-13S29 9 29 16s-5 12-13 12S3 24 3 17Z" opacity=".35"/>
+    <path d="M6.5 17c0-6 4.5-10 10-10s9 4 9 9-4 9.5-9.5 9.5S6.5 22 6.5 17Z" opacity=".5"/>
+    <path d="M10 16.5C10 12.5 13 10 16.5 10S23 12.5 23 16s-2.8 6.5-6.5 6.5S10 20.5 10 16.5Z" opacity=".7"/>
+    <path d="M13.5 16.5c0-2 1.5-3.2 3.2-3.2s3 1.3 3 3-1.3 3.3-3 3.3-3.2-1.2-3.2-3.1Z" opacity=".85"/>
+    <circle cx="16.8" cy="16.6" r="1.1" fill="currentColor" stroke="none"/>
+  </symbol>
+</svg>
+
+<p class="label">1 · Home (desktop). The memorable moment is the strata cross-section: the four depths of every answer, drawn as contours.</p>
+<div class="frame">
+  <header class="bar">
+    <a class="lockup" href="#"><svg><use href="#mark"/></svg><span class="word">isobath</span><span class="by">by Sachin Maurya</span></a>
+    <nav class="nav"><a class="on" href="#">Paths</a><a href="#">Topics</a><a href="#">Practice</a><a href="#">Roadmap</a></nav>
+    <div class="sp"></div>
+    <div class="search">Search questions<span class="kbd">⌘K</span></div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Engineering interviews, in depth.</h1>
+      <p class="lede">Every question opens with the answer you'd give in the room, then goes down to the mechanism, the edge cases, and the spec or engine underneath.</p>
+      <p class="ask">What are you preparing as?</p>
+      <div class="roles">
+        <a href="#"><span><span class="r">Frontend engineer</span><span class="m">JavaScript and TypeScript are ready; 7 more topics planned</span></span><span class="go">Open path</span></a>
+        <a href="#"><span><span class="r">Backend engineer</span><span class="m">Starts with JavaScript fundamentals; Node.js is next</span></span><span class="go">Open path</span></a>
+        <a href="#"><span><span class="r">Full-stack engineer</span><span class="m">Language first, then both sides</span></span><span class="go">Open path</span></a>
+        <a href="#"><span><span class="r">Infrastructure and DevOps</span><span class="m">Roadmap only. Nothing written yet</span></span><span class="go">See roadmap</span></a>
+        <a href="#"><span><span class="r">Any engineer</span><span class="m">Language, systems, and practice topics</span></span><span class="go">Open path</span></a>
+      </div>
+    </div>
+    <div class="strata">
+      <svg class="contours" data-seed="isobath-hero" data-levels="9" viewBox="0 0 500 500"></svg>
+      <div class="tag" style="left:2%;top:7%"><b>30-second answer</b><span>What you say first</span></div>
+      <div class="tag" style="right:0;top:26%;text-align:right"><b>Full answer</b><span>Mechanism, with an example</span></div>
+      <div class="tag" style="left:0;bottom:25%"><b>Follow-ups</b><span>Edge cases they push on</span></div>
+      <div class="tag" style="right:4%;bottom:6%;text-align:right"><b>Spec and engine</b><span>Why it works that way</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="start">
+      <div>
+        <h2>Start here</h2>
+        <p class="sub">If you only read one question first, read this one. It sets up the vocabulary the rest of JavaScript uses.</p>
+        <div class="q" style="font:500 30px/1.18 var(--serif);letter-spacing:-.015em">What is the difference between ECMAScript, the engine, and the host?</div>
+        <a class="btn" href="#">Read the question</a><a class="btn ghost" href="#">Browse JavaScript</a>
+      </div>
+      <div class="tldr"><small>30-second answer</small>ECMAScript is the language specification. The engine, such as V8, implements it. The host, such as a browser or Node.js, adds APIs like <code>setTimeout</code> and <code>fetch</code> that the spec does not define.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Available now</h2>
+    <p class="sub">Written, researched against primary sources, and waiting for review.</p>
+    <div class="avail">
+      <a class="topic" href="#">
+        <div class="cover"><svg class="contours" data-seed="javascript" data-levels="6" viewBox="0 0 120 120"></svg></div>
+        <div><h3>JavaScript</h3><p>The language, the spec, and the engines that run it.</p>
+          <div class="mix"><i style="flex:38;background:var(--d1)"></i><i style="flex:34;background:var(--d2)"></i><i style="flex:20;background:var(--d3)"></i><i style="flex:8;background:var(--d4)"></i></div>
+          <div class="meta"><span class="pill">Draft</span>&nbsp; 150 questions · 762 flashcards</div></div>
+      </a>
+      <a class="topic" href="#">
+        <div class="cover"><svg class="contours" data-seed="typescript" data-levels="5" viewBox="0 0 120 120"></svg></div>
+        <div><h3>TypeScript</h3><p>The type system, the compiler, and how they fail.</p>
+          <div class="mix"><i style="flex:30;background:var(--d1)"></i><i style="flex:36;background:var(--d2)"></i><i style="flex:24;background:var(--d3)"></i><i style="flex:10;background:var(--d4)"></i></div>
+          <div class="meta"><span class="pill">Draft</span>&nbsp; 47 questions · flashcards not written</div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Roadmap</h2>
+    <p class="sub">26 topics are planned and not written. Each has a README with its scope. <a href="#" style="color:var(--accent)">Contribute a question</a></p>
+    <div class="road">
+      <section><h4>Frontend</h4><ul><li class="has">JavaScript<span>Draft</span></li><li class="has">TypeScript<span>Draft</span></li><li>HTML and CSS<span>Planned</span></li><li>Browser<span>Planned</span></li><li>Accessibility<span>Planned</span></li><li>React<span>Planned</span></li><li>Next.js<span>Planned</span></li><li>React Native<span>Planned</span></li></ul></section>
+      <section><h4>Backend</h4><ul><li>Node.js<span>Planned</span></li><li>HTTP and APIs<span>Planned</span></li><li>Backend patterns<span>Planned</span></li><li>Databases<span>Planned</span></li><li>Caching<span>Planned</span></li><li>Messaging and jobs<span>Planned</span></li><li>Authentication<span>Planned</span></li></ul></section>
+      <section><h4>Infrastructure and delivery</h4><ul><li>Git<span>Planned</span></li><li>CI/CD<span>Planned</span></li><li>Containers and Kubernetes<span>Planned</span></li><li>Cloud and IaC<span>Planned</span></li><li>Networking<span>Planned</span></li><li>Observability<span>Planned</span></li></ul></section>
+      <section><h4>Engineering practice</h4><ul><li>Testing<span>Planned</span></li><li>Web performance<span>Planned</span></li><li>Web security<span>Planned</span></li><li>Tooling<span>Planned</span></li><li>System design<span>Planned</span></li><li>Data structures and algorithms<span>Planned</span></li></ul></section>
+    </div>
+  </section>
+  <footer class="foot"><span>isobath, by Sachin Maurya</span><span>Changelog</span><span>GitHub</span><span>Portfolio</span></footer>
+</div>
+
+<p class="label">2 · Topic page. Left rail is the summary and actions; the outline is filterable and scales to 30 chapters.</p>
+<div class="frame">
+  <header class="bar">
+    <a class="lockup" href="#"><svg><use href="#mark"/></svg><span class="word">isobath</span></a>
+    <nav class="nav"><a href="#">Paths</a><a class="on" href="#">Topics</a><a href="#">Practice</a><a href="#">Roadmap</a></nav>
+    <div class="sp"></div>
+    <div class="search">Search questions<span class="kbd">⌘K</span></div>
+  </header>
+  <div class="tp">
+    <aside>
+      <div class="cover"><svg class="contours" data-seed="javascript" data-levels="7" viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"></svg></div>
+      <h1>JavaScript</h1>
+      <div class="facts">
+        <span><b>Covers</b> ECMAScript 2025, Node 24, V8</span>
+        <span><b>Reviewed</b> October 2026</span>
+        <span><b>Status</b> Draft, awaiting review</span>
+        <span><b>Length</b> 150 questions · about 25 hours</span>
+      </div>
+      <div class="depth" style="--c:var(--d4)"><i class="f" style="--c:var(--d1)"></i><i class="f" style="--c:var(--d2)"></i><i style="--c:var(--d3)"></i><i></i></div>
+      <div style="font-size:12px;color:var(--muted)">Your progress: 38 of 150 answered</div>
+      <div class="act"><a href="#">Practice<span>Questions in order</span></a><a href="#">Flashcards<span>12 due · 762</span></a></div>
+    </aside>
+    <main>
+      <div class="filter"><div class="search">Filter chapters and questions</div><div class="seg"><span class="on">All</span><span>Unanswered</span><span>Follow-ups</span></div></div>
+      <details class="ch" open>
+        <summary><span class="n">01</span><span class="t">How JavaScript runs</span><span class="c">12 questions</span><span class="depth" style="margin:0"><i class="f" style="--c:var(--d2)"></i><i class="f" style="--c:var(--d2)"></i><i></i><i></i></span></summary>
+        <div class="qs">
+          <a href="#"><span class="done">ECMAScript, the engine, and the host</span><span class="dots"><i class="f"></i><i class="f"></i><i></i><i></i></span></a>
+          <a href="#"><span>What happens between loading a script and running it?</span><span class="dots"><i class="f"></i><i></i><i></i><i></i></span></a>
+          <a href="#"><span>Why does the same code behave differently in Node and a browser?</span><span class="dots"><i class="f"></i><i class="f"></i><i class="f"></i><i></i></span></a>
+          <a href="#"><span>How does an engine decide what to optimize?</span><span class="dots"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></span></a>
+        </div>
+      </details>
+      <details class="ch"><summary><span class="n">02</span><span class="t">Values and types</span><span class="c">14 questions</span><span class="depth" style="margin:0"><i></i><i></i><i></i><i></i></span></summary></details>
+      <details class="ch"><summary><span class="n">03</span><span class="t">Numbers and BigInt</span><span class="c">9 questions</span><span class="depth" style="margin:0"><i></i><i></i><i></i><i></i></span></summary></details>
+      <details class="ch"><summary><span class="n">04</span><span class="t">Strings and Unicode</span><span class="c">8 questions</span><span class="depth" style="margin:0"><i></i><i></i><i></i><i></i></span></summary></details>
+      <details class="ch"><summary><span class="n">05</span><span class="t">Coercion and equality</span><span class="c">11 questions</span><span class="depth" style="margin:0"><i></i><i></i><i></i><i></i></span></summary></details>
+      <div style="border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--muted)">Showing 5 of 26 chapters</div>
+    </main>
+  </div>
+</div>
+
+<p class="label">3 · Question on mobile (left): question first, chapters behind a disclosure. Flashcard session (right).</p>
+<div class="pair">
+  <div class="frame phone">
+    <header class="bar"><a class="lockup" href="#"><svg><use href="#mark"/></svg><span class="word">isobath</span></a><div class="sp"></div><div class="search" style="width:auto;padding:7px 10px">Search</div></header>
+    <div class="body">
+      <div class="crumb">JavaScript › How JavaScript runs</div>
+      <h1>ECMAScript, the engine, and the host</h1>
+      <div class="tldr"><small>30-second answer</small>ECMAScript is the specification. An engine such as V8 implements it. The host adds APIs the spec never defines.</div>
+      <div class="disc">Chapters<span>1 of 12 · open</span></div>
+      <div class="prose">
+        <p>When someone says "JavaScript does X", the claim usually belongs to one of three layers. Naming the layer is most of the answer.</p>
+        <p>The specification defines syntax, types, and the abstract operations an implementation must follow. It says nothing about timers or the network.</p>
+      </div>
+    </div>
+    <div class="railm" style="--c:var(--d1)"><div class="cur" style="--c:var(--d1)">30 s</div><div style="--c:var(--d2)">Full</div><div style="--c:var(--d3)">Follow-ups</div><div style="--c:var(--d4)">Spec</div></div>
+  </div>
+
+  <div class="frame">
+    <header class="bar"><a class="lockup" href="#"><svg><use href="#mark"/></svg><span class="word">isobath</span></a><nav class="nav"><a href="#">Paths</a><a href="#">Topics</a><a class="on" href="#">Practice</a><a href="#">Roadmap</a></nav><div class="sp"></div><div class="search">Search questions<span class="kbd">⌘K</span></div></header>
+    <div class="fc">
+      <div class="top"><b>JavaScript flashcards</b><span>Card 8 of 12 due</span><div class="depth"><i class="f" style="--c:var(--d1)"></i><i class="f" style="--c:var(--d2)"></i><i style="--c:var(--d3)"></i><i></i></div><span class="sp"></span><span>End session</span></div>
+      <div class="card">
+        <div class="src">How JavaScript runs · Level 1</div>
+        <div class="q">Name the three layers a claim about "JavaScript" can belong to.</div>
+        <div class="a">The specification, the engine that implements it, and the host environment that supplies APIs such as timers and the network.</div>
+      </div>
+      <div class="rate">
+        <a href="#">Again<small>1 · &lt;1 min</small></a>
+        <a href="#">Hard<small>2 · 2 days</small></a>
+        <a href="#">Good<small>3 · 6 days</small></a>
+        <a href="#">Easy<small>4 · 14 days</small></a>
+      </div>
+      <p class="hint">Space reveals the answer · 1 to 4 rates it · progress stays in this browser, export it from Settings</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Seeded, nested, irregular closed contours. Same slug always draws the same map.
+function rng(s) { let h = 1779033703 ^ s.length; for (const c of s) { h = Math.imul(h ^ c.charCodeAt(0), 3432918353); h = h << 13 | h >>> 19; }
+  return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
+const PALETTE = ['#D5DCF8', '#A9B7F0', '#6F86E4', '#2F4FD8'];
+document.querySelectorAll('svg.contours').forEach(svg => {
+  const [, , w, h] = svg.getAttribute('viewBox').split(' ').map(Number);
+  const r = rng(svg.dataset.seed), levels = +svg.dataset.levels;
+  const harmonics = [2, 3, 4, 5].map(k => ({ k, a: (0.16 + r() * 0.12) / (k - 0.6), p: r() * 6.28 }));
+  const cx = w * (0.46 + r() * 0.1), cy = h * (0.46 + r() * 0.1), R = Math.min(w, h) * 0.47;
+  let out = '';
+  for (let i = 0; i < levels; i++) {
+    const t = (i + 1) / levels, scale = R * (1 - t * 0.9), wob = 0.55 + (1 - t) * 0.9;
+    let d = '';
+    for (let s = 0; s <= 96; s++) {
+      const th = s / 96 * Math.PI * 2;
+      const n = harmonics.reduce((acc, { k, a, p }) => acc + a * wob * Math.sin(k * th + p + t * 1.1), 0);
+      const x = cx + Math.cos(th) * scale * (1 + n), y = cy + Math.sin(th) * scale * (1 + n * 0.9);
+      d += (s ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+    const col = PALETTE[Math.min(3, Math.floor(t * 4 - 0.001))];
+    out += `<path d="${d}Z" fill="${i === levels - 1 ? col : 'none'}" fill-opacity=".18" stroke="${col}" stroke-width="${(w > 300 ? 1.6 : 1.1)}" stroke-linejoin="round"/>`;
+  }
+  svg.innerHTML = out;
+});
+</script>
+</body>
+</html>

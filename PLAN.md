@@ -4,10 +4,10 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review; UI/brand/structure redesign is in brainstorming (architectural path) — decisions in `~/.claude/handoffs/deep-dive-ui-2026-10-14/HANDOFF.md`; **next: write the spec** to `docs/superpowers/specs/`, maintainer reviews, then `writing-plans`. No product code before that
+- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts approved via `specs/mockups/page-layouts.html`). Rollout step 1 plan written: `docs/superpowers/plans/2026-10-14-data-shards.md` — **next: maintainer picks an execution method, then run the plan**; steps 2–7 get a plan each, written just before they start
+- Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
 - Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
-- Portfolio (`../sachin`): revamp on `revamp/portfolio-2026` (unpushed) awaits review → PR `develop` → `main`; then delete `develop`
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
