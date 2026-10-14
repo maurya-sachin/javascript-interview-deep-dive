@@ -2,6 +2,7 @@ import { Link, Outlet, ScrollRestoration } from 'react-router'
 import { Mark } from '@/components/Mark'
 import { SearchDialog } from '@/components/SearchDialog'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { TopicSwitcher } from '@/components/TopicSwitcher'
 import { REPO_URL } from '@/lib/repo'
 import { AUTHOR, AUTHOR_URL, SITE_NAME } from '@/lib/site'
 
@@ -18,6 +19,7 @@ export function Layout() {
             by {AUTHOR}
           </a>
         </div>
+        <TopicSwitcher />
         <div className="ml-auto flex items-center gap-2">
           <SearchDialog />
           <ThemeToggle />
