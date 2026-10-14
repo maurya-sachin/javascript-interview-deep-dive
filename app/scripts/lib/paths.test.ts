@@ -12,7 +12,7 @@ const path = (steps: PathStep[]): RolePath => ({ slug: 'p', title: 'P', summary:
 test('describes ready and planned topics', () => {
   assert.equal(describePath(path([step({}), step({ topic: 'typescript', topicTitle: 'TypeScript' }), step({ topic: 'react', topicTitle: 'React', ready: false })])), 'JavaScript and TypeScript are ready; 1 more planned')
   assert.equal(describePath(path([step({})])), 'JavaScript is ready')
-  assert.equal(describePath(path([step({ ready: false }), step({ topic: 'x', ready: false })])), 'Roadmap only: nothing written yet')
+  assert.equal(describePath(path([step({ ready: false }), step({ topic: 'x', ready: false })])), 'Roadmap only: nothing published yet')
   assert.equal(describePath(path([step({}), step({ topic: 'b', topicTitle: 'B' }), step({ topic: 'c', topicTitle: 'C' })])), 'JavaScript, B and C are ready')
 })
 

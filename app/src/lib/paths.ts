@@ -9,7 +9,7 @@ function joinNames(names: string[]): string {
 /** One line for the role chooser: what is ready on this path and how much is still planned. */
 export function describePath({ steps }: RolePath): string {
   const ready = steps.filter((step) => step.ready)
-  if (ready.length === 0) return 'Roadmap only: nothing written yet'
+  if (ready.length === 0) return 'Roadmap only: nothing published yet'
   const planned = steps.length - ready.length
   const names = [...new Set(ready.map((step) => step.topicTitle))]
   const sentence = `${joinNames(names)} ${names.length === 1 ? 'is' : 'are'} ready`

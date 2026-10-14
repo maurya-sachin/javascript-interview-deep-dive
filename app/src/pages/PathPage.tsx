@@ -28,7 +28,7 @@ export function PathPage() {
       <p className="mt-3 max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground">{path.summary}</p>
       <p className="mt-4 text-sm text-muted-foreground">
         {ready.length === 0
-          ? 'Roadmap only: nothing written for this path yet.'
+          ? 'Roadmap only: nothing on this path is published yet.'
           : `${ready.length} of ${path.steps.length} steps ready · ${total} questions · about ${hours} ${hours === 1 ? 'hour' : 'hours'} of reading${done > 0 ? ` · ${done} read by you` : ''}`}
       </p>
       {next && (
