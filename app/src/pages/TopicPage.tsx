@@ -1,15 +1,16 @@
-import { Link, useParams } from 'react-router'
+import { Link } from 'react-router'
 import { DifficultyMix } from '@/components/DifficultyMix'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { Button } from '@/components/ui/button'
-import { chapterStats, findTopic, questionPath, useContentIndex } from '@/content/index-data'
+import { questionPath, useTopic } from '@/content/index-data'
+import { chapterStats } from '@/content/stats'
 import { useProgress } from '@/lib/progress'
 
 const INLINE_CODE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 export function TopicPage() {
-  const topic = findTopic(useContentIndex(), useParams().topic)
+  const topic = useTopic()
   const { read } = useProgress()
   if (!topic) return <NotFound what="Topic" />
 

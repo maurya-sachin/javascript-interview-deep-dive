@@ -4,7 +4,7 @@ import { Html } from '@/components/question/Html'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { Button } from '@/components/ui/button'
-import { findChapter, findTopic, useContentIndex } from '@/content/index-data'
+import { findChapter, type loadPractice } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
@@ -94,8 +94,7 @@ function Session({ questions }: { questions: QuestionData[] }) {
 
 export function PracticePage() {
   const params = useParams()
-  const questions = useLoaderData<QuestionData[]>()
-  const topic = findTopic(useContentIndex(), params.topic)
+  const { topic, questions } = useLoaderData<Awaited<ReturnType<typeof loadPractice>>>()
   const chapter = topic && findChapter(topic, params.chapter)
   if (!topic || !chapter) return <NotFound what="Chapter" />
 

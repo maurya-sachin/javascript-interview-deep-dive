@@ -1,6 +1,6 @@
-import { createBrowserRouter, type LoaderFunctionArgs } from 'react-router'
+import { createBrowserRouter, Outlet, type LoaderFunctionArgs } from 'react-router'
 import { Layout } from '@/components/Layout'
-import { INDEX_ROUTE_ID, loadChapterQuestions, loadFlashcards, loadIndex, loadQuestion } from '@/content/index-data'
+import { loadFlashcards, loadManifest, loadPractice, loadQuestion, loadTopic, MANIFEST_ROUTE_ID, TOPIC_ROUTE_ID } from '@/content/index-data'
 import { ChapterPage } from '@/pages/ChapterPage'
 import { FlashcardsPage } from '@/pages/FlashcardsPage'
 import { HomePage } from '@/pages/HomePage'
@@ -8,32 +8,38 @@ import { PracticePage } from '@/pages/PracticePage'
 import { QuestionPage } from '@/pages/QuestionPage'
 import { TopicPage } from '@/pages/TopicPage'
 
-function questionLoader({ params }: LoaderFunctionArgs) {
-  return loadQuestion(`${params.topic}/${params.chapter}/${params.question}`)
-}
-
-function practiceLoader({ params }: LoaderFunctionArgs) {
-  return loadChapterQuestions(params.topic, params.chapter)
-}
-
-function flashcardsLoader({ params }: LoaderFunctionArgs) {
-  return loadFlashcards(params.topic)
-}
-
+// Pages under `:topic` read the topic with `useTopic()`. Practice and Flashcards sit under their own
+// paths, so their loaders return the topic alongside their data.
 export const router = createBrowserRouter(
   [
     {
-      id: INDEX_ROUTE_ID,
+      id: MANIFEST_ROUTE_ID,
       path: '/',
       element: <Layout />,
-      loader: loadIndex,
+      loader: loadManifest,
       children: [
         { index: true, element: <HomePage /> },
-        { path: 'practice/:topic/:chapter', element: <PracticePage />, loader: practiceLoader },
-        { path: 'flashcards/:topic', element: <FlashcardsPage />, loader: flashcardsLoader },
-        { path: ':topic', element: <TopicPage /> },
-        { path: ':topic/:chapter', element: <ChapterPage /> },
-        { path: ':topic/:chapter/:question', element: <QuestionPage />, loader: questionLoader },
+        {
+          path: 'practice/:topic/:chapter',
+          element: <PracticePage />,
+          loader: ({ params }: LoaderFunctionArgs) => loadPractice(params.topic, params.chapter),
+        },
+        { path: 'flashcards/:topic', element: <FlashcardsPage />, loader: ({ params }: LoaderFunctionArgs) => loadFlashcards(params.topic) },
+        {
+          id: TOPIC_ROUTE_ID,
+          path: ':topic',
+          element: <Outlet />,
+          loader: ({ params }: LoaderFunctionArgs) => loadTopic(params.topic),
+          children: [
+            { index: true, element: <TopicPage /> },
+            { path: ':chapter', element: <ChapterPage /> },
+            {
+              path: ':chapter/:question',
+              element: <QuestionPage />,
+              loader: ({ params }: LoaderFunctionArgs) => loadQuestion(`${params.topic}/${params.chapter}/${params.question}`),
+            },
+          ],
+        },
       ],
     },
   ],

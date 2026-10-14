@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link, useLoaderData, useParams } from 'react-router'
+import { Link, useLoaderData } from 'react-router'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { NotFound, PageShell } from '@/components/PageShell'
 import { Button } from '@/components/ui/button'
-import { findTopic, useContentIndex } from '@/content/index-data'
+import type { loadFlashcards } from '@/content/index-data'
 import { dueQueue, loadReviews, rateCard } from '@/content/review'
 import type { Flashcard } from '@/content/types'
 import { Rating, type Grade } from 'ts-fsrs'
@@ -77,9 +77,7 @@ function Session({ cards }: { cards: Flashcard[] }) {
 }
 
 export function FlashcardsPage() {
-  const params = useParams()
-  const cards = useLoaderData<Flashcard[]>()
-  const topic = findTopic(useContentIndex(), params.topic)
+  const { topic, cards } = useLoaderData<Awaited<ReturnType<typeof loadFlashcards>>>()
   if (!topic) return <NotFound what="Topic" />
 
   return (

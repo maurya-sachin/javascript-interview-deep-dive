@@ -9,7 +9,7 @@ import { MetaRow } from '@/components/question/MetaRow'
 import { Section } from '@/components/question/Section'
 import { Breadcrumbs, ComingSoon, NotFound } from '@/components/PageShell'
 import { QuestionTitle } from '@/components/QuestionTitle'
-import { findChapter, findTopic, neighbours, questionId, questionPath, useContentIndex } from '@/content/index-data'
+import { findChapter, neighbours, questionId, questionPath, useTopic } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
 import { markRead } from '@/lib/progress'
 import { editUrl, suggestFixUrl } from '@/lib/repo'
@@ -20,14 +20,15 @@ export function QuestionPage() {
   const params = useParams()
   // The route's loader returns the question's content, or null when it has no page yet.
   const content = useLoaderData<QuestionData | null>()
-  const topic = findTopic(useContentIndex(), params.topic)
+  const topic = useTopic()
   const chapter = topic && findChapter(topic, params.chapter)
   const id = topic && chapter && params.question ? questionId(topic, chapter, params.question) : undefined
   const question = chapter?.questions.find((candidate) => candidate.id === id)
   const readableId = content !== null ? question?.id : undefined
+  const titleHtml = content?.titleHtml
   useEffect(() => {
-    if (readableId) markRead(readableId)
-  }, [readableId])
+    if (readableId && titleHtml) markRead(readableId, titleHtml)
+  }, [readableId, titleHtml])
   if (!topic || !chapter || !question) return <NotFound what="Question" />
 
   const { previous, next } = neighbours(topic, question.id)

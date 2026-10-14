@@ -4,21 +4,19 @@ import { DifficultyMix } from '@/components/DifficultyMix'
 import { PageShell } from '@/components/PageShell'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { QuestionTitle } from '@/components/QuestionTitle'
-import { chapterStats, questionPath, useContentIndex } from '@/content/index-data'
-import type { TopicSummary } from '@/content/types'
+import { useManifest } from '@/content/index-data'
+import type { TopicOverview } from '@/content/types'
 import { useProgress } from '@/lib/progress'
 import { groupByTrack } from '@/lib/tracks'
 import { cn } from '@/lib/utils'
 
 export function HomePage() {
-  const { topics } = useContentIndex()
-  const { read, last } = useProgress()
-  const available = topics.filter((topic) => topic.chapters.length > 0)
-  const totals = chapterStats(available.flatMap((topic) => topic.chapters))
+  const { topics } = useManifest()
+  const { read, last, lastTitleHtml } = useProgress()
+  const available = topics.filter((topic) => topic.chapterCount > 0)
+  const questionTotal = available.reduce((sum, topic) => sum + topic.stats.total, 0)
   const cards = available.reduce((sum, topic) => sum + topic.flashcardCount, 0)
-  const lastQuestion = available
-    .flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
-    .find((question) => question.id === last && question.hasPage)
+  const lastQuestion = last && lastTitleHtml ? { id: last, titleHtml: lastTitleHtml } : null
 
   return (
     <PageShell crumbs={[]} wide>
@@ -33,12 +31,12 @@ export function HomePage() {
           </p>
           <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-3">
             <Stat value={available.length} label={available.length === 1 ? 'topic' : 'topics'} />
-            <Stat value={totals.total} label="questions" />
+            <Stat value={questionTotal} label="questions" />
             <Stat value={cards} label="flashcards" />
             {read.length > 0 && <Stat value={read.length} label="read by you" />}
           </dl>
           {lastQuestion && (
-            <Link to={questionPath(lastQuestion)} className="group mt-8 flex max-w-lg items-baseline gap-3 border-l-2 border-link pl-4">
+            <Link to={`/${lastQuestion.id}`} className="group mt-8 flex max-w-lg items-baseline gap-3 border-l-2 border-link pl-4">
               <span>
                 <span className="block text-sm text-muted-foreground">Continue where you left off</span>
                 <span className="block font-medium group-hover:text-link">
@@ -69,8 +67,9 @@ export function HomePage() {
   )
 }
 
-function countRead(topic: TopicSummary, read: readonly string[]) {
-  return topic.chapters.flatMap((chapter) => chapter.questions).filter((question) => read.includes(question.id)).length
+/** Question ids are `<topic>/<chapter>/<question>`, so a topic's reads share its slug as a prefix. */
+function countRead(topic: TopicOverview, read: readonly string[]) {
+  return read.filter((id) => id.startsWith(`${topic.slug}/`)).length
 }
 
 function Stat({ value, label }: { value: number; label: string }) {
@@ -82,9 +81,9 @@ function Stat({ value, label }: { value: number; label: string }) {
   )
 }
 
-function TopicRow({ topic, readCount }: { topic: TopicSummary; readCount: number }) {
-  const stats = chapterStats(topic.chapters)
-  const planned = topic.chapters.length === 0
+function TopicRow({ topic, readCount }: { topic: TopicOverview; readCount: number }) {
+  const stats = topic.stats
+  const planned = topic.chapterCount === 0
   return (
     <li className="border-b">
       <Link to={`/${topic.slug}`} className="group grid gap-x-8 gap-y-2 py-5 sm:grid-cols-[1fr_14rem]">
@@ -101,7 +100,7 @@ function TopicRow({ topic, readCount }: { topic: TopicSummary; readCount: number
           <span className="flex flex-col gap-2 text-sm text-muted-foreground sm:text-right">
             <DifficultyMix counts={stats.byDifficulty} />
             <span>
-              {topic.chapters.length} chapters, {stats.total} questions
+              {topic.chapterCount} chapters, {stats.total} questions
               {topic.flashcardCount > 0 && `, ${topic.flashcardCount} cards`}
             </span>
             {readCount > 0 && <span className="text-link">{readCount} read</span>}
