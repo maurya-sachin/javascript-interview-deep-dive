@@ -76,7 +76,10 @@ function reviewsOf(topic: string, reviews: Reviews) {
   return Object.entries(reviews).filter(([id]) => id.startsWith(`${topic}/`))
 }
 
-/** Cards due now and cards never seen, for one topic's deck of `cardCount` cards. Ids of cards since removed are clamped away. */
+/**
+ * Cards due now and cards never seen, for one topic's deck of `cardCount` cards. Ids of cards since removed are clamped away.
+ * Counts assume card ids never change once published (templates/README.md, Flashcards).
+ */
 export function deckStatus(topic: string, cardCount: number, reviews: Reviews, now: Date): { due: number; unseen: number } {
   const seen = reviewsOf(topic, reviews)
   const due = seen.filter(([, card]) => new Date(card.due) <= now).length
