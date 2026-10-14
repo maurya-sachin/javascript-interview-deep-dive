@@ -4,6 +4,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
+import { isStale } from '../src/content/freshness.ts'
 import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, RolePath, SearchDoc, StartQuestion, TopicSummary } from '../src/content/types.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, type Question, type Topic } from './lib/content.ts'
@@ -17,6 +18,7 @@ import { EXERCISE_ANSWER, FOLLOW_UP_ANSWER, FOLLOW_UP_QUESTION, splitSections, t
 
 type WrittenMeta = Exclude<Frontmatter, { status: 'planned' }>
 
+const BUILD_DATE = new Date()
 const outDir = path.resolve(import.meta.dirname, '../public/data')
 
 /** content:check has passed before this runs, so every question has valid frontmatter. */
@@ -75,6 +77,8 @@ async function buildPage(question: Question, meta: WrittenMeta): Promise<Questio
     tags: meta.tags,
     related: meta.related,
     verified: meta.verified,
+    stale: isStale(meta.verified, BUILD_DATE),
+    legacy: meta.legacy ?? null,
     sources: meta.sources,
     tldrHtml: (await renderInline(meta.tldr, question.file)).html,
     answerHtml: await renderRequired('Answer'),
@@ -129,6 +133,9 @@ async function summarize(question: Question): Promise<QuestionSummary> {
     frequency: meta.frequency,
     core: meta.core,
     hasPage: hasPage(meta),
+    verified: meta.status === 'planned' ? null : meta.verified,
+    stale: meta.status !== 'planned' && isStale(meta.verified, BUILD_DATE),
+    legacy: meta.status === 'planned' ? null : (meta.legacy ?? null),
   }
 }
 
@@ -153,11 +160,17 @@ function trackOf(readme: string): string {
   return readme.match(/^> \*\*Track:\*\* (.+)$/m)?.[1].trim() ?? 'Other'
 }
 
+/** The topic README's optional `> **Covers:**` line; content:check rejects an empty one. */
+function coversOf(readme: string): string | null {
+  return readme.match(/^> \*\*Covers:\*\* (.+)$/m)?.[1].trim() ?? null
+}
+
 const topics: TopicSummary[] = await Promise.all(
   content.topics.map(async (topic) => ({
     slug: topic.slug,
     title: topic.title,
     track: trackOf(topic.readme),
+    covers: coversOf(topic.readme),
     ...(await summaryOf(topic.readme)),
     flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
     chapters: await Promise.all(

@@ -106,6 +106,9 @@ async function loadTopic(slug: string, dir: string, problems: Problem[]): Promis
   }
 
   requireGenerated(readme, readmeFile, 'chapters', problems)
+  if (/^> \*\*Covers:\*\*\s*$/m.test(readme)) {
+    problems.push({ file: repoRelative(readmeFile), message: '`> **Covers:**` line is empty; fill it in or remove it' })
+  }
   return { slug, title: readHeading(readme, readmeFile, problems), dir, readmeFile, readme, chapters }
 }
 

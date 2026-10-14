@@ -4,7 +4,7 @@ import { filterOutline } from '../../src/content/outline.ts'
 import type { ChapterSummary, QuestionSummary } from '../../src/content/types.ts'
 
 function question(id: string, title: string): QuestionSummary {
-  return { id, number: '010', title, titleHtml: title, status: 'draft', difficulty: 'easy', frequency: 3, core: false, hasPage: true }
+  return { id, number: '010', title, titleHtml: title, status: 'draft', difficulty: 'easy', frequency: 3, core: false, hasPage: true, verified: '2026-10', stale: false, legacy: null }
 }
 
 const chapters: ChapterSummary[] = [

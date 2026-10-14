@@ -5,14 +5,14 @@ import { resolveRolePaths, validateRolePaths, type RolePathSource } from './role
 
 function questions(readable: number, unreadable = 0): QuestionSummary[] {
   return Array.from({ length: readable + unreadable }, (_, index) => ({
-    id: `q${index}`, number: '010', title: 'Q', titleHtml: 'Q', status: 'draft', difficulty: 'easy', frequency: 3, core: false, hasPage: index < readable,
+    id: `q${index}`, number: '010', title: 'Q', titleHtml: 'Q', status: 'draft', difficulty: 'easy', frequency: 3, core: false, hasPage: index < readable, verified: '2026-10', stale: false, legacy: null,
   }))
 }
 function chapter(slug: string, title: string, list: QuestionSummary[]): ChapterSummary {
   return { number: '01', slug, title, summaryHtml: '', summaryText: '', questions: list }
 }
 function topic(slug: string, title: string, chapters: ChapterSummary[]): TopicSummary {
-  return { slug, title, track: 'Frontend', summaryHtml: '', summaryText: '', flashcardCount: 0, chapters }
+  return { slug, title, track: 'Frontend', covers: null, summaryHtml: '', summaryText: '', flashcardCount: 0, chapters }
 }
 
 const topics: TopicSummary[] = [

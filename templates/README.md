@@ -46,6 +46,9 @@ Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mappe
 | `draft` | Written and self-checked, awaiting maintainer review | everything below |
 | `published` | Reviewed and live | everything below |
 
+The app labels written questions **Draft** (`draft`), **Reviewed** (`published`) or **Legacy** (any written question with `legacy`).
+A question is **stale** when `verified` is 12 or more months before the build month; the app then says it may be out of date.
+
 ## Question format
 
 ### Frontmatter
@@ -60,6 +63,8 @@ Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mappe
 | `tags` | string[] | Lowercase, kebab-case |
 | `related` | id[] | Other questions this builds on or leads to |
 | `verified` | `YYYY-MM` | When the facts were last checked against `sources` |
+| `legacy` | string | Optional, written questions only, ≤ 30 words. Why the question is kept for history (for example, the old way of doing something); shows a Legacy label |
+| `perishable` | string[] | Optional, written questions only, each ≤ 12 words. Facts likely to change (versions, flags, limits), so a review pass can find them |
 | `sources` | URL[] | Primary sources only — see [Research](#research) |
 | `tldr` | string | ≤ 60 words — the 30-second answer |
 
@@ -121,6 +126,9 @@ Topic READMEs (not chapters) put a hand-written track line directly above it, in
 > **Track:** Backend
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 ```
+
+A topic README may add one more hand-written line to the same blockquote, directly under the track: `> **Covers:** …`.
+It names the versions and engines the topic is checked against, in 15 words or fewer. Leave it out when the topic has no versions to name; an empty line fails `content:check`.
 
 | Track | Topics |
 |---|---|

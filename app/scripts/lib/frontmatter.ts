@@ -21,6 +21,8 @@ const whenWritten = {
   related: z.array(z.string().min(1)),
   verified: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'must be `YYYY-MM`'),
   sources: z.array(z.url()).min(1),
+  legacy: z.string().min(1).refine((text) => countWords(text) <= 30, 'must be 30 words or fewer').optional(),
+  perishable: z.array(z.string().min(1).refine((text) => countWords(text) <= 12, 'must be 12 words or fewer')).optional(),
   tldr: z.string().refine((text) => countWords(text) <= 60, 'must be 60 words or fewer'),
 }
 

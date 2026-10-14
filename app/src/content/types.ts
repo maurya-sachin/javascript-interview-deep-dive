@@ -15,6 +15,12 @@ export interface QuestionSummary {
   core: boolean
   /** Whether `questions/<id>.json` was built; planned questions show as "coming soon". */
   hasPage: boolean
+  /** `YYYY-MM` of the last fact check; `null` while the question is planned. */
+  verified: string | null
+  /** Verified 12 or more months before this build; see `freshness.ts`. */
+  stale: boolean
+  /** Why the question is kept for history only; `null` when it is current. */
+  legacy: string | null
 }
 
 export interface ChapterSummary {
@@ -33,6 +39,8 @@ export interface TopicSummary {
   title: string
   /** Group on the home page, from the README's `> **Track:**` line. */
   track: string
+  /** The README's optional `> **Covers:**` line: the versions and engines the topic is checked against. */
+  covers: string | null
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string
   /** The same paragraph as plain text, for page descriptions. */
@@ -49,6 +57,12 @@ export interface TopicStats {
   readable: number
   core: number
   byDifficulty: Record<Difficulty, number>
+  /** Oldest `verified` month among readable questions; `null` when none are readable. */
+  lastVerified: string | null
+  /** Readable questions that are stale. */
+  stale: number
+  /** Readable questions with status `published`. */
+  reviewed: number
 }
 
 /** A topic as the manifest lists it: everything the home page needs, without chapter or question lists. */
@@ -120,6 +134,8 @@ export interface QuestionPage {
   tags: string[]
   related: string[]
   verified: string
+  stale: boolean
+  legacy: string | null
   sources: string[]
   tldrHtml: string
   answerHtml: string
