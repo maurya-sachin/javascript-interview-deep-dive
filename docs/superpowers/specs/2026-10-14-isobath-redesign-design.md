@@ -42,6 +42,7 @@ Today `app/public/data/` holds one index, one search index and one flashcards fi
 - Home: hero with tagline → "What are you preparing as?" (Frontend · Backend · Full-stack · Infra/DevOps · Any engineer) → **Start here** (one recommended first question) → **Available now** (topics with content) → **Roadmap** (planned topics: status + contribute link).
 - `content/paths/<role>.yaml`: ordered list of `topic/chapter` entries with a one-line reason each. Validated by `content:check` (every entry resolves, no duplicates). The path page shows progress along the path and an effort estimate.
 - Role pages work with whatever content exists; planned entries show as roadmap steps, not dead links.
+- As built: entries are `<topic>` or `<topic>/<chapter>` (planned topics have no chapters, so topic only); each path may set a `start` question, and the home "Start here" uses the first path that does; effort = 5 minutes per question; `/paths`, `/paths/<role>` and `/roadmap` exist and the header links to Paths and Roadmap; topic folders can't be named `paths`, `practice`, `flashcards` or `roadmap`. Lifecycle pills wait for §7.
 
 ## 5. Practice and flashcards
 - Hubs at `/practice` and `/flashcards`: pick topic/chapter, due count, streak-free (no gamification pressure).

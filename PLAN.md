@@ -4,7 +4,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
-- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. Step 3 (navigation) done; steps 1–3 re-audited 2026-10-14 (contrast to 3:1, cover colours, dead code, depth rail). **Step 4 (home + paths) plan: `docs/superpowers/plans/2026-10-14-home-and-paths.md`, executing inline;** steps 5–7 get a plan each just before they start
+- Doing: UI first, content after. Spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md` (layouts: `specs/mockups/page-layouts.html`). Steps 1 (data shards) and 2 (brand, licence applied) done on `v2`. Step 3 (navigation) done; steps 1–3 re-audited 2026-10-14 (contrast to 3:1, cover colours, dead code, depth rail). Step 4 (home + paths) done. **Next: step 5 (practice and flashcards hubs), write its plan first;** steps 5–7 get a plan each just before they start
 - For step 6 (prerender): `src/lib/theme.ts` reads `window.matchMedia` at module load, which breaks rendering in Node; move it behind a function first
 - Brand draft for the designer: the JavaScript cover reads as near-concentric rings (tune `heightField` in `app/src/lib/contours.ts`)
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
@@ -33,6 +33,7 @@ Non-goals: backend service, accounts, paid AI.
   - Backend: `nodejs http-and-apis backend-patterns databases caching messaging-and-jobs authentication`
   - Infrastructure and delivery: `git ci-cd containers-and-kubernetes cloud-and-iac networking observability`
   - Engineering practice: `testing web-performance web-security tooling system-design data-structures-and-algorithms`
+- R17 Paths: `content/paths/<role>.yaml` (ordered `<topic>` or `<topic>/<chapter>` entries with a one-line `why`, unique `order`, optional `start` question), validated by `content:check`; format in `templates/README.md` → Paths.
 - R16 Licence: code MIT (`LICENSE`); questions and flashcards in `content/` CC BY-NC-SA 4.0 (`content/LICENSE`).
 - R13 Brand: **isobath, by Sachin Maurya**, "engineering interviews, in depth". Mark = nested irregular contours (draft; a human designer redraws the final); topic covers are generated from slug + data (`app/src/lib/contours.ts`); depth scale = `--depth-1..4`. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent #2F4FD8 / #9DAEF7; prose column 720px. Originals only.
 - R15 Data: `manifest.json` + `topics/<slug>/{index,search,flashcards}.json`; a topic's shard loads on demand, never one big file.
@@ -50,6 +51,7 @@ content/
   <topic>/<NN-chapter>/README.md
   <topic>/<NN-chapter>/<NNN-slug>.md
   flashcards/<topic>.yaml
+  paths/<role>.yaml
 app/            scripts/ (new · check · status · build) · src/ · public/data/ (generated, gitignored)
 ```
 
