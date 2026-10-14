@@ -12,6 +12,7 @@ import { filterOutline } from '@/content/outline'
 import { chapterStats } from '@/content/stats'
 import type { TopicSummary } from '@/content/types'
 import { useProgress } from '@/lib/progress'
+import { SITE_NAME } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 const INLINE_CODE = '[&_code]:font-mono [&_code]:text-[0.9em]'
@@ -38,6 +39,7 @@ function Topic({ topic }: { topic: TopicSummary }) {
 
   return (
     <PageShell crumbs={[{ label: 'Topics', to: '/' }]} wide>
+      <title>{`${topic.title} · ${SITE_NAME}`}</title>
       <div className="grid gap-10 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-14">
         <header className="lg:sticky lg:top-8 lg:self-start">
           <TopicCover
