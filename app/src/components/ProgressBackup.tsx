@@ -28,7 +28,9 @@ export function ProgressBackup({ onImported }: { onImported: (reviews: Reviews) 
       replaceProgress(merged.progress)
       saveReviews(merged.reviews)
       onImported(merged.reviews)
-      setMessage(`Progress imported: ${merged.progress.read.length} questions read, ${Object.keys(merged.reviews).length} cards reviewed.`)
+      const read = merged.progress.read.length
+      const reviewed = Object.keys(merged.reviews).length
+      setMessage(`Progress imported: ${read} ${read === 1 ? 'question' : 'questions'} read, ${reviewed} ${reviewed === 1 ? 'card' : 'cards'} reviewed.`)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'The file could not be read.')
     }

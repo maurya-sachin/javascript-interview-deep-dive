@@ -56,8 +56,7 @@ export function PracticeHubPage() {
                   <Link to={`/flashcards/${topic.slug}`} className="flex items-baseline justify-between gap-4 py-4 hover:text-link">
                     <span className="text-lg font-semibold">{topic.title}</span>
                     <span className="text-sm text-muted-foreground">
-                      {due > 0 ? `${due} due` : 'Nothing due'}
-                      {unseen > 0 && `, ${unseen} new`}
+                      {[due > 0 && `${due} due`, unseen > 0 && `${unseen} new`].filter(Boolean).join(', ') || 'Nothing due'}
                     </span>
                   </Link>
                 </li>

@@ -21,12 +21,15 @@ export function loadReviews(): Reviews {
   }
 }
 
-/** Cards to review now: overdue ones, oldest first, then cards never seen. */
+/** New cards introduced per session, as in common spaced-repetition defaults, so a fresh deck isn't one 700-card sitting. */
+export const NEW_CARDS_PER_SESSION = 20
+
+/** Cards to review now: every overdue one, oldest first, then up to `NEW_CARDS_PER_SESSION` never seen. */
 export function dueQueue(cards: Flashcard[], reviews: Reviews, now: Date): Flashcard[] {
   const overdue = cards
     .filter((card) => card.id in reviews && new Date(reviews[card.id].due) <= now)
     .sort((a, b) => new Date(reviews[a.id].due).getTime() - new Date(reviews[b.id].due).getTime())
-  const unseen = cards.filter((card) => !(card.id in reviews))
+  const unseen = cards.filter((card) => !(card.id in reviews)).slice(0, NEW_CARDS_PER_SESSION)
   return [...overdue, ...unseen]
 }
 
