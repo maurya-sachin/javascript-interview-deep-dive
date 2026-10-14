@@ -23,6 +23,8 @@ export interface ChapterSummary {
   title: string
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string
+  /** The same paragraph as plain text, for page descriptions. */
+  summaryText: string
   questions: QuestionSummary[]
 }
 
@@ -33,6 +35,8 @@ export interface TopicSummary {
   track: string
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string
+  /** The same paragraph as plain text, for page descriptions. */
+  summaryText: string
   chapters: ChapterSummary[]
   /** Cards in this topic's flashcard deck; 0 when it has none. */
   flashcardCount: number

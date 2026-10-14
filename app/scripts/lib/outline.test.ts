@@ -8,8 +8,8 @@ function question(id: string, title: string): QuestionSummary {
 }
 
 const chapters: ChapterSummary[] = [
-  { number: '01', slug: 'engine', title: 'How JavaScript runs', summaryHtml: '', questions: [question('js/engine/a', 'What is an engine?'), question('js/engine/b', 'What is a host?')] },
-  { number: '02', slug: 'types', title: 'Values and types', summaryHtml: '', questions: [question('js/types/a', 'What is typeof null?')] },
+  { number: '01', slug: 'engine', title: 'How JavaScript runs', summaryHtml: '', summaryText: '', questions: [question('js/engine/a', 'What is an engine?'), question('js/engine/b', 'What is a host?')] },
+  { number: '02', slug: 'types', title: 'Values and types', summaryHtml: '', summaryText: '', questions: [question('js/types/a', 'What is typeof null?')] },
 ]
 const none = { query: '', unreadOnly: false }
 

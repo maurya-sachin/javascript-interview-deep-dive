@@ -48,19 +48,6 @@ function escapeHtml(text: string): string {
   return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 }
 
-/** Turns our own generated inline HTML into one line of plain text. */
-function htmlToText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, '')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&quot;', '"')
-    .replaceAll('&#x27;', "'")
-    .replaceAll('&amp;', '&')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
 async function listPages(): Promise<Page[]> {
   const manifest = await readJson<ContentManifest>('data/manifest.json')
   const pages: Page[] = [
@@ -74,13 +61,13 @@ async function listPages(): Promise<Page[]> {
   for (const overview of manifest.topics) {
     const topic = await readJson<TopicSummary>(`data/topics/${overview.slug}/index.json`)
     if (overview.stats.readable > 0) pages.push({ path: `/practice/${topic.slug}`, description: PRACTICE_DESCRIPTION, type: 'website' })
-    pages.push({ path: `/${topic.slug}`, description: htmlToText(topic.summaryHtml), type: 'website' })
+    pages.push({ path: `/${topic.slug}`, description: topic.summaryText, type: 'website' })
 
     // Topics without chapters have no search.json.
     const searchDocs = topic.chapters.length > 0 ? await readJson<SearchDoc[]>(`data/topics/${topic.slug}/search.json`) : []
     const tldrs = new Map(searchDocs.map((doc) => [doc.id, doc.tldr]))
     for (const chapter of topic.chapters) {
-      pages.push({ path: `/${topic.slug}/${chapter.slug}`, description: htmlToText(chapter.summaryHtml), type: 'website' })
+      pages.push({ path: `/${topic.slug}/${chapter.slug}`, description: chapter.summaryText, type: 'website' })
       for (const question of chapter.questions.filter((candidate) => candidate.hasPage)) {
         const description = tldrs.get(question.id)
         if (!description) throw new Error(`${question.id}: no TL;DR in search.json for the page description`)

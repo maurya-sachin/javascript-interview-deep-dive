@@ -8,6 +8,7 @@ const topic: TopicSummary = {
   title: 'JavaScript',
   track: 'Frontend',
   summaryHtml: 'The language.',
+  summaryText: 'The language.',
   flashcardCount: 2,
   chapters: [
     {
@@ -15,6 +16,7 @@ const topic: TopicSummary = {
       slug: 'c',
       title: 'C',
       summaryHtml: '',
+      summaryText: '',
       questions: [{ id: 'javascript/c/q', number: '010', title: 'Q', titleHtml: 'Q', status: 'draft', difficulty: 'easy', frequency: 3, core: true, hasPage: true }],
     },
   ],

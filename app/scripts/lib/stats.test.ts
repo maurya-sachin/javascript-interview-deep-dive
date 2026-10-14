@@ -8,7 +8,7 @@ function question(overrides: Partial<QuestionSummary>): QuestionSummary {
 }
 
 function chapter(questions: QuestionSummary[]): ChapterSummary {
-  return { number: '01', slug: 'c', title: 'C', summaryHtml: '', questions }
+  return { number: '01', slug: 'c', title: 'C', summaryHtml: '', summaryText: '', questions }
 }
 
 test('counts total, readable, core and the difficulty mix across chapters', () => {
