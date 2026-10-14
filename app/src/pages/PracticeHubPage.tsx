@@ -100,7 +100,7 @@ export function PracticeHubPage() {
         </h2>
         {practisable.length === 0 ? (
           <p className="mt-3 text-muted-foreground">
-            Nothing is published to practise yet. <Link to="/roadmap" className="text-link hover:text-link-hover">See the roadmap</Link>
+            Nothing is published to practice yet. <Link to="/roadmap" className="text-link hover:text-link-hover">See the roadmap</Link>
           </p>
         ) : (
           <ul className="mt-4 border-t">

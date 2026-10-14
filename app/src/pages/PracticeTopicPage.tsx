@@ -5,7 +5,7 @@ import { TopicCover } from '@/components/TopicCover'
 import { chapterStats } from '@/content/stats'
 import { SITE_NAME } from '@/lib/site'
 
-/** Pick a chapter of one topic to practise. */
+/** Pick a chapter of one topic to practice. */
 export function PracticeTopicPage() {
   const topic = useLoaderData<Awaited<ReturnType<typeof loadTopic>>>()
   if (!topic) return <NotFound what="Topic" />
@@ -35,7 +35,7 @@ export function PracticeTopicPage() {
                 <span className="text-lg font-semibold">{chapter.title}</span>
                 <span className="text-sm text-muted-foreground">
                   {readable} {readable === 1 ? 'question' : 'questions'}
-                  <span className="ml-3">Practise</span>
+                  <span className="ml-3">Practice</span>
                 </span>
               </Link>
             </li>

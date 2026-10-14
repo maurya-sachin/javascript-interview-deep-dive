@@ -17,7 +17,7 @@ const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 interface SessionProps {
   questions: QuestionData[]
-  /** Where to go after the last question, when a later chapter has questions to practise. */
+  /** Where to go after the last question, when a later chapter has questions to practice. */
   next: { title: string; to: string } | undefined
 }
 
