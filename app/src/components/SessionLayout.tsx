@@ -19,7 +19,7 @@ export function SessionHeader({ title, status }: { title: string; status?: strin
 
 /** The surface a card, question or summary sits on. */
 export function SessionCard({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('mt-6 flex min-h-72 flex-col rounded-xl border bg-card p-6 sm:p-10', className)}>{children}</div>
+  return <div className={cn('mt-6 flex min-h-72 flex-col rounded-xl border bg-card p-5 sm:p-10', className)}>{children}</div>
 }
 
 interface Segment {

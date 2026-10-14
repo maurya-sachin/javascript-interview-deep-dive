@@ -25,7 +25,7 @@ const RATINGS: { label: string; key: string; grade: Grade; count: keyof Counts; 
   { label: 'Easy', key: '4', grade: Rating.Easy, count: 'easy', bar: 'bg-depth-4' },
 ]
 
-function Session({ topic, topicTitle, cards, isLaterRound, onNextRound }: { topic: string; topicTitle: string; cards: Flashcard[]; isLaterRound: boolean; onNextRound: () => void }) {
+function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; cards: Flashcard[]; isLaterRound: boolean; onNextRound: () => void }) {
   const [reviews, setReviews] = useState(loadReviews)
   const [queue, setQueue] = useState(() => dueQueue(cards, reviews, new Date()))
   const [revealed, setRevealed] = useState(false)
@@ -52,7 +52,7 @@ function Session({ topic, topicTitle, cards, isLaterRound, onNextRound }: { topi
     const { unseen } = deckStatus(topic, cards.length, reviews, now)
     return (
       <>
-        <SessionHeader title={`Flashcards · ${topicTitle}`} />
+        <SessionHeader title="Flashcards" />
         <SessionProgress done={rated} total={rated} label="Cards reviewed" />
         <SessionCard>
           <h1 ref={doneRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
@@ -98,13 +98,10 @@ function Session({ topic, topicTitle, cards, isLaterRound, onNextRound }: { topi
   const intervals = revealed ? previewIntervals(reviews, card.id, now) : null
   return (
     <>
-      <SessionHeader title={`Flashcards · ${topicTitle}`} status={`${queue.length} left`} />
+      <SessionHeader title="Flashcards" status={`${rated + 1} of ${rated + queue.length}`} />
       <SessionProgress done={rated} total={rated + queue.length} label="Cards reviewed" />
       <SessionCard>
-        <p className="text-sm text-muted-foreground">
-          Card {rated + 1} of {rated + queue.length}
-        </p>
-        <p ref={promptRef} tabIndex={-1} className="mt-4 font-serif text-2xl leading-snug outline-none sm:text-3xl">
+        <p ref={promptRef} tabIndex={-1} className="font-serif text-2xl leading-snug outline-none sm:text-3xl">
           <InlineHtml html={card.frontHtml} className={CODE_STYLE} />
         </p>
         {revealed && (
@@ -165,7 +162,7 @@ export function FlashcardsPage() {
       ) : (
         // Keyed so moving between topics, or starting the next round, begins a fresh session.
         <div className="mx-auto max-w-2xl">
-          <Session key={`${topic.slug}-${round}`} topic={topic.slug} topicTitle={topic.title} cards={cards} isLaterRound={round > 0} onNextRound={() => setRound(round + 1)} />
+          <Session key={`${topic.slug}-${round}`} topic={topic.slug} cards={cards} isLaterRound={round > 0} onNextRound={() => setRound(round + 1)} />
         </div>
       )}
     </PageShell>

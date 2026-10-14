@@ -39,7 +39,7 @@ function NextUp({ decks, reviews, now }: { decks: Deck[]; reviews: Reviews; now:
           <p className="mt-2 text-sm text-muted-foreground">
             {decks
               .filter(({ due }) => due > 0)
-              .map(({ topic, due }) => `${topic.title} ${due}`)
+              .map(({ topic, due }) => `${topic.title}: ${due} due`)
               .join(' · ')}
           </p>
           <Button asChild className="mt-5">

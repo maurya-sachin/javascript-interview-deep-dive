@@ -17,7 +17,7 @@ const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 interface SessionProps {
   questions: QuestionData[]
-  /** "Practice · topic · chapter", shown above the card. */
+  /** The kind of session, shown above the card; the breadcrumbs already name the topic and chapter. */
   title: string
   /** Where to go after the last question, when a later chapter has questions to practise. */
   next: { title: string; to: string } | undefined
@@ -110,7 +110,7 @@ function Session({ questions, title, next }: SessionProps) {
             <section ref={answerRef} tabIndex={-1} aria-label="Answer" className="outline-none">
               <section aria-label="30-second answer">
                 <h2 className="mb-2 text-sm font-semibold text-muted-foreground">30-second answer</h2>
-                <div className="rounded-xl bg-tldr px-6 py-5 text-lg leading-relaxed">
+                <div className="rounded-xl bg-tldr px-4 py-4 text-base leading-relaxed sm:px-6 sm:py-5 sm:text-lg">
                   <InlineHtml html={question.tldrHtml} className={CODE_STYLE} />
                 </div>
               </section>
@@ -168,7 +168,7 @@ export function PracticePage() {
       ) : (
         // Keyed so moving between chapters starts a fresh session.
         <div className="mx-auto max-w-2xl">
-          <Session key={chapter.slug} questions={questions} title={`Practice · ${topic.title} · ${chapter.title}`} next={nextChapter && { title: nextChapter.title, to: `/practice/${topic.slug}/${nextChapter.slug}` }} />
+          <Session key={chapter.slug} questions={questions} title="Questions" next={nextChapter && { title: nextChapter.title, to: `/practice/${topic.slug}/${nextChapter.slug}` }} />
         </div>
       )}
     </PageShell>
