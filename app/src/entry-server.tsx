@@ -6,12 +6,7 @@ import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'r
 import { routes } from './routes.tsx'
 import { SITE_URL } from './lib/site.ts'
 
-export interface Rendered {
-  html: string
-  status: number
-}
-
-export async function render(path: string): Promise<Rendered> {
+export async function render(path: string): Promise<{ html: string; status: number }> {
   const handler = createStaticHandler(routes)
   const context = await handler.query(new Request(new URL(path, SITE_URL)))
   if (context instanceof Response) throw new Error(`${path}: loaders returned a redirect (${context.status}); prerender expects pages`)
