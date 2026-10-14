@@ -4,13 +4,14 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc, TopicSummary } from '../src/content/types.ts'
+import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, RolePath, SearchDoc, StartQuestion, TopicSummary } from '../src/content/types.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, type Question, type Topic } from './lib/content.ts'
 import type { Deck } from './lib/flashcards.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
 import { renderBlock, renderInline } from './lib/markdown.ts'
 import { repoRelative } from './lib/paths.ts'
+import { resolveRolePaths } from './lib/rolepaths.ts'
 import { toOverview } from './lib/shards.ts'
 import { EXERCISE_ANSWER, FOLLOW_UP_ANSWER, FOLLOW_UP_QUESTION, splitSections, type Section } from './lib/sections.ts'
 
@@ -202,7 +203,20 @@ async function flashcardsOf(deck: Deck): Promise<Flashcard[]> {
   )
 }
 
-const manifest: ContentManifest = { topics: topics.map(toOverview) }
+/** A path's start question, rendered for the home page; `null` when it has no page in this build. */
+async function startQuestion(id: string | null): Promise<StartQuestion | null> {
+  const question = questions.find((candidate) => candidate.id === id)
+  if (!question) return null
+  const meta = metaOf(question)
+  if (!hasPage(meta)) return null
+  return { id: question.id, titleHtml: (await renderInline(meta.title)).html, tldrHtml: (await renderInline(meta.tldr)).html }
+}
+
+const paths: RolePath[] = await Promise.all(
+  resolveRolePaths(content.paths, content.topics).map(async ({ startId, ...rolePath }) => ({ ...rolePath, start: await startQuestion(startId) })),
+)
+
+const manifest: ContentManifest = { topics: topics.map(toOverview), paths }
 await writeJson(path.join(outDir, 'manifest.json'), manifest)
 
 const topicDir = (slug: string) => path.join(outDir, 'topics', slug)

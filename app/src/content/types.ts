@@ -87,6 +87,8 @@ export interface RolePath {
 /** `data/manifest.json` */
 export interface ContentManifest {
   topics: TopicOverview[]
+  /** Role paths in home-page order. */
+  paths: RolePath[]
 }
 
 export interface FollowUp {
