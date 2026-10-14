@@ -38,6 +38,26 @@ export interface TopicSummary {
   flashcardCount: number
 }
 
+/** Counts for a set of chapters; see `chapterStats`. */
+export interface TopicStats {
+  total: number
+  /** Questions that have a page. */
+  readable: number
+  core: number
+  byDifficulty: Record<Difficulty, number>
+}
+
+/** A topic as the manifest lists it: everything the home page needs, without chapter or question lists. */
+export interface TopicOverview extends Omit<TopicSummary, 'chapters'> {
+  chapterCount: number
+  stats: TopicStats
+}
+
+/** `data/manifest.json` */
+export interface ContentManifest {
+  topics: TopicOverview[]
+}
+
 /** `data/index.json` */
 export interface ContentIndex {
   topics: TopicSummary[]

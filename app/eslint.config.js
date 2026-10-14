@@ -28,6 +28,13 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   {
+    // node:test registers tests when test() is called; the returned promise needs no handling.
+    files: ['scripts/**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'off',
+    },
+  },
+  {
     // shadcn/ui files are generated and export variants beside components.
     files: ['src/components/ui/**'],
     rules: {

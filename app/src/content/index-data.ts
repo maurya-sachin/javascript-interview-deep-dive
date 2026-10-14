@@ -3,6 +3,8 @@
 import { useRouteLoaderData } from 'react-router'
 import type { ChapterSummary, ContentIndex, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
 
+export { chapterStats } from './stats.ts'
+
 export const INDEX_ROUTE_ID = 'root'
 
 /** Reads a JSON file produced by content:build; its shape is trusted because both sides share `types.ts`. */
@@ -80,20 +82,5 @@ export function neighbours(topic: TopicSummary, id: string) {
   return {
     previous: questions.slice(0, Math.max(position, 0)).findLast(readable),
     next: questions.slice(position + 1).find(readable),
-  }
-}
-
-/** Totals for a set of chapters: what is readable now, and the difficulty mix of everything planned. */
-export function chapterStats(chapters: ChapterSummary[]) {
-  const questions = chapters.flatMap((chapter) => chapter.questions)
-  return {
-    total: questions.length,
-    readable: questions.filter((question) => question.hasPage).length,
-    core: questions.filter((question) => question.core).length,
-    byDifficulty: {
-      easy: questions.filter((question) => question.difficulty === 'easy').length,
-      medium: questions.filter((question) => question.difficulty === 'medium').length,
-      hard: questions.filter((question) => question.difficulty === 'hard').length,
-    },
   }
 }
