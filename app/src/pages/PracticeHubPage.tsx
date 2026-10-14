@@ -110,9 +110,7 @@ export function PracticeHubPage() {
                   <TopicCover slug={slug} chapterCount={chapterCount} hardShare={stats.total === 0 ? 0 : stats.byDifficulty.hard / stats.total} className="size-12 shrink-0 rounded-md bg-muted" />
                   <span>
                     <span className="block font-semibold">{title}</span>
-                    <span className="block text-sm text-muted-foreground">
-                      {plural(stats.readable, 'question')} in {plural(chapterCount, 'chapter')}
-                    </span>
+                    <span className="block text-sm text-muted-foreground">{plural(stats.readable, 'question')}</span>
                   </span>
                 </Link>
               </li>
