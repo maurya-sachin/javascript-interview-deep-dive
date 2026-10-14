@@ -6,8 +6,11 @@ import { loadFlashcards, loadManifest, loadPractice, loadQuestion, loadTopic, MA
 import { ChapterPage } from '@/pages/ChapterPage'
 import { FlashcardsPage } from '@/pages/FlashcardsPage'
 import { HomePage } from '@/pages/HomePage'
+import { PathPage } from '@/pages/PathPage'
+import { PathsPage } from '@/pages/PathsPage'
 import { PracticePage } from '@/pages/PracticePage'
 import { QuestionPage } from '@/pages/QuestionPage'
+import { RoadmapPage } from '@/pages/RoadmapPage'
 import { TopicPage } from '@/pages/TopicPage'
 
 // Pages under `:topic` read the topic with `useTopic()`. Practice and Flashcards sit under their own
@@ -26,6 +29,9 @@ export const router = createBrowserRouter(
           errorElement: <RouteError />,
           children: [
             { index: true, element: <HomePage /> },
+            { path: 'paths', element: <PathsPage /> },
+            { path: 'paths/:slug', element: <PathPage /> },
+            { path: 'roadmap', element: <RoadmapPage /> },
             {
               path: 'practice/:topic/:chapter',
               element: <PracticePage />,

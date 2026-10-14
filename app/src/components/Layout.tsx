@@ -1,10 +1,16 @@
-import { Link, Outlet, ScrollRestoration } from 'react-router'
+import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { Mark } from '@/components/Mark'
 import { SearchDialog } from '@/components/SearchDialog'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { TopicSwitcher } from '@/components/TopicSwitcher'
 import { REPO_URL } from '@/lib/repo'
 import { AUTHOR, AUTHOR_URL, SITE_NAME } from '@/lib/site'
+import { cn } from '@/lib/utils'
+
+const MAIN_LINKS = [
+  { to: '/paths', label: 'Paths' },
+  { to: '/roadmap', label: 'Roadmap' },
+]
 
 export function Layout() {
   return (
@@ -20,6 +26,17 @@ export function Layout() {
           </a>
         </div>
         <TopicSwitcher />
+        <nav aria-label="Main" className="hidden items-center gap-1 text-sm md:flex">
+          {MAIN_LINKS.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => cn('rounded-md px-2.5 py-1.5 hover:text-foreground', isActive ? 'font-medium text-foreground' : 'text-muted-foreground')}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
         <div className="ml-auto flex items-center gap-2">
           <SearchDialog />
           <ThemeToggle />
