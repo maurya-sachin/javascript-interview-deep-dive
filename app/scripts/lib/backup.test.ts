@@ -11,9 +11,9 @@ const card = (due: string, lastReview: string | null) =>
 const progress: Progress = { read: ['javascript/a/b'], last: 'javascript/a/b', lastTitleHtml: '<code>x</code>' }
 const reviews: Reviews = { 'javascript/one': card('2026-10-20T00:00:00Z', '2026-10-10T00:00:00Z') }
 
-test('a backup survives a round trip, without the title HTML', () => {
+test('a backup survives a round trip, with only the read questions', () => {
   const parsed = parseBackup(JSON.stringify(createBackup(progress, reviews, now)))
-  assert.deepEqual(parsed.progress, { read: ['javascript/a/b'], last: 'javascript/a/b' })
+  assert.deepEqual(parsed.progress, { read: ['javascript/a/b'] })
   assert.deepEqual(parsed.reviews, JSON.parse(JSON.stringify(reviews)))
   assert.equal(parsed.exportedAt, now.toISOString())
 })
@@ -38,12 +38,12 @@ test('never imports HTML, whatever the file says', () => {
   assert.equal('lastTitleHtml' in parsed.progress, false)
 })
 
-test('merge unions reading progress and keeps the current last question', () => {
+test('merge unions reading progress and never takes the last question from a file', () => {
   const incoming = parseBackup(JSON.stringify(createBackup({ read: ['javascript/c/d', 'javascript/a/b'], last: 'javascript/c/d', lastTitleHtml: null }, {}, now)))
   const merged = mergeBackup({ progress, reviews }, incoming)
   assert.deepEqual(merged.progress, { read: ['javascript/a/b', 'javascript/c/d'], last: 'javascript/a/b', lastTitleHtml: '<code>x</code>' })
   const fresh = mergeBackup({ progress: { read: [], last: null, lastTitleHtml: null }, reviews: {} }, incoming)
-  assert.deepEqual(fresh.progress, { read: ['javascript/c/d', 'javascript/a/b'], last: 'javascript/c/d', lastTitleHtml: null })
+  assert.deepEqual(fresh.progress, { read: ['javascript/c/d', 'javascript/a/b'], last: null, lastTitleHtml: null })
 })
 
 test('merge keeps the most recently reviewed copy of each card and adds new ones', () => {

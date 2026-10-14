@@ -10,13 +10,13 @@ export interface Backup {
   format: typeof BACKUP_FORMAT
   version: 1
   exportedAt: string
-  /** No title HTML: it is rebuilt from the site's own data, never taken from a file. */
-  progress: { read: string[]; last: string | null }
+  /** Only the read questions: where you left off is this browser's own, and no HTML is ever taken from a file. */
+  progress: { read: string[] }
   reviews: Reviews
 }
 
 export function createBackup(progress: Progress, reviews: Reviews, now: Date): Backup {
-  return { format: BACKUP_FORMAT, version: 1, exportedAt: now.toISOString(), progress: { read: [...progress.read], last: progress.last }, reviews }
+  return { format: BACKUP_FORMAT, version: 1, exportedAt: now.toISOString(), progress: { read: [...progress.read] }, reviews }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -46,7 +46,7 @@ export function parseBackup(text: string): Backup {
     format: BACKUP_FORMAT,
     version: 1,
     exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : '',
-    progress: { read: progress.read, last: typeof progress.last === 'string' ? progress.last : null },
+    progress: { read: progress.read },
     reviews: reviews as Reviews,
   }
 }
@@ -55,15 +55,9 @@ function reviewedAt(card: Reviews[string]): number {
   return card.last_review == null ? 0 : new Date(card.last_review).getTime() || 0
 }
 
-/** Combines an import with what this browser has: read questions are unioned, and each card keeps its most recent review. */
+/** Combines an import with what this browser has: read questions are unioned, the last question stays as is, and each card keeps its most recent review. */
 export function mergeBackup(current: { progress: Progress; reviews: Reviews }, incoming: Backup): { progress: Progress; reviews: Reviews } {
-  const read = [...new Set([...current.progress.read, ...incoming.progress.read])]
-  const keepCurrentLast = current.progress.last !== null
-  const progress: Progress = {
-    read,
-    last: keepCurrentLast ? current.progress.last : incoming.progress.last,
-    lastTitleHtml: keepCurrentLast ? current.progress.lastTitleHtml : null,
-  }
+  const progress: Progress = { ...current.progress, read: [...new Set([...current.progress.read, ...incoming.progress.read])] }
 
   const merged = new Map(Object.entries(current.reviews))
   for (const [id, card] of Object.entries(incoming.reviews)) {

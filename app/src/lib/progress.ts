@@ -43,15 +43,20 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener)
 }
 
-/** Replaces the stored reading progress, e.g. after an import, and updates every reader. */
-export function replaceProgress(next: Progress) {
+/**
+ * Replaces the stored reading progress, e.g. after an import, and updates every reader.
+ * Returns whether it was stored; if not (storage blocked or full), progress lasts for this visit only.
+ */
+export function replaceProgress(next: Progress): boolean {
   cached = next
+  let stored = true
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cached))
   } catch {
-    // Storage is blocked or full: progress lasts for this session only.
+    stored = false
   }
   listeners.forEach((listener) => listener())
+  return stored
 }
 
 /** Records that a question was opened. */

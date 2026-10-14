@@ -5,6 +5,8 @@ import { createBackup, mergeBackup, parseBackup } from '@/lib/backup'
 import { replaceProgress, useProgress } from '@/lib/progress'
 
 /** Download and restore the learner's progress; this browser is the only place it is kept. */
+const MAX_BACKUP_BYTES = 5 * 1024 * 1024
+
 export function ProgressBackup({ onImported }: { onImported: (reviews: Reviews) => void }) {
   const progress = useProgress()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -23,11 +25,19 @@ export function ProgressBackup({ onImported }: { onImported: (reviews: Reviews) 
   }
 
   async function restore(file: File) {
+    if (file.size > MAX_BACKUP_BYTES) {
+      setMessage('This file is too large to be a progress backup.')
+      return
+    }
     try {
       const merged = mergeBackup({ progress, reviews: loadReviews() }, parseBackup(await file.text()))
-      replaceProgress(merged.progress)
-      saveReviews(merged.reviews)
+      const progressStored = replaceProgress(merged.progress)
+      const reviewsStored = saveReviews(merged.reviews)
       onImported(merged.reviews)
+      if (!progressStored || !reviewsStored) {
+        setMessage("Imported for this visit only: this browser's storage is full or blocked.")
+        return
+      }
       const read = merged.progress.read.length
       const reviewed = Object.keys(merged.reviews).length
       setMessage(`Progress imported: ${read} ${read === 1 ? 'question' : 'questions'} read, ${reviewed} ${reviewed === 1 ? 'card' : 'cards'} reviewed.`)

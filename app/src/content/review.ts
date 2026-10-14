@@ -54,12 +54,13 @@ export function dueQueue(cards: Flashcard[], reviews: Reviews, now: Date): Flash
   return [...overdue, ...unseen]
 }
 
-/** Stores the review history; if storage is blocked or full, the session still works but progress won't survive a reload. */
-export function saveReviews(reviews: Reviews): void {
+/** Stores the review history and reports whether it was stored; if not (storage blocked or full), the session still works but progress won't survive a reload. */
+export function saveReviews(reviews: Reviews): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews))
+    return true
   } catch {
-    // See above: nothing else to do without storage.
+    return false
   }
 }
 

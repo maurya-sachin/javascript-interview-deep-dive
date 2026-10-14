@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { fsrs, Rating } from 'ts-fsrs'
-import { deckStatus, dueQueue, isValidCard, loadReviews, NEW_CARDS_PER_SESSION, nextDue, type Reviews } from '../../src/content/review.ts'
+import { deckStatus, dueQueue, isValidCard, loadReviews, NEW_CARDS_PER_SESSION, nextDue, saveReviews, type Reviews } from '../../src/content/review.ts'
 
 const now = new Date('2026-10-14T12:00:00Z')
 const card = (due: string) => ({ due, state: 2, stability: 1, difficulty: 5, elapsed_days: 0, scheduled_days: 1, learning_steps: 0, reps: 1, lapses: 0 })
@@ -63,4 +63,18 @@ test('loading history drops damaged entries and keeps valid ones', () => {
   const stored = JSON.stringify({ 'javascript/a': card('2026-10-20T00:00:00Z'), 'javascript/b': { due: 'garbage' } })
   Object.defineProperty(globalThis, 'localStorage', { value: { getItem: () => stored }, configurable: true })
   assert.deepEqual(Object.keys(loadReviews()), ['javascript/a'])
+})
+
+test('saving reports whether the history was stored', () => {
+  Object.defineProperty(globalThis, 'localStorage', { value: { setItem: () => undefined }, configurable: true })
+  assert.equal(saveReviews({}), true)
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: {
+      setItem: () => {
+        throw new Error('QuotaExceededError')
+      },
+    },
+    configurable: true,
+  })
+  assert.equal(saveReviews({}), false)
 })
