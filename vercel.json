@@ -4,6 +4,7 @@
   "buildCommand": "cd app && npm run build",
   "outputDirectory": "app/dist",
   "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/(.*)",

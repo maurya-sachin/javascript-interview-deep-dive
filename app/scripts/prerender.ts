@@ -108,6 +108,10 @@ function headTags(title: string, page: Page): string {
   ].join('\n    ')
 }
 
+function appShellHeadTags(title: string, description: string): string {
+  return [`<title>${escapeHtml(title)}</title>`, `<meta name="description" content="${escapeHtml(description)}" />`, '<meta name="robots" content="noindex" />'].join('\n    ')
+}
+
 /**
  * Pages render their `<title>` as a leading sibling of the markup. The title moves to the head, where
  * the browser's own copy lives, so hydration matches and the document has exactly one title.
@@ -137,8 +141,8 @@ serveDataFromDisk()
 const { render } = (await import(pathToFileURL(path.resolve(distDir, '../dist-server/entry-server.js')).href)) as { render: (path: string) => Promise<Rendered> }
 const pages = await listPages()
 
-const home = pages[0]
-await writePage(path.join(distDir, 'app-shell.html'), fillTemplate(headTags(`${SITE_NAME}: ${TAGLINE}`, home), ''))
+// Served for unknown URLs and client-only pages, so it must not claim to be the home page: no canonical, no og tags.
+await writePage(path.join(distDir, 'app-shell.html'), fillTemplate(appShellHeadTags(`${SITE_NAME}: ${TAGLINE}`, HOME_DESCRIPTION), ''))
 
 for (const page of pages) {
   const { html, status } = await render(page.path)
