@@ -49,6 +49,10 @@ export function Layout() {
         <a href={REPO_URL} className="text-link hover:text-link-hover">
           GitHub
         </a>
+        {' · '}
+        <Link to="/changelog" className="text-link hover:text-link-hover">
+          Changelog
+        </Link>
       </footer>
       <ScrollRestoration />
     </>

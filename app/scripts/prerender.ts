@@ -22,6 +22,7 @@ interface Page {
 const HOME_DESCRIPTION = 'Interview questions for any software engineer, from the language to the spec and the engine.'
 const PATHS_DESCRIPTION = 'Ordered routes through the topics for each kind of engineer.'
 const ROADMAP_DESCRIPTION = 'Every topic on isobath, written and planned.'
+const CHANGELOG_DESCRIPTION = 'What changed in the questions, and when.'
 const PRACTICE_DESCRIPTION = 'Practise questions and review flashcards.'
 
 const distDir = path.resolve(import.meta.dirname, '../dist')
@@ -55,6 +56,7 @@ async function listPages(): Promise<Page[]> {
     { path: '/paths', description: PATHS_DESCRIPTION, type: 'website' },
     ...manifest.paths.map((rolePath): Page => ({ path: `/paths/${rolePath.slug}`, description: rolePath.summary || PATHS_DESCRIPTION, type: 'website' })),
     { path: '/roadmap', description: ROADMAP_DESCRIPTION, type: 'website' },
+    { path: '/changelog', description: CHANGELOG_DESCRIPTION, type: 'website' },
     { path: '/practice', description: PRACTICE_DESCRIPTION, type: 'website' },
   ]
 

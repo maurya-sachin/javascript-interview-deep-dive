@@ -102,6 +102,25 @@ export interface RolePath {
   steps: PathStep[]
 }
 
+/** One commit that changed content/. */
+export interface ChangelogEntry {
+  hash: string
+  /** `YYYY-MM-DD`. */
+  date: string
+  /** The commit subject without its conventional prefix; plain text. */
+  subject: string
+  /** Slugs of the topics the commit touched. */
+  topics: string[]
+}
+
+/** `data/changelog.json` */
+export interface Changelog {
+  /** False when older changes exist that this list leaves out (shallow clone, no git, or more than the cap). */
+  complete: boolean
+  /** Newest first. */
+  entries: ChangelogEntry[]
+}
+
 /** `data/manifest.json` */
 export interface ContentManifest {
   topics: TopicOverview[]

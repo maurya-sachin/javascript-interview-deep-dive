@@ -1,7 +1,7 @@
 // Loading and querying the data built by content:build: a manifest for every page, then one shard per topic.
 
 import { useRouteLoaderData } from 'react-router'
-import type { ChapterSummary, ContentManifest, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
+import type { Changelog, ChapterSummary, ContentManifest, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
 
 export const MANIFEST_ROUTE_ID = 'root'
 export const TOPIC_ROUTE_ID = 'topic'
@@ -12,6 +12,11 @@ export async function fetchData<T>(file: string): Promise<T> {
   if (!response.ok) throw new Error(`Could not load ${file} (${response.status}). Run npm run content:build.`)
   const data: unknown = await response.json()
   return data as T
+}
+
+/** The content history written by content:build. */
+export function loadChangelog(): Promise<Changelog> {
+  return fetchData<Changelog>('changelog.json')
 }
 
 let manifestPromise: Promise<ContentManifest> | undefined
