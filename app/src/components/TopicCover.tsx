@@ -1,8 +1,7 @@
 import { contourRings, ringPath } from '@/lib/contours'
+import { depthStrokeClass } from '@/lib/depth'
 import { cn } from '@/lib/utils'
 
-// Literal class names so Tailwind finds them; ring level 0 is shallow, the last level is deep.
-const DEPTH_STROKE = ['stroke-depth-1', 'stroke-depth-2', 'stroke-depth-3', 'stroke-depth-4']
 const MIN_LEVELS = 3
 const MAX_LEVELS = 9
 
@@ -24,7 +23,7 @@ export function TopicCover({ slug, chapterCount, hardShare, className }: TopicCo
         <path
           key={index}
           d={ringPath(ring.points)}
-          className={cn(DEPTH_STROKE[Math.floor((ring.level * DEPTH_STROKE.length) / levels)], ring.level === levels - 1 && 'fill-depth-4/20')}
+          className={cn(depthStrokeClass(ring.level, levels), ring.level === levels - 1 && 'fill-depth-4/20')}
         />
       ))}
     </svg>
