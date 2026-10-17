@@ -1,5 +1,5 @@
 // Contour-map rings generated from a seed: the cover art for a topic, original by construction.
-// A smooth height field (a few hills) is sampled on a grid; marching squares finds the lines where
+// A smooth height field (a seabed, read as depth) is sampled on a grid; marching squares finds the lines where
 // it crosses evenly spaced heights, and the segments are chained into closed rings.
 
 export type Point = readonly [x: number, y: number]
@@ -73,19 +73,50 @@ function seededRandom(seed: string): () => number {
   }
 }
 
-/** Three or four Gaussian hills kept away from the frame, so the field is lowest along the border. */
-function heightField(random: () => number, steepness: number): number[][] {
-  const hills = Array.from({ length: 3 + Math.floor(random() * 2) }, () => ({
-    x: 0.28 + random() * 0.44,
-    y: 0.28 + random() * 0.44,
-    height: 0.7 + random() * 0.3,
-    spread: (0.13 + random() * 0.09) * (1 - 0.3 * steepness),
+type Field = (u: number, v: number) => number
+
+const gaussian = (x: number, y: number, spread: number, height: number): Field => (u, v) =>
+  height * Math.exp(-((u - x) ** 2 + (v - y) ** 2) / (2 * spread ** 2))
+
+/** Low waves that make the lines wander like a surveyed coast rather than a lathe. */
+function ripple(random: () => number, amplitude: number): Field {
+  const waves = Array.from({ length: 5 }, () => ({
+    fx: 1 + random() * 3,
+    fy: 1 + random() * 3,
+    phase: random() * Math.PI * 2,
+    amplitude: amplitude * (0.5 + random() * 0.5),
   }))
+  return (u, v) => waves.reduce((sum, wave) => sum + wave.amplitude * Math.sin(2 * Math.PI * (wave.fx * u + wave.fy * v) + wave.phase), 0)
+}
+
+/**
+ * A seabed: an off-centre trench with a steep wall on one side and a wide shelf on the other, a second
+ * pool almost as deep past a saddle, and a low, broad base. Multiplying by `rim`, which is zero on the
+ * border, keeps the border the shallowest part of the field. Steepness narrows the trench and the pool.
+ */
+function heightField(random: () => number, steepness: number): number[][] {
+  const narrow = 1 - 0.35 * steepness
+  const x = 0.56 + random() * 0.1
+  const y = 0.44 + random() * 0.12
+  const angle = random() * Math.PI * 2
+  const [cos, sin] = [Math.cos(angle), Math.sin(angle)]
+
+  const trench: Field = (u, v) => {
+    const along = (u - x) * cos + (v - y) * sin
+    const across = (v - y) * cos - (u - x) * sin
+    const acrossSpread = across < 0 ? 0.065 : 0.17 // steep wall : shelf
+    return Math.exp(-(along ** 2) / (2 * (0.16 * narrow) ** 2) - across ** 2 / (2 * (acrossSpread * narrow) ** 2))
+  }
+  const pool = gaussian(x - cos * 0.3 + sin * 0.06, y - sin * 0.3 - cos * 0.06, 0.075 * narrow, 0.82)
+  const base = gaussian(0.5, 0.5, 0.34, 0.22)
+  const wave = ripple(random, 0.025)
+  const rim: Field = (u, v) => Math.sin(Math.PI * u) * Math.sin(Math.PI * v)
+
   return Array.from({ length: GRID + 1 }, (_, row) =>
     Array.from({ length: GRID + 1 }, (_, column) => {
       const u = column / GRID
       const v = row / GRID
-      return hills.reduce((sum, hill) => sum + hill.height * Math.exp(-((u - hill.x) ** 2 + (v - hill.y) ** 2) / (2 * hill.spread ** 2)), 0)
+      return rim(u, v) * (base(u, v) + trench(u, v) + pool(u, v) + wave(u, v))
     }),
   )
 }

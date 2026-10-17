@@ -13,12 +13,12 @@ interface TopicCoverProps {
   className?: string
 }
 
-/** A topic's cover: a contour map drawn from its slug, one level per chapter. Decorative. */
+/** A topic's cover: a contour map drawn from its slug, one level per chapter. Decorative. A non-square cover crops the map rather than shrinking it. */
 export function TopicCover({ slug, chapterCount, hardShare, className }: TopicCoverProps) {
   const levels = Math.min(Math.max(chapterCount, MIN_LEVELS), MAX_LEVELS)
   const rings = contourRings({ seed: slug, levels, steepness: hardShare })
   return (
-    <svg viewBox="0 0 100 100" fill="none" strokeWidth="0.8" strokeLinejoin="round" aria-hidden="true" className={cn('overflow-hidden', className)}>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" fill="none" strokeWidth="0.8" strokeLinejoin="round" aria-hidden="true" className={cn('overflow-hidden', className)}>
       {rings.map((ring, index) => (
         <path
           key={index}
