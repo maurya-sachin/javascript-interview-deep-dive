@@ -9,6 +9,7 @@ import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, Ques
 import { readChangelog, type ChangelogQuestion } from './lib/changelog.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, type Question, type Topic } from './lib/content.ts'
+import { plannedAreas } from './lib/plannedAreas.ts'
 import type { Deck } from './lib/flashcards.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
 import { renderBlock, renderInline } from './lib/markdown.ts'
@@ -175,6 +176,7 @@ const topics: TopicSummary[] = await Promise.all(
     track: trackOf(topic.readme),
     covers: coversOf(topic.readme),
     ...(await summaryOf(topic.readme)),
+    plannedAreasHtml: await Promise.all(plannedAreas(topic.readme).map(async (area) => (await renderInline(area)).html)),
     flashcardCount: decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
     chapters: await Promise.all(
       topic.chapters.map(async (chapter) => ({

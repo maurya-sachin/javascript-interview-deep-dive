@@ -4,5 +4,10 @@ import { chapterStats } from '../../src/content/stats.ts'
 import type { TopicOverview, TopicSummary } from '../../src/content/types.ts'
 
 export function toOverview({ chapters, ...topic }: TopicSummary): TopicOverview {
-  return { ...topic, chapterCount: chapters.length, stats: chapterStats(chapters) }
+  return {
+    ...topic,
+    chapterCount: chapters.length,
+    chapters: chapters.map(({ number, slug, title, questions }) => ({ number, slug, title, questionCount: questions.length })),
+    stats: chapterStats(chapters),
+  }
 }

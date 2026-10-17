@@ -10,6 +10,7 @@ const topic: TopicSummary = {
   covers: null,
   summaryHtml: 'The language.',
   summaryText: 'The language.',
+  plannedAreasHtml: ['Semantic HTML'],
   flashcardCount: 2,
   chapters: [
     {
@@ -23,12 +24,14 @@ const topic: TopicSummary = {
   ],
 }
 
-test('keeps the topic fields and drops the chapter list in favour of counts', () => {
+test('keeps the topic fields and lists chapters without their questions', () => {
   const overview = toOverview(topic)
-  assert.equal('chapters' in overview, false)
+  assert.equal(overview.chapters.some((chapter) => 'questions' in chapter), false)
   assert.equal(overview.slug, 'javascript')
   assert.equal(overview.flashcardCount, 2)
   assert.equal(overview.chapterCount, 1)
+  assert.deepEqual(overview.chapters, [{ number: '01', slug: 'c', title: 'C', questionCount: 1 }])
+  assert.deepEqual(overview.plannedAreasHtml, ['Semantic HTML'])
   assert.equal(overview.stats.total, 1)
   assert.equal(overview.stats.core, 1)
 })
