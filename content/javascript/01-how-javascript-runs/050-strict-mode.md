@@ -13,6 +13,10 @@ sources:
   - https://tc39.es/ecma262/#sec-strict-mode-of-ecmascript
   - https://tc39.es/ecma262/#sec-strict-mode-code
   - https://tc39.es/ecma262/#sec-createunmappedargumentsobject
+  - https://tc39.es/ecma262/#sec-createmappedargumentsobject
+  - https://tc39.es/ecma262/#sec-directive-prologues-and-the-use-strict-directive
+  - https://tc39.es/ecma262/#sec-function-definitions-static-semantics-early-errors
+  - https://tc39.es/ecma262/#sec-ordinarycallbindthis
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode/Transitioning_to_strict_mode
 tldr: >
@@ -41,7 +45,7 @@ Strict mode is a restricted variant of the language that makes silent failures t
 - Class bodies (every method, accessor, field and static block, even in a sloppy script).
 - Code nested inside strict code.
 
-**Otherwise it is opt-in** with a `'use strict'` directive: the first statement of a script (whole file) or of a function (that function only). Function-body strictness applies to the function, not to the file around it.
+**Otherwise it is opt-in** with a `'use strict'` directive: in the directive prologue (the leading string-literal statements) of a script (whole file) or of a function (that function only). Function-body strictness applies to the function, not to the file around it.
 
 ## Example
 
@@ -75,7 +79,7 @@ console.log(read()); // → undefined
 
 ## Pitfalls
 
-- Putting `'use strict'` after another statement. A directive must come first (comments are fine); otherwise it is just an expression statement and does nothing.
+- Putting `'use strict'` after another statement. A directive must sit in the directive prologue, before any other statement (comments are fine); otherwise it is just an expression statement and does nothing.
 - Adding the directive to a function with default, rest, or destructured parameters. That combination is a `SyntaxError`.
 - Thinking you need `'use strict'` in modules or classes. It is already in force there, and bundlers or transpilers adding it is redundant.
 - Expecting a file-level directive to be harmless when concatenating scripts. It applies to everything after it in that script, so concatenating files can turn a sloppy file strict.
