@@ -30,6 +30,27 @@ const MARK_FILL: Record<StationState, string> = {
   planned: 'border-2 border-muted-foreground/70 bg-background',
 }
 
+const LEGEND_LABEL: Record<StationState, string> = {
+  done: 'Finished',
+  written: 'Published',
+  'in-progress': 'In progress',
+  planned: 'Planned',
+}
+
+/** Explains the marks for the states a page uses. */
+export function StationLegend({ states, className }: { states: readonly StationState[]; className?: string }) {
+  return (
+    <ul className={cn('flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground', className)} aria-label="Legend">
+      {states.map((state) => (
+        <li key={state} className="flex items-center gap-2">
+          <StationMark state={state} />
+          {LEGEND_LABEL[state]}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 /** One station's dot; also the legend swatch on the roadmap. */
 export function StationMark({ state, current = false, small = false, className }: { state: StationState; current?: boolean; small?: boolean; className?: string }) {
   return (

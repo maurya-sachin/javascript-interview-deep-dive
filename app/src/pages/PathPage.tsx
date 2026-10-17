@@ -1,12 +1,14 @@
 import { Link, useParams } from 'react-router'
 import { NotFound, PageShell } from '@/components/PageShell'
-import { RouteLine } from '@/components/RouteLine'
+import { RouteLine, StationLegend } from '@/components/RouteLine'
 import { Button } from '@/components/ui/button'
 import { useManifest } from '@/content/index-data'
 import { readingHours } from '@/lib/effort'
 import { stepPath, stepProgress, stepState } from '@/lib/paths'
 import { useProgress } from '@/lib/progress'
 import { SITE_NAME } from '@/lib/site'
+
+const LEGEND_STATES = ['done', 'written', 'in-progress', 'planned'] as const
 
 export function PathPage() {
   const { slug } = useParams()
@@ -49,7 +51,8 @@ export function PathPage() {
         </Button>
       )}
 
-      <div className="mt-10 max-w-2xl">
+      <StationLegend states={LEGEND_STATES} className="mt-6" />
+      <div className="mt-8 max-w-2xl">
         <RouteLine orientation="vertical" stations={stations} />
       </div>
     </PageShell>

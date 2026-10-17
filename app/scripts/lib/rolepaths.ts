@@ -136,6 +136,7 @@ export function resolveRolePaths(paths: RolePathSource[], topics: TopicSummary[]
           chapterTitle: chapter?.title ?? null,
           why,
           ready: questionCount > 0,
+          started: chapter !== null || topic.chapters.length > 0,
           questionCount,
         }
       }),

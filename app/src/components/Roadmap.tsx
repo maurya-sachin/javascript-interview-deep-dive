@@ -1,14 +1,11 @@
-import { RouteLine, StationMark, type Station } from '@/components/RouteLine'
+import { RouteLine, StationLegend, type Station } from '@/components/RouteLine'
 import { orderTrack, topicState, type TopicState } from '@/content/roadmap'
 import type { RolePath, TopicOverview } from '@/content/types'
 import { CONTRIBUTE_URL } from '@/lib/repo'
 import { groupByTrack } from '@/lib/tracks'
 
-const LEGEND = [
-  { state: 'written', label: 'Published' },
-  { state: 'in-progress', label: 'In progress' },
-  { state: 'planned', label: 'Planned' },
-] as const
+// The roadmap never shows a finished topic: finishing is per reader, and the roadmap is the same for everyone.
+const LEGEND_STATES = ['written', 'in-progress', 'planned'] as const
 
 function toStation(topic: TopicOverview): Station {
   const state = topicState(topic)
@@ -32,14 +29,7 @@ export function Roadmap({ topics, paths }: { topics: TopicOverview[]; paths: Rol
           Contribute a question
         </a>
       </p>
-      <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground" aria-label="Legend">
-        {LEGEND.map(({ state, label }) => (
-          <li key={state} className="flex items-center gap-2">
-            <StationMark state={state} />
-            {label}
-          </li>
-        ))}
-      </ul>
+      <StationLegend states={LEGEND_STATES} className="mt-4" />
       <div className="mt-10 flex flex-col gap-12">
         {groupByTrack(topics).map((group) => {
           const stations = orderTrack(group.topics, paths).map(toStation)

@@ -82,6 +82,8 @@ export interface PathStep {
   why: string
   /** Whether the step has anything to read in this build. Steps without are shown as planned. */
   ready: boolean
+  /** Whether the topic has chapters yet, even if none is readable. Started but not ready shows as in progress. */
+  started: boolean
   /** Readable questions in the chapter, or in the topic when no chapter is named. */
   questionCount: number
 }

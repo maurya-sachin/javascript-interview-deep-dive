@@ -5,7 +5,7 @@ import { describePath, stepPath, stepProgress, stepState } from '../../src/lib/p
 import type { PathStep, RolePath } from '../../src/content/types.ts'
 
 function step(overrides: Partial<PathStep>): PathStep {
-  return { topic: 'javascript', topicTitle: 'JavaScript', chapter: null, chapterTitle: null, why: 'x', ready: true, questionCount: 10, ...overrides }
+  return { topic: 'javascript', topicTitle: 'JavaScript', chapter: null, chapterTitle: null, why: 'x', ready: true, started: true, questionCount: 10, ...overrides }
 }
 const path = (steps: PathStep[]): RolePath => ({ slug: 'p', title: 'P', summary: 's', start: null, steps })
 
@@ -39,6 +39,11 @@ test('a step is done only when every question in it is read', () => {
   const read = ['javascript/a', 'javascript/b']
   assert.equal(stepState(step({ questionCount: 2 }), read), 'done')
   assert.equal(stepState(step({ questionCount: 3 }), read), 'written')
-  assert.equal(stepState(step({ ready: false, questionCount: 0 }), read), 'planned')
+  assert.equal(stepState(step({ ready: false, started: false, questionCount: 0 }), read), 'planned')
   assert.equal(stepState(step({ questionCount: 2 }), []), 'written')
+})
+
+test('a started step that is not yet readable is in progress', () => {
+  assert.equal(stepState(step({ ready: false, started: true, questionCount: 0 }), []), 'in-progress')
+  assert.equal(stepState(step({ ready: false, started: false, questionCount: 0 }), []), 'planned')
 })

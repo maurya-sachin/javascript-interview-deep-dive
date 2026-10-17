@@ -27,9 +27,9 @@ export function stepProgress({ topic, chapter, questionCount }: PathStep, read: 
   return { read: Math.min(read.filter((id) => id.startsWith(prefix)).length, questionCount), total: questionCount }
 }
 
-/** Where a step stands for this reader: finished, readable, or still planned. */
-export function stepState(step: PathStep, read: readonly string[]): 'done' | 'written' | 'planned' {
-  if (!step.ready) return 'planned'
+/** Where a step stands for this reader: finished, readable, being written, or still planned. */
+export function stepState(step: PathStep, read: readonly string[]): 'done' | 'written' | 'in-progress' | 'planned' {
+  if (!step.ready) return step.started ? 'in-progress' : 'planned'
   const { read: readCount, total } = stepProgress(step, read)
   return total > 0 && readCount === total ? 'done' : 'written'
 }

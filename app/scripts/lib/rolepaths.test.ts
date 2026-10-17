@@ -64,9 +64,10 @@ test('resolves titles and counts only readable questions, sorted by order', () =
   )
   assert.deepEqual(resolved.map((entry) => entry.slug), ['frontend', 'second'])
   const [chapterStep, unreadableStep, plannedStep, otherChapter] = resolved[0].steps
-  assert.deepEqual(chapterStep, { topic: 'javascript', topicTitle: 'JavaScript', chapter: 'engine', chapterTitle: 'How JavaScript runs', why: 'a', ready: true, questionCount: 2 })
+  assert.deepEqual(chapterStep, { topic: 'javascript', topicTitle: 'JavaScript', chapter: 'engine', chapterTitle: 'How JavaScript runs', why: 'a', ready: true, started: true, questionCount: 2 })
   assert.deepEqual([unreadableStep.ready, unreadableStep.questionCount], [false, 0])
   assert.deepEqual([plannedStep.ready, plannedStep.questionCount], [false, 0])
+  assert.deepEqual([unreadableStep.started, plannedStep.started], [true, false])
   assert.equal(otherChapter.questionCount, 1)
   assert.equal(resolved[1].steps[0].questionCount, 3)
 })

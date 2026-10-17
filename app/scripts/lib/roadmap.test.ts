@@ -16,7 +16,7 @@ function topic(slug: string, overrides: { chapterCount?: number; readable?: numb
     stats: { total: 0, readable: overrides.readable ?? 0, core: 0, byDifficulty: { easy: 0, medium: 0, hard: 0 }, lastVerified: null, stale: 0, reviewed: 0 },
   }
 }
-const step = (slug: string): PathStep => ({ topic: slug, topicTitle: slug, chapter: null, chapterTitle: null, why: '', ready: true, questionCount: 1 })
+const step = (slug: string): PathStep => ({ topic: slug, topicTitle: slug, chapter: null, chapterTitle: null, why: '', ready: true, started: true, questionCount: 1 })
 const path = (slug: string, slugs: string[]): RolePath => ({ slug, title: slug, summary: '', start: null, steps: slugs.map(step) })
 const slugs = (topics: TopicOverview[]) => topics.map((t) => t.slug)
 
