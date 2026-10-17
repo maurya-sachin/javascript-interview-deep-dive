@@ -1,12 +1,12 @@
 import { Link, useParams } from 'react-router'
 import { NotFound, PageShell } from '@/components/PageShell'
+import { RouteLine } from '@/components/RouteLine'
 import { Button } from '@/components/ui/button'
 import { useManifest } from '@/content/index-data'
 import { readingHours } from '@/lib/effort'
-import { stepPath, stepProgress } from '@/lib/paths'
+import { stepPath, stepProgress, stepState } from '@/lib/paths'
 import { useProgress } from '@/lib/progress'
 import { SITE_NAME } from '@/lib/site'
-import { cn } from '@/lib/utils'
 
 export function PathPage() {
   const { slug } = useParams()
@@ -20,6 +20,18 @@ export function PathPage() {
   const done = ready.reduce((sum, step) => sum + stepProgress(step, read).read, 0)
   const next = ready.find((step) => stepProgress(step, read).read < step.questionCount)
   const hours = readingHours(total)
+  const stations = path.steps.map((step) => {
+    const progress = stepProgress(step, read)
+    const status = !step.ready ? 'Planned' : progress.read > 0 ? `${progress.read} of ${progress.total} read` : `${progress.total} questions`
+    return {
+      key: `${step.topic}/${step.chapter ?? ''}`,
+      label: step.chapterTitle ? `${step.topicTitle}: ${step.chapterTitle}` : step.topicTitle,
+      to: stepPath(step),
+      state: stepState(step, read),
+      current: step === next,
+      detail: `${step.why} · ${status}`,
+    }
+  })
 
   return (
     <PageShell crumbs={[{ label: 'Paths', to: '/paths' }]} wide>
@@ -37,32 +49,9 @@ export function PathPage() {
         </Button>
       )}
 
-      <ol className="mt-10 border-t">
-        {path.steps.map((step, index) => {
-          const progress = stepProgress(step, read)
-          const label = step.chapterTitle ? `${step.topicTitle}: ${step.chapterTitle}` : step.topicTitle
-          return (
-            <li key={`${step.topic}/${step.chapter ?? ''}`} className="border-b">
-              <Link to={stepPath(step)} className="group grid grid-cols-[2rem_1fr] gap-x-4 gap-y-1 py-4 sm:grid-cols-[2rem_1fr_12rem]">
-                <span className="font-mono text-sm text-muted-foreground">{index + 1}</span>
-                <span>
-                  <span className={cn('block text-lg font-semibold group-hover:text-link', !step.ready && 'text-muted-foreground')}>{label}</span>
-                  <span className="mt-0.5 block text-sm text-muted-foreground">{step.why}</span>
-                </span>
-                <span className="col-start-2 text-sm text-muted-foreground sm:col-start-3 sm:text-right">
-                  {step.ready ? (
-                    <span className={cn(progress.read > 0 && 'text-link')}>
-                      {progress.read > 0 ? `${progress.read} of ${progress.total} read` : `${progress.total} questions`}
-                    </span>
-                  ) : (
-                    'Planned'
-                  )}
-                </span>
-              </Link>
-            </li>
-          )
-        })}
-      </ol>
+      <div className="mt-10 max-w-2xl">
+        <RouteLine orientation="vertical" stations={stations} />
+      </div>
     </PageShell>
   )
 }
