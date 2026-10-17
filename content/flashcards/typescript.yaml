@@ -1,0 +1,201 @@
+# 01 Type system basics
+- id: interface-declaration-merging
+  front: "What happens when two `interface User` declarations share a scope, versus two `type User` aliases?"
+  back: "The interfaces merge into one type. The two `type` aliases are a `Duplicate identifier` error. Merging is what makes module and global augmentation (`interface Window`) possible."
+  question: typescript/type-system-basics/type-vs-interface
+- id: extends-vs-intersection-conflict
+  front: "How do `interface B extends A` and `type B = A & {...}` differ when a property conflicts?"
+  back: "`extends` checks compatibility and reports the conflict at the declaration. `&` accepts anything: a conflicting property silently becomes `never`, and the failure shows up later at a use site."
+  question: typescript/type-system-basics/type-vs-interface
+- id: type-only-features
+  front: "Which kinds of types can only a `type` alias name, not an `interface`?"
+  back: "Unions, tuples, primitives, mapped types and conditional types. An interface can only describe an object-like type."
+  question: typescript/type-system-basics/type-vs-interface
+- id: implicit-index-signature-alias
+  front: "Why is an object-literal `type` alias assignable to `Record<string, string>` but an interface is not?"
+  back: "Type aliases get an implicit index signature. Interfaces do not, by design, because a later declaration could merge more members into them. Declare the index signature, or use a type alias."
+  question: typescript/type-system-basics/type-vs-interface
+- id: intersection-never-discriminant
+  front: "When does an intersection like `A & B` collapse to `never` as a whole?"
+  back: "When the conflicting property is a discriminant (a unit or literal type), as of TS 3.9. A conflict on a plain property such as `string & number` only makes that property `never`."
+  question: typescript/type-system-basics/type-vs-interface
+- id: type-vs-interface-default
+  front: "What is the handbook's heuristic for choosing between `interface` and `type`?"
+  back: "Use `interface` until you need features from `type`. Beyond that the choice is mostly preference, so staying consistent within a codebase matters more."
+  question: typescript/type-system-basics/type-vs-interface
+- id: structural-typing-definition
+  front: "What decides whether `S` is assignable to `T` in a structurally typed system?"
+  back: "Only members: if `S` has every property `T` requires, with compatible types, it is assignable. Names and declared relationships play no part, and extra members are fine."
+  question: typescript/type-system-basics/structural-typing
+- id: type-alias-no-new-type
+  front: "Do `type Meters = number` and `type Feet = number` stop you mixing the two up?"
+  back: "No. An alias is only a label, so both are the same type and are interchangeable. A branded type needs an actual extra member."
+  question: typescript/type-system-basics/structural-typing
+- id: nominal-behaviour-in-ts
+  front: "Name constructs where TypeScript behaves nominally despite equal shape."
+  back: "Classes with a `private`, `protected` or `#private` member (compatible only with types from the same declaration), enums from different declarations, and `unique symbol` types."
+  question: typescript/type-system-basics/structural-typing
+- id: branding-technique
+  front: "How do you simulate nominal types such as `UserId` versus `OrderId`?"
+  back: "Intersect the base type with a phantom property that exists only in the type system, and grant it in one validating function. It costs one `as` cast in the constructor."
+  question: typescript/type-system-basics/structural-typing
+- id: brand-erased-at-runtime
+  front: "Does a branded type protect you at runtime?"
+  back: "No. The brand is erased, so nothing at runtime can tell a `UserId` from an `OrderId`. The `as` cast is the only guarantee; without a runtime check before it, the brand is a lie."
+  question: typescript/type-system-basics/structural-typing
+- id: fewer-params-assignable
+  front: "Is a function with fewer parameters assignable to a function type with more?"
+  back: "Yes. Callers of the target type pass the extra arguments and the function ignores them, as with `forEach` callbacks. The reverse fails: `Target signature provides too few arguments`."
+  question: typescript/type-system-basics/structural-typing
+- id: empty-type-accepts
+  front: "Which values do `{}`, `object` and an empty interface each accept?"
+  back: "`{}` accepts everything except `null` and `undefined`. `object` also rejects primitives. An empty interface accepts almost any value, even `42`. The FAQ says to avoid memberless types."
+  question: typescript/type-system-basics/structural-typing
+- id: unknown-top-type
+  front: "What makes `unknown` the top type, and what can you do with such a value?"
+  back: "Anything is assignable to it. You cannot use it or assign it to anything but `unknown` and `any` until you narrow it with `typeof`, `instanceof`, a type guard or an assertion."
+  question: typescript/type-system-basics/any-unknown-never
+- id: any-opt-out
+  front: "What does `any` do to type checking, and what is it not assignable to?"
+  back: "It opts out: anything is assignable to it, it is assignable to everything except `never`, and every operation on it is allowed. It also spreads to values derived from it."
+  question: typescript/type-system-basics/any-unknown-never
+- id: never-bottom-type
+  front: "What is `never`, and what is assignable to it?"
+  back: "The empty set, the bottom type: no value exists. It is assignable to every type, but nothing except `never` is assignable to it, not even `any`."
+  question: typescript/type-system-basics/any-unknown-never
+- id: never-sources
+  front: "Where does `never` typically appear?"
+  back: "As the return type of functions that never return normally, when narrowing eliminates every union member, and from impossible intersections."
+  question: typescript/type-system-basics/any-unknown-never
+- id: unknown-any-never-combinations
+  front: "What do `unknown | T`, `unknown & T`, `T | never` and `T & never` reduce to?"
+  back: "`unknown`, `T`, `T` and `never`. `any` absorbs both ways: `any | T` and `any & T` are `any`."
+  question: typescript/type-system-basics/any-unknown-never
+- id: never-exhaustiveness-default
+  front: "How does a `never` variable in a `switch` default branch help?"
+  back: "Assigning the leftover value to a `never` variable proves the cases are exhaustive. Adding a union member then breaks the build at that line instead of causing a runtime bug."
+  question: typescript/type-system-basics/any-unknown-never
+- id: json-parse-returns-any
+  front: "What type do `JSON.parse` and `Response.json()` return, and what is the safe habit?"
+  back: "`any`. Assigning it to a typed variable is an unchecked cast. Accept it as `unknown` immediately, then narrow once at the boundary."
+  question: typescript/type-system-basics/any-unknown-never
+- id: catch-variable-unknown
+  front: "Which option makes `catch (e)` give `unknown`, and is it part of `strict`?"
+  back: "`useUnknownInCatchVariables`, which is part of `strict`. With it off, `e` is `any`."
+  question: typescript/type-system-basics/any-unknown-never
+- id: throwing-declaration-infers-void
+  front: "Does a function that only throws always have return type `never`?"
+  back: "No. A function expression or arrow with no return paths infers `never`, but a function declaration that throws is inferred `void`. Annotate `: never` when it matters."
+  question: typescript/type-system-basics/any-unknown-never
+- id: null-check-unknown-to-empty-object
+  front: "Does a null check make an `unknown` value usable?"
+  back: "No. `x !== null && x !== undefined` and `if (x)` narrow it only to `{}`, which still is not assignable to `number`. You need `typeof` or a type guard."
+  question: typescript/type-system-basics/any-unknown-never
+- id: literal-type-definition
+  front: "What is a literal type, and where does it become useful?"
+  back: "A type with exactly one value, such as `\"GET\"`, `42` or `true`. In a union (`\"GET\" | \"POST\"`) it models a closed set of options the compiler can check."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: const-vs-let-widening
+  front: "What is the inferred type of `const m = \"GET\"` versus `let m = \"GET\"`, and why?"
+  back: "`const` gives `\"GET\"` because it can never change. `let` gives `string` because it can be reassigned, so the literal is widened."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: object-literal-property-widening
+  front: "What is the type of `method` in `{ url: \"/x\", method: \"GET\" }`, and what bug does it cause?"
+  back: "`string`, since object properties are mutable. Passing `req.method` to a parameter typed `\"GET\" | \"POST\"` then fails."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-effects
+  front: "What does a `as const` assertion do to a literal expression's type?"
+  back: "Literals are not widened, object properties become `readonly`, and array literals become `readonly` tuples. It was added in TS 3.4."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-erased
+  front: "Does `as const` make data immutable at runtime?"
+  back: "No. It affects types only, emits no code, and `Object.isFrozen` on the result is `false`. Use `Object.freeze` for that, which is shallow."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-union-from-array
+  front: "How do you derive a union of values from a list of strings?"
+  back: "Declare the list `as const`, then index its type with `number`: `(typeof dirs)[number]` gives `\"up\" | \"down\"`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-applies-to-literals-only
+  front: "Which expressions can `as const` be applied to?"
+  back: "Only enum members and string, number, boolean, array or object literals. On a computed expression such as a ternary it fails with `TS1355`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: readonly-tuple-to-mutable-param
+  front: "Why does passing an `as const` array to a `string[]` parameter fail, and what is the fix?"
+  back: "A `readonly` tuple cannot be assigned to a mutable array type (`TS4104`). Type the parameter `readonly string[]`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-vs-satisfies
+  front: "How do `as const` and `satisfies` differ?"
+  back: "`satisfies T` (TS 4.9) checks the value against `T` and keeps its inferred type, with no `readonly` or narrowing. `as const` changes the inferred type to the narrowest one. They combine as `as const satisfies T`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: const-type-parameter
+  front: "What does a `<const T>` type parameter do?"
+  back: "Added in TS 5.0, it infers literal types for arguments written inline at the call. With a mutable constraint like `string[]`, it will not infer a readonly tuple."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: unique-symbol-type
+  front: "What is a `unique symbol` type?"
+  back: "Added in TS 2.7, it is the type of a `const` symbol: distinct from `symbol` and from every other unique symbol."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: excess-property-check-fresh-only
+  front: "When does the excess property check run?"
+  back: "Only on a fresh object literal written at the assignment or argument. Storing it in a variable first, spreading it or asserting it removes freshness, leaving only structural assignability."
+  question: typescript/type-system-basics/excess-property-checks
+- id: excess-property-check-purpose
+  front: "Why does TypeScript add excess property checking to a structural system?"
+  back: "A value with extra properties is normally assignable, which would hide typos in options objects. Checking fresh literals catches them."
+  question: typescript/type-system-basics/excess-property-checks
+- id: weak-type-detection
+  front: "What is the weak type rule?"
+  back: "Since TS 2.4, a type whose properties are all optional rejects any value sharing no properties with it, even from a variable. `{ colour: \"red\" }` fails against `{ color?: string }`."
+  question: typescript/type-system-basics/excess-property-checks
+- id: excess-check-spread-and-union
+  front: "Where does excess property checking not apply?"
+  back: "Spread members are not checked. A union target without a discriminant accepts a literal matching any member. With a discriminant, TypeScript picks the matching member and checks against it."
+  question: typescript/type-system-basics/excess-property-checks
+- id: excess-check-fixes
+  front: "How should you fix an excess property error on a legitimate extra property?"
+  back: "Add the property to the type, or add an index signature such as `[key: string]: unknown`. Avoid `as T`, which bypasses the check and hides real mistakes."
+  question: typescript/type-system-basics/excess-property-checks
+- id: exact-optional-property-types
+  front: "What does `exactOptionalPropertyTypes` change, and is it in `strict`?"
+  back: "Added in TS 4.4, not in `strict`. It distinguishes an absent property from one explicitly set to `undefined`; without it, `theme?: \"dark\"` also accepts an explicit `undefined`."
+  question: typescript/type-system-basics/excess-property-checks
+- id: no-unchecked-indexed-access
+  front: "What does `noUncheckedIndexedAccess` change for index signatures?"
+  back: "Reading an undeclared key through an index signature gives `T | undefined` instead of `T`. It is not part of `strict`."
+  question: typescript/type-system-basics/excess-property-checks
+- id: readonly-compile-time-only
+  front: "Does `readonly` freeze an object?"
+  back: "No. It blocks assignment at compile time only, changes no runtime behaviour, and does not make nested contents immutable."
+  question: typescript/type-system-basics/excess-property-checks
+- id: function-type-param-name
+  front: "What does the function type `(string) => void` actually describe?"
+  back: "A function with a parameter named `string` of type `any`. The parameter name is required in a function type expression: write `(s: string) => void`."
+  question: typescript/type-system-basics/function-types-overloads
+- id: call-signature-vs-function-type
+  front: "How do you type a function that also has properties?"
+  back: "Use a call signature in an object type: `{ description: string; (n: number): boolean }`, with `:` before the return type. A leading `new` makes it a construct signature."
+  question: typescript/type-system-basics/function-types-overloads
+- id: overload-visibility-and-order
+  front: "Which overload signatures can callers see, and which one does TypeScript pick?"
+  back: "Callers see only the overload signatures, not the implementation signature. TypeScript picks the first matching overload, so put specific signatures before general ones."
+  question: typescript/type-system-basics/function-types-overloads
+- id: overload-vs-union-parameter
+  front: "When should you use a union parameter instead of overloads?"
+  back: "When the same return type works for all cases. Overloads cannot accept a union argument that no single overload covers, so `len(string | unknown[])` fails."
+  question: typescript/type-system-basics/function-types-overloads
+- id: this-parameter
+  front: "What is a `this` parameter?"
+  back: "A fake first parameter, as in `function f(this: User)`, that types `this` and is erased at compile time. It must be a `function`, not an arrow."
+  question: typescript/type-system-basics/function-types-overloads
+- id: void-return-two-rules
+  front: "How does `void` behave for a function declaration versus a function type?"
+  back: "A declaration with return type `void` cannot return a value. A function type returning `void` is satisfied by functions returning anything, and the result is ignored, so `forEach((n) => out.push(n))` compiles."
+  question: typescript/type-system-basics/function-types-overloads
+- id: method-parameter-bivariance
+  front: "Under `strictFunctionTypes`, how are method-syntax members compared with function-typed properties?"
+  back: "Method syntax is still compared bivariantly, a deliberate unsoundness, because many JavaScript and DOM hierarchies rely on it. Function-typed properties are checked contravariantly."
+  question: typescript/type-system-basics/function-types-overloads
+- id: generator-type-parameters
+  front: "What do the three parameters of `Generator<T, TReturn, TNext>` type?"
+  back: "`T` is what the generator yields, `TReturn` is what it returns, and `TNext` is what `next()` accepts."
+  question: typescript/type-system-basics/function-types-overloads
