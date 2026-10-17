@@ -26,8 +26,9 @@ export interface QuestionSummary {
 export interface ChapterSummary {
   number: string
   slug: string
+  /** Plain text, for page titles, breadcrumbs and search. */
   title: string
-  /** The title as inline HTML, so inline code renders. */
+  /** The title as inline HTML, for headings, so inline code renders. */
   titleHtml: string
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string

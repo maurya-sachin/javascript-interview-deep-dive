@@ -132,7 +132,7 @@ function Topic({ topic }: { topic: TopicSummary }) {
                         <details open={filtering} className="group">
                           <summary className="grid cursor-pointer list-none grid-cols-[2.5rem_1fr] items-center gap-x-4 gap-y-2 py-4 sm:grid-cols-[2.5rem_1fr_11rem] [&::-webkit-details-marker]:hidden">
                             <span className="font-mono text-sm text-muted-foreground">{chapter.number}</span>
-                            <span className="text-lg font-semibold group-hover:text-link">{chapter.title}</span>
+                            <InlineHtml html={chapter.titleHtml} className="text-lg font-semibold group-hover:text-link [&_code]:font-mono [&_code]:text-[0.9em]" />
                             <span className="col-start-2 flex flex-col gap-1.5 text-sm text-muted-foreground sm:col-start-3 sm:text-right">
                               <DifficultyMix counts={counts.byDifficulty} />
                               <span>

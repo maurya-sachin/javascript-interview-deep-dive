@@ -179,14 +179,17 @@ const topics: TopicSummary[] = await Promise.all(
     plannedAreasHtml: await Promise.all(plannedAreas(topic.readme).map(async (area) => (await renderInline(area)).html)),
     flashcardCount: decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
     chapters: await Promise.all(
-      topic.chapters.map(async (chapter) => ({
-        number: chapter.number,
-        slug: chapter.slug,
-        title: chapter.title,
-        titleHtml: (await renderInline(chapter.title)).html,
-        ...(await summaryOf(chapter.readme)),
-        questions: await Promise.all(chapter.questions.map(summarize)),
-      })),
+      topic.chapters.map(async (chapter) => {
+        const title = await renderInline(chapter.title)
+        return {
+          number: chapter.number,
+          slug: chapter.slug,
+          title: title.text,
+          titleHtml: title.html,
+          ...(await summaryOf(chapter.readme)),
+          questions: await Promise.all(chapter.questions.map(summarize)),
+        }
+      }),
     ),
   })),
 )
@@ -201,7 +204,7 @@ async function searchDocs(topic: Topic): Promise<SearchDoc[]> {
         id: question.id,
         title: (await renderInline(meta.title)).text,
         topic: topic.title,
-        chapter: chapter.title,
+        chapter: (await renderInline(chapter.title)).text,
         tags: written ? meta.tags : [],
         tldr: written ? (await renderInline(meta.tldr)).text : '',
         hasPage: written,
