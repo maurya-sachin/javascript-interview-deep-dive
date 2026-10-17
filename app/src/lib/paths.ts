@@ -26,3 +26,10 @@ export function stepProgress({ topic, chapter, questionCount }: PathStep, read: 
   // Ids of renamed or removed questions can linger in saved progress; never report more read than exist.
   return { read: Math.min(read.filter((id) => id.startsWith(prefix)).length, questionCount), total: questionCount }
 }
+
+/** Where a step stands for this reader: finished, readable, or still planned. */
+export function stepState(step: PathStep, read: readonly string[]): 'done' | 'written' | 'planned' {
+  if (!step.ready) return 'planned'
+  const { read: readCount, total } = stepProgress(step, read)
+  return total > 0 && readCount === total ? 'done' : 'written'
+}

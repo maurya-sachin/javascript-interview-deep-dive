@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readingHours } from '../../src/lib/effort.ts'
-import { describePath, stepPath, stepProgress } from '../../src/lib/paths.ts'
+import { describePath, stepPath, stepProgress, stepState } from '../../src/lib/paths.ts'
 import type { PathStep, RolePath } from '../../src/content/types.ts'
 
 function step(overrides: Partial<PathStep>): PathStep {
@@ -33,4 +33,12 @@ test('reading effort is 5 minutes a question, rounded to whole hours, at least o
   assert.equal(readingHours(12), 1)
   assert.equal(readingHours(1), 1)
   assert.equal(readingHours(0), 0)
+})
+
+test('a step is done only when every question in it is read', () => {
+  const read = ['javascript/a', 'javascript/b']
+  assert.equal(stepState(step({ questionCount: 2 }), read), 'done')
+  assert.equal(stepState(step({ questionCount: 3 }), read), 'written')
+  assert.equal(stepState(step({ ready: false, questionCount: 0 }), read), 'planned')
+  assert.equal(stepState(step({ questionCount: 2 }), []), 'written')
 })
