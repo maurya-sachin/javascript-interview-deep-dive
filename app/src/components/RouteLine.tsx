@@ -33,7 +33,7 @@ const MARK_FILL: Record<StationState, string> = {
 /** One station's dot; also the legend swatch on the roadmap. */
 export function StationMark({ state, current = false, small = false, className }: { state: StationState; current?: boolean; small?: boolean; className?: string }) {
   return (
-    <span aria-hidden="true" className={cn('box-border inline-flex shrink-0 items-center justify-center rounded-full', small ? 'size-2.5' : 'size-3.5', MARK_FILL[state], current && 'ring-4 ring-link/25', className)}>
+    <span aria-hidden="true" className={cn('box-border inline-flex shrink-0 items-center justify-center rounded-full', small ? 'size-2.5' : 'size-3.5', MARK_FILL[state], current && 'ring-2 ring-link ring-offset-2 ring-offset-background', className)}>
       {state === 'done' && <CheckIcon />}
     </span>
   )
@@ -71,11 +71,11 @@ export function RouteLine({ stations, orientation }: { stations: Station[]; orie
             {next && <span aria-hidden="true" className={cn('absolute top-[calc(0.25rem+7px)] bottom-[calc(-0.25rem-7px)] left-[6px] w-0.5', isSolid(station, next) ? LINE_SOLID : `w-0 border-l-2 ${LINE_DASHED_X}`, !vertical && 'md:hidden')} />}
             {!vertical && previous && <HalfLine solid={isSolid(previous, station)} side="left" />}
             {!vertical && next && <HalfLine solid={isSolid(station, next)} side="right" />}
-            <Link to={station.to} className={cn('block', FOCUS, !vertical && 'md:flex md:flex-col md:items-center md:gap-2 md:px-1 md:text-center')}>
+            <Link to={station.to} aria-current={station.current ? 'step' : undefined} className={cn('block', FOCUS, !vertical && 'md:flex md:flex-col md:items-center md:gap-2 md:px-1 md:text-center')}>
               <StationMark state={station.state} current={station.current} className={cn('absolute top-1 left-0 z-10', !vertical && 'md:relative md:top-auto md:left-auto')} />
               <span className={cn('block text-balance', vertical ? 'text-base font-semibold' : 'text-sm font-medium md:text-xs', station.state === 'planned' && 'text-muted-foreground')}>
                 {station.label}
-                <span className="sr-only">, {STATE_TEXT[station.state]}</span>
+                {!station.detail && <span className="sr-only">, {STATE_TEXT[station.state]}</span>}
               </span>
               {station.detail && <span className={cn('block text-sm text-muted-foreground', !vertical && 'md:text-xs')}>{station.detail}</span>}
             </Link>
