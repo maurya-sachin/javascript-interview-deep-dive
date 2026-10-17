@@ -349,6 +349,26 @@
   front: "Can `in` replace a discriminant tag?"
   back: "Yes when a property exists on only one member: `\"radius\" in shape` narrows to the circle member. It breaks once two members share the key, and a tag is clearer."
   question: typescript/inference-and-narrowing/discriminated-unions
+- id: discriminant-narrowing-filter
+  front: "How does the checker narrow `shape.kind === \"circle\"` on a union?"
+  back: "It treats `kind` as a discriminant property and filters the members. The true branch keeps members whose `kind` can be `\"circle\"`; the false branch drops those whose `kind` is exactly `\"circle\"`. A `switch` filters per `case`."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: exhaustiveness-filter-to-never
+  front: "Why does the `never` check detect a missing case in a `switch`?"
+  back: "Exhaustiveness is the same filtering run to completion. If every member is removed, the value is `never`, so the assignment compiles. If one remains, the assignment fails and the message names the leftover member."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: assert-never-vs-satisfies-never
+  front: "What does `assertNever` give you that `value satisfies never` does not?"
+  back: "A runtime throw, and it works on every TypeScript version. `satisfies never` needs TS 4.9+ and is purely a compile-time check with no helper function."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: widened-tag-loses-discrimination
+  front: "Why can a tag that widened to `string` lose narrowing even if you wrote literals?"
+  back: "Narrowing needs the property to be a literal in the declared type. A value widened from a `let`, or an object literal without `as const`, has type `string` and no longer discriminates."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: union-vs-polymorphism-tradeoff
+  front: "When might classes with methods beat a discriminated union?"
+  back: "With many variants sharing behavior, polymorphism keeps each new case in one place instead of touching every `switch`. The cost is losing the compiler's exhaustiveness proof."
+  question: typescript/inference-and-narrowing/discriminated-unions
 - id: annotation-widens-to-declared
   front: "What is the type of a variable declared `const x: T = expr`?"
   back: "`T`. The annotation checks `expr` against `T`, then specific information is lost: properties typed `string | RGB` stay `string | RGB`."
