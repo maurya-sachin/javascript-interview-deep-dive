@@ -38,7 +38,7 @@ A site for **any software engineer** that is evergreen, scales past 100 topics, 
 ## 4. Home and paths
 - Home: hero with tagline → "What are you preparing as?" → **Start here** (the first path's `start` question) → **Available now** (topics with content) → **Roadmap** (planned topics with a contribute link).
 - `content/paths/<role>.yaml` (R17): ordered `<topic>` or `<topic>/<chapter>` entries, each with a one-line reason; validated by `content:check`. A path page shows progress and an effort estimate (5 minutes per question); planned entries are roadmap steps, not dead links.
-- Routes: `/paths` and `/paths/<role>` draw each path as a transit-map route (an ordered journey); `/roadmap` is a chart of topic tiles per track, each with its contour cover, dashed while planned. Topic folders can't be named `paths`, `practice`, `flashcards` or `roadmap`.
+- Routes: `/paths` and `/paths/<role>` draw each path as a transit-map route (an ordered journey); `/roadmap` is a board: one row per track, columns Published / In review / Planned of topic chips. Topic folders can't be named `paths`, `practice`, `flashcards` or `roadmap`.
 
 ## 5. Practice and flashcards
 - One hub at `/practice` (Questions, Flashcards with due/new counts, Your progress) and a chapter picker at `/practice/:topic`. No streaks or gamification.
