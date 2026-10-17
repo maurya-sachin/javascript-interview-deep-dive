@@ -6,14 +6,19 @@ function joinNames(names: string[]): string {
   return names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`
 }
 
-/** One line for the role chooser: what is ready on this path and how much is still planned. */
+/** One line for the role chooser: what is ready on this path, what is being written, and how much is still planned. */
 export function describePath({ steps }: RolePath): string {
-  const ready = steps.filter((step) => step.ready)
-  if (ready.length === 0) return 'Roadmap only: nothing published yet'
-  const planned = steps.length - ready.length
-  const names = [...new Set(ready.map((step) => step.topicTitle))]
-  const sentence = `${joinNames(names)} ${names.length === 1 ? 'is' : 'are'} ready`
-  return planned > 0 ? `${sentence}; ${planned} more planned` : sentence
+  const topicsOf = (matching: PathStep[]) => [...new Set(matching.map((step) => step.topicTitle))]
+  const ready = topicsOf(steps.filter((step) => step.ready))
+  const inProgress = topicsOf(steps.filter((step) => !step.ready && step.started))
+  const planned = steps.filter((step) => !step.ready && !step.started).length
+
+  const parts: string[] = []
+  if (ready.length > 0) parts.push(`${joinNames(ready)} ${ready.length === 1 ? 'is' : 'are'} ready`)
+  if (inProgress.length > 0) parts.push(`${joinNames(inProgress)} in progress`)
+  if (parts.length === 0) return 'Planned: nothing written yet'
+  if (planned > 0) parts.push(`${planned} more planned`)
+  return parts.join('; ')
 }
 
 export function stepPath({ topic, chapter }: PathStep): string {

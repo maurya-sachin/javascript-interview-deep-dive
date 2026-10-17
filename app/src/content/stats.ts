@@ -16,5 +16,6 @@ export function chapterStats(chapters: ChapterSummary[]): TopicStats {
     lastVerified: oldestMonth(readable.flatMap((question) => (question.verified === null ? [] : [question.verified]))),
     stale: readable.filter((question) => question.stale).length,
     reviewed: readable.filter((question) => question.status === 'published').length,
+    drafted: questions.filter((question) => question.status === 'draft').length,
   }
 }

@@ -11,7 +11,7 @@ function toStation(topic: TopicOverview): Station {
   const state = topicState(topic)
   const details: Record<TopicState, string> = {
     written: `${topic.stats.readable} questions`,
-    'in-progress': 'In progress',
+    'in-progress': topic.stats.drafted > 0 ? `${topic.stats.drafted} in review` : 'In progress',
     planned: 'Planned',
   }
   return { key: topic.slug, label: topic.title, to: `/${topic.slug}`, state, detail: details[state] }
@@ -20,11 +20,13 @@ function toStation(topic: TopicOverview): Station {
 /** Every topic as one route line per track, ordered by the role paths. */
 export function Roadmap({ topics, paths, trackHeading: TrackHeading }: { topics: TopicOverview[]; paths: RolePath[]; trackHeading: 'h2' | 'h3' }) {
   const started = topics.filter((topic) => topicState(topic) !== 'planned').length
-  const questions = topics.reduce((sum, topic) => sum + topic.stats.readable, 0)
+  // Published and drafted are facts about the content, so this line reads the same in every build.
+  const published = topics.reduce((sum, topic) => sum + topic.stats.reviewed, 0)
+  const drafted = topics.reduce((sum, topic) => sum + topic.stats.drafted, 0)
   return (
     <>
       <p className="max-w-2xl text-muted-foreground">
-        {started} of {topics.length} topics started, {questions} questions written.{' '}
+        {started} of {topics.length} topics started · {published} questions published{drafted > 0 && ` · ${drafted} in review`}.{' '}
         <a href={CONTRIBUTE_URL} className="text-link hover:text-link-hover">
           Contribute a question
         </a>
