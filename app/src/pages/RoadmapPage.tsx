@@ -10,7 +10,7 @@ export function RoadmapPage() {
       <title>{`Roadmap · ${SITE_NAME}`}</title>
       <h1 className="font-serif text-4xl font-medium tracking-tight">Roadmap</h1>
       <div className="mt-2">
-        <Roadmap topics={topics} paths={paths} />
+        <Roadmap topics={topics} paths={paths} trackHeading="h2" />
       </div>
     </PageShell>
   )

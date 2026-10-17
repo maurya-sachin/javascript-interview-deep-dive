@@ -18,7 +18,7 @@ function toStation(topic: TopicOverview): Station {
 }
 
 /** Every topic as one route line per track, ordered by the role paths. */
-export function Roadmap({ topics, paths }: { topics: TopicOverview[]; paths: RolePath[] }) {
+export function Roadmap({ topics, paths, trackHeading: TrackHeading }: { topics: TopicOverview[]; paths: RolePath[]; trackHeading: 'h2' | 'h3' }) {
   const started = topics.filter((topic) => topicState(topic) !== 'planned').length
   const questions = topics.reduce((sum, topic) => sum + topic.stats.readable, 0)
   return (
@@ -36,12 +36,12 @@ export function Roadmap({ topics, paths }: { topics: TopicOverview[]; paths: Rol
           const trackStarted = stations.filter((station) => station.state !== 'planned').length
           return (
             <section key={group.name}>
-              <h3 className="mb-5 flex flex-wrap items-baseline gap-x-3">
+              <TrackHeading className="mb-5 flex flex-wrap items-baseline gap-x-3">
                 <span className="font-semibold">{group.name}</span>
                 <span className="text-sm text-muted-foreground">
                   {trackStarted} of {stations.length} started
                 </span>
-              </h3>
+              </TrackHeading>
               <RouteLine stations={stations} orientation="responsive" />
             </section>
           )

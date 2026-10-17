@@ -8,7 +8,10 @@ export interface TrackGroup {
   topics: TopicOverview[]
 }
 
-/** Groups topics by track, with topics that already have chapters ahead of planned ones. */
+/**
+ * Groups topics by track, with topics that already have chapters ahead of planned ones. That order suits the topic
+ * switcher; the roadmap reorders each track by the role paths.
+ */
 export function groupByTrack(topics: TopicOverview[]): TrackGroup[] {
   const names = [...new Set(topics.map((topic) => topic.track))].sort((a, b) => rank(a) - rank(b))
   return names.map((name) => ({
