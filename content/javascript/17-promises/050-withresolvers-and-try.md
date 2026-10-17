@@ -84,7 +84,7 @@ console.log(order);
 **A:** An async function wrapper also runs the body synchronously and converts throws. `Promise.try(fn, ...args)` does that for a function you already have, without writing a wrapper.
 
 **Q:** Does `Promise.try(() => p)` return `p` itself?
-**A:** The current draft spec says yes for a native promise with the same constructor, after a 2026 change (ecma262 PR 3883). Node 24 returns a new promise: the comparison is `false`. Do not depend on identity.
+**A:** The current draft spec says yes for a native promise with the same constructor, after a 2026 change (ecma262 PR 3883). Node 24 still returns a new promise (`false`); Chrome 155 already returns `p` (`true`). Engines disagree for now, so do not depend on identity.
 
 **Q:** How was a deferred written before `withResolvers`?
 **A:** `let resolve, reject; const promise = new Promise((res, rej) => { resolve = res; reject = rej; });`. The executor runs synchronously, so the variables are set before `new Promise` returns.
