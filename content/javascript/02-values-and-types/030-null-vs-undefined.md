@@ -12,6 +12,24 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types
   - https://tc39.es/ecma262/#sec-void-operator
+  - https://tc39.es/ecma262/#sec-undefined
+  - https://tc39.es/ecma262/#sec-islooselyequal
+  - https://tc39.es/ecma262/#sec-islessthan
+  - https://tc39.es/ecma262/#sec-tonumber
+  - https://tc39.es/ecma262/#sec-json.stringify
+  - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
+  - https://tc39.es/ecma262/#sec-binary-logical-operators
+  - https://tc39.es/ecma262/#sec-optional-chains
+  - https://tc39.es/ecma262/#sec-ordinaryget
+  - https://tc39.es/ecma262/#sec-object.create
+  - https://tc39.es/ecma262/#sec-object.hasown
+  - https://tc39.es/ecma262/#sec-array.prototype.join
+  - https://tc39.es/ecma262/#sec-array.prototype.find
+  - https://tc39.es/ecma262/#sec-regexp.prototype.exec
+  - https://tc39.es/ecma262/#sec-string.prototype.match
+  - https://tc39.es/ecma262/#sec-copydataproperties
+  - https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot
+  - https://www.typescriptlang.org/tsconfig/#strictNullChecks
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void
@@ -28,7 +46,7 @@ tldr: >
 Both are primitive types with exactly one value, and both are *nullish*. The difference is who produces them.
 
 - **`undefined`** is produced by the language to mean "no value here": a declared but unassigned variable, a missing function argument, a property that doesn't exist, a function with no `return`. MDN frames it as absence of a *value*.
-- **`null`** is something a programmer assigns to mean "intentionally empty". MDN frames it as absence of an *object*. The language itself yields it rarely; the end of the prototype chain is the main case.
+- **`null`** is something a programmer assigns to mean "intentionally empty". MDN frames it as absence of an *object*. The language yields it in few places: the end of the prototype chain, and built-ins such as `RegExp.prototype.exec` that return it for "no match".
 
 How they differ in code:
 
@@ -85,7 +103,7 @@ The two values enter the language in different places. `undefined` is produced b
 - A function body that finishes without a `return` value completes with `undefined`, and a parameter with no matching argument is `undefined`.
 - `OrdinaryGet` returns `undefined` when it walks the prototype chain and reaches a `null` parent without finding the key. It also returns `undefined` for an accessor property whose getter is `undefined`.
 
-`null`, by contrast, comes from the engine in very few places: it is the `[[Prototype]]` of `Object.prototype`, which is what ends the chain `OrdinaryGet` walks, and it is the `[[Prototype]]` of objects you create with `Object.create(null)`. Everything else that is `null` was written by a program or parsed from JSON.
+`null`, by contrast, comes from the language in few places: it is the `[[Prototype]]` of `Object.prototype`, which is what ends the chain `OrdinaryGet` walks, and of objects you create with `Object.create(null)`; and built-ins such as `RegExp.prototype.exec` and `String.prototype.match` return it for "no match". Other `null`s were written by a program or parsed from JSON.
 
 ```js
 const proto = Object.getPrototypeOf(Object.prototype);
