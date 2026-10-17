@@ -13,6 +13,7 @@ sources:
   - https://tc39.es/process-document/
   - https://github.com/tc39/proposals
   - https://github.com/tc39/proposals/blob/main/finished-proposals.md
+  - https://ecma-international.org/publications-and-standards/standards/ecma-262/
   - https://github.com/tc39/test262
   - https://tc39.es/ecma262/multipage/
   - https://github.com/tc39/ecma262/blob/main/CONTRIBUTING.md
@@ -38,7 +39,7 @@ New language features are proposed to **TC39**, the Ecma International committee
 
 Stage 2.7 is the newer step: the design is frozen apart from changes found through testing, and tests are written. Stage 3 is where engines implement and ship, so feedback can still change or even stall a proposal.
 
-A Stage 4 proposal is merged into the spec draft. The **yearly edition** is branched from the draft at the March TC39 meeting; from then on only editorial changes are accepted, and the Ecma General Assembly approves it in July. Anything that reaches Stage 4 later waits for the next edition.
+A Stage 4 proposal is merged into the spec draft. The **yearly edition** is branched from the draft at the March TC39 meeting; from then on only editorial changes are accepted, and the Ecma General Assembly approves it in June (every edition since 2011 is dated June, although the process document still says July). Anything that reaches Stage 4 later waits for the next edition.
 
 **When is a feature safe to use?** Stage 4 means the spec is settled and two engines already pass the tests, but your users' browsers matter more than the stage. Check actual support (MDN compatibility data, `caniuse`) and your target environments. Stage 3 is for experiments or build-time tooling that you control.
 
