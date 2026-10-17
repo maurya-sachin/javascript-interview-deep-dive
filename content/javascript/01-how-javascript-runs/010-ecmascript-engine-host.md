@@ -14,6 +14,21 @@ sources:
   - https://tc39.es/ecma262/#sec-hosts-and-implementations
   - https://tc39.es/ecma262/#sec-host-defined
   - https://tc39.es/ecma262/#sec-hostenqueuepromisejob
+  - https://tc39.es/ecma262/#sec-hostensurecancompilestrings
+  - https://tc39.es/ecma262/#sec-HostLoadImportedModule
+  - https://tc39.es/ecma262/#sec-hostgetimportmetaproperties
+  - https://tc39.es/ecma262/#sec-global-object
+  - https://tc39.es/ecma262/#sec-additional-ecmascript-features-for-web-browsers
+  - https://html.spec.whatwg.org/multipage/webappapis.html#event-loops
+  - https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html
+  - https://v8.dev/
+  - https://bun.sh/docs
+  - https://docs.deno.com/api/deno/~/Deno.version
+  - https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick
+  - https://nodejs.org/docs/latest-v24.x/api/timers.html
+  - https://nodejs.org/docs/latest-v24.x/api/esm.html
+  - https://nodejs.org/docs/latest-v24.x/api/globals.html
+  - https://html.spec.whatwg.org/multipage/structured-data.html#dom-structuredclone
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/JavaScript_technologies_overview
   - https://nodejs.org/docs/latest-v24.x/api/process.html#processversions
 tldr: >
@@ -91,7 +106,7 @@ console.log('sync');
 // → timer
 ```
 
-`Promise.then` jobs are specified. `setTimeout` is host-defined, but both browsers and Node.js run all queued promise jobs before the next timer task.
+`Promise.then` jobs are specified. `setTimeout` is host-defined. Browsers follow the HTML Standard's event loop, which runs a microtask checkpoint after each task; Node.js 24 prints the same order here.
 
 ### Edge cases
 
