@@ -1,4 +1,3 @@
-import { Link } from 'react-router'
 import { cn } from '@/lib/utils'
 
 export type StationState = 'done' | 'written' | 'in-progress' | 'planned'
@@ -8,16 +7,6 @@ export interface Station {
   label: string
   to: string
   state: StationState
-  /** Where the reader is up to; drawn with an outer ring. */
-  current?: boolean
-  detail?: string
-}
-
-const STATE_TEXT: Record<StationState, string> = {
-  done: 'finished',
-  written: 'published',
-  'in-progress': 'in progress',
-  planned: 'planned',
 }
 
 const MARK_FILL: Record<StationState, string> = {
@@ -49,10 +38,10 @@ export function StationLegend({ states, className }: { states: readonly StationS
   )
 }
 
-/** One station's dot; also the legend swatch on the roadmap. */
-export function StationMark({ state, current = false, small = false, className }: { state: StationState; current?: boolean; small?: boolean; className?: string }) {
+/** One station's dot; also the progress mark on route diagrams. */
+export function StationMark({ state, small = false, className }: { state: StationState; small?: boolean; className?: string }) {
   return (
-    <span aria-hidden="true" className={cn('box-border inline-flex shrink-0 items-center justify-center rounded-full', small ? 'size-2.5' : 'size-3.5', MARK_FILL[state], current && 'ring-2 ring-link ring-offset-2 ring-offset-background', className)}>
+    <span aria-hidden="true" className={cn('box-border inline-flex shrink-0 items-center justify-center rounded-full', small ? 'size-2.5' : 'size-3.5', MARK_FILL[state], className)}>
       {state === 'done' && <CheckIcon />}
     </span>
   )
@@ -72,32 +61,6 @@ const isSolid = (from: Station, to: Station) => from.state !== 'planned' && to.s
 
 const LINE_SOLID = 'bg-depth-3'
 const LINE_DASHED = 'border-dashed border-muted-foreground/70'
-
-const FOCUS = 'rounded-sm outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
-
-/** Stations joined by a vertical line, like a transit map. */
-export function RouteLine({ stations }: { stations: Station[] }) {
-  return (
-    <ol>
-      {stations.map((station, index) => {
-        const next = stations[index + 1]
-        return (
-          <li key={station.key} className="relative pb-6 pl-8 last:pb-0">
-            {next && <span aria-hidden="true" className={cn('absolute top-[calc(0.25rem+7px)] bottom-[calc(-0.25rem-7px)] left-[6px] w-0.5', isSolid(station, next) ? LINE_SOLID : `w-0 border-l-2 ${LINE_DASHED}`)} />}
-            <Link to={station.to} aria-current={station.current ? 'step' : undefined} className={cn('block', FOCUS)}>
-              <StationMark state={station.state} current={station.current} className="absolute top-1 left-0 z-10" />
-              <span className={cn('block text-base font-semibold text-balance', station.state === 'planned' && 'text-muted-foreground')}>
-                {station.label}
-                {!station.detail && <span className="sr-only">, {STATE_TEXT[station.state]}</span>}
-              </span>
-              {station.detail && <span className="block text-sm text-muted-foreground">{station.detail}</span>}
-            </Link>
-          </li>
-        )
-      })}
-    </ol>
-  )
-}
 
 /** The stations as small marks on one line, for rows whose text already says what they mean. */
 export function RouteSummary({ stations }: { stations: Station[] }) {
