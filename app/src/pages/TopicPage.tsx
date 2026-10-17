@@ -35,7 +35,7 @@ function Topic({ topic }: { topic: TopicSummary }) {
   const questions = topic.chapters.flatMap((chapter) => chapter.questions)
   // Continue at the first readable question not read yet; fall back to the first readable one.
   const start = questions.find((question) => question.hasPage && !read.includes(question.id)) ?? questions.find((question) => question.hasPage)
-  // Drafts are readable but not reviewed: only a drafts build has any.
+  // Drafts are readable but not yet reviewed by the maintainer.
   const unreviewed = stats.readable - stats.reviewed
   const hasFacts = topic.covers !== null || unreviewed > 0 || stats.lastVerified !== null || stats.stale > 0
   const readCount = questions.filter((question) => read.includes(question.id)).length

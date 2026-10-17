@@ -18,7 +18,7 @@ const INLINE_CODE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 export function HomePage() {
   const { topics, paths } = useManifest()
   const { last, lastTitleHtml } = useProgress()
-  // Topics with something to read in this build; drafts appear only in a --drafts build.
+  // Topics with something to read: published or draft questions.
   const available = topics.filter((topic) => topic.stats.readable > 0)
   const drafted = topics.reduce((sum, topic) => sum + topic.stats.drafted, 0)
   const start = paths.find((path) => path.start)?.start ?? null

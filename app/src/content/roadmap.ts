@@ -4,7 +4,7 @@ export type TopicState = 'published' | 'in-review' | 'planned'
 
 /**
  * Where a topic stands as content: a published question makes it published, chapters make it in review.
- * It ignores what this build can read, so a drafts build shows the same roadmap as production.
+ * It reads content facts, not which questions have a page.
  */
 export function topicState(topic: TopicOverview): TopicState {
   if (topic.stats.reviewed > 0) return 'published'
