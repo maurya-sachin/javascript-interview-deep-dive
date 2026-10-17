@@ -1049,7 +1049,7 @@
   question: typescript/classes-enums-runtime-output/decorators
 - id: decorator-metadata-52
   front: "What is `context.metadata` (TS 5.2)?"
-  back: "A shared object per class, readable afterwards via `Class[Symbol.metadata]`. Node 24 printed `Symbol.metadata` as `undefined`, so the check needed a polyfill."
+  back: "A shared object per class, readable afterwards via `Class[Symbol.metadata]`. Node 24 leaves `Symbol.metadata` `undefined`, so running it there needs a polyfill."
   question: typescript/classes-enums-runtime-output/decorators
 - id: reflect-metadata-not-builtin
   front: "Is `reflect-metadata` built into decorator metadata?"
