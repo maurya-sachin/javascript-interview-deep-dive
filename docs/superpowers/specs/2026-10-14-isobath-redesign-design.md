@@ -23,7 +23,8 @@ A site for **any software engineer** that is evergreen, scales past 100 topics, 
 
 ## 2. Brand
 - Tokens: Geist, Geist Mono, Newsreader (SIL OFL); accent `#2F4FD8` light / `#9DAEF7` dark; prose column 720px.
-- **Topic covers** are contour maps generated from topic slug + data by a pure function (`app/src/lib/contours.ts`) that runs in the browser and the prerender: chapters = levels, difficulty mix = crowding. Marching squares on noise, with segments chained to remove stray fragments.
+- **Topic covers** are contour maps generated from topic slug + data by a pure function (`app/src/lib/contours.ts`) that runs in the browser and the prerender: chapters = levels, difficulty mix = crowding. The terrain is a seabed — an off-centre trench (steep wall, wide shelf), a second pool past a saddle, a low broad base and a light ripple — so ring spacing varies and the deepest levels can split into islands; marching squares chains the segments into closed rings. Wide covers crop the map rather than shrink it.
+- **Home figure:** the same generator (seed `isobath-4`, 8 levels in 4 depth bands); numbered markers on the map with a key below name the four depths.
 - **Charts** use the 4-level depth scale (30-second answer · full answer · follow-ups · spec/engine) instead of generic bars.
 - **OG images:** not built. resvg-js needs TTF/OTF fonts and `@fontsource` ships only woff/woff2, so the font source and rasterizer must be chosen first.
 - Legal: the maintainer makes the creative choices and keeps the drafts as a record; trademark clearance only if the brand outgrows the personal name — remind the maintainer before the logo is final.
