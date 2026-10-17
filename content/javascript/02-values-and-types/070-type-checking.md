@@ -10,6 +10,8 @@ related:
   - javascript/values-and-types/typeof-null
   - javascript/values-and-types/symbols
 verified: 2026-10
+perishable:
+  - "`Error.isError` is not Baseline yet (MDN, 2026-10)"
 sources:
   - https://tc39.es/ecma262/#sec-typeof-operator
   - https://tc39.es/ecma262/#sec-isarray
