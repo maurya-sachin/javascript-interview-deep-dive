@@ -27,6 +27,8 @@ export interface ChapterSummary {
   number: string
   slug: string
   title: string
+  /** The title as inline HTML, so inline code renders. */
+  titleHtml: string
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string
   /** The same paragraph as plain text, for page descriptions. */
@@ -73,7 +75,7 @@ export interface TopicStats {
 export interface ChapterOverview {
   number: string
   slug: string
-  title: string
+  titleHtml: string
   questionCount: number
 }
 

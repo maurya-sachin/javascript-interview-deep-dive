@@ -17,6 +17,7 @@ const topic: TopicSummary = {
       number: '01',
       slug: 'c',
       title: 'C',
+      titleHtml: 'C',
       summaryHtml: '',
       summaryText: '',
       questions: [{ id: 'javascript/c/q', number: '010', title: 'Q', titleHtml: 'Q', status: 'draft', difficulty: 'easy', frequency: 3, core: true, hasPage: true, verified: '2026-10', stale: false, legacy: null }],
@@ -30,7 +31,7 @@ test('keeps the topic fields and lists chapters without their questions', () => 
   assert.equal(overview.slug, 'javascript')
   assert.equal(overview.flashcardCount, 2)
   assert.equal(overview.chapterCount, 1)
-  assert.deepEqual(overview.chapters, [{ number: '01', slug: 'c', title: 'C', questionCount: 1 }])
+  assert.deepEqual(overview.chapters, [{ number: '01', slug: 'c', titleHtml: 'C', questionCount: 1 }])
   assert.deepEqual(overview.plannedAreasHtml, ['Semantic HTML'])
   assert.equal(overview.stats.total, 1)
   assert.equal(overview.stats.core, 1)

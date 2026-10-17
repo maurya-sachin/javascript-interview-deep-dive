@@ -7,7 +7,7 @@ export function toOverview({ chapters, ...topic }: TopicSummary): TopicOverview 
   return {
     ...topic,
     chapterCount: chapters.length,
-    chapters: chapters.map(({ number, slug, title, questions }) => ({ number, slug, title, questionCount: questions.length })),
+    chapters: chapters.map(({ number, slug, titleHtml, questions }) => ({ number, slug, titleHtml, questionCount: questions.length })),
     stats: chapterStats(chapters),
   }
 }

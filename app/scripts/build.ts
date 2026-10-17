@@ -183,6 +183,7 @@ const topics: TopicSummary[] = await Promise.all(
         number: chapter.number,
         slug: chapter.slug,
         title: chapter.title,
+        titleHtml: (await renderInline(chapter.title)).html,
         ...(await summaryOf(chapter.readme)),
         questions: await Promise.all(chapter.questions.map(summarize)),
       })),
