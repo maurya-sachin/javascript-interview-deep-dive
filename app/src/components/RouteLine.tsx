@@ -54,7 +54,7 @@ const isSolid = (from: Station, to: Station) => from.state !== 'planned' && to.s
 const LINE_SOLID = 'bg-depth-3'
 const LINE_DASHED_X = 'border-dashed border-muted-foreground/70'
 
-const FOCUS = 'rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+const FOCUS = 'rounded-sm outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
 
 /** Stations joined by a line, like a transit map. */
 export function RouteLine({ stations, orientation }: { stations: Station[]; orientation: Orientation }) {
