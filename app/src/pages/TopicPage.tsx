@@ -46,16 +46,30 @@ function Topic({ topic }: { topic: TopicSummary }) {
     <PageShell crumbs={[{ label: 'Topics', to: '/' }]} wide>
       <title>{`${topic.title} · ${SITE_NAME}`}</title>
       <div className="grid gap-10 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-14">
-        <header className="lg:sticky lg:top-8 lg:self-start">
+        <header className="lg:sticky lg:top-8 lg:max-h-[calc(100dvh-4rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
           <TopicCover
             slug={topic.slug}
             chapterCount={topic.chapters.length}
             hardShare={stats.total === 0 ? 0 : stats.byDifficulty.hard / stats.total}
-            className="mb-6 hidden aspect-16/10 w-full rounded-lg bg-muted lg:block"
+            className="mb-6 hidden aspect-2/1 w-full rounded-lg bg-muted lg:block"
           />
           <h1 className="text-4xl font-bold tracking-[-0.03em]">{topic.title}</h1>
           <InlineHtml html={topic.summaryHtml} className={`mt-3 block font-serif text-xl leading-relaxed text-muted-foreground ${INLINE_CODE}`} />
 
+          {topic.chapters.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-3 lg:flex-col">
+              {start && (
+                <Button asChild size="lg">
+                  <Link to={questionPath(start)}>{readCount > 0 ? 'Continue reading' : 'Start reading'}</Link>
+                </Button>
+              )}
+              {topic.flashcardCount > 0 && (
+                <Button asChild variant="outline" size="lg">
+                  <Link to={`/flashcards/${topic.slug}`}>Study {topic.flashcardCount} flashcards</Link>
+                </Button>
+              )}
+            </div>
+          )}
           {topic.chapters.length > 0 && (
             <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 lg:grid lg:grid-cols-2">
               <Stat value={topic.chapters.length} label="chapters" />
@@ -72,20 +86,6 @@ function Topic({ topic }: { topic: TopicSummary }) {
               {stats.lastVerified !== null && <li>Last verified {formatMonth(stats.lastVerified)}</li>}
               {stats.stale > 0 && <li className={WARNING_TEXT}>{stats.stale === 1 ? '1 needs re-checking' : `${stats.stale} need re-checking`}</li>}
             </ul>
-          )}
-          {topic.chapters.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-3 lg:flex-col">
-              {start && (
-                <Button asChild size="lg">
-                  <Link to={questionPath(start)}>{readCount > 0 ? 'Continue reading' : 'Start reading'}</Link>
-                </Button>
-              )}
-              {topic.flashcardCount > 0 && (
-                <Button asChild variant="outline" size="lg">
-                  <Link to={`/flashcards/${topic.slug}`}>Study {topic.flashcardCount} flashcards</Link>
-                </Button>
-              )}
-            </div>
           )}
         </header>
 
