@@ -15,7 +15,7 @@ const cardSchema = z.strictObject({
   id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'must be lowercase kebab-case'),
   front: z.string().min(1).refine(wordLimit(30), 'must be 30 words or fewer'),
   back: z.string().min(1).refine(wordLimit(60), 'must be 60 words or fewer'),
-  question: z.string().min(1).optional(),
+  question: z.string().min(1),
 })
 
 export type FlashcardSource = z.infer<typeof cardSchema>

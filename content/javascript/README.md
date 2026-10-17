@@ -1,5 +1,6 @@
 # JavaScript
 
+> **Covers:** ECMAScript through ES2026, plus Stage 4 proposals shipping in ES2027; V8 as the reference engine.
 > **Track:** Frontend
 > **Status:** 🔴 planned · **Published:** 0/150 · **Last verified:** —
 

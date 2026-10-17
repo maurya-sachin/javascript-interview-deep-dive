@@ -1,0 +1,2031 @@
+# 01 Type system basics
+- id: interface-declaration-merging
+  front: "What happens when two `interface User` declarations share a scope, versus two `type User` aliases?"
+  back: "The interfaces merge into one type. The two `type` aliases are a `Duplicate identifier` error. Merging is what makes module and global augmentation (`interface Window`) possible."
+  question: typescript/type-system-basics/type-vs-interface
+- id: extends-vs-intersection-conflict
+  front: "How do `interface B extends A` and `type B = A & {...}` differ when a property conflicts?"
+  back: "`extends` checks compatibility and reports the conflict at the declaration. `&` accepts anything: a conflicting property silently becomes `never`, and the failure shows up later at a use site."
+  question: typescript/type-system-basics/type-vs-interface
+- id: type-only-features
+  front: "Which kinds of types can only a `type` alias name, not an `interface`?"
+  back: "Unions, tuples, primitives, mapped types and conditional types. An interface can only describe an object-like type."
+  question: typescript/type-system-basics/type-vs-interface
+- id: implicit-index-signature-alias
+  front: "Why is an object-literal `type` alias assignable to `Record<string, string>` but an interface is not?"
+  back: "Type aliases get an implicit index signature. Interfaces do not, by design, because a later declaration could merge more members into them. Declare the index signature, or use a type alias."
+  question: typescript/type-system-basics/type-vs-interface
+- id: intersection-never-discriminant
+  front: "When does an intersection like `A & B` collapse to `never` as a whole?"
+  back: "When the conflicting property is a discriminant (a unit or literal type), as of TS 3.9. A conflict on a plain property such as `string & number` only makes that property `never`."
+  question: typescript/type-system-basics/type-vs-interface
+- id: type-vs-interface-default
+  front: "What is the handbook's heuristic for choosing between `interface` and `type`?"
+  back: "Use `interface` until you need features from `type`. Beyond that the choice is mostly preference, so staying consistent within a codebase matters more."
+  question: typescript/type-system-basics/type-vs-interface
+- id: structural-typing-definition
+  front: "What decides whether `S` is assignable to `T` in a structurally typed system?"
+  back: "Only members: if `S` has every property `T` requires, with compatible types, it is assignable. Names and declared relationships play no part, and extra members are fine."
+  question: typescript/type-system-basics/structural-typing
+- id: type-alias-no-new-type
+  front: "Do `type Meters = number` and `type Feet = number` stop you mixing the two up?"
+  back: "No. An alias is only a label, so both are the same type and are interchangeable. A branded type needs an actual extra member."
+  question: typescript/type-system-basics/structural-typing
+- id: nominal-behaviour-in-ts
+  front: "Name constructs where TypeScript behaves nominally despite equal shape."
+  back: "Classes with a `private`, `protected` or `#private` member (compatible only with types from the same declaration), enums from different declarations, and `unique symbol` types."
+  question: typescript/type-system-basics/structural-typing
+- id: branding-technique
+  front: "How do you simulate nominal types such as `UserId` versus `OrderId`?"
+  back: "Intersect the base type with a phantom property that exists only in the type system, and grant it in one validating function. It costs one `as` cast in the constructor."
+  question: typescript/type-system-basics/structural-typing
+- id: brand-erased-at-runtime
+  front: "Does a branded type protect you at runtime?"
+  back: "No. The brand is erased, so nothing at runtime can tell a `UserId` from an `OrderId`. The `as` cast is the only guarantee; without a runtime check before it, the brand is a lie."
+  question: typescript/type-system-basics/structural-typing
+- id: fewer-params-assignable
+  front: "Is a function with fewer parameters assignable to a function type with more?"
+  back: "Yes. Callers of the target type pass the extra arguments and the function ignores them, as with `forEach` callbacks. The reverse fails: `Target signature provides too few arguments`."
+  question: typescript/type-system-basics/structural-typing
+- id: empty-type-accepts
+  front: "Which values do `{}`, `object` and an empty interface each accept?"
+  back: "`{}` accepts everything except `null` and `undefined`. `object` also rejects primitives. An empty interface accepts almost any value, even `42`. The FAQ says to avoid memberless types."
+  question: typescript/type-system-basics/structural-typing
+- id: unknown-top-type
+  front: "What makes `unknown` the top type, and what can you do with such a value?"
+  back: "Anything is assignable to it. You cannot use it or assign it to anything but `unknown` and `any` until you narrow it with `typeof`, `instanceof`, a type guard or an assertion."
+  question: typescript/type-system-basics/any-unknown-never
+- id: any-opt-out
+  front: "What does `any` do to type checking, and what is it not assignable to?"
+  back: "It opts out: anything is assignable to it, it is assignable to everything except `never`, and every operation on it is allowed. It also spreads to values derived from it."
+  question: typescript/type-system-basics/any-unknown-never
+- id: never-bottom-type
+  front: "What is `never`, and what is assignable to it?"
+  back: "The empty set, the bottom type: no value exists. It is assignable to every type, but nothing except `never` is assignable to it, not even `any`."
+  question: typescript/type-system-basics/any-unknown-never
+- id: never-sources
+  front: "Where does `never` typically appear?"
+  back: "As the return type of functions that never return normally, when narrowing eliminates every union member, and from impossible intersections."
+  question: typescript/type-system-basics/any-unknown-never
+- id: unknown-any-never-combinations
+  front: "What do `unknown | T`, `unknown & T`, `T | never` and `T & never` reduce to?"
+  back: "`unknown`, `T`, `T` and `never`. `any` absorbs both ways: `any | T` and `any & T` are `any`."
+  question: typescript/type-system-basics/any-unknown-never
+- id: never-exhaustiveness-default
+  front: "How does a `never` variable in a `switch` default branch help?"
+  back: "Assigning the leftover value to a `never` variable proves the cases are exhaustive. Adding a union member then breaks the build at that line instead of causing a runtime bug."
+  question: typescript/type-system-basics/any-unknown-never
+- id: json-parse-returns-any
+  front: "What type do `JSON.parse` and `Response.json()` return, and what is the safe habit?"
+  back: "`any`. Assigning it to a typed variable is an unchecked cast. Accept it as `unknown` immediately, then narrow once at the boundary."
+  question: typescript/type-system-basics/any-unknown-never
+- id: catch-variable-unknown
+  front: "Which option makes `catch (e)` give `unknown`, and is it part of `strict`?"
+  back: "`useUnknownInCatchVariables`, which is part of `strict`. With it off, `e` is `any`."
+  question: typescript/type-system-basics/any-unknown-never
+- id: throwing-declaration-infers-void
+  front: "Does a function that only throws always have return type `never`?"
+  back: "No. A function expression or arrow with no return paths infers `never`, but a function declaration that throws is inferred `void`. Annotate `: never` when it matters."
+  question: typescript/type-system-basics/any-unknown-never
+- id: null-check-unknown-to-empty-object
+  front: "Does a null check make an `unknown` value usable?"
+  back: "No. `x !== null && x !== undefined` and `if (x)` narrow it only to `{}`, which still is not assignable to `number`. You need `typeof` or a type guard."
+  question: typescript/type-system-basics/any-unknown-never
+- id: literal-type-definition
+  front: "What is a literal type, and where does it become useful?"
+  back: "A type with exactly one value, such as `\"GET\"`, `42` or `true`. In a union (`\"GET\" | \"POST\"`) it models a closed set of options the compiler can check."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: const-vs-let-widening
+  front: "What is the inferred type of `const m = \"GET\"` versus `let m = \"GET\"`, and why?"
+  back: "`const` gives `\"GET\"` because it can never change. `let` gives `string` because it can be reassigned, so the literal is widened."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: object-literal-property-widening
+  front: "What is the type of `method` in `{ url: \"/x\", method: \"GET\" }`, and what bug does it cause?"
+  back: "`string`, since object properties are mutable. Passing `req.method` to a parameter typed `\"GET\" | \"POST\"` then fails."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-effects
+  front: "What does a `as const` assertion do to a literal expression's type?"
+  back: "Literals are not widened, object properties become `readonly`, and array literals become `readonly` tuples. It was added in TS 3.4."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-erased
+  front: "Does `as const` make data immutable at runtime?"
+  back: "No. It affects types only, emits no code, and `Object.isFrozen` on the result is `false`. Use `Object.freeze` for that, which is shallow."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-union-from-array
+  front: "How do you derive a union of values from a list of strings?"
+  back: "Declare the list `as const`, then index its type with `number`: `(typeof dirs)[number]` gives `\"up\" | \"down\"`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-applies-to-literals-only
+  front: "Which expressions can `as const` be applied to?"
+  back: "Only enum members and string, number, boolean, array or object literals. On a computed expression such as a ternary it fails with `TS1355`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: readonly-tuple-to-mutable-param
+  front: "Why does passing an `as const` array to a `string[]` parameter fail, and what is the fix?"
+  back: "A `readonly` tuple cannot be assigned to a mutable array type (`TS4104`). Type the parameter `readonly string[]`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: as-const-vs-satisfies
+  front: "How do `as const` and `satisfies` differ?"
+  back: "`satisfies T` (TS 4.9) checks the value against `T` and keeps its inferred type, with no `readonly` or narrowing. `as const` changes the inferred type to the narrowest one. They combine as `as const satisfies T`."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: const-type-parameter
+  front: "What does a `<const T>` type parameter do?"
+  back: "Added in TS 5.0, it infers literal types for arguments written inline at the call. With a mutable constraint like `string[]`, it will not infer a readonly tuple."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: unique-symbol-type
+  front: "What is a `unique symbol` type?"
+  back: "Added in TS 2.7, it is the type of a `const` symbol: distinct from `symbol` and from every other unique symbol."
+  question: typescript/type-system-basics/literal-types-as-const
+- id: excess-property-check-fresh-only
+  front: "When does the excess property check run?"
+  back: "Only on a fresh object literal written at the assignment or argument. Storing it in a variable first, spreading it or asserting it removes freshness, leaving only structural assignability."
+  question: typescript/type-system-basics/excess-property-checks
+- id: excess-property-check-purpose
+  front: "Why does TypeScript add excess property checking to a structural system?"
+  back: "A value with extra properties is normally assignable, which would hide typos in options objects. Checking fresh literals catches them."
+  question: typescript/type-system-basics/excess-property-checks
+- id: weak-type-detection
+  front: "What is the weak type rule?"
+  back: "Since TS 2.4, a type whose properties are all optional rejects any value sharing no properties with it, even from a variable. `{ colour: \"red\" }` fails against `{ color?: string }`."
+  question: typescript/type-system-basics/excess-property-checks
+- id: excess-check-spread-and-union
+  front: "Where does excess property checking not apply?"
+  back: "Spread members are not checked. A union target without a discriminant accepts a literal matching any member. With a discriminant, TypeScript picks the matching member and checks against it."
+  question: typescript/type-system-basics/excess-property-checks
+- id: excess-check-fixes
+  front: "How should you fix an excess property error on a legitimate extra property?"
+  back: "Add the property to the type, or add an index signature such as `[key: string]: unknown`. Avoid `as T`, which bypasses the check and hides real mistakes."
+  question: typescript/type-system-basics/excess-property-checks
+- id: exact-optional-property-types
+  front: "What does `exactOptionalPropertyTypes` change, and is it in `strict`?"
+  back: "Added in TS 4.4, not in `strict`. It distinguishes an absent property from one explicitly set to `undefined`; without it, `theme?: \"dark\"` also accepts an explicit `undefined`."
+  question: typescript/type-system-basics/excess-property-checks
+- id: no-unchecked-indexed-access
+  front: "What does `noUncheckedIndexedAccess` change for index signatures?"
+  back: "Reading an undeclared key through an index signature gives `T | undefined` instead of `T`. It is not part of `strict`."
+  question: typescript/type-system-basics/excess-property-checks
+- id: readonly-compile-time-only
+  front: "Does `readonly` freeze an object?"
+  back: "No. It blocks assignment at compile time only, changes no runtime behaviour, and does not make nested contents immutable."
+  question: typescript/type-system-basics/excess-property-checks
+- id: function-type-param-name
+  front: "What does the function type `(string) => void` actually describe?"
+  back: "A function with a parameter named `string` of type `any`. The parameter name is required in a function type expression: write `(s: string) => void`."
+  question: typescript/type-system-basics/function-types-overloads
+- id: call-signature-vs-function-type
+  front: "How do you type a function that also has properties?"
+  back: "Use a call signature in an object type: `{ description: string; (n: number): boolean }`, with `:` before the return type. A leading `new` makes it a construct signature."
+  question: typescript/type-system-basics/function-types-overloads
+- id: overload-visibility-and-order
+  front: "Which overload signatures can callers see, and which one does TypeScript pick?"
+  back: "Callers see only the overload signatures, not the implementation signature. TypeScript picks the first matching overload, so put specific signatures before general ones."
+  question: typescript/type-system-basics/function-types-overloads
+- id: overload-vs-union-parameter
+  front: "When should you use a union parameter instead of overloads?"
+  back: "When the same return type works for all cases. Overloads cannot accept a union argument that no single overload covers, so `len(string | unknown[])` fails."
+  question: typescript/type-system-basics/function-types-overloads
+- id: this-parameter
+  front: "What is a `this` parameter?"
+  back: "A fake first parameter, as in `function f(this: User)`, that types `this` and is erased at compile time. It must be a `function`, not an arrow."
+  question: typescript/type-system-basics/function-types-overloads
+- id: void-return-two-rules
+  front: "How does `void` behave for a function declaration versus a function type?"
+  back: "A declaration with return type `void` cannot return a value. A function type returning `void` is satisfied by functions returning anything, and the result is ignored, so `forEach((n) => out.push(n))` compiles."
+  question: typescript/type-system-basics/function-types-overloads
+- id: method-parameter-bivariance
+  front: "Under `strictFunctionTypes`, how are method-syntax members compared with function-typed properties?"
+  back: "Method syntax is still compared bivariantly, a deliberate unsoundness, because many JavaScript and DOM hierarchies rely on it. Function-typed properties are checked contravariantly."
+  question: typescript/type-system-basics/function-types-overloads
+- id: generator-type-parameters
+  front: "What do the three parameters of `Generator<T, TReturn, TNext>` type?"
+  back: "`T` is what the generator yields, `TReturn` is what it returns, and `TNext` is what `next()` accepts."
+  question: typescript/type-system-basics/function-types-overloads
+
+# 02 Inference and narrowing
+- id: inference-bottom-up-top-down
+  front: "What are the two directions of type inference?"
+  back: "Bottom-up: the type comes from the expression (`let n = 3` is `number`). Top-down, or contextual typing: the type comes from the position, such as a callback parameter typed by `map`'s declaration."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: array-literal-union-inference
+  front: "What type does `[new Rhino(), new Elephant()]` infer, and how do you get `Animal[]`?"
+  back: "The array of the union of the two. The checker does not invent a shared supertype. Annotate it explicitly as `Animal[]`."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: widening-mutable-location
+  front: "Why does `{ kind: \"circle\" }` stored in a variable fail against a parameter expecting `\"circle\"`?"
+  back: "A mutable location (`let`, an object property) could be reassigned, so the literal widens to `kind: string`. A `const` binding keeps the literal, and `as const` freezes a whole object literal."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: annotate-exported-return-types
+  front: "Why annotate return types on exported functions and public APIs?"
+  back: "So a body edit cannot silently change the contract for every caller. `isolatedDeclarations` (TS 5.5) requires it."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: no-contextual-type-implicit-any
+  front: "What type does an unannotated parameter with no contextual type get, and what reports it?"
+  back: "`any`. `noImplicitAny`, part of `strict`, reports it as TS7006."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: empty-collection-inference
+  front: "What do `new Map()` with no type arguments and an empty `[]` give you?"
+  back: "Nothing to infer from, so `any`-flavoured types: `new Map()` is `Map<any, any>` and everything read from it is unchecked. Pass type arguments or annotate."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: evolving-array
+  front: "What is an evolving array?"
+  back: "With `noImplicitAny`, `const ids = []` has no fixed element type yet and each `push` widens it. Reading it before any push, or from a nested function, reports TS7034 or TS7005."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: annotation-beats-contextual-type
+  front: "Does a contextual type override an explicit parameter annotation?"
+  back: "No. The explicit annotation wins over the contextual type."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: control-flow-analysis-definition
+  front: "What is control flow analysis in TypeScript?"
+  back: "The compiler walks the possible execution paths and, at each use of a variable, asks which checks and assignments must have happened on the way there. Narrowing is the result."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: builtin-narrowing-forms
+  front: "Which built-in checks narrow a type?"
+  back: "`typeof`, truthiness, equality (`===`, `!=`, `switch`), `in`, `instanceof`, and assignment to a union-typed variable. User-defined guards and discriminant checks also narrow."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: typeof-object-keeps-null
+  front: "Why does `typeof x === \"object\"` on `T | null` not remove `null`?"
+  back: "Because `typeof null` is `\"object\"`. Add `x !== null` or a truthiness check."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: truthiness-narrowing-primitives
+  front: "What is the pitfall of truthiness narrowing on primitives?"
+  back: "`if (s)` drops `\"\"` and `if (n)` drops `0`. After the `if`, the else branch of a `string | undefined` is still `string | undefined`. Compare with `!== undefined` when `0` or `\"\"` are valid."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: x-not-equal-null
+  front: "What does `x != null` narrow away?"
+  back: "Both `null` and `undefined`."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-in-callbacks
+  front: "When does narrowing survive into a closure?"
+  back: "Property narrowing (`options.retries`) is dropped inside closures. For variables, it survives only if the closure is created after the last assignment (TS 5.4+); an assignment inside any nested function disables it."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-survives-function-calls
+  front: "Does calling a function invalidate a narrowed property such as `c.retries`?"
+  back: "No. Tracking every possible write is infeasible, so `reset(c)` can clear it while the compiler still believes it is a number. Copy the value into a `const` first."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-assignment-union-only
+  front: "Why does assigning a string to `let u: unknown` not narrow it, while a `string | number` does?"
+  back: "Assignment narrowing filters the declared type only when the declared type is a union. `unknown` is not a union."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: in-operator-narrowing-49
+  front: "Since TS 4.9, what does `\"name\" in obj` do for `obj: object`?"
+  back: "It narrows `object` to `object & Record<\"name\", unknown>`. You can read `obj.name`, but still have to narrow `name` itself."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-erased
+  front: "Does narrowing change the runtime?"
+  back: "No. Types are erased and narrowing only changes what the checker accepts. A real runtime check must exist in the code for the narrowing to be true."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: aliased-condition-narrowing
+  front: "What are aliased conditions in narrowing (TS 4.4)?"
+  back: "Narrowing flows through a `const` that holds a guard, a `readonly` property, or an unmodified parameter, so `const isText = typeof v === \"string\"; if (isText)` narrows `v`."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: switch-true-narrowing
+  front: "What does `switch (true)` allow for narrowing (TS 5.3)?"
+  back: "Each `case` expression acts as a condition, so `case typeof x === \"string\":` narrows `x` to `string`."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: type-predicate-syntax
+  front: "What is a type predicate and what does it do at a call site?"
+  back: "A return type of the form `paramName is Type`. When the call returns `true`, the argument narrows to `Type` in the true branch, and `Type` is removed from it in the false branch."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: predicate-body-unchecked
+  front: "Does TypeScript check that a type predicate's body matches its claim?"
+  back: "No. Explicit predicates are \"no safer than a type assertion\", so a predicate returning `true` for wrong values silently corrupts every call site."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: predicate-iff
+  front: "Why is `s is string` implemented as `!!s` wrong?"
+  back: "A predicate must be if-and-only-if: `false` means the value is not `T`. But `\"\"` is a string that returns `false`, so the else branch is mistyped."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: assertion-function-forms
+  front: "What are the two signatures of an assertion function (TS 3.7)?"
+  back: "`asserts value is T`: after the call returns, `value` is `T`. `asserts condition`: after it returns, the argument expression is truthy. Both narrow by throwing instead of returning false."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: assertion-function-explicit-annotation
+  front: "Why does an arrow assigned to an unannotated `const` fail as an assertion function?"
+  back: "The call target must be declared with an explicit type, otherwise each call reports TS2775. Use a function declaration, or annotate the const."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: inferred-type-predicates
+  front: "When does TS 5.5 infer a type predicate?"
+  back: "For a function with no return annotation, one `return`, no parameter mutation, and a boolean expression tied to a refinement. `filter(n => n !== undefined)` then gives `number[]`."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: filter-truthy-no-predicate
+  front: "Why does `filter(x => !!x)` on `(number | undefined)[]` stay `(number | undefined)[]`?"
+  back: "No predicate is inferred, because `0` returns `false` and is still a `number`. Use `x !== undefined`, which also keeps the zeros."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: guard-vs-assertion-choice
+  front: "When do you choose an assertion function over a type guard?"
+  back: "When failing is the only sensible outcome, such as validating input at the top of a function or in tests. A guard fits branching code where both outcomes are handled."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: predicate-type-assignable
+  front: "What constraint applies to the type in a predicate like `n is string`?"
+  back: "It must be assignable to the parameter type. `n: number` with `n is string` is error TS2677."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: discriminated-union-definition
+  front: "What is a discriminated union?"
+  back: "A union whose members all share a property, the discriminant, with a distinct literal type in each. Checking it narrows the whole object to the matching member."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: union-vs-optional-fields
+  front: "Why is a discriminated union better than one object with optional fields?"
+  back: "With `{ kind: \"circle\" | \"square\"; radius?: number }` the compiler cannot connect `kind` to which field exists, so you reach for `!`. A union encodes the relationship, so the check proves the field is there."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: exhaustiveness-never-default
+  front: "How do you check a `switch` over a discriminated union exhaustively?"
+  back: "In `default`, pass the value to `assertNever(value: never)` or write `value satisfies never` (TS 4.9). An unhandled member is not assignable to `never`, so the error points at the missing case."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: exhaustiveness-missing-return
+  front: "How can exhaustiveness be checked without a `default` branch?"
+  back: "Annotate the return type and omit `default`. If the switch is not exhaustive, TypeScript reports a missing ending return (TS2366). It only works for functions that return."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: string-tag-does-not-discriminate
+  front: "Why does `{ kind: string }` fail as a discriminant?"
+  back: "The tag must be a literal or unit type in every member. With `string`, members do not narrow each other and `shape.radius` fails with TS2339."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: never-branch-runtime-safety
+  front: "Does compile-time exhaustiveness protect against bad runtime data?"
+  back: "No. Data from `JSON.parse` or a server can carry a tag the type does not know. The `never` branch only throws if you wrote it to, as `assertNever` does."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: destructured-discriminant
+  front: "Does destructuring the tag, `const { kind } = shape`, still narrow `shape`?"
+  back: "Yes, since TS 4.6, for `const` destructuring and parameters that are never assigned to. A `...rest` object does not narrow in the same way."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: in-instead-of-tag
+  front: "Can `in` replace a discriminant tag?"
+  back: "Yes when a property exists on only one member: `\"radius\" in shape` narrows to the circle member. It breaks once two members share the key, and a tag is clearer."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: annotation-widens-to-declared
+  front: "What is the type of a variable declared `const x: T = expr`?"
+  back: "`T`. The annotation checks `expr` against `T`, then specific information is lost: properties typed `string | RGB` stay `string | RGB`."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-semantics
+  front: "What does `expr satisfies T` (TS 4.9) do?"
+  back: "It checks `expr` against `T` like an annotation, including excess-property errors, but the expression keeps its own inferred type. It is erased at compile time."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-contextual-type
+  front: "How does `satisfies T` use `T` beyond checking?"
+  back: "As a contextual type: callback parameters get types, array literals can become tuples when `T` expects one, and literals are kept where `T` expects a literal type."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: as-vs-satisfies-completeness
+  front: "Why do `as` and `satisfies` differ on a config object with missing or misspelled keys?"
+  back: "`as T` only requires sufficient overlap, so missing keys and extra keys like `bleu` pass. `satisfies` does an assignability check and rejects both."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-not-conversion
+  front: "Does `satisfies` change a value's type?"
+  back: "Never. `const xs = [] satisfies string[]` is `never[]`, not `string[]`. Annotate when you need the declared type."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-when-to-use
+  front: "When is `satisfies` the right tool, and when not?"
+  back: "Use it for config objects, route tables, theme tokens and lookup maps, where you want typos caught and per-property types kept. Do not use it for external data like `JSON.parse`, which needs runtime validation."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: as-const-satisfies-combined
+  front: "Can `satisfies` replace `as const`?"
+  back: "No, they do different jobs: `as const` makes a value readonly with literal types, `satisfies` checks it. Combine them: `[1, 2] as const satisfies readonly number[]` is `readonly [1, 2]`."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: assertions-erased
+  front: "What do `as`, `!` and `!:` have in common at runtime?"
+  back: "All are assertions removed from the emitted JavaScript. Nothing is checked at runtime, so a wrong assertion becomes a runtime error somewhere else."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: as-overlap-rule
+  front: "When does TypeScript allow `value as T`?"
+  back: "When the types sufficiently overlap, meaning one is assignable to the other. `\"hello\" as number` is rejected with TS2352."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: double-assertion
+  front: "What is a double assertion and what does it cost?"
+  back: "`x as unknown as T`, going through `unknown` or `any` to bypass the overlap rule. It deliberately gives up all checking."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: as-completeness-not-checked
+  front: "Why does `{ a: 1 } as { a: number; b: string }` compile?"
+  back: "Because the target is a subtype of the source, so the types overlap. `as` does not check completeness."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: non-null-assertion
+  front: "What does the non-null assertion `value!` do?"
+  back: "It removes `null` and `undefined` from the type only. `maybe!.length` still throws at runtime if `maybe` is `undefined`. It is the absence of a null check, not a null check."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: definite-assignment-assertion
+  front: "What does `let x!: T` or `prop!: T` suppress?"
+  back: "Added in TS 2.7, it suppresses \"used before being assigned\" (TS2454) or, on a class field, `strictPropertyInitialization` (TS2564). Reasonable for fields a framework initializes after the constructor."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: definite-assignment-emit
+  front: "Does `prop!: string` change the emitted JavaScript of a class?"
+  back: "The `!` is erased, but the field declaration is not. With `target: es2022`, TS 7.0.2 emitted `b;`, defining the field as `undefined`. `declare b: string` or `useDefineForClassFields: false` emitted no field."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: assertion-alternatives
+  front: "What should you prefer over `as` and `!` when an alternative exists?"
+  back: "A type guard or assertion function (the claim gets checked), `?.`/`??` or an early `throw` instead of `!`, `satisfies` for object literals, and `unknown` plus narrowing for external data."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+
+# 03 Generics
+- id: generics-purpose
+  front: "What do generics keep that `any` or a union would throw away?"
+  back: "A relationship between types. `identity<T>(x: T): T` says the result has the same type as the argument. Type parameters are filled in by callers, usually by inference."
+  question: typescript/generics/generics-and-constraints
+- id: generic-class-static-side
+  front: "Can a `static` member of a generic class use the class's type parameter?"
+  back: "No. Per the handbook, classes are generic only over their instance side."
+  question: typescript/generics/generics-and-constraints
+- id: extends-constraint-meaning
+  front: "What does `extends` mean in `T extends HasLength`, and what does it do?"
+  back: "It means assignable to, not inheritance. It restricts call-site arguments, and lets the body treat `T` as its constraint for property access."
+  question: typescript/generics/generics-and-constraints
+- id: constraint-keeps-caller-type
+  front: "Why write `<T extends X>(a: T): T` rather than `(a: X): X`?"
+  back: "The result is still `T`, not the constraint. `longest(\"ab\", \"c\")` returns `\"ab\" | \"c\"`, not `HasLength`, so the caller's type is kept."
+  question: typescript/generics/generics-and-constraints
+- id: keyof-constraint-pick
+  front: "What is the classic constraint referring to another type parameter?"
+  back: "`K extends keyof T`. It lets `pick(obj, \"name\")` accept only real keys and return `T[K]`."
+  question: typescript/generics/generics-and-constraints
+- id: generic-default-order
+  front: "What does a type parameter default like `<T = unknown>` do, and what ordering rule applies?"
+  back: "It makes the argument optional when it cannot be inferred or written. Required type parameters cannot follow optional ones (TS2706)."
+  question: typescript/generics/generics-and-constraints
+- id: return-generic-subtype-trap
+  front: "Why does `function f<T extends string>(): T { return \"x\"; }` fail?"
+  back: "The caller chooses `T`, and it could be a different subtype such as `\"y\"`. `\"x\"` is only assignable to the constraint, so TS2322 results."
+  question: typescript/generics/generics-and-constraints
+- id: single-use-type-parameter
+  front: "When is a type parameter not earning its place?"
+  back: "When it appears only once, as in `function f<T>(x: T): void`. It relates nothing; use the constraint or `unknown` instead. A parameter should appear at least twice."
+  question: typescript/generics/generics-and-constraints
+- id: generics-erased
+  front: "Are generic type parameters available at runtime?"
+  back: "No. Type parameters and arguments are erased on emit, so there is no `T` to inspect and no `new T()`."
+  question: typescript/generics/generics-and-constraints
+- id: inference-candidates
+  front: "How does the checker infer `T` in `f<T>(...)`?"
+  back: "It walks each argument against its parameter type, records candidates wherever `T` appears, then resolves them. The return-type context is also a source."
+  question: typescript/generics/generic-inference
+- id: covariant-candidate-conflict
+  front: "In `same<T>(a: T, b: T)`, what happens with `same(1, \"a\")`?"
+  back: "When no candidate is compatible with the others, the first candidate wins and later arguments are checked against it. So `\"a\"` is not assignable to `1`; swapping the arguments reports the other way round."
+  question: typescript/generics/generic-inference
+- id: contravariant-inference-subtype
+  front: "What does `both<T>(a: (x: T) => void, b: (x: T) => void)` infer for `both(onAnimal, onDog)`?"
+  back: "`Dog`. Since TS 2.6, candidates in contravariant positions such as callback parameters resolve to the best common subtype."
+  question: typescript/generics/generic-inference
+- id: literal-widening-in-inference
+  front: "How do `same(\"a\", \"b\")` with unconstrained `T` and with `T extends string` differ?"
+  back: "Unconstrained `T` widens to `string`. A constraint such as `T extends string` keeps the literals, giving `\"a\" | \"b\"`."
+  question: typescript/generics/generic-inference
+- id: no-inference-source
+  front: "What does `T` become if no argument mentions it?"
+  back: "The constraint, or `unknown` when there is none. An empty array literal gives `never`, so `first([])` is `never`."
+  question: typescript/generics/generic-inference
+- id: return-only-type-parameter
+  front: "Why is `parse<T>(json: string): T` a disguised assertion?"
+  back: "With no argument to infer from, `T` is `unknown` unless the context supplies one, and nothing validates the result. Validate at runtime or take a schema or parser argument."
+  question: typescript/generics/generic-inference
+- id: no-partial-explicit-type-args
+  front: "Can you supply only some explicit type arguments and let the rest be inferred?"
+  back: "No. `two<string>(\"a\", 1)` is TS2558. Supply every argument, or give the trailing parameters defaults; omitted defaulted parameters use the default, they are not inferred."
+  question: typescript/generics/generic-inference
+- id: noinfer-purpose
+  front: "What does `NoInfer<T>` (TS 5.4) do?"
+  back: "It blocks inference to that position, so a mismatching value is an error instead of a new candidate. Outside inference it is identical to `T`, and it is erased at runtime."
+  question: typescript/generics/generic-inference
+- id: covariant-definition
+  front: "What does covariant mean, and where does `T` appear in such a type?"
+  back: "`G<Dog>` is assignable to `G<Animal>` (`out T`). `T` is only produced: return types, readonly properties, `ReadonlyArray<T>`."
+  question: typescript/generics/variance
+- id: contravariant-definition
+  front: "What does contravariant mean, and where does `T` appear in such a type?"
+  back: "`G<Animal>` is assignable to `G<Dog>` (`in T`). `T` is only consumed, as in function parameters: a function accepting any `Animal` is safe where one accepting `Dog` is expected."
+  question: typescript/generics/variance
+- id: invariant-definition
+  front: "What does invariant mean (`in out T`)?"
+  back: "Neither direction is assignable. `T` is both read and written, like a mutable box."
+  question: typescript/generics/variance
+- id: strict-function-types
+  front: "What does `strictFunctionTypes` (TS 2.6) check, and what does it exclude?"
+  back: "It checks function parameters contravariantly; it is part of `strict`. It excludes method syntax, so `handle(x: Dog)` stays bivariant while `handle: (x: Dog) => void` is checked strictly."
+  question: typescript/generics/variance
+- id: array-covariance-unsound
+  front: "Why is assigning `Dog[]` to `Animal[]` unsound but allowed?"
+  back: "Array methods use method syntax, so `Array<T>` stays covariant. Then `push` of a non-Dog compiles and `dogs` holds a non-Dog. `readonly Dog[]` to `readonly Animal[]` is the sound case."
+  question: typescript/generics/variance
+- id: in-out-annotations
+  front: "What do `in` and `out` annotations (TS 4.7) provide?"
+  back: "They document intent, are checked (TS2636 when the body contradicts them), and let the compiler compare type arguments directly instead of walking the structure, which the notes say is faster for complex types."
+  question: typescript/generics/variance
+- id: annotation-overrides-method-exemption
+  front: "How does a variance annotation interact with method-syntax members?"
+  back: "It overrides the method exemption: `Box<in out T>` with method-syntax `get()` and `set(v)` is invariant. But `out T` on an interface whose `set(v: T)` is a method does not error, since method parameters are bivariant."
+  question: typescript/generics/variance
+- id: callback-parameter-contravariant
+  front: "Why is a callback parameter contravariant?"
+  back: "The callee supplies the argument, so the callback must accept everything the declared type could receive. A `(a: Animal) => void` accepts every `Dog`; a `(d: Dog) => void` does not accept every `Animal`."
+  question: typescript/generics/variance
+- id: variance-nesting-flips
+  front: "In `(x: A) => B`, which position is covariant, and what happens when you nest?"
+  back: "`B` (return) is covariant and `A` (parameter) is contravariant. Nesting flips it: `Handler<T> = (cb: (x: T) => void) => void` is covariant in `T`."
+  question: typescript/generics/variance
+- id: keyof-union-of-keys
+  front: "What does `keyof { x: number; y: number }` produce?"
+  back: "The union of keys as literal types: `\"x\" | \"y\"`. With an index signature it gives the index type, so `keyof { [k: string]: boolean }` is `string | number`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-string-index-number
+  front: "Why is `keyof { [k: string]: boolean }` `string | number`?"
+  back: "JavaScript converts numeric property keys to strings, so `obj[0]` and `obj[\"0\"]` are the same access."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-union-common-keys
+  front: "What does `keyof` give for a union type, versus an intersection?"
+  back: "For a union, only the keys common to every member. For an intersection, all of them."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-unknown-any
+  front: "What are `keyof unknown` and `keyof any`?"
+  back: "`keyof unknown` is `never`; `keyof any` is `string | number | symbol`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: typeof-type-position
+  front: "What does `typeof x` do in a type position, and what can it not take?"
+  back: "It takes a value (variable, property or class) and gives its static type. It accepts only identifiers and their properties, not calls: `typeof f()` is a syntax error, so write `ReturnType<typeof f>`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-class-static-side
+  front: "What is `keyof C` for a class `C`, and how do you get the static side's keys?"
+  back: "`keyof C` is the instance keys. The static side needs `keyof typeof C`, which also includes `\"prototype\"`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: indexed-access-forms
+  front: "What can `K` be in an indexed access type `T[K]`?"
+  back: "A union (`Config[\"host\" | \"port\"]` is `string | number`), `keyof T` for all values, or `number` for arrays and tuples (`Item[number]` is the element type)."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: indexed-access-value-as-key
+  front: "Why does `Config[key]` fail when `const key = \"port\"`?"
+  back: "`key` is a value, not a type (TS2538, TS2749). Write `Config[typeof key]` or declare `type Key = \"port\"`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: union-from-as-const-array
+  front: "Why do you need `as const` for `(typeof roles)[number]` to give literal roles?"
+  back: "Without it `typeof roles` is `string[]` and `[number]` gives `string`. With it, adding a role updates both the runtime list and the type."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: const-type-parameter-effect
+  front: "What does `function f<const T>(x: T)` do (TS 5.0)?"
+  back: "Literal expressions in the argument get the most precise type, like `as const`: literals, `readonly` properties and `readonly` tuples. Callers no longer need to write `as const`."
+  question: typescript/generics/const-type-params-noinfer
+- id: const-type-parameter-where-allowed
+  front: "Where is the `const` modifier allowed on a type parameter?"
+  back: "On type parameters of functions, methods and classes. On interfaces and type aliases it is error TS1277."
+  question: typescript/generics/const-type-params-noinfer
+- id: const-type-parameter-variable-argument
+  front: "Does `<const T>` affect an argument passed as a variable?"
+  back: "No. It only affects literals written directly in the call, so `names(list)` with `const list = [\"a\", \"b\"]` stays `string[]`."
+  question: typescript/generics/const-type-params-noinfer
+- id: const-type-parameter-readonly-constraint
+  front: "Why constrain a `const T` array parameter as `readonly string[]` rather than `string[]`?"
+  back: "The readonly tuple candidate fails a mutable constraint. TS 5.0 falls back to `string[]`, while 5.9.3 and 7.0.2 gave the tuple. The `readonly` constraint gives the precise result everywhere."
+  question: typescript/generics/const-type-params-noinfer
+- id: noinfer-fallback-example
+  front: "How does `fallback?: NoInfer<C>` change `light(colors: C[], fallback?: C)`?"
+  back: "Without it a stray `\"blue\"` becomes another candidate and widens `C`, so the call is accepted. With it only `colors` supplies candidates, and `\"blue\"` is checked against them and rejected."
+  question: typescript/generics/const-type-params-noinfer
+- id: noinfer-before-54
+  front: "What was the pre-5.4 alternative to `NoInfer`, and why is it a smell?"
+  back: "A second type parameter `D extends C`. It is a type parameter used only once."
+  question: typescript/generics/const-type-params-noinfer
+- id: noinfer-placement
+  front: "Where should `NoInfer` be placed?"
+  back: "On the dependent positions only, not on the one you want to infer from. It blocks candidates at its position. Below TS 5.4 it is `Cannot find name 'NoInfer'` (TS2304)."
+  question: typescript/generics/const-type-params-noinfer
+
+# 04 Type-level programming
+- id: conditional-type-semantics
+  front: "When does `T extends U ? X : Y` resolve to `X`, and what is a deferred conditional?"
+  back: "It resolves to `X` when `T` is assignable to `U`, else `Y`. While `T` or `U` still contains an unresolved type parameter it is deferred: it stays as written until instantiated."
+  question: typescript/type-level-programming/conditional-types
+- id: deferred-conditional-return
+  front: "Why can't a function returning `T extends string ? \"s\" : \"n\"` simply return `\"s\"`?"
+  back: "The conditional is deferred, so the compiler cannot know which branch applies and reports TS2322. Use an overload, or a single assertion at the boundary, and keep the conditional in the public signature."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-naked-parameter
+  front: "When is a conditional type distributive?"
+  back: "When the checked type is a naked type parameter, just `T`, not `T[]`, `keyof T` or `[T]`. Instantiated with a union, it applies to each member and unions the results."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-boolean-result
+  front: "What is `IsString<string | number>` for `type IsString<T> = T extends string ? true : false`?"
+  back: "`boolean`, because it distributes to `true | false`."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-over-never
+  front: "What does a distributive conditional type give for `never`?"
+  back: "`never`, not either branch, because `never` is the empty union. Use `[T] extends [never]` to detect it."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-over-any
+  front: "What does a conditional type evaluate to when given `any`?"
+  back: "The union of both branches."
+  question: typescript/type-level-programming/conditional-types
+- id: disable-distribution
+  front: "How do you turn off distribution in a conditional type?"
+  back: "Wrap both sides in a tuple: `[T] extends [U]`. The union is then compared as one type."
+  question: typescript/type-level-programming/conditional-types
+- id: non-generic-no-distribution
+  front: "What is `string | number extends string ? 1 : 2` written directly, with no type parameter?"
+  back: "`2`. Distribution happens at instantiation of a naked type parameter, depending on the written form of the check type. The same check through a naked `T` gives a union."
+  question: typescript/type-level-programming/conditional-types
+- id: wrapped-never-true
+  front: "Why is `[T] extends [string]` true when `T` is `never`?"
+  back: "`never` is assignable to everything, so the non-distributive check succeeds."
+  question: typescript/type-level-programming/conditional-types
+- id: exclude-extract-distribution
+  front: "Which built-in utilities rely on distribution to filter unions?"
+  back: "`Exclude<T, U>` and `Extract<T, U>`. `Exclude<boolean, true>` leaves `false`, because `boolean` is `true | false`."
+  question: typescript/type-level-programming/conditional-types
+- id: detect-any
+  front: "How do you detect `any` with a conditional type?"
+  back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, to which `0` is assignable; for other `T` the intersection is `1` or `never`."
+  question: typescript/type-level-programming/conditional-types
+- id: infer-semantics
+  front: "What does `infer` do, and where is it in scope?"
+  back: "It introduces a type variable in the `extends` clause, solved by matching the checked type against the pattern. It is in scope only in the true branch; anywhere else it is a syntax error (TS1338)."
+  question: typescript/type-level-programming/infer-keyword
+- id: return-type-implementation
+  front: "How is `ReturnType<T>` implemented?"
+  back: "`T extends (...args: any) => infer R ? R : any`, constrained to `T extends (...args: any) => any`. It matches a function returning something and names that something `R`."
+  question: typescript/type-level-programming/infer-keyword
+- id: awaited-lib-version
+  front: "How does the lib `Awaited` (TS 4.5) differ from a simple `PromiseLike<infer U>` unwrap?"
+  back: "It only unwraps object types with a callable `then`, and special-cases `null | undefined`, mirroring `await`. For a thenable object the simple version returns it unchanged while the lib version gives the resolved value."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-multiple-candidates
+  front: "What happens when the same `infer U` appears in several positions?"
+  back: "In covariant positions (properties, returns) the candidates become a union. In contravariant positions (function parameters) they become an intersection."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-overloads
+  front: "Which signature does `infer` see on an overloaded function?"
+  back: "The last one. Generic signatures are inferred with their type parameters as `unknown`. So `ReturnType` and `Parameters` see only the last overload."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-extends-constraint
+  front: "What does `infer X extends C` (TS 4.7) do?"
+  back: "It constrains the inferred variable and falls to the false branch if it does not fit, replacing a nested conditional. From TS 4.8, in template literals it also parses literals: `\"42\"` infers `42`."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-readonly-array
+  front: "Why is `Elem<readonly string[]>` `never` for `T extends (infer E)[]`?"
+  back: "A readonly array is not assignable to a mutable array. Write `readonly (infer E)[]` to accept both arrays and tuples."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-parameters-tuple
+  front: "What does `infer P` yield in a function parameter list position?"
+  back: "A tuple of the parameter types. Positions that work include return slot, parameter list, tuple head and tail (`[infer H, ...infer T]`), array element, object property and template literal segments."
+  question: typescript/type-level-programming/infer-keyword
+- id: returntype-constraint-any
+  front: "Why does the constraint on `ReturnType` use `(...args: any) => any` rather than `unknown`?"
+  back: "Parameters are contravariant: `(x: string) => void` is not assignable to `(...args: unknown[]) => unknown`, but is to the `any` and `never[]` forms. The handbook version uses `never[]`."
+  question: typescript/type-level-programming/infer-keyword
+- id: mapped-type-basics
+  front: "What does a mapped type like `{ [K in \"a\" | \"b\"]: number }` do?"
+  back: "It iterates a union of keys and builds one property per member. The key union is usually `keyof T`, and `T[K]` reads the original property type."
+  question: typescript/type-level-programming/mapped-types
+- id: homomorphic-mapped-type
+  front: "What makes a mapped type homomorphic, and what does that copy?"
+  back: "Its key source is `keyof T`, or a type parameter constrained to `keyof T`. The compiler then copies each property's `readonly` and `?` from `T`."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-modifier-prefixes
+  front: "What do the `+` and `-` prefixes do in mapped types?"
+  back: "`-readonly` removes readonly, `+readonly` adds it. `-?` makes a property required, `?` or `+?` optional. This is how `Partial`, `Required` and `Readonly` are defined."
+  question: typescript/type-level-programming/mapped-types
+- id: required-strips-undefined
+  front: "What does `-?` do to `undefined` on a homomorphic mapped type?"
+  back: "It removes the `undefined` that `?` had added, so `Required<{ a?: string }>` is `{ a: string }`."
+  question: typescript/type-level-programming/mapped-types
+- id: key-remapping-as
+  front: "What does the `as` clause in `[K in keyof T as NewKey]` do (TS 4.1)?"
+  back: "`NewKey` can be any type computed from `K`, typically a template literal. If it resolves to `never` for a key, that property is dropped. Modifiers are still copied."
+  question: typescript/type-level-programming/mapped-types
+- id: non-homomorphic-loses-modifiers
+  front: "What happens when you iterate `Exclude<keyof T, X>` directly instead of using `as`?"
+  back: "The mapped type is not homomorphic and loses `readonly` and `?`. Keep `keyof T` and filter with `as`, or use `Pick`."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-over-arrays-primitives
+  front: "How do homomorphic mapped types treat unions, primitives, arrays and tuples?"
+  back: "They distribute over unions, leave primitives unchanged, and map the elements of arrays and tuples while keeping the array or tuple shape."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-extra-properties
+  front: "Can you declare extra properties next to the `[K in ...]` part of a mapped type?"
+  back: "No, it is TS7061. Intersect two types instead."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-template-key-symbol
+  front: "Why write `string & K` in a template literal key remap like `` `get${Capitalize<string & K>}` ``?"
+  back: "`K` may include `symbol` or `number`, and template literal placeholders do not accept `symbol`. Intersecting with `string` narrows the key."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-types-shallow
+  front: "Are mapped types deep?"
+  back: "No. They touch only the first level; nested objects need recursion."
+  question: typescript/type-level-programming/mapped-types
+- id: template-literal-cross-product
+  front: "How does a template literal type handle union placeholders?"
+  back: "They are cross-multiplied: `` `${\"en\" | \"ja\"}_${\"title\" | \"body\"}` `` is four literals. If the result grows too large the compiler errors with TS2590."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-literal-patterns
+  front: "What does a `string`, `number` or `bigint` placeholder in a template literal type do?"
+  back: "It makes a non-literal pattern: `` `${number}px` `` accepts `\"12px\"` and rejects `\"12em\"`; `` `--${string}` `` accepts any string with that prefix. A `boolean` placeholder just expands to `\"true\" | \"false\"`."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-infer-matching
+  front: "How does `` S extends `${infer A}-${infer B}` `` split a string?"
+  back: "`A` takes the shortest match up to the first delimiter and the last placeholder takes the rest. There is no backtracking: `\"a-b-c\"` gives `\"a\"` and `\"b-c\"`."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-adjacent-infer
+  front: "What does an `infer` capture when placeholders are adjacent, as in `` `${infer A}${infer B}` ``?"
+  back: "Each non-final `infer` captures a single character. `\"abc\"` gives `\"a\"` and `\"bc\"`."
+  question: typescript/type-level-programming/template-literal-types
+- id: intrinsic-string-types
+  front: "What are `Uppercase`, `Lowercase`, `Capitalize` and `Uncapitalize`?"
+  back: "Intrinsic string types, implemented inside the compiler (`intrinsic` in `lib.es5.d.ts`), not in TypeScript. They distribute over unions and turn `name` into `getName` with `Capitalize`."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-pattern-not-runtime
+  front: "Is a template literal pattern type like `` `${number}px` `` checked at runtime?"
+  back: "No. It only checks literals the compiler can see; a `string` variable is not assignable to it without a cast or guard."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-placeholder-types
+  front: "Which types may appear as template literal placeholders?"
+  back: "`string | number | bigint | boolean | null | undefined`. `` `x${symbol}` `` is TS2322; use `string & K` for a key type that may include symbols."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-route-params
+  front: "What are typical uses of template literal types?"
+  back: "Typed event or route names, parsing route params such as `/users/:id`, typed `on(\"xChanged\")` APIs, CSS unit strings, and key renaming in mapped types."
+  question: typescript/type-level-programming/template-literal-types
+- id: utility-types-are-aliases
+  front: "What are the built-in utility types, implementation-wise?"
+  back: "Ordinary generic aliases in `lib.es5.d.ts`, each a mapped type, a conditional type or `infer`. For example `Pick<T, K extends keyof T> = { [P in K]: T[P] }`."
+  question: typescript/type-level-programming/utility-types
+- id: omit-implementation
+  front: "How is `Omit` defined, and which key type does it accept?"
+  back: "`Pick<T, Exclude<keyof T, K>>`, with `K extends keyof any`. So a typo like `Omit<User, \"nope\">` compiles silently, while `Pick<User, \"nope\">` is an error."
+  question: typescript/type-level-programming/utility-types
+- id: nonnullable-definition
+  front: "How has `NonNullable<T>` been defined since TS 4.8, and why?"
+  back: "`T & {}`. Intersections can be simplified and assigned to, unlike conditional types, so narrowing a `T` by `!= null` yields `T & {}`, which is `NonNullable<T>`."
+  question: typescript/type-level-programming/utility-types
+- id: utility-types-shallow
+  front: "Are `Partial` and `Readonly` deep?"
+  back: "No. They are shallow: `Partial<User>` leaves `address` as a full object, and `frozen.a.b = 2` compiles on `Readonly<{ a: { b: number } }>`. For nesting use a recursive type."
+  question: typescript/type-level-programming/utility-types
+- id: omit-pick-union-collapse
+  front: "What happens when you apply `Omit` or `Pick` to a union?"
+  back: "They collapse it, because `Omit` is not distributive: `Omit<Shape, \"kind\">` is `{}`. Distribute with a helper: `T extends unknown ? Omit<T, K> : never`."
+  question: typescript/type-level-programming/utility-types
+- id: record-string-vs-union
+  front: "How do `Record<string, T>` and `Record<\"a\" | \"b\", T>` differ?"
+  back: "`Record<string, T>` is an index signature. `Record<\"a\" | \"b\", T>` is an object with exactly those keys. Indexing the former gives `T` unless `noUncheckedIndexedAccess` is on."
+  question: typescript/type-level-programming/utility-types
+- id: utility-infer-family
+  front: "Which utilities follow the same `infer` pattern as `ReturnType`?"
+  back: "`Parameters`, `Awaited`, `InstanceType` and `ConstructorParameters`."
+  question: typescript/type-level-programming/utility-types
+- id: recursive-alias-lazy-positions
+  front: "Where can a type alias reference itself?"
+  back: "In a lazily resolved position: an object property, an array or tuple element (TS 3.7), a mapped type's property type, or a conditional branch (TS 4.1). `type A = A | string` is TS2456."
+  question: typescript/type-level-programming/recursive-types
+- id: deep-partial-function-branch
+  front: "Why does `DeepPartial` need a branch for function types?"
+  back: "The naive mapped recursion turns function properties into mapped types that are not callable. A first branch `T extends (...args: any) => any ? T` keeps them callable."
+  question: typescript/type-level-programming/recursive-types
+- id: deep-partial-builtin-classes
+  front: "What goes wrong when `DeepPartial` recurses into `Date`, `Map` or `Set`?"
+  back: "They are objects, so every method is mapped into an optional one. Add a branch for the types you want treated as leaves."
+  question: typescript/type-level-programming/recursive-types
+- id: deep-partial-array-elements
+  front: "Why do arrays under `DeepPartial` get `(T | undefined)[]` elements?"
+  back: "The mapped type is homomorphic so arrays keep their shape, but `?` is applied per element."
+  question: typescript/type-level-programming/recursive-types
+- id: recursion-depth-cap-ts2589
+  front: "What error does a deep non-tail-recursive conditional type produce?"
+  back: "TS2589, \"excessively deep and possibly infinite\", after only dozens of levels, when the result is built from the recursive call (`C | GetChars<R>`). Recursive types also slow checking."
+  question: typescript/type-level-programming/recursive-types
+- id: tail-recursion-accumulator
+  front: "How do you make a recursive conditional type tail recursive (TS 4.5)?"
+  back: "Put the recursive call in a branch with nothing wrapped around it and carry partial results in an accumulator parameter. The compiler then loops, allowing about a thousand iterations."
+  question: typescript/type-level-programming/recursive-types
+- id: json-type-self-reference
+  front: "Why can `Json` refer to itself but `type Circ = Circ | string` cannot?"
+  back: "In `Json` the self-references sit inside an array element and an object index signature, which the compiler resolves lazily. `Circ` must be resolved just to know what it is."
+  question: typescript/type-level-programming/recursive-types
+- id: recursion-limit-implementation-detail
+  front: "Is the recursion depth limit a documented constant?"
+  back: "No. PR 45711 describes a depth of 100 and 1000 tail iterations, and measurements here matched about 1000, but these are implementation details that may change."
+  question: typescript/type-level-programming/recursive-types
+
+# 05 Classes, enums, and runtime output
+- id: enum-type-and-object
+  front: "What does an `enum` declare, unlike most TypeScript features?"
+  back: "Both a type and a runtime object. The Handbook says an enum is not a type-level extension of JavaScript."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: numeric-enum-reverse-mapping
+  front: "What does a numeric enum emit, and why does `Object.keys` on it return names and numbers?"
+  back: "`E[E[\"A\"] = 0] = \"A\"`: an object with a forward map and a reverse mapping (`E[0] === \"A\"`). So `Object.keys(Role)` is `['0', '1', 'Admin', 'User']`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: string-enum-no-reverse-mapping
+  front: "Does a string enum get a reverse mapping?"
+  back: "No, only the forward map is emitted, because two names could share a value. `as const` objects have no reverse entries either."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: string-enum-rejects-literal
+  front: "Why does `const c: Color = \"RED\"` fail for `enum Color { Red = \"RED\" }`?"
+  back: "An enum type is not its literals: a string enum rejects the matching plain string (TS2322). Values from JSON or an API need a cast or a validator."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: numeric-enum-accepts-number
+  front: "Is a numeric enum a closed type?"
+  back: "Not fully. Since TS 5.0 an out-of-domain literal like `5` is an error, but any value typed `number` is still assignable, so an arbitrary number can reach a `Role`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-union-of-members-50
+  front: "What did TS 5.0 change about enum types?"
+  back: "Every enum became a union of its member types. Constant members get literal types and computed members get a unique type each. Only type checking changed; emit is unchanged."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: const-enum-emit
+  front: "What does a `const enum` emit by default?"
+  back: "No enum object: members are inlined at use sites, so `Level.High` becomes `2 /* Level.High */`. `preserveConstEnums` keeps the object too."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: const-enum-library-hazard
+  front: "Why is `const enum` risky in a published library?"
+  back: "Consumers inline your values at their compile time and can disagree with the runtime version. `isolatedModules` also rejects ambient const enums (TS2748)."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: const-enum-isolated-modules-emit
+  front: "What happens to an own `export const enum` under `isolatedModules`?"
+  back: "It was emitted as a normal object and the use site was not inlined, on TS 7.0.2 and 5.9.3. `preserveConstEnums` defaults to true under `isolatedModules`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: union-of-literals-no-emit
+  front: "What does a union of literals like `\"active\" | \"banned\"` give you over an enum?"
+  back: "It emits nothing, accepts plain strings, and narrows and exhausts well. It interoperates with JSON and other packages without conversion."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: as-const-object-union
+  front: "How do you get both runtime values and a union type from one declaration?"
+  back: "Use an `as const` object plus `type T = (typeof Obj)[keyof typeof Obj]`. The object stays plain JavaScript and `Object.values` works on it."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: as-const-object-needs-const
+  front: "What is the derived type if the object omits `as const`?"
+  back: "`string`. The properties widen, so `(typeof Dir)[keyof typeof Dir]` is just `string` instead of `\"UP\" | \"DOWN\"`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-when-to-use
+  front: "When is an enum still a reasonable choice over a union or `as const` object?"
+  back: "For numeric bit flags with computed members, or when the codebase already uses them. Enums give a namespaced type and autocomplete, but are not allowed under `erasableSyntaxOnly`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: keyof-typeof-enum
+  front: "Why is `keyof typeof Role` the enum's names, while `keyof Role` is not?"
+  back: "`Role` the value is an object, so `typeof Role` has keys `Admin` and `User`. `keyof Role` (the enum type) gives the keys of `number`, such as `\"toFixed\"`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-constant-vs-computed
+  front: "Which enum member expressions are constant versus computed?"
+  back: "`1 << 2` is a constant enum expression; `\"123\".length` is computed. The Handbook lists the allowed operators."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-emit-iife-merge
+  front: "How does an emitted enum let two declarations of the same enum merge?"
+  back: "It compiles to an immediately invoked function whose argument is `Role || (Role = {})`, so a second declaration fills the existing object."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: ts-private-soft
+  front: "How enforced is TypeScript's `private`?"
+  back: "Only at compile time. Bracket access `a[\"secret\"]` passes the checker, and at runtime it is an ordinary own property visible to `Object.keys` and `JSON.stringify`."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: protected-meaning
+  front: "What does `protected` allow, and what do `private` and `protected` allow across instances?"
+  back: "Access from the class and its subclasses. Both still allow cross-instance access inside the class, such as `other.secret`."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: hash-private-hard
+  front: "How does `#name` differ from `private`?"
+  back: "It is ECMAScript's hard private field, enforced at runtime (a syntax error outside the class) and invisible to `Object.keys`. TypeScript emits it as-is for ES2022+, or as a `WeakMap` for older targets."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: hash-vs-private-choice
+  front: "When do you choose `#` over `private`?"
+  back: "When privacy must hold at runtime: libraries, or secrets in objects that get serialised or inspected. Choose `private` for test access or where `WeakMap` emit is unwanted."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: readonly-class-member
+  front: "What does `readonly` on a class member enforce?"
+  back: "Compile-time only: assignment outside the constructor is TS2540. It changes nothing at runtime."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: parameter-properties-emit
+  front: "What is a parameter property, and what makes it unusual among modifiers?"
+  back: "`constructor(public id: string)` declares a field and assigns it. It is one of the few class features that emits code (`this.id = id`)."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: override-modifier
+  front: "What do `override` and `noImplicitOverride` do?"
+  back: "`override` (TS 4.3) asserts the base class has that member. `noImplicitOverride` makes it mandatory: omitting it is TS4114, while `override` on a missing base member is TS4113 regardless."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: private-members-nominal
+  front: "How do `private` or `#` members affect class assignability?"
+  back: "Those members are compared nominally. Two unrelated classes with an identically named private member are not assignable, and a class with a private member is not assignable to an object type with the same public-looking property."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: protected-widens-in-subclass
+  front: "What happens to a `protected` member that a subclass redeclares without a modifier?"
+  back: "It becomes public. The Handbook calls this \"Exposure of protected members\"."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: parameter-property-field-initializer
+  front: "Why can a field initializer using a parameter property give `NaN` with target ES2022?"
+  back: "`useDefineForClassFields` is true from ES2022, so fields initialise before the constructor body assigns the parameter property. It errors as TS2729; `new A(2).y` printed `NaN` for ES2022 but `4` for ES2021."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: mixin-pattern
+  front: "What is the TypeScript mixin pattern, and what can mixins not declare?"
+  back: "A function that takes a constructor type and returns a class expression extending it, such as `Timestamped(User)`. Per the Handbook, mixins cannot declare `private` or `protected` members; use `#` fields."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: implements-compile-time-only
+  front: "What does `implements Interface` actually do?"
+  back: "It checks at compile time that the class is assignable to the interface, and emits nothing. A class can implement several, and you cannot `instanceof` an interface."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: implements-no-member-typing
+  front: "Does `implements` give a class's methods their parameter types?"
+  back: "No. It adds no members and infers no parameter types, so `log(msg)` is still an implicit `any` (TS7006). The clause only checks assignability afterwards."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-class-runtime
+  front: "What does an `abstract class` emit?"
+  back: "An ordinary JavaScript class. `abstract` members have no body and emit nothing. It can hold constructor logic, fields and concrete methods."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-checker-rules
+  front: "What does the checker enforce for abstract classes?"
+  back: "`new` on one is TS2511, and a concrete subclass must implement every abstract member (TS2515). A class can `extends` only one base."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: template-method-pattern
+  front: "What is the template method pattern in an abstract class?"
+  back: "A concrete method calls abstract ones, so the base enforces an order of steps and the subclass supplies the pieces."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-instanceof
+  front: "Which of an abstract class and an interface works with `instanceof`?"
+  back: "The abstract class, so it can serve as a runtime type check. A class that merely `implements` the same shape is not an instance."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-constructor-type
+  front: "Why does passing `Shape` to `new (side: number) => Shape` fail, and what accepts it (TS 4.2)?"
+  back: "The callee could `new` it, so an abstract constructor type is not assignable to a non-abstract one. Type the parameter `abstract new (...args) => T`, which accepts abstract and concrete classes."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: implements-class-private
+  front: "Why does `implements` on a class with `private` or `#` members fail?"
+  back: "`implements` treats the class as an interface including its private members, which can only come from the declaration itself (TS2720). Use `extends`."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-not-runtime-enforced
+  front: "Is `abstract` enforced at runtime?"
+  back: "No. After a cast, `new` works and calling an abstract member gave `this.area is not a function`. Anything arriving through `any`, a cast or plain JavaScript is unchecked."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-implements-interface
+  front: "How can an abstract class implement an interface without defining its members?"
+  back: "By redeclaring them as `abstract`. `abstract class A implements Named {}` alone is TS2420; the concrete subclass then does the work."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: extends-and-implements
+  front: "Can a class both `extends` and `implements`?"
+  back: "Yes: `class C extends Base implements A, B`. `extends` brings runtime code; `implements` only adds compile-time checks."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: interface-vs-abstract-rule
+  front: "What is the rule of thumb for interface versus abstract class?"
+  back: "Start with an interface. Use an abstract class when subclasses genuinely share implementation, or the base must enforce an order of steps. Composition is often better than either."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: declaration-meanings
+  front: "What can a single declaration create?"
+  back: "A namespace, a type, a value, or a mix. A class makes a type and a value, an interface only a type, a namespace a namespace and a value. Merging needs compatible meanings."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: interface-merge-overloads
+  front: "How are same-named function members ordered when interfaces merge?"
+  back: "They become overloads with later declarations first. A signature with a single string-literal parameter bubbles to the top."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: interface-merge-property-conflict
+  front: "What happens when merged interfaces declare the same non-function property with different types?"
+  back: "TS2717: subsequent property declarations must have the same type."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-merge-exports
+  front: "What is visible across merged namespace blocks?"
+  back: "Only exported members. A non-exported member is local to the block that declared it, so the second block gets TS2304 rather than a runtime `ReferenceError`."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-merge-with-function
+  front: "What does a namespace declared after a function, class or enum do?"
+  back: "It adds properties to the function, inner types or statics to the class, or helper functions to the enum. It is the way to type a callable-with-properties built in plain JavaScript."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-must-follow
+  front: "Where must the namespace go when merging with a class, function or enum?"
+  back: "After it. The namespace extends the existing value, so declaring it first fails."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: interface-class-merge-undefined
+  front: "What is the trap of merging `interface Foo` with `class Foo`?"
+  back: "The interface types members the class does not initialise, but nothing assigns them. `f.extra` is typed `number` and is `undefined` at runtime."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: no-merge-cases
+  front: "Which declarations do not merge?"
+  back: "`type` aliases, class plus class, and class plus variable. A `type T` and an `interface T` of one name give a duplicate identifier error (TS2300), which is why libraries expose augmentable interfaces."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: module-augmentation-limits
+  front: "What can module augmentation (`declare module \"./x\"`) not do?"
+  back: "Introduce new top-level names or augment `default` exports. It patches existing declarations only, and merges across files."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespaces-still-used
+  front: "Are namespaces still used for organising application code?"
+  back: "No: a file is already a module, so wrapping exports in a `namespace` is \"needless namespacing\" and forces `shapes.Shapes.Triangle`. They remain for `declare namespace` typings, function and enum merging, and legacy code."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-emit-iife
+  front: "What does a namespace containing values emit?"
+  back: "An IIFE that receives the existing object, or `{}` if none, via `X || (X = {})`. That is why it is runtime code and a second block extends the first."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-erasable-flag
+  front: "Which namespaces survive `erasableSyntaxOnly`?"
+  back: "Type-only and `declare` namespaces. One with values is TS1294. TS 7.0.2 also reports `module Old {}` as TS1540; 5.9.3 did not."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: declare-namespace-emits-nothing
+  front: "What does an ambient `declare namespace` emit, and where is it used?"
+  back: "Nothing. It only describes a global, which is why typings for script-tag libraries use it."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: decorator-definition
+  front: "What is a decorator, and when does it run?"
+  back: "A function applied to a class or class element when the class is defined. `@dec` conceptually turns `member` into `dec(member, context) ?? member`. It runs once, not per call or instance."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: standard-decorator-signature
+  front: "What is the signature of a standard decorator (TS 5.0+)?"
+  back: "`(value, context)`. `value` is the method, class or accessor, or `undefined` for a field. It may return a replacement of the same kind, or nothing. No flag is needed."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-context-object
+  front: "What does a standard decorator's `context` object contain?"
+  back: "`kind`, `name`, `static`, `private`, `addInitializer`, and since TS 5.2 `metadata`. TypeScript types each kind, e.g. `ClassMethodDecoratorContext`."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: legacy-decorators
+  front: "What are `experimentalDecorators`?"
+  back: "The older, incompatible system based on the old Stage 2 design: `(target, key, descriptor)`, parameter decorators and `emitDecoratorMetadata`. It has a separate type-check and a separate emit."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: standard-decorators-lack
+  front: "What do standard decorators not support?"
+  back: "Parameter decorators and `emitDecoratorMetadata`. The 5.0 notes also say existing legacy decorators are unlikely to work as standard ones."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-order
+  front: "In what order do multiple decorators on one member run?"
+  back: "Expressions evaluate top to bottom; application is bottom to top. For `@d(\"A\") @d(\"B\")` the output was `eval A`, `eval B`, `apply B`, `apply A`."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: accessor-keyword
+  front: "What is `accessor x = 1`?"
+  back: "The proposal's auto-accessor keyword, which decorators can wrap."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-proposal-status
+  front: "What is the TC39 stage of the decorators proposal, and what did TS 5.0 implement?"
+  back: "The proposal README and tc39/proposals list Stage 2.7 (fetched 2026-10). TS 5.0 implemented the then-Stage-3 version (PR 50820)."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-runtime-support
+  front: "Can native Node 24 run `@dec` syntax, and how does TypeScript emit it?"
+  back: "No, it is a SyntaxError, so you need TypeScript, Babel or a bundler. TS downlevels with `__esDecorate` and `__runInitializers` for `--target es2022`; `--target esnext` kept the `@` syntax (7.0.2)."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-mixing-errors
+  front: "What errors appear when a legacy-style decorator is used without `experimentalDecorators`?"
+  back: "A three-argument decorator gives TS1241 (the runtime passes 2 arguments), and a parameter decorator gives TS1206."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-per-instance-work
+  front: "Where does per-instance decorator work go?"
+  back: "In `context.addInitializer` or a returned field initializer, because the decorator itself runs once at class definition."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-metadata-52
+  front: "What is `context.metadata` (TS 5.2)?"
+  back: "A shared object per class, readable afterwards via `Class[Symbol.metadata]`. Node 24 leaves `Symbol.metadata` `undefined`, so running it there needs a polyfill."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: reflect-metadata-not-builtin
+  front: "Is `reflect-metadata` built into decorator metadata?"
+  back: "No. `emitDecoratorMetadata` is legacy-only, and `__decorate` calls `Reflect.decorate` only when something has defined it."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: erased-syntax-list
+  front: "Which TypeScript syntax is erased, leaving valid JavaScript?"
+  back: "Annotations, interfaces, type aliases, generics, `as`, `satisfies`, `private`/`readonly`/`abstract`/`override`, and `declare`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: runtime-generating-syntax
+  front: "Which constructs generate JavaScript rather than being erased?"
+  back: "`enum` and `const enum`, `namespace`/`module` with values, parameter properties, `import x = require()`, `import A = B.C`, `export =`, and angle-bracket assertions `<T>expr`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: angle-bracket-assertion-not-erasable
+  front: "Is `as` erasable, and is `<T>expr`?"
+  back: "`as` is erasable. The angle-bracket form is a different syntax, and `erasableSyntaxOnly` flags it as TS1294."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: node-type-stripping
+  front: "What does Node 24's type stripping do?"
+  back: "It blanks out type syntax without checking or transforming anything, and does not read `tsconfig.json`. Constructs needing generated code fail with `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-syntax-only-flag
+  front: "What does `erasableSyntaxOnly` (TS 5.8) do?"
+  back: "It makes `tsc` report the runtime-generating constructs at compile time as TS1294, so editor and CI see them before `node` does."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-allowed-ambient
+  front: "Which enum and namespace forms pass `erasableSyntaxOnly`?"
+  back: "`declare enum`, `declare` namespaces and type-only namespaces, since they emit nothing."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-decorators-gap
+  front: "Does a clean `erasableSyntaxOnly` build guarantee Node can run the file?"
+  back: "No. Decorators are not flagged, yet Node cannot parse them (SyntaxError), and path aliases are ignored because Node does not read `tsconfig.json`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-pair-verbatim
+  front: "Which flag should you pair with `erasableSyntaxOnly`, and why?"
+  back: "`verbatimModuleSyntax`, so imports are not silently elided. Importing a type without `type` is TS1484; otherwise Node fails with \"does not provide an export named 'Foo'\". The Node docs suggest both."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: const-enum-not-safe
+  front: "Is a `const enum` safe under `erasableSyntaxOnly` because it is erased?"
+  back: "No. It is still flagged (TS1294), and Node rejects it with the same enum error."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: transform-types-flag
+  front: "Can `node --experimental-transform-types` replace erasable syntax?"
+  back: "It handled an enum and a parameter property on Node 24.19.0, but the latest docs say it was removed in v26.0.0, so do not build on it."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-rewrites
+  front: "What replaces an enum, a parameter property and a value namespace under this flag?"
+  back: "An `as const` object plus a derived union type; explicit fields assigned in the constructor; and module exports (or a plain `const`)."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-version-5-8
+  front: "Which TypeScript version added `erasableSyntaxOnly`?"
+  back: "TS 5.8 (PR 61011). It is for runtimes that strip types, such as Node, Amaro and ts-blank-space, not a style flag."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+
+# 06 Modules and declaration files
+- id: import-elision-default
+  front: "What is import elision, and why can a single-file transpiler not do it?"
+  back: "`tsc` drops an import it sees is never used as a value, because it has the whole program. Babel, `ts.transpileModule` and similar tools cannot see the other file, so they cannot tell a type from a class."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: import-type-erased
+  front: "What does `import type` (TS 3.8) guarantee, and what error follows from using it as a value?"
+  back: "The declaration is usable only in type positions and is erased completely. Using it as a value, such as `class X extends Imported`, is TS1361."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: inline-type-modifier
+  front: "What does `import { type A, b }` (TS 4.5) do?"
+  back: "It marks single names as type-only inside one import statement."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: isolated-modules-errors-only
+  front: "Does `isolatedModules` change emit?"
+  back: "No. It only adds errors for code a one-file-at-a-time transpiler could not compile correctly. Per the docs it does not change checking or emitting behavior, and does not turn off elision."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: isolated-modules-reexport-type
+  front: "What does `isolatedModules` report for `export { User }` where `User` is an interface?"
+  back: "TS1205. Re-exporting a type needs `export type { User }`."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: verbatim-module-syntax-rule
+  front: "What does `verbatimModuleSyntax` (TS 5.0) change about imports?"
+  back: "It removes the guesswork: an import or export without `type` is kept, anything with `type` is dropped. Importing a type without `type` is TS1484."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: verbatim-replaces-flags
+  front: "Which options does `verbatimModuleSyntax` replace?"
+  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 5.9.3 reports them as removed (TS5102), and TS 7.0.2 reports them as unknown options."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: inline-type-keeps-side-effects
+  front: "What does `import { type A } from \"./m\"` emit under `verbatimModuleSyntax`?"
+  back: "`import {} from \"./m\"`, which keeps the side effects of `./m`. Use `import type { A }` to drop the module entirely."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: verbatim-commonjs-forbids-esm
+  front: "What happens to ESM syntax in a file that compiles to CommonJS under `verbatimModuleSyntax`?"
+  back: "It is forbidden (TS1287). Use `import x = require()` and `export =` there."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: import-type-default-and-named
+  front: "Why does `import type D, { N } from \"m\"` fail?"
+  back: "TS1363: a type-only import cannot combine default and named bindings. Split it into two statements."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: verbatim-recommended-new
+  front: "Why enable `verbatimModuleSyntax` in new projects?"
+  back: "TS 5.9's `tsc --init` template already does, alongside `isolatedModules`, and your emit then matches what Node, Babel or a bundler will do with the source."
+  question: typescript/modules-and-declaration-files/import-type-isolated-modules
+- id: module-vs-module-resolution
+  front: "What do `module` and `moduleResolution` each control?"
+  back: "`module` says what import syntax your output uses. `moduleResolution` says how `tsc` finds the file behind a specifier like `\"./util.js\"` or `\"dep/feature\"`."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: resolution-mimics-runtime
+  front: "What should `moduleResolution` be set to mimic?"
+  back: "The tool that will actually run your code. Otherwise `tsc` accepts imports that fail at runtime, or rejects ones that work."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: nodenext-esm-or-cjs
+  front: "How does `nodenext` decide whether a file is ESM or CommonJS?"
+  back: "By its extension (`.mts`/`.cts`) and the nearest `package.json` `\"type\"`. The `import` or `require` condition of a package's `exports` is chosen per file."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: nodenext-extensions
+  front: "What extension do you write for `util.ts` in a relative import under `nodenext`?"
+  back: "The output extension: `./util.js`. In ESM files relative imports need an explicit extension, and omitting it is TS2835."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: nodenext-implies-module
+  front: "What does `module: nodenext` imply for `moduleResolution`?"
+  back: "`moduleResolution: nodenext`. A mismatched pair is an error (TS5109/TS5110)."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: bundler-resolution
+  front: "What does `moduleResolution: bundler` model, and what does it allow?"
+  back: "Vite, webpack, esbuild and Bun. Extensionless paths and directory indexes are allowed, and `exports`/`imports` are honoured. Pair it with `module: preserve` (or `esnext`), usually with `noEmit`."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: node10-classic-removed
+  front: "What happened to `node10` and `classic` resolution?"
+  back: "Legacy modes. `node10` ignores `\"exports\"`. TS 6.0 deprecated both and TS 7.0 removed them (TS5108 on 7.0.2)."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: choose-nodenext-or-bundler
+  front: "How do you choose between `nodenext` and `bundler`?"
+  back: "By who consumes the emitted JavaScript: Node directly gives `nodenext`; a bundler or runtime that reads TypeScript gives `bundler`. For libraries the docs advise `nodenext`-style settings."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: bundler-library-pitfall
+  front: "Why is `bundler` risky for code you publish or run in Node?"
+  back: "It never requires extensions, so `tsc` passes imports that Node rejects with `ERR_MODULE_NOT_FOUND`."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: exports-types-condition-first
+  front: "How do you order conditions in a package's `exports` entry for TypeScript?"
+  back: "List `types` before `default`: resolution matches the `types` condition first."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: exports-unlisted-subpath
+  front: "What happens when you import a subpath not listed in `exports`?"
+  back: "It cannot be resolved, in `tsc` (TS2307) or in Node (`ERR_PACKAGE_PATH_NOT_EXPORTED`)."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: module-resolution-unset-esnext
+  front: "What did leaving `moduleResolution` unset with `module: esnext` do?"
+  back: "On TS 5.9.3 it fell back to `classic` and `import \"dep\"` failed (TS2792). On 7.0.2 the same project compiled; the tsconfig reference does not document the 7.0 default."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: node10-ignores-exports
+  front: "How does `node10` resolution treat a package with `exports`?"
+  back: "It ignores `exports`. On TS 5.9.3 it resolved through the top-level `types` field instead, and an unexported subpath like `dep/internal.js` was accepted."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: require-esm-nodenext
+  front: "Can a CommonJS file `require()` an ESM-only package under `module: nodenext`?"
+  back: "Yes, since TS 5.8 (Node 22+). `node18` still disallows it."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: trace-resolution
+  front: "How do you see why a specifier resolved where it did?"
+  back: "`tsc --traceResolution`. It prints the conditions tried (such as `import`, `types`, `node`), the matched `exports` condition and the final `.d.ts` path."
+  question: typescript/modules-and-declaration-files/module-resolution
+- id: cjs-vs-esm-shape
+  front: "What is the structural mismatch between CommonJS and ES modules?"
+  back: "CommonJS exports one value (`module.exports`, often a function). An ES module exports named bindings plus an optional default."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: esmoduleinterop-emit
+  front: "What does `esModuleInterop` change for `module: commonjs` output?"
+  back: "Emit and types. `import x from \"cjs\"` becomes `__importDefault(require(\"cjs\")).default` and `import * as ns` goes through `__importStar`. Helpers check the `__esModule` marker. A default import of an `export =` module is allowed."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: allow-synthetic-default-types-only
+  front: "What does `allowSyntheticDefaultImports` change, and why is it dangerous alone?"
+  back: "Only type checking: a default import of a module without one is permitted. Emit is unchanged, so it can compile code that crashes with `... is not a function`."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: ts1259-fix
+  front: "Which error appears for a default import of an `export =` module without `esModuleInterop`?"
+  back: "TS1259: it can only be default-imported using the `esModuleInterop` flag. Silencing it with `allowSyntheticDefaultImports` in CommonJS-emitting projects type-checks and then crashes."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: interop-flags-forced-6
+  front: "What happened to setting `esModuleInterop` to `false` in TS 6.0 and 7.0?"
+  back: "TS 6.0 deprecated setting either interop flag to `false`. On TS 7.0.2, `--esModuleInterop false` is error TS5108."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: node-esm-default-import
+  front: "What does `import x from \"./c.cjs\"` give in native Node ESM?"
+  back: "Always `module.exports`. Node does not look at `__esModule`, so a transpiled module gets a \"double default\" (`x.default`)."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: node-esm-named-imports-static
+  front: "Why can a named import from a CommonJS file fail in Node ESM?"
+  back: "Named imports come from static analysis, so a name assigned dynamically is missing: `SyntaxError: Named export 'world' not found`. The default import's property works."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: import-star-call
+  front: "Why should you not write `import * as fn from \"cjs\"` and call `fn()`?"
+  back: "A namespace import is not callable. TS 5.9.3 and 6.0.3 report TS2497; TS 7.0.2 accepts the import, typed `{ default: ... }`, and `fn()` is TS2349. Default-import `export =` modules instead."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: export-equals-esm-file
+  front: "What happens to `export =` in an ESM file under `module: nodenext`?"
+  back: "It is an error (TS1203). `nodenext` checks formats per file."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: dts-format-by-package-type
+  front: "How is a `.d.ts` file's module format decided?"
+  back: "By the nearest `package.json` `\"type\"`. `.d.mts` and `.d.cts` are fixed. Dual packages ship the right one per `exports` condition."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: types-disagree-with-runtime
+  front: "What goes wrong when a CJS package's types say `export default f` but the file sets `exports.default`?"
+  back: "Imported from ESM, it gave TS2349 on both TS versions, and Node threw `TypeError: f is not a function`. Types that disagree with the runtime are trusted by the checker."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: require-esm-node22
+  front: "When can CommonJS `require()` an ES module?"
+  back: "In Node 22.12 and later, if the module has no top-level `await`. TS allows it under `module: nodenext` since 5.8 and disallows it under `node18`."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: bundlers-esmoduleinterop
+  front: "Do bundlers need `esModuleInterop`?"
+  back: "The handbook says yes for checking, because bundlers use a similar scheme. `module: preserve` implies it, but emit is unaffected since imports are not rewritten."
+  question: typescript/modules-and-declaration-files/esm-cjs-interop
+- id: dts-ambient-context
+  front: "What does a `.d.ts` file contain, and what does `tsc` emit for it?"
+  back: "Only types and `declare`d values, an ambient context. No function bodies (TS1183) or initializers (TS1039), and `tsc` emits nothing for it."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: types-for-package-sources
+  front: "Where do types for an npm package come from, in order?"
+  back: "Bundled with the package (`types` or `typings` field, or a `types` condition in `exports`), then DefinitelyTyped `@types/foo` as a dev dependency, then your own declaration file."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: declaration-flag-generation
+  front: "How do library authors generate `.d.ts` files?"
+  back: "With `declaration: true`, plus `emitDeclarationOnly` for a JavaScript project. Let it generate them rather than hand-writing, which drifts from the implementation."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: ts7016
+  front: "What error does a `strict` import of an untyped package give?"
+  back: "TS7016: could not find a declaration file for module; it implicitly has an `any` type."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: declare-module-global-script
+  front: "Why must the file holding `declare module \"x\" { ... }` have no top-level `import` or `export`?"
+  back: "Otherwise it becomes a module and the block is treated as an augmentation. TS2665 reports the untyped module and TS7016 remains."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: declare-module-shorthand
+  front: "What does the shorthand `declare module \"name\";` do?"
+  back: "It silences TS7016 and types every import as `any`. `greet(1, 2, 3)` then compiles, so you lose all checking. Replace it with a real block for the parts you use."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: dts-match-export-equals
+  front: "How should a hand-written `.d.ts` match a package with `module.exports = fn`?"
+  back: "Use `export =`. Match the module's real shape, keep it minimal, and type only what you call."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: types-option-default-6
+  front: "What changed about the `types` option in TS 6.0?"
+  back: "It defaults to `[]`, so global-declaring `@types` packages such as `@types/node` are not included automatically. Add `\"types\": [\"node\"]`."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: types-package-import-found
+  front: "Does `@types/foo` need a `types` entry in tsconfig to be found on `import`?"
+  back: "No. On TS 7.0.2 with `types` unset, `import ms from \"ms\"` found `@types/ms`, while the global `process` from `@types/node` needed `--types node` (TS2591)."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: types-vs-exports-precedence
+  front: "A package has both `types` and `exports`. Which does `tsc` use?"
+  back: "Under `nodenext` and `bundler`, `exports` wins, with `types` as the first condition. The top-level `types` field still serves resolvers that ignore `exports`."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: types-deps-for-published-dts
+  front: "Where should a package list `@types/*` its `.d.ts` files import?"
+  back: "In `dependencies`, not `devDependencies`, per the publishing guide."
+  question: typescript/modules-and-declaration-files/declaration-files
+- id: module-vs-script-file
+  front: "What makes a file a module rather than a script?"
+  back: "A top-level `import` or `export`. In a script `.d.ts` every top-level declaration is global; in a module, you need `declare global`."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: module-augmentation-syntax
+  front: "How does module augmentation work?"
+  back: "In a module file, `declare module \"./observable\" { interface Observable<T> { ... } }`. The name resolves like an import specifier and the block merges into the original declarations."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: global-augmentation
+  front: "How do you add to the global scope from a module file?"
+  back: "`declare global { interface Window { appVersion: string } }`. Typical uses are `Window` and `NodeJS.ProcessEnv` for typed `process.env`."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: declare-global-needs-module
+  front: "Why does `declare global` fail in a file with no imports or exports?"
+  back: "TS2669: global augmentations can only be directly nested in external modules. Add `export {}` to make the file a module."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: augmentation-types-only
+  front: "Does an augmentation provide the runtime implementation?"
+  back: "No, types only. You still write `Observable.prototype.map = ...`, and the augmenting file must be part of the program or the types do not exist (TS2339)."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: augmentation-default-and-new-names
+  front: "What are the Handbook limits on module augmentation?"
+  back: "Default exports cannot be augmented, only named ones, and no new top-level declarations. `tsc` did not enforce the second: a typed `extra` export type-checked and then failed at runtime."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: augmentation-bad-module-name
+  front: "What errors appear for an augmentation with a wrong module name?"
+  back: "TS2664 for an unresolvable specifier, and TS2665 for an untyped package."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: triple-slash-directives
+  front: "What do the three main triple-slash directives do?"
+  back: "`/// <reference types=\"node\" />` pulls in an `@types` package, `path` adds a file, and `lib` adds a built-in lib. Prefer imports or `tsconfig` `include`/`types`."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: triple-slash-not-emitted-55
+  front: "Are triple-slash directives emitted into outputs since TS 5.5?"
+  back: "Not unless marked `preserve=\"true\"`. On TS 5.9.3 and 7.0.2 a `types=\"mocha\" preserve=\"true\"` reference was kept in the `.d.ts`, while `types=\"node\"` was dropped."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: triple-slash-position
+  front: "Where must `/// <reference path>` appear to count?"
+  back: "At the top of the file, after comments only. It couples files by path, so avoid it in new code."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: global-file-import-breaks
+  front: "What happens when you add an `import` to a script `.d.ts` that augments `Window`?"
+  back: "The file becomes a module, so `interface Window { viaModule: number }` stops being global (TS2551). Keep global augmentation in a file your `tsconfig` `include` covers."
+  question: typescript/modules-and-declaration-files/module-augmentation-globals
+- id: ts-check-levels
+  front: "How do you opt in to checking JavaScript with TypeScript?"
+  back: "Per file with `// @ts-check` on the first line, or per project with `allowJs` plus `checkJs`. `checkJs` is the same as adding `// @ts-check` to every JavaScript file."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: checkjs-needs-allowjs
+  front: "Why set `allowJs` with `checkJs`?"
+  back: "`allowJs` includes `.js` files in the program and `checkJs` reports errors in them. The docs describe them as a pair."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: ts-check-scope
+  front: "Does `// @ts-check` in one file check the others?"
+  back: "No. With only `allowJs`, only the file with the comment reported an error."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: ts-nocheck-ignore-expect
+  front: "How do `@ts-nocheck`, `@ts-ignore` and `@ts-expect-error` differ?"
+  back: "`@ts-nocheck` skips a file; the other two silence the next line. `@ts-expect-error` errors when the line is no longer wrong (TS2578), so stale suppressions surface."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: jsdoc-tags
+  front: "Which JSDoc tags provide types for the checker?"
+  back: "`@param {string} name`, `@param {number} [times]` for optional, `@returns`, `@type`, `@typedef`, `@template T` for generics, and `@satisfies`. Casts use `/** @type {number} */ (x)`."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: jsdoc-import-tag
+  front: "How do you pull a type from another file into JSDoc?"
+  back: "`@import {Pet} from \"./types\"` (TS 5.5) or `import(\"./types\").Pet`. These tags exist only for the checker and are not imported at runtime."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: jsdoc-runtime-ignored
+  front: "Do JSDoc types protect you at runtime?"
+  back: "No. They are checked at build time and ignored at runtime, so `shout(42)` still throws a `TypeError` when run."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: jsdoc-declaration-emit
+  front: "Can JSDoc types produce `.d.ts` files?"
+  back: "Yes. With `allowJs`, `declaration` and `emitDeclarationOnly`, `tsc` generated signatures such as `shout(name: string, times?: number): string` from the comments."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: js-vs-ts-differences
+  front: "How do checked `.js` files differ from `.ts`?"
+  back: "Unannotated parameters are `any` unless `noImplicitAny` is on, and function parameters are optional unless JSDoc says otherwise (Handbook)."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: noimplicitany-js
+  front: "Does `noImplicitAny` apply to JavaScript under `checkJs`?"
+  back: "Yes: `function add(a, b)` reported TS7006 under `--strict`. Without `--strict` it was clean on TS 5.9.3 but an error on 7.0.2, because 7.0 turns `strict` on by default."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: ts7-jsdoc-removed
+  front: "Which old JSDoc forms does TS 7.0 no longer recognise?"
+  back: "`@enum`, `@class` constructors, a bare `?` type and Closure-style `function(string): void`. 7.0 reworked JavaScript support to match `.ts` analysis."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: max-node-module-js-depth
+  front: "What does `maxNodeModuleJsDepth` do?"
+  back: "It makes `tsc` infer types from JavaScript inside `node_modules`. The docs advise leaving it at `0`."
+  question: typescript/modules-and-declaration-files/checkjs-jsdoc
+
+# 07 tsconfig and strictness
+- id: strict-members
+  front: "Which nine checks does `strict` turn on?"
+  back: "`strictNullChecks`, `noImplicitAny`, `strictFunctionTypes`, `strictBindCallApply`, `strictPropertyInitialization`, `noImplicitThis`, `useUnknownInCatchVariables`, `strictBuiltinIteratorReturn` and `alwaysStrict`. Any can be switched off individually."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-null-checks-meaning
+  front: "What does `strictNullChecks` change about types?"
+  back: "`null` and `undefined` stop being members of every type and get their own types, so `string` no longer accepts them. A type that accepts them must say so: `number | undefined`."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-null-checks-why-important
+  front: "Why is `strictNullChecks` the most important `strict` flag?"
+  back: "It removes the common \"cannot read properties of undefined\" crash class. Without it `array.find(...)` and `Map#get` are typed as always returning a value. The other flags tighten how types relate; this one changes what they mean."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: no-implicit-any-flag
+  front: "What does `noImplicitAny` report?"
+  back: "An untyped parameter or binding that cannot be inferred is an error (TS7006) instead of silently `any`."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-function-types-methods
+  front: "What does `strictFunctionTypes` apply to?"
+  back: "Function-typed properties, compared contravariantly. Method syntax stays bivariant, because enabling it for methods broke many real class hierarchies, including in the DOM."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-bind-call-apply
+  front: "What does `strictBindCallApply` do?"
+  back: "`call`, `bind` and `apply` check their arguments against the target function. It was added in TS 3.2."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-property-initialization
+  front: "What does `strictPropertyInitialization` require, and what does it depend on?"
+  back: "A class property must be assigned in the constructor or be typed to allow `undefined` (TS2564). It requires `strictNullChecks`; alone it is TS5052."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-minor-flags
+  front: "What do `useUnknownInCatchVariables`, `strictBuiltinIteratorReturn` and `alwaysStrict` do?"
+  back: "The catch variable is `unknown`; built-in iterators return `undefined` rather than `any` when done; and `alwaysStrict` parses as ES strict mode and emits `\"use strict\"`."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-default-6
+  front: "What is the default of `strict` before and since TS 6.0?"
+  back: "`false` before TS 6.0; TS 6.0 made it `true` by default and TS 7.0 kept that. A tsconfig without `strict` is now strict, so pin it explicitly in shared base configs."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-may-add-checks
+  front: "Why can upgrading TypeScript surface new errors under `strict`?"
+  back: "The reference warns future versions may add checks under `strict`. For example `strictBuiltinIteratorReturn` was added in TS 5.6."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-migration-order
+  front: "How should you adopt strict mode in a legacy codebase?"
+  back: "Enable the flags one at a time, `strictNullChecks` and `noImplicitAny` first, each as its own change with its own error list, rather than flipping everything in one commit."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-flags-independent
+  front: "Are the `strict` family flags layered?"
+  back: "No, they are independent switches. Setting one to `false` removes only its diagnostics; the others stay."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-null-narrowing-tools
+  front: "How is `undefined` removed from a union under `strictNullChecks`?"
+  back: "By control-flow narrowing: `if (found)`, `found?.age`, `found ?? fallback`, an early `return`, or `typeof` checks."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: non-null-assertion-restores-unchecked
+  front: "Why is using `!` everywhere a poor answer to null errors?"
+  back: "It restores unchecked behavior one expression at a time and hides the real \"can this be absent?\" decision."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: always-strict-removed
+  front: "Is `alwaysStrict: false` still allowed?"
+  back: "No. On TS 7.0.2 it is TS5108 (removed). The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: show-config-defaults
+  front: "Does `tsc --showConfig` show the effective value of `strict`?"
+  back: "No. It prints only what the config sets, not defaults. For a config without `strict` it printed no `strict` key on TS 7.0.2."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: strict-builtin-iterator-return
+  front: "What does `strictBuiltinIteratorReturn` change?"
+  back: "`[1, 2].values().next()` narrowed by `done` has `value: undefined`, so `last.value.toFixed()` is TS18048 under the flag and compiles with it off. Added in TS 5.6."
+  question: typescript/tsconfig-and-strictness/strict-mode-flags
+- id: flags-beyond-strict-defaults
+  front: "Are the flags beyond `strict`, such as `noUncheckedIndexedAccess`, on by default?"
+  back: "No. None are part of `strict` or on by default; a strict-only config accepted every violation in the example on TS 5.9.3 and 7.0.2."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: no-unchecked-indexed-access-effect
+  front: "What does `noUncheckedIndexedAccess` (TS 4.1) do to `nums[0]`?"
+  back: "Reads through an index signature or array index get `| undefined`, so it is `number | undefined`. It catches out-of-range reads that `strictNullChecks` cannot see, at the cost of narrowing or `??` at each read."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: unchecked-index-exemptions
+  front: "What does `noUncheckedIndexedAccess` leave unaffected?"
+  back: "Tuple positions and `for...of` elements. `.at()` already returns `T | undefined`. Destructuring an array is affected; destructuring a tuple type is not."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: unchecked-index-for-loop
+  front: "Is `nums[i]` safe inside `for (let i = 0; i < nums.length; i++)` under `noUncheckedIndexedAccess`?"
+  back: "No, it stays `number | undefined`. Use `for...of`, or read once into a `const` and narrow. Narrowing `nums[i]` works for a `const i` but not a `let j`."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: exact-optional-property-types-meaning
+  front: "What does `exactOptionalPropertyTypes` (TS 4.4) change about `theme?: \"dark\" | \"light\"`?"
+  back: "It means absent or one of those values, not also `undefined`. `{ theme: undefined }` is TS2375. Useful when presence matters (`in`, `Object.keys`, spread). It requires `strictNullChecks`."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: exact-optional-partial
+  front: "Does `Partial<Opts>` accept `undefined` under `exactOptionalPropertyTypes`?"
+  back: "No, it stays exact and rejects `{ theme: undefined }` (TS2375). Write `theme?: \"dark\" | undefined` where `undefined` is intended."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: no-implicit-override-effect
+  front: "What does `noImplicitOverride` (TS 4.3) require?"
+  back: "A method that overrides a base member must say `override`, so renaming a base method breaks subclasses visibly. `override` on a member the base lacks is an error with or without the flag."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: no-implicit-returns
+  front: "What does `noImplicitReturns` require, and does a return type including `undefined` exempt it?"
+  back: "Every code path must return a value when any path does (TS7030). A `string | undefined` return type is not exempt; add `return undefined`."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: no-fallthrough
+  front: "What does `noFallthroughCasesInSwitch` require?"
+  back: "A non-empty `case` must `break`, `return` or `throw`."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: no-property-access-index-signature
+  front: "What does `noPropertyAccessFromIndexSignature` (TS 4.2) enforce?"
+  back: "Index-signature keys need `obj[\"key\"]`, which signals \"might be absent\". It is a style flag."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: unused-locals-to-linter
+  front: "Why leave `noUnusedLocals` and `noUnusedParameters` to the linter?"
+  back: "The linter can auto-fix and can be set per rule."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: flags-beyond-strict-versions
+  front: "Do these extra flags behave differently across TS 5.9, 6.0 and 7.0?"
+  back: "Not for the cases in the question: 5.9.3, 6.0.3 and 7.0.2 printed the same diagnostics for the same config."
+  question: typescript/tsconfig-and-strictness/flags-beyond-strict
+- id: target-meaning
+  front: "What does `target` control?"
+  back: "Which JavaScript syntax may appear in the output. Newer syntax such as `??`, `**` and class fields is rewritten; syntax the target supports is left alone. It also sets the default `lib` and `useDefineForClassFields` (on from ES2022)."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: lib-meaning
+  front: "What does `lib` control, and what does it emit?"
+  back: "Which built-in declarations the type checker knows about, such as `Array.prototype.at`, `Promise` and the `dom` types. It produces no output."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: lib-replaces-default
+  front: "What happens to `dom` when you set `\"lib\": [\"es2022\"]`?"
+  back: "It is dropped, because setting `lib` replaces the default list. Using `document` or `window` is then TS2584."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: module-meaning
+  front: "What does `module` control?"
+  back: "The module format of emitted `import`/`export` (`commonjs`, `esnext`, `preserve`, `nodenext`). It also steers module resolution defaults, but has no say over syntax like `??`."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: tsc-never-polyfills
+  front: "Does `tsc` polyfill missing APIs when you lower `target`?"
+  back: "No. Syntax is transformed; APIs are not. `[1].at(0)` is emitted unchanged for `target: es2015`, and a missing API is a runtime `TypeError`, not a compile error."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: set-lib-to-runtime
+  front: "How should you set `lib` and `target`?"
+  back: "`lib` to what your real runtime provides (or what your polyfills add), and `target` to the oldest syntax that runtime can parse."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: target-module-defaults-6
+  front: "How did the `target` and `module` defaults change in TS 6.0?"
+  back: "In 5.9 `target` defaulted to ES5 and `module` to CommonJS. TS 6.0 changed these to a floating latest target (`es2025` on 6.0 and 7.0) and `module: esnext`."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: target-es5-removed
+  front: "Can you still use `target: es5`?"
+  back: "On TS 6.0.3 it is TS5107 (deprecated); on 7.0.2 TS5108 (removed). The 6.0 notes suggest an external compiler for ES5 output."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: target-module-picks
+  front: "Which `module` do you pick when Node runs the output versus when a bundler consumes it?"
+  back: "Node: `module: nodenext` and a `target` matching the Node version. Bundler: `module: preserve`, `noEmit`, and a `target` as modern as the bundler's input."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: errors-do-not-stop-emit
+  front: "Does `tsc` write output when it reports type errors?"
+  back: "Yes, unless `noEmitOnError` is set. The `??` and `**` rewrites were emitted even though `lib` errors were reported."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: default-lib-file
+  front: "Which default `lib` file did `--listFiles` show by version?"
+  back: "`lib.d.ts` (ES5 plus `dom`) on TS 5.9.3, and `lib.es2025.full.d.ts` on 6.0.3 and 7.0.2. With `--target es2022` on 7.0.2 it was `lib.es2022.full.d.ts`."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: target-class-field-emit
+  front: "How does `target` change `class Counter { count = 0 }`?"
+  back: "`es2015` emitted a constructor assignment and `es2022` emitted a `count = 0;` field, following `useDefineForClassFields` (TS 7.0.2)."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: module-target-not-coupled
+  front: "Do `module` and `target` move together?"
+  back: "No. On TS 7.0.2 and 6.0.3 `--module nodenext` still compiled `using` declarations down; on 5.9.3 it left them as written. The reference still says nodenext implies a floating `target esnext`, which looks out of date for 6.0+."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: upgrade-no-target-module
+  front: "What happens upgrading from 5.x with no `target` or `module` in the config?"
+  back: "The same file compiled to CommonJS on TS 5.9.3 and to ES module output on 6.0.3 and 7.0.2."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: tsconfig-bases
+  front: "Where do community baseline tsconfigs live?"
+  back: "In `tsconfig/bases`."
+  question: typescript/tsconfig-and-strictness/target-lib-module
+- id: paths-meaning
+  front: "What does `paths` do, and what are its pattern rules?"
+  back: "It maps an import specifier to a location for the type checker. Patterns have at most one `*`, the longest matching prefix wins, and each key may list fallbacks."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: paths-no-rewrite
+  front: "Does `paths` rewrite the emitted import?"
+  back: "No. `@lib/util.js` is written to the output as typed, so the bundler or runtime must resolve the alias itself, or Node's `package.json` `\"imports\"`, which the docs recommend. Node threw `ERR_MODULE_NOT_FOUND`."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: paths-libraries-node-modules
+  front: "Where should you avoid using `paths`?"
+  back: "In libraries, since consumers cannot resolve the aliases, and pointing at `node_modules` or monorepo packages, since resolution then skips `exports` and `main`. Use workspace symlinks."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: base-url-removed
+  front: "What happened to `baseUrl`?"
+  back: "Since TS 4.1 `paths` needs no `baseUrl` and resolves relative to the config file. TS 6.0 deprecated `baseUrl` (TS5101) and TS 7.0 removed it (TS5102): fold its directory into each `paths` value."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: paths-nodenext-extension
+  front: "Why did `@lib/util` fail while `@lib/util.js` resolved under `nodenext`?"
+  back: "The mapped path follows the normal relative-path rules for the `moduleResolution` mode, so extensionless aliases fail with TS2307 (checked on TS 5.9.3)."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: extends-semantics
+  front: "How does `extends` work?"
+  back: "It loads a base config first, then applies the child over it. Relative paths in a config resolve against the file that wrote them. `references` is the one top-level key not inherited."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: extends-array
+  front: "Which entry wins when `extends` is an array (TS 5.0)?"
+  back: "The last. With `a1` setting `noImplicitAny: false` and `a2` true, `[\"./a1.json\", \"./a2.json\"]` gave `true`; reversing gave `false`."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: files-include-exclude
+  front: "How do `files`, `include` and `exclude` differ?"
+  back: "`files` is an exact list (a missing file is an error). `include` is a glob list, defaulting to `**/*` when `files` is absent. `exclude` only filters what `include` found."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: exclude-not-import-barrier
+  front: "Does `exclude` keep a file out of the build?"
+  back: "No. A file excluded this way still compiles if something imports it, references it, or lists it in `files`."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: extends-replace-not-merge
+  front: "Do `files`, `include`, `exclude` and `paths` in a child config merge with the base's?"
+  back: "No, they replace. A child `paths` replaced the base's entirely, and a child `include` replaced the base's list (`--showConfig`)."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: root-dir-default-6
+  front: "What changed for `rootDir` in TS 6.0?"
+  back: "It defaults to the config's directory instead of being inferred. With sources in `src/` and no `rootDir`, 6.0.3 and 7.0.2 reported TS5011; 5.9.3 reported no `rootDir` error."
+  question: typescript/tsconfig-and-strictness/paths-and-extends
+- id: project-reference-definition
+  front: "What is a project reference, and what must the referenced project set?"
+  back: "An entry in `references` pointing at another `tsconfig.json`. The referenced project must set `composite: true`. Importers then load its output `.d.ts` rather than re-checking its source."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: project-reference-benefits
+  front: "What do project references give you?"
+  back: "Layering (tests cannot be imported by `src`), separate output folders, and faster editor and CI checks, since each package is checked once."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: composite-enforces
+  front: "What does `composite` enforce?"
+  back: "`declaration` is on (turning it off is TS6304), `rootDir` defaults to the config's folder, every source file must be matched by `include` or `files`, and `incremental` defaults to true."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: incremental-meaning
+  front: "What does `incremental` do, and does it need references?"
+  back: "It saves the previous program's state to a `.tsbuildinfo` file so the next run re-checks and re-emits only what changed. It works on a single project; `composite` is only for being referenced."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: tsc-build-mode
+  front: "What does `tsc --build` (`-b`) do that `tsc -p` does not?"
+  back: "It finds referenced projects, builds them in dependency order, and skips up-to-date projects. `tsc -p app` does not build its dependencies and gives TS2307 or TS6305 if they are unbuilt."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: build-body-edit-not-rebuild
+  front: "What happens to dependents when a dependency's body changes but its `.d.ts` output does not?"
+  back: "They are not rebuilt; only their timestamps are updated. A change to the exported signature marks them out of date."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: build-continues-past-errors-56
+  front: "How does `-b` handle errors in upstream projects since TS 5.6?"
+  back: "It continues and writes best-effort output. `--stopBuildOnErrors` stops at the first failing project. The 5.6 notes misname it `--stopOnBuildErrors`, which the CLI rejects (TS5072)."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: builders-flag-7
+  front: "What does TS 7.0's `--builders N` flag do?"
+  back: "It is experimental and builds several projects in parallel."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: solution-config-layout
+  front: "What is the practical monorepo layout for project references?"
+  back: "A base config for shared options, one `composite` project per package, and a \"solution\" root with `\"files\": []` listing the references. Consume siblings by package name via workspace symlinks, not relative paths."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: reference-relative-import-pitfall
+  front: "What goes wrong importing a sibling project by relative path, like `../../core/src/index.js`?"
+  back: "`tsc` is satisfied through the reference, but the emitted import stays as written and Node throws `ERR_MODULE_NOT_FOUND`, because that source path does not exist in the output."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: reference-unlisted-ts6307
+  front: "What errors appear importing a project's files without listing it in `references`?"
+  back: "TS6307, the file is not listed within the file list of the project, and also TS6059 (not under `rootDir`)."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: build-not-no-emit-on-error
+  front: "Does `-b` act as `noEmitOnError`?"
+  back: "Not per the 5.6 notes. On TS 5.9.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, contrary to the older Handbook statement."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: tsbuildinfo-location
+  front: "Where does the `.tsbuildinfo` file go?"
+  back: "Per the reference it depends on `outDir`, `rootDir` and the config name. With `rootDir: src` and `outDir: dist` it was `packages/core/tsconfig.tsbuildinfo`, beside the config."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: editor-source-redirect
+  front: "Why can the editor jump to source across referenced projects?"
+  back: "Per the Handbook, `declarationMap` enables Go to Definition and Rename across projects, and VS Code generates declarations in memory from source. `disableSourceOfProjectReferenceRedirect` opts out for very large setups."
+  question: typescript/tsconfig-and-strictness/project-references
+- id: skip-lib-check-meaning
+  front: "What does `skipLibCheck` skip, and what does your code still see?"
+  back: "Type-checking of every declaration file, in `node_modules` and your own `.d.ts`. Your code is still typed against those declarations; only errors inside the `.d.ts` are not reported."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: skip-lib-check-tradeoff
+  front: "What is the trade-off of enabling `skipLibCheck`?"
+  back: "It saves time and hides broken or conflicting third-party typings, but also mistakes in your own `.d.ts`. The reference tags it Recommended; enable it for applications, keep it off where you validate a library's generated `.d.ts`."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: skip-default-lib-check
+  front: "What is `skipDefaultLibCheck`?"
+  back: "The reference says to use `skipLibCheck` instead; it only skips TypeScript's own default `lib` files."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: declaration-flag
+  front: "What does `declaration` do, and which flags relate to it?"
+  back: "It emits a `.d.ts` beside each JS file describing the public API; `composite` turns it on. `emitDeclarationOnly` skips the JS, and `declarationDir` moves the `.d.ts` files."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: declaration-map
+  front: "What does `declarationMap` do?"
+  back: "It emits `.d.ts.map` so Go to Definition lands in the `.ts` source instead of the `.d.ts`. The reference suggests it with project references."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: source-map-flag
+  front: "What does `sourceMap` do?"
+  back: "It emits `.js.map` and appends `//# sourceMappingURL=...` to the JS, so debuggers and error reports show TypeScript lines."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: node-enable-source-maps
+  front: "Do Node stack traces use emitted source maps by default?"
+  back: "No. Node ignores maps unless started with `--enable-source-maps`; otherwise the trace still points at `out/greet.js`."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: inline-sources
+  front: "What do `inlineSources` and `inlineSourceMap` do?"
+  back: "`inlineSources` embeds the original source in the map (`sourcesContent`), needed when the `.ts` files will not be published. `inlineSourceMap` puts the map in the JS file and excludes `sourceMap`."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: no-emit-flag
+  front: "When do you use `noEmit`?"
+  back: "When a bundler, esbuild or Node's type stripping produces the JavaScript and `tsc` is only the type-checker in CI. It writes nothing."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: no-emit-with-declaration
+  front: "Does `declaration: true` with `noEmit` write `.d.ts` files?"
+  back: "No, nothing is written. Use `emitDeclarationOnly` to emit only the `.d.ts`."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: no-emit-on-error-default
+  front: "What is the default of `noEmitOnError`?"
+  back: "`false`, so emit flags do not depend on errors: output is written even when type errors are reported."
+  question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+
+# 08 The compiler
+- id: erasure-what-is-removed
+  front: "Which constructs does `tsc` remove when emitting JavaScript?"
+  back: "Annotations and return types, `interface` and `type` declarations, generics, `as`, `satisfies`, `!`, overload signatures, `declare` statements, `abstract`/`private`/`readonly`/`override` modifiers, and `import type`/`export type`."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-design-goal
+  front: "What do the TypeScript Design Goals say about erasure and runtime type information?"
+  back: "Goals include \"impose no runtime overhead\" and \"use a consistent, fully erasable, structural type system\". \"Add or rely on run-time type information\" is a listed non-goal."
+  question: typescript/the-compiler/type-erasure
+- id: type-not-a-value
+  front: "Why is `x instanceof User` an error when `User` is an interface?"
+  back: "A type is not a value: nothing exists at runtime to refer to. It is TS2693, and the emitted code throws `ReferenceError: User is not defined`."
+  question: typescript/the-compiler/type-erasure
+- id: types-do-not-validate
+  front: "What does `JSON.parse(text) as User` compile to, and why is that a problem?"
+  back: "`JSON.parse(text)`. The assertion is erased, so a payload with `id: \"7\"` runs with a string where the type says `number` and fails later, away from the cause."
+  question: typescript/the-compiler/type-erasure
+- id: overloads-generics-no-runtime
+  front: "Can you dispatch at runtime on an overload signature or a type parameter?"
+  back: "No. There is one JavaScript function, and only the implementation signature is emitted. Branch with ordinary runtime checks inside it."
+  question: typescript/the-compiler/type-erasure
+- id: trust-boundary-validation
+  front: "Where must data be checked with runtime code?"
+  back: "Anywhere it crosses a trust boundary: network, `JSON.parse`, `localStorage`, `process.env`, user input. The type system describes data you already trust."
+  question: typescript/the-compiler/type-erasure
+- id: schema-library-infer
+  front: "How does a schema library such as Zod serve both validation and typing?"
+  back: "One schema value is the runtime validator, and `z.infer` extracts the static type from it, so the two cannot drift apart. Validation costs time per call, so put it at trust boundaries."
+  question: typescript/the-compiler/type-erasure
+- id: guard-is-a-promise
+  front: "Does TypeScript check the body of a guard like `(v: unknown): v is User => true`?"
+  back: "No. A guard is a promise, not a check: TypeScript believes the `v is User` return type without looking at the body, so a wrong guard breaks later at runtime."
+  question: typescript/the-compiler/type-erasure
+- id: private-field-runtime-visible
+  front: "What does `private tag = \"s\"` emit, and how do you get runtime privacy?"
+  back: "An ordinary public class field `tag = \"s\"`. A `#tag` field is not part of the logged object, so use `#` for runtime privacy."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-enums-exception
+  front: "Why are enums an exception to erasure?"
+  back: "An enum is also a runtime object, so the compiler must generate code for it. Node's type stripping rejects it for that reason."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-type-import-elision
+  front: "Why do `verbatimModuleSyntax` and `isolatedModules` exist, given type erasure?"
+  back: "A plain `import { Buffer }` used only as a type was removed from the 7.0.2 output, but a per-file tool cannot tell which imports are types."
+  question: typescript/the-compiler/type-erasure
+- id: narrowing-uses-real-values
+  front: "Which narrowing checks survive into the JavaScript?"
+  back: "`typeof`, `instanceof`, `in` and `Array.isArray` are real JavaScript that TypeScript merely reads as evidence. Narrowing by a checked fact is safe; by an unchecked claim (`as`, a guard returning `true`) it is not."
+  question: typescript/the-compiler/type-erasure
+- id: class-instanceof-shape
+  front: "Why is `instanceof User` legal for a class, and what does it check?"
+  back: "A class is both a type and a runtime constructor. `instanceof` checks the prototype chain, not the shape, so a plain `{ id: 1 }` object fails it."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-enables-stripping
+  front: "Why can Node run `.ts` files by stripping?"
+  back: "If deleting the type syntax leaves valid JavaScript, a tool does not need the checker to run the code."
+  question: typescript/the-compiler/type-erasure
+- id: as-assertion-prints-concat
+  front: "What does `const p = raw as Point; console.log(p.x + 1)` print when `raw.x` is `\"1\"`?"
+  back: "`11`. The assertion is erased, so `p.x` is still the string and `+` concatenates."
+  question: typescript/the-compiler/type-erasure
+- id: checking-vs-transpiling
+  front: "How do type checking and transpiling differ in what they need?"
+  back: "Checking needs the whole program: it resolves imports across files, builds types and reports errors. Transpiling turns TypeScript into JavaScript, mostly by deleting syntax, and works one file at a time."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: tsc-emits-despite-errors
+  front: "Does `tsc` stop emitting when it reports type errors?"
+  back: "No. Checking and emit are independent: `noEmitOnError` defaults to `false`, so it exits non-zero but still writes output. Set `noEmitOnError` to block output."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: bundlers-only-transpile
+  front: "Why do esbuild, swc and Babel emit code that has type errors?"
+  back: "They only transpile and never type-check. Babel's plugin \"does not add the ability to type-check\"; Vite's docs say the same of its transformer. Skipping checking makes them fast and parallel."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: split-check-and-emit
+  front: "How are checking and emitting typically split in a project?"
+  back: "The bundler or runtime transpiles for fast feedback; `tsc --noEmit` type-checks in CI and the editor. The reference describes `noEmit` as leaving emit to another tool like Babel or swc."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: green-build-not-type-safe
+  front: "What is the risk if only the bundler runs on deploy?"
+  back: "Type errors ship. All three transpilers emitted `const n: number = \"oops\"` without complaint and the program crashed at runtime."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: isolated-modules-for-per-file-tools
+  front: "Why set `isolatedModules` when another tool emits?"
+  back: "It makes `tsc` report constructs per-file tools cannot compile correctly, such as TS1205 for a type re-export. Otherwise `tsc` elides the type and compiles cleanly, and the break shows only when Node or the tool runs it."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: no-check-flag
+  front: "What does `--noCheck` do?"
+  back: "The inverse of `--noEmit`: it emits and skips type checking. Released in TS 5.6, useful when a faster tool already checked, such as in a separate CI job."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: no-emit-exit-codes
+  front: "Is the exit code of `tsc --noEmit` with a type error stable across versions?"
+  back: "No. It was 2 on TS 5.9.3 and 6.0.3 but 1 on 7.0.2. Treat any non-zero as failure."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: esbuild-per-file-reason
+  front: "Why can't esbuild just ask TypeScript for types?"
+  back: "Its design compiles each file independently for speed and parallelism, which the esbuild docs list as a TypeScript caveat. Full checking would need the whole program graph."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: isolated-modules-no-emit-change
+  front: "Does `isolatedModules` change what `tsc` emits?"
+  back: "No. A file using only `import type`/`export type` emitted byte-identical output with and without it on TS 5.9.3, 6.0.3 and 7.0.2; the flag only adds diagnostics."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: node-strip-whitespace
+  front: "How does `node file.ts` handle TypeScript syntax?"
+  back: "It replaces TypeScript syntax with whitespace and performs no type checking. Amaro, a wrapper around the SWC TypeScript parser, does the work. Line and column numbers are preserved."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-strip-availability
+  front: "When did Node's type stripping become available by default and stable?"
+  back: "On by default from v23.6.0 (and v22.18.0); the docs mark it stable from v24.12.0."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-strip-stack-traces
+  front: "Why are stack traces correct under Node type stripping without source maps?"
+  back: "Only syntax is deleted and replaced by whitespace, so line and column numbers are preserved."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-strip-unsupported-error
+  front: "What happens when stripped TypeScript uses an enum, parameter property or value namespace?"
+  back: "`ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`, e.g. \"TypeScript enum is not supported in strip-only mode\". Type-only namespaces run, since they have no runtime code."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-transform-types
+  front: "What does `--experimental-transform-types` do in Node?"
+  back: "Added in v22.7.0, it enables transforming enums, parameter properties and similar constructs, still with an experimental warning and with source maps on."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-no-tsconfig
+  front: "Does Node read `tsconfig.json` when running TypeScript?"
+  back: "No, so `paths`, `target` and other options are ignored and `paths` aliases fail with `ERR_MODULE_NOT_FOUND`. The nearest equivalent is `package.json` subpath imports starting with `#`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-real-extensions
+  front: "What file extensions must imports use under Node type stripping?"
+  back: "The real ones: `import \"./types.ts\"`, not `\"./types\"`, which gives `ERR_MODULE_NOT_FOUND`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-type-import-link-failure
+  front: "Why does `import { Config }` for an interface fail under Node but not `tsc`?"
+  back: "Node cannot know `Config` is a type, so the import stays and fails at link time: \"does not provide an export named 'Config'\". `verbatimModuleSyntax` makes `tsc` enforce the `type` keyword."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-no-type-checking
+  front: "Does a type error stop a program run by Node's type stripping?"
+  back: "No. Node never loads the checker, so `const bad: number = \"x\" as unknown as number` ran and `typeof bad` printed `string`. Run `tsc --noEmit` separately."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-modules-ts-refused
+  front: "Does Node strip types from `.ts` files inside `node_modules`?"
+  back: "No, it refuses them (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`) to discourage publishing `.ts` packages. Publish compiled JavaScript plus `.d.ts`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-tsx-decorators
+  front: "Which other TypeScript features does built-in Node stripping not support?"
+  back: "`.tsx` and decorators: `@dec class A {}` failed with `SyntaxError: Invalid or unexpected token`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-recommended-tsconfig
+  front: "Which `tsc` options do the Node docs recommend alongside type stripping?"
+  back: "`erasableSyntaxOnly`, `verbatimModuleSyntax`, `rewriteRelativeImportExtensions` and `module: nodenext`, so `tsc` rejects exactly what Node would reject."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-vs-tsx
+  front: "How does built-in Node stripping differ from `tsx` or `ts-node`?"
+  back: "The Node docs point to a third-party package such as `tsx` for full support, including `tsconfig.json`. Built-in stripping is the lightweight mode: no config, erasable syntax only."
+  question: typescript/the-compiler/node-type-stripping
+- id: strip-typescript-types-api
+  front: "What does `module.stripTypeScriptTypes(code)` return?"
+  back: "The code with types replaced by spaces: `const x: number = 1;` became `\"const x         = 1;\"`. It is Stability 1.2, and the output is not stable across Node versions."
+  question: typescript/the-compiler/node-type-stripping
+- id: program-definition
+  front: "What is a `Program` in the TypeScript compiler?"
+  back: "The set of source files (your roots plus everything they import and the `lib` files) and the compiler options. The compiler stages operate on it."
+  question: typescript/the-compiler/compiler-pipeline
+- id: scanner-stage
+  front: "What does the scanner do?"
+  back: "It turns text into tokens (`const`, `x`, `:`, `number`, ...), one `scan()` call at a time."
+  question: typescript/the-compiler/compiler-pipeline
+- id: parser-stage
+  front: "What does the parser produce, and are type annotations still present?"
+  back: "It drives the scanner and builds the AST; each file becomes a `SourceFile` node. Type annotations are still in the tree at this point."
+  question: typescript/the-compiler/compiler-pipeline
+- id: binder-stage
+  front: "What does the binder do?"
+  back: "It creates a `Symbol` for every declaration in a symbol table per scope, and builds the control-flow graph used for narrowing. Declarations sharing a name end up on one merged symbol."
+  question: typescript/the-compiler/compiler-pipeline
+- id: checker-stage
+  front: "What does the checker do, and is it eager?"
+  back: "It assigns types to symbols, resolves relationships and reports semantic diagnostics. It computes lazily and only examines what contributes to the question asked."
+  question: typescript/the-compiler/compiler-pipeline
+- id: emitter-stage
+  front: "What does the emitter do?"
+  back: "Transformers rewrite the AST (types removed, syntax down-levelled for `target`, modules converted), then a printer writes `.js`, `.d.ts` and `.js.map`."
+  question: typescript/the-compiler/compiler-pipeline
+- id: syntax-vs-semantic-errors
+  front: "Which stage reports syntax errors versus type errors, and does a syntax error stop checking?"
+  back: "Parsing reports syntax errors; the checker reports type errors. The parser recovers, so the checker still ran: TS1109 plus TS2322 and TS2304 in one test."
+  question: typescript/the-compiler/compiler-pipeline
+- id: language-service-same-compiler
+  front: "Is the language service a separate compiler?"
+  back: "No. `tsserver` builds on the same parser, binder and checker to answer hover, completion and rename, with incremental parsing keeping it fast. An editor error and a `tsc` error should agree; if not, suspect different versions or tsconfig."
+  question: typescript/the-compiler/compiler-pipeline
+- id: extended-diagnostics
+  front: "Which flag shows where compile time goes?"
+  back: "`--extendedDiagnostics`, printing Parse, Bind, Check and Emit time. In Microsoft's native-previews post, 5.8 spent 63.26s of 72.81s checking the Sentry codebase."
+  question: typescript/the-compiler/compiler-pipeline
+- id: module-resolution-in-program
+  front: "When does module resolution happen in the pipeline?"
+  back: "While building the Program, before binding: it follows imports and `/// <reference>` directives to find every file to parse. `--extendedDiagnostics` reports `ResolveModule time` separately."
+  question: typescript/the-compiler/compiler-pipeline
+- id: checker-single-file
+  front: "Why is the checker one huge file, according to the compiler notes?"
+  back: "The notes list the reasons given: keep everything together, share closure state for speed, avoid god objects and extra calls. It is the maintainers' rationale, not a measurement."
+  question: typescript/the-compiler/compiler-pipeline
+- id: ts7-no-compiler-api
+  front: "Can you call `require(\"typescript\").createProgram` on TS 7.0?"
+  back: "No. On 7.0.2 it returned only `version` and `versionMajorMinor`; the announcement says 7.0 ships without a JavaScript API and expects one in 7.1."
+  question: typescript/the-compiler/compiler-pipeline
+- id: native-port-what
+  front: "What is the native port of TypeScript?"
+  back: "TypeScript 7.0 (July 2026): the compiler and language service ported from TypeScript (codename Strada, up to 6.x) to Go (Corsa), shipped as the normal `typescript` package with a native `tsc`."
+  question: typescript/the-compiler/native-compiler-port
+- id: port-not-redesign
+  front: "Is the Go compiler a redesign?"
+  back: "No, it is a faithful port: same logic and structure, so results stay consistent between the two. The stages are the same."
+  question: typescript/the-compiler/native-compiler-port
+- id: why-go
+  front: "Why did the team choose Go for the port?"
+  back: "Idiomatic Go resembles the existing code, so the structurally similar codebase makes porting changes feasible, with memory-layout control and a garbage collector that costs little for a batch compiler."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-speedup
+  front: "Where do the native port's speed gains come from, and how large are they?"
+  back: "Native code plus parallelism: 7.0 parses, type-checks and emits in parallel. The announcement reports 8x to 12x faster full builds on large projects (vscode 125.7s to 10.6s)."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-speedup-small-app
+  front: "Did a small app get the announced 10x speedup?"
+  back: "No. On a 38-file app, `tsc --noEmit` went from about 1.1s to 0.16s, about 6x; the announced numbers are for large codebases and several cores."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-cli-flags
+  front: "What new CLI flags does TS 7.0 add?"
+  back: "`--checkers`, `--builders` and `--singleThreaded`. The announcement says the number of checkers can rarely surface order-dependent results, so pin one number in CI."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-install-names
+  front: "How is the native compiler installed?"
+  back: "`npm i -D typescript` now gives a native `tsc`. The previews used `@typescript/native-preview` and `tsgo`; nightlies move to `typescript@next`."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-defaults-from-6
+  front: "Which defaults and deprecations does TS 7.0 adopt from 6.0?"
+  back: "6.0's defaults (`strict: true`, `types: []`, ...), and 6.0's deprecations become hard errors, such as `target: es5` and `moduleResolution: node10` (TS5108). `--ignoreDeprecations 6.0` no longer helps."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-language-server
+  front: "How does the TS 7.0 language server differ?"
+  back: "It speaks the Language Server Protocol instead of the old `tsserver` protocol."
+  question: typescript/the-compiler/native-compiler-port
+- id: ts6-side-by-side
+  front: "How do API-based tools keep working with TS 7.0?"
+  back: "Tools that import `typescript` (typescript-eslint, Volar-based tooling) stay on 6.0, side by side via `@typescript/typescript6`, which provides `tsc6`. A new API is expected in 7.1."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-migration-path
+  front: "What migration path is suggested to TS 7?"
+  back: "Move to 6.0 first, fix its deprecations (`--stableTypeOrdering` helps compare outputs), then switch the CLI to 7."
+  question: typescript/the-compiler/native-compiler-port
+- id: tsc-ignore-config
+  front: "What happens running `tsc a.ts` when a `tsconfig.json` is present on TS 6.0.3 and 7.0.2?"
+  back: "It errors with TS5112 unless you pass `--ignoreConfig`."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-rewritten-js-support
+  front: "What is still intentionally different in 7.0 from 6.0?"
+  back: "`tsc/CHANGES.md` lists intentional changes: JavaScript/JSDoc support was rewritten rather than ported, and declaration emit from `.js` files differs."
+  question: typescript/the-compiler/native-compiler-port
+- id: typescript-not-sound
+  front: "Is TypeScript's type system sound?"
+  back: "No, by design. The Design Goals list \"apply a sound or provably correct type system\" as a non-goal, aiming for \"a balance between correctness and productivity\"."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-any-assertions
+  front: "How do `any` and type assertions create unsoundness?"
+  back: "`any` switches checking off and anything assigns to or from it. Assertions (`as`, `!`) are claims the compiler trusts, erased and never checked. `unknown` is the safe top type."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-array-covariance
+  front: "What is the soundness hole with array covariance?"
+  back: "`Dog[]` is assignable to `Animal[]`, so you can push a `Cat` through the wider alias and a `Dog[]` then holds a `Cat`. The same applies to mutable object properties."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-method-bivariance
+  front: "Why does the FAQ call method parameter bivariance \"working as intended\"?"
+  back: "Making methods strict breaks idiomatic patterns, including array covariance. `strictFunctionTypes` checks function-typed properties contravariantly but not method declarations."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-index-signatures
+  front: "How do index signatures and array indexing create a hole?"
+  back: "`obj[key]` is typed as the value type without `undefined`. `noUncheckedIndexedAccess` adds it, but the FAQ calls it a \"big hammer\" that cannot detect provably in-bounds access."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-narrowing-across-calls
+  front: "Why does narrowing survive a function call that clears the property?"
+  back: "After `if (o.v !== null)` a call that nulls `o.v` does not undo the narrowing, giving `Cannot read properties of null`. Issue #9998 finds wrong results either way on real code."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-boundaries
+  front: "Which boundaries inject unchecked data into typed code?"
+  back: "`JSON.parse`, third-party `any` and wrong `.d.ts` files."
+  question: typescript/the-compiler/type-system-soundness
+- id: soundness-practical-stance
+  front: "What is the practical stance on TypeScript's unsoundness, and how do you close the cheap holes?"
+  back: "Treat it as a strong bug-catcher, not a proof. Use `strict`, `noUncheckedIndexedAccess`, `unknown` over `any`, `readonly` arrays and parameters, function-typed properties for callbacks, and runtime validation at boundaries."
+  question: typescript/the-compiler/type-system-soundness
+- id: strict-not-sound
+  front: "Does `strict` make TypeScript sound?"
+  back: "No. It closes some holes (`strictFunctionTypes`, `strictNullChecks`) and leaves the rest open; every unsound line in the example passed under it."
+  question: typescript/the-compiler/type-system-soundness
+- id: readonly-aliasing-hole
+  front: "Does `readonly` protect an object from aliasing?"
+  back: "No. A `{ readonly id: string }` value was assignable to a mutable `{ id: string | number }` and `wide.id = 42` was accepted. It is a compile-time marker on one view of the object."
+  question: typescript/the-compiler/type-system-soundness
+- id: property-callback-still-covariant
+  front: "Does switching a method to a function-typed property make callbacks fully safe?"
+  back: "It is checked contravariantly: assigning `(e: Dog) => void` to `onEvent: (e: Animal) => void` gave TS2322. But it does not fix covariance of the arrays or objects passed through it."
+  question: typescript/the-compiler/type-system-soundness
+- id: soundness-flags-fix
+  front: "Which soundness holes can a flag or type fix?"
+  back: "`noUncheckedIndexedAccess` for index access, function-typed properties for callbacks, and `readonly Animal[]` for array aliasing (`push` is TS2339). None exists for `any` or assertions; lint rules cover those."
+  question: typescript/the-compiler/type-system-soundness
+- id: soundness-design-tradeoff
+  front: "Do the maintainers plan to fix these unsoundness cases?"
+  back: "They treat them as design trade-offs. The FAQ lists method bivariance as working as intended, and explains why a strict-methods flag is not tractable."
+  question: typescript/the-compiler/type-system-soundness

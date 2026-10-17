@@ -6,8 +6,8 @@ import { useSyncExternalStore } from 'react'
 export type Theme = 'light' | 'dark' | 'system'
 
 const STORAGE_KEY = 'theme'
-const systemDark = window.matchMedia('(prefers-color-scheme: dark)')
 const listeners = new Set<() => void>()
+let current: Theme | undefined
 
 function readStoredTheme(): Theme {
   try {
@@ -18,11 +18,22 @@ function readStoredTheme(): Theme {
   }
 }
 
-let current = readStoredTheme()
+let systemDarkQuery: MediaQueryList | undefined
+
+/** One shared query list, so the listener is removed from the same object it was added to. */
+function systemDark(): MediaQueryList {
+  systemDarkQuery ??= window.matchMedia('(prefers-color-scheme: dark)')
+  return systemDarkQuery
+}
+
+function snapshot(): Theme {
+  current ??= readStoredTheme()
+  return current
+}
 
 function applyTheme(): void {
-  const dark = current === 'dark' || (current === 'system' && systemDark.matches)
-  document.documentElement.classList.toggle('dark', dark)
+  const theme = snapshot()
+  document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && systemDark().matches))
 }
 
 export function setTheme(theme: Theme): void {
@@ -37,13 +48,17 @@ export function setTheme(theme: Theme): void {
   listeners.forEach((listener) => listener())
 }
 
-systemDark.addEventListener('change', applyTheme)
-
 function subscribe(listener: () => void): () => void {
+  // Following the OS only matters once something is rendered that reads the theme.
+  if (listeners.size === 0) systemDark().addEventListener('change', applyTheme)
   listeners.add(listener)
-  return () => listeners.delete(listener)
+  return () => {
+    listeners.delete(listener)
+    if (listeners.size === 0) systemDark().removeEventListener('change', applyTheme)
+  }
 }
 
+/** The stored preference; `'system'` while rendering on the server. */
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, () => current)
+  return useSyncExternalStore(subscribe, snapshot, () => 'system')
 }

@@ -1,19 +1,26 @@
 // content:build [--drafts] — compiles content/ into public/data/ for the app (R1, R7).
 // Only published questions get a page; --drafts adds drafts, for reviewing them locally.
+// A flashcard ships only when its question has a page in the same build (R8).
 
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import type { ContentIndex, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, SearchDoc } from '../src/content/types.ts'
+import { isStale } from '../src/content/freshness.ts'
+import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, RolePath, SearchDoc, StartQuestion, TopicSummary } from '../src/content/types.ts'
+import { readChangelog, type ChangelogQuestion } from './lib/changelog.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
-import { loadContent, type Question } from './lib/content.ts'
+import { loadContent, type Question, type Topic } from './lib/content.ts'
+import type { Deck } from './lib/flashcards.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
 import { renderBlock, renderInline } from './lib/markdown.ts'
 import { repoRelative } from './lib/paths.ts'
+import { resolveRolePaths } from './lib/rolepaths.ts'
+import { toOverview } from './lib/shards.ts'
 import { EXERCISE_ANSWER, FOLLOW_UP_ANSWER, FOLLOW_UP_QUESTION, splitSections, type Section } from './lib/sections.ts'
 
 type WrittenMeta = Exclude<Frontmatter, { status: 'planned' }>
 
+const BUILD_DATE = new Date()
 const outDir = path.resolve(import.meta.dirname, '../public/data')
 
 /** content:check has passed before this runs, so every question has valid frontmatter. */
@@ -72,6 +79,8 @@ async function buildPage(question: Question, meta: WrittenMeta): Promise<Questio
     tags: meta.tags,
     related: meta.related,
     verified: meta.verified,
+    stale: isStale(meta.verified, BUILD_DATE),
+    legacy: meta.legacy ?? null,
     sources: meta.sources,
     tldrHtml: (await renderInline(meta.tldr, question.file)).html,
     answerHtml: await renderRequired('Answer'),
@@ -105,17 +114,20 @@ const hasPage = (meta: Frontmatter): meta is WrittenMeta =>
 await rm(outDir, { recursive: true, force: true })
 
 const questions = content.topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
-let pageCount = 0
+const pageIds = new Set<string>()
 for (const question of questions) {
   const meta = metaOf(question)
   if (!hasPage(meta)) continue
   await writeJson(path.join(outDir, 'questions', `${question.id}.json`), await buildPage(question, meta))
-  pageCount++
+  pageIds.add(question.id)
 }
+
+const decks: Deck[] = content.decks.map((deck) => ({ ...deck, cards: deck.cards.filter((card) => pageIds.has(card.question)) }))
 
 async function summarize(question: Question): Promise<QuestionSummary> {
   const meta = metaOf(question)
   const title = await renderInline(meta.title)
+  const written = hasPage(meta)
   return {
     id: question.id,
     number: question.number,
@@ -125,12 +137,16 @@ async function summarize(question: Question): Promise<QuestionSummary> {
     difficulty: meta.difficulty,
     frequency: meta.frequency,
     core: meta.core,
-    hasPage: hasPage(meta),
+    hasPage: written,
+    // Freshness is only published for questions a reader can open in this build.
+    verified: written ? meta.verified : null,
+    stale: written && isStale(meta.verified, BUILD_DATE),
+    legacy: written ? (meta.legacy ?? null) : null,
   }
 }
 
 /** The README's opening paragraph: the first block of text after the `> **Status:**` line. */
-async function summaryHtml(readme: string): Promise<string> {
+async function summaryOf(readme: string): Promise<{ summaryHtml: string; summaryText: string }> {
   const lines = readme.split('\n')
   const start = lines.findIndex((line) => line.startsWith('> **Status:**'))
   const paragraph: string[] = []
@@ -141,7 +157,8 @@ async function summaryHtml(readme: string): Promise<string> {
     }
     paragraph.push(line.trim())
   }
-  return (await renderInline(paragraph.join(' '))).html
+  const { html, text } = await renderInline(paragraph.join(' '))
+  return { summaryHtml: html, summaryText: text }
 }
 
 /** The topic README's `> **Track:**` line, which groups topics on the home page. */
@@ -149,62 +166,111 @@ function trackOf(readme: string): string {
   return readme.match(/^> \*\*Track:\*\* (.+)$/m)?.[1].trim() ?? 'Other'
 }
 
-const index: ContentIndex = {
-  topics: await Promise.all(
-    content.topics.map(async (topic) => ({
-      slug: topic.slug,
-      title: topic.title,
-      track: trackOf(topic.readme),
-      summaryHtml: await summaryHtml(topic.readme),
-      flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
-      chapters: await Promise.all(
-        topic.chapters.map(async (chapter) => ({
-          number: chapter.number,
-          slug: chapter.slug,
-          title: chapter.title,
-          summaryHtml: await summaryHtml(chapter.readme),
-          questions: await Promise.all(chapter.questions.map(summarize)),
-        })),
-      ),
-    })),
-  ),
+/** The topic README's optional `> **Covers:**` line; content:check rejects an empty one. */
+function coversOf(readme: string): string | null {
+  return readme.match(/^> \*\*Covers:\*\* (.+)$/m)?.[1].trim() ?? null
 }
-await writeJson(path.join(outDir, 'index.json'), index)
 
-async function searchDocs(): Promise<SearchDoc[]> {
+const topics: TopicSummary[] = await Promise.all(
+  content.topics.map(async (topic) => ({
+    slug: topic.slug,
+    title: topic.title,
+    track: trackOf(topic.readme),
+    covers: coversOf(topic.readme),
+    ...(await summaryOf(topic.readme)),
+    flashcardCount: decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
+    chapters: await Promise.all(
+      topic.chapters.map(async (chapter) => ({
+        number: chapter.number,
+        slug: chapter.slug,
+        title: chapter.title,
+        ...(await summaryOf(chapter.readme)),
+        questions: await Promise.all(chapter.questions.map(summarize)),
+      })),
+    ),
+  })),
+)
+
+async function searchDocs(topic: Topic): Promise<SearchDoc[]> {
   const docs: SearchDoc[] = []
-  for (const topic of content.topics) {
-    for (const chapter of topic.chapters) {
-      for (const question of chapter.questions) {
-        const meta = metaOf(question)
-        const written = hasPage(meta)
-        docs.push({
-          id: question.id,
-          title: (await renderInline(meta.title)).text,
-          topic: topic.title,
-          chapter: chapter.title,
-          tags: written ? meta.tags : [],
-          tldr: written ? (await renderInline(meta.tldr)).text : '',
-          hasPage: written,
-        })
-      }
+  for (const chapter of topic.chapters) {
+    for (const question of chapter.questions) {
+      const meta = metaOf(question)
+      const written = hasPage(meta)
+      docs.push({
+        id: question.id,
+        title: (await renderInline(meta.title)).text,
+        topic: topic.title,
+        chapter: chapter.title,
+        tags: written ? meta.tags : [],
+        tldr: written ? (await renderInline(meta.tldr)).text : '',
+        hasPage: written,
+      })
     }
   }
   return docs
 }
-await writeJson(path.join(outDir, 'search.json'), await searchDocs())
 
-const flashcards: Flashcard[] = await Promise.all(
-  content.decks.flatMap((deck) =>
+async function flashcardsOf(deck: Deck): Promise<Flashcard[]> {
+  return Promise.all(
     deck.cards.map(async (card) => ({
       id: `${deck.topic}/${card.id}`,
       topic: deck.topic,
       frontHtml: (await renderInline(card.front)).html,
       backHtml: (await renderInline(card.back)).html,
-      question: card.question ?? null,
+      question: card.question,
     })),
-  ),
-)
-await writeJson(path.join(outDir, 'flashcards.json'), flashcards)
+  )
+}
 
-console.log(`✔ built ${pageCount} question page(s), an index of ${questions.length} questions and ${flashcards.length} flashcard(s) → ${repoRelative(outDir)}`)
+/** A path's start question, rendered for the home page; `null` when it has no page in this build. */
+async function startQuestion(id: string | null): Promise<StartQuestion | null> {
+  const question = questions.find((candidate) => candidate.id === id)
+  if (!question) return null
+  const meta = metaOf(question)
+  if (!hasPage(meta)) return null
+  return { id: question.id, titleHtml: (await renderInline(meta.title)).html, tldrHtml: (await renderInline(meta.tldr)).html }
+}
+
+const paths: RolePath[] = await Promise.all(
+  resolveRolePaths(content.paths, topics).map(async ({ startId, ...rolePath }) => ({ ...rolePath, start: await startQuestion(startId) })),
+)
+
+const manifest: ContentManifest = { topics: topics.map(toOverview), paths }
+await writeJson(path.join(outDir, 'manifest.json'), manifest)
+
+const changelogQuestions = new Map<string, ChangelogQuestion>()
+for (const topic of content.topics) {
+  for (const chapter of topic.chapters) {
+    for (const question of chapter.questions) {
+      const meta = metaOf(question)
+      if (!hasPage(meta)) continue
+      changelogQuestions.set(repoRelative(question.file), { id: question.id, title: (await renderInline(meta.title)).text, topic: topic.slug, topicTitle: topic.title })
+    }
+  }
+}
+const changelog = readChangelog(changelogQuestions)
+await writeJson(path.join(outDir, 'changelog.json'), changelog)
+
+const topicDir = (slug: string) => path.join(outDir, 'topics', slug)
+for (const topic of topics) await writeJson(path.join(topicDir(topic.slug), 'index.json'), topic)
+
+const allSearchDocs: SearchDoc[] = []
+for (const topic of content.topics) {
+  if (topic.chapters.length === 0) continue
+  const docs = await searchDocs(topic)
+  allSearchDocs.push(...docs)
+  await writeJson(path.join(topicDir(topic.slug), 'search.json'), docs)
+}
+
+const allFlashcards: Flashcard[] = []
+for (const deck of decks) {
+  if (deck.cards.length === 0) continue // the app fetches a deck only when flashcardCount > 0
+  const cards = await flashcardsOf(deck)
+  allFlashcards.push(...cards)
+  await writeJson(path.join(topicDir(deck.topic), 'flashcards.json'), cards)
+}
+
+console.log(
+  `✔ built ${pageIds.size} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s), ${allFlashcards.length} flashcard(s) and ${changelog.days.length} changelog day(s) → ${repoRelative(outDir)}`,
+)

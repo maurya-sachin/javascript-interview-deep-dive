@@ -46,6 +46,9 @@ Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mappe
 | `draft` | Written and self-checked, awaiting maintainer review | everything below |
 | `published` | Reviewed and live | everything below |
 
+The app labels written questions **Draft** (`draft`), **Reviewed** (`published`) or **Legacy** (any written question with `legacy`).
+A question is **stale** when `verified` is 12 or more months before the build month; the app then says it may be out of date.
+
 ## Question format
 
 ### Frontmatter
@@ -56,10 +59,12 @@ Gaps live only in READMEs — sub-topics ending in `→ —` and **Not yet mappe
 | `status` | `planned` \| `draft` \| `published` | |
 | `difficulty` | `easy` \| `medium` \| `hard` | |
 | `frequency` | 1–5 | How often it's asked; 5 = almost every interview |
-| `core` | boolean | `true` makes the deep dive required |
+| `core` | boolean | `true` makes the deep dive required. Set it on every `frequency: 5` question; use it on lower-frequency questions only when depth is the point |
 | `tags` | string[] | Lowercase, kebab-case |
 | `related` | id[] | Other questions this builds on or leads to |
 | `verified` | `YYYY-MM` | When the facts were last checked against `sources` |
+| `legacy` | string | Optional, written questions only, ≤ 30 words. Why the question is kept for history (for example, the old way of doing something); shows a Legacy label |
+| `perishable` | string[] | Optional, written questions only, each ≤ 12 words. Facts likely to change (versions, flags, limits), so a review pass can find them |
 | `sources` | URL[] | Primary sources only — see [Research](#research) |
 | `tldr` | string | ≤ 60 words — the 30-second answer |
 
@@ -84,9 +89,10 @@ Use exactly these `##` headings, in this order. Leave out optional ones entirely
 - **Be exact.** Name the spec mechanism (e.g. *Environment Record*, *[[Prototype]]*) when it explains the behaviour; say when something is engine-specific (e.g. *In V8, …*).
 - **No filler.** No emoji headings, no "In this article…", no "Great question".
 - **Code:**
-  - JavaScript; TypeScript only in TypeScript topics.
-  - Must run as written in current Node.js or a modern browser.
-  - Assume module code (strict mode); say so when sloppy mode matters.
+  - JavaScript by default; TypeScript in TypeScript topics (and where a topic is about typed code); other languages and configs (SQL, YAML, Dockerfiles, shell) only where the topic is about them.
+  - JavaScript must run as written in current Node.js or a modern browser; assume module code (strict mode) and say so when sloppy mode matters.
+  - TypeScript must be type-checked with a real `tsc` (`--strict`); state the TypeScript version, and make every `// Error` comment match what `tsc` printed.
+  - Configs and commands must be run for real (a scratch project, a container, a local database) before you show their output.
   - Show output as `// → value` comments.
 
 ## Research
@@ -97,7 +103,7 @@ Every claim must be traceable to a primary source listed in `sources`:
 2. TC39 proposals — [github.com/tc39/proposals](https://github.com/tc39/proposals)
 3. MDN — [developer.mozilla.org](https://developer.mozilla.org/)
 4. Engine and runtime teams — [v8.dev](https://v8.dev/), [nodejs.org/docs](https://nodejs.org/docs/latest/api/), WebKit/SpiderMonkey blogs
-5. Official docs of the library or tool in question
+5. Official docs of the library or tool in question; for other topics, the standard that defines it (RFCs, WHATWG/W3C specs, the language's own spec) and the vendor's official docs
 
 Blog posts and tutorials can point you somewhere; they're never the source.
 Never copy text from other books or courses — write your own explanation.
@@ -120,6 +126,9 @@ Topic READMEs (not chapters) put a hand-written track line directly above it, in
 > **Track:** Backend
 > **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
 ```
+
+A topic README may add one more hand-written line to the same blockquote, directly above the track: `> **Covers:** …`.
+It names the versions and engines the topic is checked against, in 15 words or fewer. Leave it out when the topic has no versions to name. `content:check` fails an empty line, one over 15 words, or one that is not immediately followed by the track line.
 
 | Track | Topics |
 |---|---|
@@ -147,9 +156,38 @@ Flashcards are short recall prompts, separate from questions (R8). One file per 
 | `id` | yes | Kebab-case, unique within the file. It keys the learner's review history, so **never change it** once published — add a new card instead |
 | `front` | yes | ≤ 30 words; inline Markdown only |
 | `back` | yes | ≤ 60 words; inline Markdown only |
-| `question` | no | Id of the question that explains it; must exist |
+| `question` | yes | Id of the question that explains it; must exist |
+
+A production build ships a card only when its `question` is published.
 
 One fact per card. If the back needs a code block, it belongs in a question instead.
+
+## Paths
+
+A path is an ordered route through the topics for one kind of engineer; the home page's "What are you preparing as?" list shows them. One file per role: `content/paths/<role>.yaml`, where the filename is the URL slug (`/paths/<role>`).
+
+```yaml
+title: Frontend engineer
+summary: The language first, then the browser and frameworks, then performance, security and design.
+order: 1
+start: javascript/how-javascript-runs/ecmascript-engine-host
+steps:
+  - ref: javascript
+    why: Every frontend interview starts at the language.
+  - ref: react
+    why: The most-asked framework.
+```
+
+| Field | Required | Rule |
+|---|---|---|
+| `title` | yes | The role, as the reader would say it |
+| `summary` | yes | ≤ 30 words |
+| `order` | yes | Position on the home page; unique across paths |
+| `start` | no | Id of the question to open first; must exist. The home page's "Start here" uses the first path that sets one |
+| `steps[].ref` | yes | `<topic>` or `<topic>/<chapter>`; must exist and appear once per path; don't list a chapter when its whole topic is already on the path. A topic with no chapters yet can be named by topic only. A step shows as planned until it has published questions |
+| `steps[].why` | yes | ≤ 25 words: why this step is on the path |
+
+Counts, readiness and reading time are derived at build time; never write them. Topic folders can't be named `paths`, `practice`, `flashcards`, `roadmap` or `changelog` (those are app routes). `content:check` validates all of this.
 
 ## Contributing
 
@@ -165,6 +203,7 @@ Commands (Node 24, run in `app/`):
 | `npm run content:check` | Validates every topic, chapter, and question against this guide; fails on any problem |
 | `npm run content:sync` | Regenerates README status lines and `generated:` tables |
 | `npm run content:status [topic]` | Published counts per chapter and every `→ —` gap |
+| `npm run content:status -- --stale [topic]` | Written questions to re-check, oldest first: stale ones and any with `perishable` notes |
 | `npm run content:new -- <topic>/<chapter> <slug> "<title>" --difficulty <d> --frequency <1-5> [--core] [--number NNN]` | Creates a `planned` stub, then syncs READMEs |
 | `npm run content:build [-- --drafts]` | Compiles content into `app/public/data/` (published only; `--drafts` adds drafts) |
 | `npm run dev` | Builds content with drafts and starts the app |

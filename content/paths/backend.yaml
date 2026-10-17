@@ -1,0 +1,28 @@
+title: Backend engineer
+summary: The language under Node.js, then HTTP, data, and the patterns that keep services reliable.
+order: 2
+steps:
+  - ref: javascript
+    why: The language under Node.js.
+  - ref: nodejs
+    why: The runtime, its event loop and its modules.
+  - ref: http-and-apis
+    why: Every service speaks HTTP.
+  - ref: databases
+    why: Modelling, queries and transactions.
+  - ref: caching
+    why: Speed and its consistency costs.
+  - ref: backend-patterns
+    why: Structuring services that last.
+  - ref: messaging-and-jobs
+    why: Work that should not block a request.
+  - ref: authentication
+    why: Sessions, tokens and getting them right.
+  - ref: observability
+    why: Knowing what production is doing.
+  - ref: web-security
+    why: Attacks a backend must expect.
+  - ref: testing
+    why: Confidence without slow suites.
+  - ref: system-design
+    why: The senior backend round.

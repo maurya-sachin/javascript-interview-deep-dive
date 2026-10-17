@@ -1,0 +1,20 @@
+title: Any engineer
+summary: The topics asked of every software engineer, whatever the stack.
+order: 5
+steps:
+  - ref: data-structures-and-algorithms
+    why: The shared vocabulary of coding rounds.
+  - ref: git
+    why: Daily tooling every team assumes.
+  - ref: networking
+    why: What happens between two machines.
+  - ref: http-and-apis
+    why: How services talk.
+  - ref: databases
+    why: Storing and querying data.
+  - ref: testing
+    why: Shipping with confidence.
+  - ref: web-security
+    why: Common attacks and defences.
+  - ref: system-design
+    why: Putting the pieces together.

@@ -3,14 +3,19 @@
 import type { Content } from './content.ts'
 import { targetMarkdownFile, visitLinks } from './links.ts'
 import { repoRelative, type Problem } from './paths.ts'
+import { validateRolePaths } from './rolepaths.ts'
 import { parseMarkdown } from './markdown.ts'
 import { staleReadmes } from './readme.ts'
 import { checkBody } from './sections.ts'
 
+function questionIdsOf(topics: Content['topics']): Set<string> {
+  return new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((question) => question.id))))
+}
+
 /** Problems that need more than one file to see. */
 function checkReferences({ topics }: Content): Problem[] {
   const problems: Problem[] = []
-  const ids = new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((q) => q.id))))
+  const ids = questionIdsOf(topics)
 
   for (const chapter of topics.flatMap((topic) => topic.chapters)) {
     const readme = repoRelative(chapter.readmeFile)
@@ -72,7 +77,7 @@ function checkQuestionLinks({ topics }: Content): Problem[] {
 function checkDecks({ topics, decks }: Content): Problem[] {
   const problems: Problem[] = []
   const topicSlugs = new Set(topics.map((topic) => topic.slug))
-  const questionIds = new Set(topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions.map((q) => q.id))))
+  const questionIds = questionIdsOf(topics)
 
   for (const deck of decks) {
     const file = repoRelative(deck.file)
@@ -81,7 +86,7 @@ function checkDecks({ topics, decks }: Content): Problem[] {
     for (const card of deck.cards) {
       if (seen.has(card.id)) problems.push({ file, message: `card id \`${card.id}\` is used twice` })
       seen.add(card.id)
-      if (card.question !== undefined && !questionIds.has(card.question)) {
+      if (!questionIds.has(card.question)) {
         problems.push({ file, message: `card \`${card.id}\`: unknown question \`${card.question}\`` })
       }
     }
@@ -89,9 +94,21 @@ function checkDecks({ topics, decks }: Content): Problem[] {
   return problems
 }
 
+/** Topic folders can't take names the app uses for other routes (`paths/` and `flashcards/` are already content folders). */
+const RESERVED_TOPIC_SLUGS = ['practice', 'roadmap', 'changelog']
+
+/** Topic names that clash with app routes, and role paths that don't resolve. */
+function checkRolePaths({ topics, paths }: Content): Problem[] {
+  const questionIds = questionIdsOf(topics)
+  const reserved = topics
+    .filter((topic) => RESERVED_TOPIC_SLUGS.includes(topic.slug))
+    .map((topic): Problem => ({ file: repoRelative(topic.dir), message: `\`${topic.slug}\` is a reserved route name; pick another folder name` }))
+  return [...reserved, ...validateRolePaths(paths, topics, questionIds)]
+}
+
 export function collectProblems(content: Content): Problem[] {
   const questions = content.topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
-  const problems = [...content.problems, ...questions.flatMap(checkBody), ...checkReferences(content), ...checkQuestionLinks(content), ...checkDecks(content)]
+  const problems = [...content.problems, ...questions.flatMap(checkBody), ...checkReferences(content), ...checkQuestionLinks(content), ...checkDecks(content), ...checkRolePaths(content)]
   // README tables can only be rendered from valid content, so staleness is checked last.
   if (problems.length === 0) {
     for (const { file } of staleReadmes(content.topics)) {

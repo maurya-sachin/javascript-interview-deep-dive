@@ -6,16 +6,18 @@ import { InlineHtml } from '@/components/question/InlineHtml'
 import { DifficultyBadge, FrequencyDots } from '@/components/question/MetaRow'
 import { QuestionTitle } from '@/components/QuestionTitle'
 import { Button } from '@/components/ui/button'
-import { chapterStats, findChapter, findTopic, questionPath, useContentIndex } from '@/content/index-data'
+import { findChapter, questionPath, useTopic } from '@/content/index-data'
+import { chapterStats } from '@/content/stats'
 import type { Difficulty } from '@/content/types'
 import { useProgress } from '@/lib/progress'
+import { SITE_NAME } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 const LEVELS: Difficulty[] = ['easy', 'medium', 'hard']
 
 export function ChapterPage() {
   const params = useParams()
-  const topic = findTopic(useContentIndex(), params.topic)
+  const topic = useTopic()
   const chapter = topic && findChapter(topic, params.chapter)
   const { read } = useProgress()
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null)
@@ -34,6 +36,7 @@ export function ChapterPage() {
         { label: topic.title, to: `/${topic.slug}` },
       ]}
     >
+      <title>{`${chapter.title} · ${topic.title} · ${SITE_NAME}`}</title>
       <p className="text-sm text-muted-foreground">Chapter {chapter.number}</p>
       <h1 className="mt-1 text-4xl font-bold tracking-[-0.03em]">{chapter.title}</h1>
       <InlineHtml html={chapter.summaryHtml} className="mt-3 block max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground [&_code]:font-mono [&_code]:text-[0.9em]" />

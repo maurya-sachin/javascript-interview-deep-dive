@@ -1,0 +1,29 @@
+title: Frontend engineer
+summary: The language first, then the browser and frameworks, then performance, security and design.
+order: 1
+start: javascript/how-javascript-runs/ecmascript-engine-host
+steps:
+  - ref: javascript
+    why: Every frontend interview starts at the language.
+  - ref: typescript
+    why: Typed JavaScript is the default in most teams.
+  - ref: html-and-css
+    why: Layout and semantics come up before any framework does.
+  - ref: browser
+    why: Rendering, events and storage explain most real bugs.
+  - ref: accessibility
+    why: Expected of senior frontend work.
+  - ref: react
+    why: The most-asked framework.
+  - ref: state-and-data-fetching
+    why: Where most frontend complexity lives.
+  - ref: nextjs
+    why: Server rendering and routing in practice.
+  - ref: web-performance
+    why: Measuring and fixing slow pages.
+  - ref: web-security
+    why: XSS, CSP and the browser's trust model.
+  - ref: testing
+    why: What to test and how.
+  - ref: system-design
+    why: Frontend design rounds at senior level.

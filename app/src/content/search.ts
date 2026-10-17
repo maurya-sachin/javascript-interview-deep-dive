@@ -1,7 +1,7 @@
 // Full-text search over questions. MiniSearch is loaded on first use, so it isn't in the initial bundle.
 
 import type MiniSearch from 'minisearch'
-import { fetchData } from './index-data.ts'
+import { fetchData, loadManifest } from './index-data.ts'
 import type { SearchDoc } from './types.ts'
 
 const MAX_RESULTS = 8
@@ -11,10 +11,11 @@ export interface SearchEngine {
 }
 
 async function createEngine(): Promise<SearchEngine> {
-  const [{ default: MiniSearchClass }, docs] = await Promise.all([
-    import('minisearch'),
-    fetchData<SearchDoc[]>('search.json'),
-  ])
+  const [{ default: MiniSearchClass }, { topics }] = await Promise.all([import('minisearch'), loadManifest()])
+  const shards = await Promise.all(
+    topics.filter((topic) => topic.chapterCount > 0).map((topic) => fetchData<SearchDoc[]>(`topics/${topic.slug}/search.json`)),
+  )
+  const docs = shards.flat()
   const index: MiniSearch<SearchDoc> = new MiniSearchClass({
     fields: ['title', 'tags', 'tldr', 'chapter', 'topic'],
     searchOptions: { prefix: true, fuzzy: 0.3, combineWith: 'AND', boost: { title: 3, tags: 2 } },

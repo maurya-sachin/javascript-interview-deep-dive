@@ -3,10 +3,12 @@
   "installCommand": "cd app && npm ci",
   "buildCommand": "cd app && npm run build",
   "outputDirectory": "app/dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/app-shell.html"
     }
   ],
   "redirects": [

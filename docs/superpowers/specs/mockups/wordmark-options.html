@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>isobath wordmark options</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,600&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Geist,system-ui;background:#cdd3e0;padding:24px}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
+.panel{border-radius:10px;padding:28px 32px;display:flex;flex-direction:column;gap:22px}
+.light{background:#F9FAFC;color:#0E1424;--accent:#2F4FD8;--muted:#4A5368}
+.dark{background:#0A0F1E;color:#E8EDFB;--accent:#9DAEF7;--muted:#9AA6C4}
+h2{font:500 12px Geist;color:var(--muted);margin:0}
+.word{font-family:Newsreader;font-weight:600;letter-spacing:-.01em;display:inline-flex;align-items:baseline;line-height:1}
+.by{font-size:12px;color:var(--muted);margin-left:8px}
+.lock{display:flex;align-items:center;gap:8px}
+/* the ring "o": sized to x-height (~0.5em for Newsreader) and sitting on the baseline */
+.o{width:.6em;height:.6em;margin:0 .015em;align-self:baseline;transform:translateY(.06em);color:var(--accent)}
+</style></head><body>
+<script>
+const mark5=`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 17c0-8 6-13 13.5-13S29 9 29 16s-5 12-13 12S3 24 3 17Z" opacity=".3"/><path d="M6.5 17c0-6 4.5-10 10-10s9 4 9 9-4 9.5-9.5 9.5S6.5 22 6.5 17Z" opacity=".45"/><path d="M10 16.5C10 12.5 13 10 16.5 10S23 12.5 23 16s-2.8 6.5-6.5 6.5S10 20.5 10 16.5Z" opacity=".65"/><path d="M13.5 16.5c0-2 1.5-3.2 3.2-3.2s3 1.3 3 3-1.3 3.3-3 3.3-3.2-1.2-3.2-3.1Z" opacity=".85"/><path d="M15.6 16.6c0-.7.6-1.3 1.2-1.3s1.2.6 1.2 1.3-.5 1.3-1.2 1.3-1.2-.6-1.2-1.3Z" fill="currentColor"/></svg>`;
+// o-ring: outer ring carries the letter's weight (like Newsreader's o stroke), inner contours lighter
+const ring3=(w)=>`<svg class="o" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M3 16.5c0-7.5 6-13 13.2-13S29 8.8 29 16s-5.6 12.5-12.8 12.5S3 24 3 16.5Z" stroke-width="${w}"/><path d="M9.5 16.5c0-4.2 3.1-7.2 6.9-7.2s6.8 3 6.8 7-3 7-6.9 7-6.8-2.7-6.8-6.8Z" stroke-width="${w*0.55}" opacity=".75"/><path d="M14 16.6c0-1.5 1.1-2.6 2.4-2.6s2.4 1.1 2.4 2.5-1 2.6-2.4 2.6S14 18 14 16.6Z" fill="currentColor" stroke="none" opacity=".9"/></svg>`;
+const current=(size)=>`<div class="lock"><span style="width:${size*1.25}px;height:${size*1.25}px;color:var(--accent)">${mark5}</span><span class="word" style="font-size:${size}px">isobath</span><span class="by">by Sachin Maurya</span></div>`;
+const ring1=`<svg class="o" viewBox="0 0 32 32" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 16.5c0-7 5.5-12.3 12.2-12.3S28 9.2 28 16s-5.2 12-11.9 12S4 23.5 4 16.5Z" stroke-width="5.2"/><circle cx="16.2" cy="16.4" r="3" fill="currentColor" stroke="none"/></svg>`;
+const option=(size)=>`<div class="lock" aria-label="isobath"><span class="word" style="font-size:${size}px">is${size<24?ring1:ring3(3.4)}bath</span><span class="by">by Sachin Maurya</span></div>`;
+for (const [label,size] of [['Header (21px)',21],['Mobile header (18px)',18],['Large / hero (56px)',56]]) {
+  const row=document.createElement('div'); row.className='row';
+  for (const theme of ['light','dark']) row.innerHTML+=`<div class="panel ${theme}"><h2>${label}, ${theme}: current</h2>${current(size)}<h2>${label}, ${theme}: ring as the "o"</h2>${option(size)}</div>`;
+  document.body.appendChild(row);
+}
+</script></body></html>

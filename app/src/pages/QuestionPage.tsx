@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, useLoaderData, useParams } from 'react-router'
+import { Link, useLoaderData, useLocation, useParams } from 'react-router'
 import { DepthRail } from '@/components/DepthRail'
 import { ChapterNav } from '@/components/question/ChapterNav'
 import { Exercises } from '@/components/question/Exercises'
@@ -9,25 +9,31 @@ import { MetaRow } from '@/components/question/MetaRow'
 import { Section } from '@/components/question/Section'
 import { Breadcrumbs, ComingSoon, NotFound } from '@/components/PageShell'
 import { QuestionTitle } from '@/components/QuestionTitle'
-import { findChapter, findTopic, neighbours, questionId, questionPath, useContentIndex } from '@/content/index-data'
+import { findChapter, neighbours, questionId, questionPath, useTopic } from '@/content/index-data'
 import type { QuestionPage as QuestionData } from '@/content/types'
 import { markRead } from '@/lib/progress'
 import { editUrl, suggestFixUrl } from '@/lib/repo'
+import { SITE_NAME, SITE_URL } from '@/lib/site'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 const CODE_STYLE = '[&_code]:font-mono [&_code]:text-[0.9em]'
 
 export function QuestionPage() {
   const params = useParams()
+  const { pathname } = useLocation()
   // The route's loader returns the question's content, or null when it has no page yet.
   const content = useLoaderData<QuestionData | null>()
-  const topic = findTopic(useContentIndex(), params.topic)
+  const topic = useTopic()
   const chapter = topic && findChapter(topic, params.chapter)
   const id = topic && chapter && params.question ? questionId(topic, chapter, params.question) : undefined
   const question = chapter?.questions.find((candidate) => candidate.id === id)
   const readableId = content !== null ? question?.id : undefined
+  const titleHtml = content?.titleHtml
+  // The depth rail only fits in the xl layout; mounting it only there keeps its scroll listener off smaller screens.
+  const showDepthRail = useMediaQuery('(min-width: 80rem)')
   useEffect(() => {
-    if (readableId) markRead(readableId)
-  }, [readableId])
+    if (readableId && titleHtml) markRead(readableId, titleHtml)
+  }, [readableId, titleHtml])
   if (!topic || !chapter || !question) return <NotFound what="Question" />
 
   const { previous, next } = neighbours(topic, question.id)
@@ -42,12 +48,12 @@ export function QuestionPage() {
   ].filter((section) => section.shown)
 
   return (
-    <div className="mx-auto flex max-w-340 flex-wrap gap-12 px-6 py-8">
-      <aside className="max-w-72 min-w-56 flex-1 basis-60">
+    <div className="mx-auto grid max-w-340 gap-12 px-6 py-8 lg:grid-cols-[16rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,45rem)_14rem] xl:justify-center">
+      <aside className="hidden lg:block">
         <ChapterNav topicSlug={topic.slug} chapter={chapter} currentId={question.id} />
       </aside>
 
-      <main className="min-w-0 max-w-180 flex-999 basis-140">
+      <main className="min-w-0">
         <Breadcrumbs
           crumbs={[
             { label: 'Topics', to: '/' },
@@ -55,10 +61,20 @@ export function QuestionPage() {
             { label: chapter.title, to: `/${topic.slug}/${chapter.slug}` },
           ]}
         />
-          <title>{`${question.title} · Deep Dive`}</title>
+          <title>{`${question.title} · ${SITE_NAME}`}</title>
           <h1 className="text-[2.5rem] leading-[1.1] font-bold tracking-[-0.03em]">
             <QuestionTitle html={question.titleHtml} />
           </h1>
+
+          {/* Keyed so the list closes when you pick another question. */}
+          <details key={question.id} className="mt-6 rounded-lg border lg:hidden">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
+              Questions in this chapter ({chapter.questions.length})
+            </summary>
+            <div className="px-4 pb-4">
+              <ChapterNav topicSlug={topic.slug} chapter={chapter} currentId={question.id} />
+            </div>
+          </details>
 
           {content === null ? (
             <p className="mt-4">
@@ -66,7 +82,14 @@ export function QuestionPage() {
             </p>
           ) : (
             <>
-              <MetaRow difficulty={content.difficulty} frequency={content.frequency} verified={content.verified} />
+              <MetaRow
+                status={content.status}
+                difficulty={content.difficulty}
+                frequency={content.frequency}
+                verified={content.verified}
+                stale={content.stale}
+                legacy={content.legacy}
+              />
 
               <section aria-labelledby="tldr" className="mt-10 scroll-mt-8 rounded-r-xl border-l-4 border-link bg-tldr py-5 pr-6 pl-6 text-tldr-foreground">
                 <h2 id="tldr" className="text-sm font-medium">
@@ -129,7 +152,7 @@ export function QuestionPage() {
                 </div>
                 <div className="flex flex-wrap gap-x-5 gap-y-2">
                   <a
-                    href={suggestFixUrl(content.id, content.title, window.location.origin + window.location.pathname)}
+                    href={suggestFixUrl(content.id, content.title, SITE_URL + pathname)}
                     target="_blank"
                     rel="noreferrer"
                     className="text-link hover:text-link-hover"
@@ -162,8 +185,8 @@ export function QuestionPage() {
           </nav>
       </main>
 
-      {sections.length > 0 && (
-        <aside className="max-w-56 min-w-40 flex-1 basis-44">
+      {showDepthRail && sections.length > 0 && (
+        <aside>
           <DepthRail stops={sections} />
         </aside>
       )}

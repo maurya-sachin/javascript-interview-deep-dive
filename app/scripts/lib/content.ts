@@ -4,7 +4,9 @@
 import { access, readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { coversProblem } from './covers.ts'
 import { loadDecks, type Deck } from './flashcards.ts'
+import { loadRolePaths, type RolePathSource } from './rolepaths.ts'
 import { frontmatterSchema, type Frontmatter } from './frontmatter.ts'
 import { contentDir, repoRelative, type Problem } from './paths.ts'
 
@@ -50,6 +52,7 @@ export interface Topic {
 export interface Content {
   topics: Topic[]
   decks: Deck[]
+  paths: RolePathSource[]
   problems: Problem[]
 }
 
@@ -62,7 +65,7 @@ const SUB_TOPIC = /^- (.+) → (.+)$/
 const GAP = '—'
 
 /** Folders under content/ that hold something other than a topic. */
-const NON_TOPIC_DIRS = new Set(['flashcards'])
+const NON_TOPIC_DIRS = new Set(['flashcards', 'paths'])
 
 export async function loadContent(): Promise<Content> {
   try {
@@ -85,7 +88,7 @@ export async function loadContent(): Promise<Content> {
     topics.push(await loadTopic(name, dir, problems))
   }
 
-  return { topics, decks: await loadDecks(problems), problems }
+  return { topics, decks: await loadDecks(problems), paths: await loadRolePaths(problems), problems }
 }
 
 async function loadTopic(slug: string, dir: string, problems: Problem[]): Promise<Topic> {
@@ -104,6 +107,8 @@ async function loadTopic(slug: string, dir: string, problems: Problem[]): Promis
   }
 
   requireGenerated(readme, readmeFile, 'chapters', problems)
+  const covers = coversProblem(readme)
+  if (covers !== null) problems.push({ file: repoRelative(readmeFile), message: covers })
   return { slug, title: readHeading(readme, readmeFile, problems), dir, readmeFile, readme, chapters }
 }
 

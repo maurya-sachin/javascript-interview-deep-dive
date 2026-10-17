@@ -6,5 +6,5 @@
 
 - [ ] `npm run content:check` passes (in `app/`)
 - [ ] Every code example and exercise was run, and the output matches the `// →` comments
-- [ ] `sources` lists primary sources only (ECMAScript spec, MDN, engine and runtime docs)
+- [ ] `sources` lists primary sources only (specs, RFCs, official docs; see `templates/README.md`)
 - [ ] One question per PR (or one concern for non-content changes)

@@ -1,9 +1,10 @@
-// Loading and querying data/index.json, the navigation tree built by content:build.
+// Loading and querying the data built by content:build: a manifest for every page, then one shard per topic.
 
 import { useRouteLoaderData } from 'react-router'
-import type { ChapterSummary, ContentIndex, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
+import type { Changelog, ChapterSummary, ContentManifest, Flashcard, QuestionPage as QuestionData, QuestionSummary, TopicSummary } from './types.ts'
 
-export const INDEX_ROUTE_ID = 'root'
+export const MANIFEST_ROUTE_ID = 'root'
+export const TOPIC_ROUTE_ID = 'topic'
 
 /** Reads a JSON file produced by content:build; its shape is trusted because both sides share `types.ts`. */
 export async function fetchData<T>(file: string): Promise<T> {
@@ -13,51 +14,70 @@ export async function fetchData<T>(file: string): Promise<T> {
   return data as T
 }
 
-let indexPromise: Promise<ContentIndex> | undefined
+/** The content history written by content:build. */
+export function loadChangelog(): Promise<Changelog> {
+  return fetchData<Changelog>('changelog.json')
+}
 
-/** One shared request: the root route and question loaders both need the index. */
-export function loadIndex(): Promise<ContentIndex> {
-  indexPromise ??= fetchData<ContentIndex>('index.json').catch((error: unknown) => {
-    indexPromise = undefined
+let manifestPromise: Promise<ContentManifest> | undefined
+
+/** One shared request: the root route, topic loaders and search all need the manifest. */
+export function loadManifest(): Promise<ContentManifest> {
+  manifestPromise ??= fetchData<ContentManifest>('manifest.json').catch((error: unknown) => {
+    manifestPromise = undefined
     throw error
   })
-  return indexPromise
+  return manifestPromise
+}
+
+const topicPromises = new Map<string, Promise<TopicSummary>>()
+
+/** A topic's chapters and questions, or `null` when the manifest has no such topic. */
+export async function loadTopic(slug: string | undefined): Promise<TopicSummary | null> {
+  const { topics } = await loadManifest()
+  if (slug === undefined || !topics.some((topic) => topic.slug === slug)) return null
+  let shard = topicPromises.get(slug)
+  if (!shard) {
+    shard = fetchData<TopicSummary>(`topics/${slug}/index.json`).catch((error: unknown) => {
+      topicPromises.delete(slug) // allow a retry on the next navigation
+      throw error
+    })
+    topicPromises.set(slug, shard)
+  }
+  return shard
 }
 
 /** The question's content, or `null` when it has no page yet (planned) or doesn't exist. */
 export async function loadQuestion(id: string): Promise<QuestionData | null> {
-  const { topics } = await loadIndex()
-  const summary = topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions)).find((q) => q.id === id)
+  const topic = await loadTopic(id.split('/')[0])
+  const summary = topic?.chapters.flatMap((chapter) => chapter.questions).find((question) => question.id === id)
   return summary?.hasPage ? fetchData<QuestionData>(`questions/${id}.json`) : null
 }
 
-/** The content of every published question in a chapter, in reading order. */
-export async function loadChapterQuestions(topicSlug: string | undefined, chapterSlug: string | undefined): Promise<QuestionData[]> {
-  const { topics } = await loadIndex()
-  const chapter = findTopic({ topics }, topicSlug)?.chapters.find((candidate) => candidate.slug === chapterSlug)
-  const ids = chapter?.questions.filter((question) => question.hasPage).map((question) => question.id) ?? []
-  const pages = await Promise.all(ids.map(loadQuestion))
-  return pages.filter((page) => page !== null)
+/** A chapter's published questions in reading order, with the topic they belong to. */
+export async function loadPractice(topicSlug: string | undefined, chapterSlug: string | undefined) {
+  const topic = await loadTopic(topicSlug)
+  const chapter = topic?.chapters.find((candidate) => candidate.slug === chapterSlug)
+  const readable = chapter?.questions.filter((question) => question.hasPage) ?? []
+  const questions = await Promise.all(readable.map((question) => fetchData<QuestionData>(`questions/${question.id}.json`)))
+  return { topic, questions }
 }
 
-/** One topic's flashcards. */
-export async function loadFlashcards(topicSlug: string | undefined): Promise<Flashcard[]> {
-  const cards = await fetchData<Flashcard[]>('flashcards.json')
-  return cards.filter((card) => card.topic === topicSlug)
+/** One topic's flashcards, with the topic. Topics without a deck have no file to fetch. */
+export async function loadFlashcards(topicSlug: string | undefined) {
+  const topic = await loadTopic(topicSlug)
+  const cards = topic && topic.flashcardCount > 0 ? await fetchData<Flashcard[]>(`topics/${topic.slug}/flashcards.json`) : []
+  return { topic, cards }
 }
 
-export function useContentIndex(): ContentIndex {
-  // Route loader data is untyped in data-router mode; INDEX_ROUTE_ID's loader returns loadIndex().
-  return useRouteLoaderData(INDEX_ROUTE_ID) as ContentIndex
+export function useManifest(): ContentManifest {
+  // Route loader data is untyped in data-router mode; MANIFEST_ROUTE_ID's loader returns loadManifest().
+  return useRouteLoaderData(MANIFEST_ROUTE_ID) as ContentManifest
 }
 
-export function questionCount(chapters: ChapterSummary[]) {
-  const questions = chapters.flatMap((chapter) => chapter.questions)
-  return { published: questions.filter((q) => q.status === 'published').length, total: questions.length }
-}
-
-export function findTopic(index: ContentIndex, slug: string | undefined): TopicSummary | undefined {
-  return index.topics.find((topic) => topic.slug === slug)
+/** The topic of the current `:topic` route, or `null` when the URL names no topic. Call it only from pages under that route. */
+export function useTopic(): TopicSummary | null {
+  return useRouteLoaderData(TOPIC_ROUTE_ID) as TopicSummary | null
 }
 
 export function findChapter(topic: TopicSummary, slug: string | undefined): ChapterSummary | undefined {
@@ -68,7 +88,7 @@ export function questionId(topic: TopicSummary, chapter: ChapterSummary, slug: s
   return `${topic.slug}/${chapter.slug}/${slug}`
 }
 
-export function questionPath(question: QuestionSummary): string {
+export function questionPath(question: Pick<QuestionSummary, 'id'>): string {
   return `/${question.id}`
 }
 
@@ -80,20 +100,5 @@ export function neighbours(topic: TopicSummary, id: string) {
   return {
     previous: questions.slice(0, Math.max(position, 0)).findLast(readable),
     next: questions.slice(position + 1).find(readable),
-  }
-}
-
-/** Totals for a set of chapters: what is readable now, and the difficulty mix of everything planned. */
-export function chapterStats(chapters: ChapterSummary[]) {
-  const questions = chapters.flatMap((chapter) => chapter.questions)
-  return {
-    total: questions.length,
-    readable: questions.filter((question) => question.hasPage).length,
-    core: questions.filter((question) => question.core).length,
-    byDifficulty: {
-      easy: questions.filter((question) => question.difficulty === 'easy').length,
-      medium: questions.filter((question) => question.difficulty === 'medium').length,
-      hard: questions.filter((question) => question.difficulty === 'hard').length,
-    },
   }
 }

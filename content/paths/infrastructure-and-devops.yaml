@@ -1,0 +1,20 @@
+title: Infrastructure and DevOps
+summary: Version control and networks first, then containers, delivery pipelines and the cloud.
+order: 4
+steps:
+  - ref: git
+    why: The base of every delivery pipeline.
+  - ref: networking
+    why: DNS, TCP and TLS explain most outages.
+  - ref: containers-and-kubernetes
+    why: How software is packaged and run.
+  - ref: ci-cd
+    why: Getting changes to production safely.
+  - ref: cloud-and-iac
+    why: Infrastructure as reviewed code.
+  - ref: observability
+    why: Metrics, logs and traces.
+  - ref: web-security
+    why: Securing what you deploy.
+  - ref: system-design
+    why: Designing for failure.

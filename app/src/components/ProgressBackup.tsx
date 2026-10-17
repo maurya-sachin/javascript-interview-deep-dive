@@ -1,0 +1,80 @@
+import { useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { loadReviews, saveReviews } from '@/content/reviewStore'
+import { createBackup, mergeBackup, parseBackup } from '@/lib/backup'
+import { replaceProgress, useProgress } from '@/lib/progress'
+
+/** Download and restore the learner's progress; this browser is the only place it is kept. */
+const MAX_BACKUP_BYTES = 5 * 1024 * 1024
+
+export function ProgressBackup() {
+  const progress = useProgress()
+  const fileInput = useRef<HTMLInputElement>(null)
+  const [message, setMessage] = useState('')
+
+  function download() {
+    const now = new Date()
+    const blob = new Blob([JSON.stringify(createBackup(progress, loadReviews(), now), null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `isobath-progress-${now.toISOString().slice(0, 10)}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+    setMessage('Progress downloaded.')
+  }
+
+  async function restore(file: File) {
+    if (file.size > MAX_BACKUP_BYTES) {
+      setMessage('This file is too large to be a progress backup.')
+      return
+    }
+    try {
+      const merged = mergeBackup({ progress, reviews: loadReviews() }, parseBackup(await file.text()))
+      const progressStored = replaceProgress(merged.progress)
+      const reviewsStored = saveReviews(merged.reviews)
+      if (!progressStored || !reviewsStored) {
+        setMessage("Imported for this visit only: this browser's storage is full or blocked.")
+        return
+      }
+      const read = merged.progress.read.length
+      const reviewed = Object.keys(merged.reviews).length
+      setMessage(`Progress imported: ${read} ${read === 1 ? 'question' : 'questions'} read, ${reviewed} ${reviewed === 1 ? 'card' : 'cards'} reviewed.`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'The file could not be read.')
+    }
+  }
+
+  return (
+    <section aria-labelledby="your-progress" className="mt-16 border-t pt-10">
+      <h2 id="your-progress" className="text-base font-semibold">
+        Your progress
+      </h2>
+      <p className="mt-2 max-w-xl text-sm text-muted-foreground">Reading progress and flashcard history live only in this browser. Download a copy to keep it, or to move it to another device; importing adds to what is here.</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" onClick={download}>
+          Download progress
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => fileInput.current?.click()}>
+          Import progress
+        </Button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept="application/json,.json"
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden="true"
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            event.target.value = '' // so choosing the same file again still fires
+            if (file) void restore(file)
+          }}
+        />
+      </div>
+      <p role="status" className="mt-3 text-sm text-muted-foreground">
+        {message}
+      </p>
+    </section>
+  )
+}
