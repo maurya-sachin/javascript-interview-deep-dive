@@ -8,7 +8,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Brand draft for the designer: the JavaScript cover reads as near-concentric rings (tune `heightField` in `app/src/lib/contours.ts`)
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
-- Open: flashcards have no draft/published status, so a deck shows in production even when its questions are unpublished (decide: gate decks on published questions, or accept); confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
+- Then: gate production flashcards on published questions (R8) in `app/scripts/build.ts`
+- Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
@@ -23,7 +24,7 @@ Non-goals: backend service, accounts, paid AI.
 - R5 Order: templates → structure → app → content. The JavaScript language track is finished first.
 - R6 Research before writing. Primary sources (ECMAScript spec, TC39, MDN, engine blogs, official docs) go in `sources`. Coverage is checked against YDKJS / javascript.info / spec tables of contents — titles only, never copy text.
 - R7 App is self-contained in `app/`: Vite, React 19, TypeScript, Tailwind 4, shadcn/ui, React Router; Markdown + Shiki compiled at build. Design direction approved before building.
-- R8 Flashcards are separate: `content/flashcards/<topic>.yaml`.
+- R8 Flashcards are separate: `content/flashcards/<topic>.yaml`. A production build ships a card only when its `question` is published.
 - R9 npm; scripts run on Node 24 native TypeScript.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.
