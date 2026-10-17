@@ -199,3 +199,213 @@
   front: "What do the three parameters of `Generator<T, TReturn, TNext>` type?"
   back: "`T` is what the generator yields, `TReturn` is what it returns, and `TNext` is what `next()` accepts."
   question: typescript/type-system-basics/function-types-overloads
+
+# 02 Inference and narrowing
+- id: inference-bottom-up-top-down
+  front: "What are the two directions of type inference?"
+  back: "Bottom-up: the type comes from the expression (`let n = 3` is `number`). Top-down, or contextual typing: the type comes from the position, such as a callback parameter typed by `map`'s declaration."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: array-literal-union-inference
+  front: "What type does `[new Rhino(), new Elephant()]` infer, and how do you get `Animal[]`?"
+  back: "The array of the union of the two. The checker does not invent a shared supertype. Annotate it explicitly as `Animal[]`."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: widening-mutable-location
+  front: "Why does `{ kind: \"circle\" }` stored in a variable fail against a parameter expecting `\"circle\"`?"
+  back: "A mutable location (`let`, an object property) could be reassigned, so the literal widens to `kind: string`. A `const` binding keeps the literal, and `as const` freezes a whole object literal."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: annotate-exported-return-types
+  front: "Why annotate return types on exported functions and public APIs?"
+  back: "So a body edit cannot silently change the contract for every caller. `isolatedDeclarations` (TS 5.5) requires it."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: no-contextual-type-implicit-any
+  front: "What type does an unannotated parameter with no contextual type get, and what reports it?"
+  back: "`any`. `noImplicitAny`, part of `strict`, reports it as TS7006."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: empty-collection-inference
+  front: "What do `new Map()` with no type arguments and an empty `[]` give you?"
+  back: "Nothing to infer from, so `any`-flavoured types: `new Map()` is `Map<any, any>` and everything read from it is unchecked. Pass type arguments or annotate."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: evolving-array
+  front: "What is an evolving array?"
+  back: "With `noImplicitAny`, `const ids = []` has no fixed element type yet and each `push` widens it. Reading it before any push, or from a nested function, reports TS7034 or TS7005."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: annotation-beats-contextual-type
+  front: "Does a contextual type override an explicit parameter annotation?"
+  back: "No. The explicit annotation wins over the contextual type."
+  question: typescript/inference-and-narrowing/how-inference-works
+- id: control-flow-analysis-definition
+  front: "What is control flow analysis in TypeScript?"
+  back: "The compiler walks the possible execution paths and, at each use of a variable, asks which checks and assignments must have happened on the way there. Narrowing is the result."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: builtin-narrowing-forms
+  front: "Which built-in checks narrow a type?"
+  back: "`typeof`, truthiness, equality (`===`, `!=`, `switch`), `in`, `instanceof`, and assignment to a union-typed variable. User-defined guards and discriminant checks also narrow."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: typeof-object-keeps-null
+  front: "Why does `typeof x === \"object\"` on `T | null` not remove `null`?"
+  back: "Because `typeof null` is `\"object\"`. Add `x !== null` or a truthiness check."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: truthiness-narrowing-primitives
+  front: "What is the pitfall of truthiness narrowing on primitives?"
+  back: "`if (s)` drops `\"\"` and `if (n)` drops `0`. After the `if`, the else branch of a `string | undefined` is still `string | undefined`. Compare with `!== undefined` when `0` or `\"\"` are valid."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: x-not-equal-null
+  front: "What does `x != null` narrow away?"
+  back: "Both `null` and `undefined`."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-in-callbacks
+  front: "When does narrowing survive into a closure?"
+  back: "Property narrowing (`options.retries`) is dropped inside closures. For variables, it survives only if the closure is created after the last assignment (TS 5.4+); an assignment inside any nested function disables it."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-survives-function-calls
+  front: "Does calling a function invalidate a narrowed property such as `c.retries`?"
+  back: "No. Tracking every possible write is infeasible, so `reset(c)` can clear it while the compiler still believes it is a number. Copy the value into a `const` first."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-assignment-union-only
+  front: "Why does assigning a string to `let u: unknown` not narrow it, while a `string | number` does?"
+  back: "Assignment narrowing filters the declared type only when the declared type is a union. `unknown` is not a union."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: in-operator-narrowing-49
+  front: "Since TS 4.9, what does `\"name\" in obj` do for `obj: object`?"
+  back: "It narrows `object` to `object & Record<\"name\", unknown>`. You can read `obj.name`, but still have to narrow `name` itself."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: narrowing-erased
+  front: "Does narrowing change the runtime?"
+  back: "No. Types are erased and narrowing only changes what the checker accepts. A real runtime check must exist in the code for the narrowing to be true."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: aliased-condition-narrowing
+  front: "What are aliased conditions in narrowing (TS 4.4)?"
+  back: "Narrowing flows through a `const` that holds a guard, a `readonly` property, or an unmodified parameter, so `const isText = typeof v === \"string\"; if (isText)` narrows `v`."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: switch-true-narrowing
+  front: "What does `switch (true)` allow for narrowing (TS 5.3)?"
+  back: "Each `case` expression acts as a condition, so `case typeof x === \"string\":` narrows `x` to `string`."
+  question: typescript/inference-and-narrowing/control-flow-narrowing
+- id: type-predicate-syntax
+  front: "What is a type predicate and what does it do at a call site?"
+  back: "A return type of the form `paramName is Type`. When the call returns `true`, the argument narrows to `Type` in the true branch, and `Type` is removed from it in the false branch."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: predicate-body-unchecked
+  front: "Does TypeScript check that a type predicate's body matches its claim?"
+  back: "No. Explicit predicates are \"no safer than a type assertion\", so a predicate returning `true` for wrong values silently corrupts every call site."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: predicate-iff
+  front: "Why is `s is string` implemented as `!!s` wrong?"
+  back: "A predicate must be if-and-only-if: `false` means the value is not `T`. But `\"\"` is a string that returns `false`, so the else branch is mistyped."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: assertion-function-forms
+  front: "What are the two signatures of an assertion function (TS 3.7)?"
+  back: "`asserts value is T`: after the call returns, `value` is `T`. `asserts condition`: after it returns, the argument expression is truthy. Both narrow by throwing instead of returning false."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: assertion-function-explicit-annotation
+  front: "Why does an arrow assigned to an unannotated `const` fail as an assertion function?"
+  back: "The call target must be declared with an explicit type, otherwise each call reports TS2775. Use a function declaration, or annotate the const."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: inferred-type-predicates
+  front: "When does TS 5.5 infer a type predicate?"
+  back: "For a function with no return annotation, one `return`, no parameter mutation, and a boolean expression tied to a refinement. `filter(n => n !== undefined)` then gives `number[]`."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: filter-truthy-no-predicate
+  front: "Why does `filter(x => !!x)` on `(number | undefined)[]` stay `(number | undefined)[]`?"
+  back: "No predicate is inferred, because `0` returns `false` and is still a `number`. Use `x !== undefined`, which also keeps the zeros."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: guard-vs-assertion-choice
+  front: "When do you choose an assertion function over a type guard?"
+  back: "When failing is the only sensible outcome, such as validating input at the top of a function or in tests. A guard fits branching code where both outcomes are handled."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: predicate-type-assignable
+  front: "What constraint applies to the type in a predicate like `n is string`?"
+  back: "It must be assignable to the parameter type. `n: number` with `n is string` is error TS2677."
+  question: typescript/inference-and-narrowing/custom-type-guards
+- id: discriminated-union-definition
+  front: "What is a discriminated union?"
+  back: "A union whose members all share a property, the discriminant, with a distinct literal type in each. Checking it narrows the whole object to the matching member."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: union-vs-optional-fields
+  front: "Why is a discriminated union better than one object with optional fields?"
+  back: "With `{ kind: \"circle\" | \"square\"; radius?: number }` the compiler cannot connect `kind` to which field exists, so you reach for `!`. A union encodes the relationship, so the check proves the field is there."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: exhaustiveness-never-default
+  front: "How do you check a `switch` over a discriminated union exhaustively?"
+  back: "In `default`, pass the value to `assertNever(value: never)` or write `value satisfies never` (TS 4.9). An unhandled member is not assignable to `never`, so the error points at the missing case."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: exhaustiveness-missing-return
+  front: "How can exhaustiveness be checked without a `default` branch?"
+  back: "Annotate the return type and omit `default`. If the switch is not exhaustive, TypeScript reports a missing ending return (TS2366). It only works for functions that return."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: string-tag-does-not-discriminate
+  front: "Why does `{ kind: string }` fail as a discriminant?"
+  back: "The tag must be a literal or unit type in every member. With `string`, members do not narrow each other and `shape.radius` fails with TS2339."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: never-branch-runtime-safety
+  front: "Does compile-time exhaustiveness protect against bad runtime data?"
+  back: "No. Data from `JSON.parse` or a server can carry a tag the type does not know. The `never` branch only throws if you wrote it to, as `assertNever` does."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: destructured-discriminant
+  front: "Does destructuring the tag, `const { kind } = shape`, still narrow `shape`?"
+  back: "Yes, since TS 4.6, for `const` destructuring and parameters that are never assigned to. A `...rest` object does not narrow in the same way."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: in-instead-of-tag
+  front: "Can `in` replace a discriminant tag?"
+  back: "Yes when a property exists on only one member: `\"radius\" in shape` narrows to the circle member. It breaks once two members share the key, and a tag is clearer."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: annotation-widens-to-declared
+  front: "What is the type of a variable declared `const x: T = expr`?"
+  back: "`T`. The annotation checks `expr` against `T`, then specific information is lost: properties typed `string | RGB` stay `string | RGB`."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-semantics
+  front: "What does `expr satisfies T` (TS 4.9) do?"
+  back: "It checks `expr` against `T` like an annotation, including excess-property errors, but the expression keeps its own inferred type. It is erased at compile time."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-contextual-type
+  front: "How does `satisfies T` use `T` beyond checking?"
+  back: "As a contextual type: callback parameters get types, array literals can become tuples when `T` expects one, and literals are kept where `T` expects a literal type."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: as-vs-satisfies-completeness
+  front: "Why do `as` and `satisfies` differ on a config object with missing or misspelled keys?"
+  back: "`as T` only requires sufficient overlap, so missing keys and extra keys like `bleu` pass. `satisfies` does an assignability check and rejects both."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-not-conversion
+  front: "Does `satisfies` change a value's type?"
+  back: "Never. `const xs = [] satisfies string[]` is `never[]`, not `string[]`. Annotate when you need the declared type."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: satisfies-when-to-use
+  front: "When is `satisfies` the right tool, and when not?"
+  back: "Use it for config objects, route tables, theme tokens and lookup maps, where you want typos caught and per-property types kept. Do not use it for external data like `JSON.parse`, which needs runtime validation."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: as-const-satisfies-combined
+  front: "Can `satisfies` replace `as const`?"
+  back: "No, they do different jobs: `as const` makes a value readonly with literal types, `satisfies` checks it. Combine them: `[1, 2] as const satisfies readonly number[]` is `readonly [1, 2]`."
+  question: typescript/inference-and-narrowing/satisfies-operator
+- id: assertions-erased
+  front: "What do `as`, `!` and `!:` have in common at runtime?"
+  back: "All are assertions removed from the emitted JavaScript. Nothing is checked at runtime, so a wrong assertion becomes a runtime error somewhere else."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: as-overlap-rule
+  front: "When does TypeScript allow `value as T`?"
+  back: "When the types sufficiently overlap, meaning one is assignable to the other. `\"hello\" as number` is rejected with TS2352."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: double-assertion
+  front: "What is a double assertion and what does it cost?"
+  back: "`x as unknown as T`, going through `unknown` or `any` to bypass the overlap rule. It deliberately gives up all checking."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: as-completeness-not-checked
+  front: "Why does `{ a: 1 } as { a: number; b: string }` compile?"
+  back: "Because the target is a subtype of the source, so the types overlap. `as` does not check completeness."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: non-null-assertion
+  front: "What does the non-null assertion `value!` do?"
+  back: "It removes `null` and `undefined` from the type only. `maybe!.length` still throws at runtime if `maybe` is `undefined`. It is the absence of a null check, not a null check."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: definite-assignment-assertion
+  front: "What does `let x!: T` or `prop!: T` suppress?"
+  back: "Added in TS 2.7, it suppresses \"used before being assigned\" (TS2454) or, on a class field, `strictPropertyInitialization` (TS2564). Reasonable for fields a framework initializes after the constructor."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: definite-assignment-emit
+  front: "Does `prop!: string` change the emitted JavaScript of a class?"
+  back: "The `!` is erased, but the field declaration is not. With `target: es2022`, TS 7.0.2 emitted `b;`, defining the field as `undefined`. `declare b: string` or `useDefineForClassFields: false` emitted no field."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
+- id: assertion-alternatives
+  front: "What should you prefer over `as` and `!` when an alternative exists?"
+  back: "A type guard or assertion function (the claim gets checked), `?.`/`??` or an early `throw` instead of `!`, `satisfies` for object literals, and `unknown` plus narrowing for external data."
+  question: typescript/inference-and-narrowing/assertions-and-non-null
