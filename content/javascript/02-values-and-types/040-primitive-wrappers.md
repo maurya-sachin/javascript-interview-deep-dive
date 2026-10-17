@@ -14,6 +14,7 @@ sources:
   - https://tc39.es/ecma262/#sec-getvalue
   - https://tc39.es/ecma262/#sec-putvalue
   - https://tc39.es/ecma262/#sec-ordinarycallbindthis
+  - https://tc39.es/ecma262/#sec-object-value
   - https://developer.mozilla.org/en-US/docs/Glossary/Primitive
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures
 tldr: >
@@ -45,7 +46,7 @@ console.log(word.toUpperCase(), word.length); // → HELLO 5
 try {
   word.foo = 1; // ToObject creates a wrapper, the property lands on it, the wrapper is discarded
 } catch (error) {
-  console.log(error.message); // → Cannot create property 'foo' on string 'hello'
+  console.log(error.message); // → (V8 wording) Cannot create property 'foo' on string 'hello'
 }
 console.log(word.foo); // → undefined
 

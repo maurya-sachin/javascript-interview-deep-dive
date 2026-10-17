@@ -13,9 +13,14 @@ sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-scripts-and-modules
   - https://tc39.es/ecma262/#sec-modules
   - https://tc39.es/ecma262/#sec-module-semantics
+  - https://tc39.es/ecma262/#sec-module-environment-records
+  - https://tc39.es/ecma262/#sec-globaldeclarationinstantiation
+  - https://tc39.es/ecma262/#sec-HostLoadImportedModule
+  - https://html.spec.whatwg.org/multipage/webappapis.html#module-map
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
   - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script
   - https://nodejs.org/docs/latest-v24.x/api/esm.html
+  - https://nodejs.org/docs/latest-v24.x/api/modules.html#the-module-wrapper
 tldr: >
   A script is parsed as the Script goal symbol and shares one global scope; a module is parsed as the
   Module goal. Modules have their own top-level scope, are always strict, have top-level `this` of
@@ -34,7 +39,7 @@ ECMAScript has two goal symbols for source text: **Script** and **Module**. The 
 | Top-level `this` | The global object | `undefined` |
 | `import` / `export` | Static syntax not allowed (dynamic `import()` is) | Allowed |
 | Top-level `await` | Not allowed | Allowed |
-| Evaluated | Every time it is run or included | Once per module URL; later imports reuse the same module instance |
+| Evaluated | Every time it is run or included | Once per module; later imports reuse the same instance (browsers key it by URL) |
 | Browser loading | Blocks parsing unless `async`/`defer` | Fetched asynchronously and deferred by default |
 
 Modules also have **live bindings**: an import is a read-only view of the exporting module's variable, not a copy. Modules form a graph whose dependencies are resolved and evaluated before the importing module.

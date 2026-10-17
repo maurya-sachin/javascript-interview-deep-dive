@@ -1,11 +1,14 @@
 import type { RolePath, TopicOverview } from './types.ts'
 
-export type TopicState = 'written' | 'in-progress' | 'planned'
+export type TopicState = 'published' | 'in-review' | 'planned'
 
-/** Readable questions make a topic written; chapters without readable questions make it in progress. */
+/**
+ * Where a topic stands as content: a published question makes it published, chapters make it in review.
+ * It reads content facts, not which questions have a page.
+ */
 export function topicState(topic: TopicOverview): TopicState {
-  if (topic.stats.readable > 0) return 'written'
-  if (topic.chapterCount > 0) return 'in-progress'
+  if (topic.stats.reviewed > 0) return 'published'
+  if (topic.chapterCount > 0) return 'in-review'
   return 'planned'
 }
 

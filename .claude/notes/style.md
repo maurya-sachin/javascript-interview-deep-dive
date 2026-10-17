@@ -16,4 +16,4 @@ Record here only conventions not covered there (e.g., maintainer corrections). D
 - Session focus and keys: `useShortcuts` (Enter/Space stay native on links and buttons) and `useSessionFocus`.
 - Browser-only stores live apart from pure logic so Node tests never compile DOM code: `src/content/reviewStore.ts` (flashcard history) vs `src/content/review.ts`; `src/lib/progress.ts` vs `src/lib/progressTypes.ts`. Never add `/// <reference lib="dom" />` to shared modules.
 - Prerendered pages show browser-only counts only after hydration (`useHydrated`), with the space reserved, so the first paint is neutral.
-- Route visuals: `RouteLine` (responsive/vertical stations) and `RouteSummary` (compact, aria-hidden) with `StationMark`/`StationLegend`; states differ by shape as well as colour (check, filled, half, hollow), planned marks use `muted-foreground/70` for 3:1.
+- Route visuals: `RouteDiagram` (path pages and the roadmap: topic spine, chapter/planned-area branches) and `RouteSummary` (compact, aria-hidden) with `StationMark`/`StationLegend`; states differ by shape as well as colour (check, filled, half, hollow), planned marks use `muted-foreground/70` for 3:1.

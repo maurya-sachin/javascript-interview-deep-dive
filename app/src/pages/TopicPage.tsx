@@ -35,7 +35,7 @@ function Topic({ topic }: { topic: TopicSummary }) {
   const questions = topic.chapters.flatMap((chapter) => chapter.questions)
   // Continue at the first readable question not read yet; fall back to the first readable one.
   const start = questions.find((question) => question.hasPage && !read.includes(question.id)) ?? questions.find((question) => question.hasPage)
-  // Drafts are readable but not reviewed: only a drafts build has any.
+  // Drafts are readable but not yet reviewed by the maintainer.
   const unreviewed = stats.readable - stats.reviewed
   const hasFacts = topic.covers !== null || unreviewed > 0 || stats.lastVerified !== null || stats.stale > 0
   const readCount = questions.filter((question) => read.includes(question.id)).length
@@ -132,7 +132,7 @@ function Topic({ topic }: { topic: TopicSummary }) {
                         <details open={filtering} className="group">
                           <summary className="grid cursor-pointer list-none grid-cols-[2.5rem_1fr] items-center gap-x-4 gap-y-2 py-4 sm:grid-cols-[2.5rem_1fr_11rem] [&::-webkit-details-marker]:hidden">
                             <span className="font-mono text-sm text-muted-foreground">{chapter.number}</span>
-                            <span className="text-lg font-semibold group-hover:text-link">{chapter.title}</span>
+                            <InlineHtml html={chapter.titleHtml} className="text-lg font-semibold group-hover:text-link [&_code]:font-mono [&_code]:text-[0.9em]" />
                             <span className="col-start-2 flex flex-col gap-1.5 text-sm text-muted-foreground sm:col-start-3 sm:text-right">
                               <DifficultyMix counts={counts.byDifficulty} />
                               <span>

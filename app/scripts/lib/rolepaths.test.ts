@@ -9,10 +9,10 @@ function questions(readable: number, unreadable = 0): QuestionSummary[] {
   }))
 }
 function chapter(slug: string, title: string, list: QuestionSummary[]): ChapterSummary {
-  return { number: '01', slug, title, summaryHtml: '', summaryText: '', questions: list }
+  return { number: '01', slug, title, titleHtml: title, summaryHtml: '', summaryText: '', questions: list }
 }
 function topic(slug: string, title: string, chapters: ChapterSummary[]): TopicSummary {
-  return { slug, title, track: 'Frontend', covers: null, summaryHtml: '', summaryText: '', flashcardCount: 0, chapters }
+  return { slug, title, track: 'Frontend', covers: null, summaryHtml: '', summaryText: '', plannedAreasHtml: [], flashcardCount: 0, chapters }
 }
 
 const topics: TopicSummary[] = [

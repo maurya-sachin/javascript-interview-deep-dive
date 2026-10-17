@@ -38,7 +38,9 @@ export function ChapterPage() {
     >
       <title>{`${chapter.title} · ${topic.title} · ${SITE_NAME}`}</title>
       <p className="text-sm text-muted-foreground">Chapter {chapter.number}</p>
-      <h1 className="mt-1 text-4xl font-bold tracking-[-0.03em]">{chapter.title}</h1>
+      <h1 className="mt-1 text-4xl font-bold tracking-[-0.03em]">
+        <InlineHtml html={chapter.titleHtml} className="[&_code]:font-mono [&_code]:text-[0.9em]" />
+      </h1>
       <InlineHtml html={chapter.summaryHtml} className="mt-3 block max-w-2xl font-serif text-xl leading-relaxed text-muted-foreground [&_code]:font-mono [&_code]:text-[0.9em]" />
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted-foreground">

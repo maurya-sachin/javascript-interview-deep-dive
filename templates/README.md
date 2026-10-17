@@ -158,7 +158,7 @@ Flashcards are short recall prompts, separate from questions (R8). One file per 
 | `back` | yes | ≤ 60 words; inline Markdown only |
 | `question` | yes | Id of the question that explains it; must exist |
 
-A production build ships a card only when its `question` is published.
+A build ships a card only when its `question` has a page: a draft or published question.
 
 One fact per card. If the back needs a code block, it belongs in a question instead.
 
@@ -205,7 +205,7 @@ Commands (Node 24, run in `app/`):
 | `npm run content:status [topic]` | Published counts per chapter and every `→ —` gap |
 | `npm run content:status -- --stale [topic]` | Written questions to re-check, oldest first: stale ones and any with `perishable` notes |
 | `npm run content:new -- <topic>/<chapter> <slug> "<title>" --difficulty <d> --frequency <1-5> [--core] [--number NNN]` | Creates a `planned` stub, then syncs READMEs |
-| `npm run content:build [-- --drafts]` | Compiles content into `app/public/data/` (published only; `--drafts` adds drafts) |
-| `npm run dev` | Builds content with drafts and starts the app |
+| `npm run content:build` | Compiles content into `app/public/data/` (draft and published questions; drafts are labelled Draft) |
+| `npm run dev` | Builds content and starts the app |
 
 Fixes to existing questions are welcome the same way. Content is licensed under the repo's [MIT License](../LICENSE).

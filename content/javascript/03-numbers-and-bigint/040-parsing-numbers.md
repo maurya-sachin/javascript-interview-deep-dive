@@ -11,6 +11,12 @@ related:
 verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-tonumber
+  - https://tc39.es/ecma262/#sec-stringtonumber
+  - https://tc39.es/ecma262/#sec-number-constructor
+  - https://tc39.es/ecma262/#sec-unary-plus-operator
+  - https://tc39.es/ecma262/#sec-parseint-string-radix
+  - https://tc39.es/ecma262/#sec-parsefloat-string
+  - https://tc39.es/ecma262/#sec-array.prototype.map
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseFloat

@@ -55,7 +55,7 @@ Rules that make the API safe:
 ## Example
 
 ```js
-// polyfill-run: @js-temporal/polyfill 0.5.1 on Node 24.19.0 (Node 24 has no native Temporal)
+// Same output natively in Chrome 155 and with @js-temporal/polyfill 0.5.1 on Node 24.19.0 (no Temporal global)
 import { Temporal } from '@js-temporal/polyfill';
 
 // Instant: an exact moment, no zone, no calendar
@@ -122,13 +122,13 @@ console.log(Temporal.Duration.from({ hours: 25 }).round({ largestUnit: 'day' }).
 // → P1DT1H
 ```
 
-Output above is polyfill-run (Node 24.19.0), like every Temporal output in this question.
+Output above matches natively in Chrome 155 and with the polyfill on Node 24.19.0, like every Temporal output in this question.
 
 ### Edge cases
 
 - `Instant` rejects calendar units: `instant.add({ days: 1 })` throws a `RangeError`, because a day is not a fixed length. Use hours, or convert to `ZonedDateTime`.
 - `PlainDate.from('2026-03-08T12:00:00Z')` throws: a `Z` designator means an exact moment, which a plain value must not silently discard.
-- Formatting goes through `toLocaleString()`. The polyfill rejects `new Intl.DateTimeFormat().format(zonedDateTime)` with a `TypeError` telling you to call `toLocaleString()`, and rejects options that do not apply to the type (a `timeStyle` on a `PlainDate`). Both were observed in the polyfill; I did not read the matching ECMA-402 text.
+- Formatting goes through `toLocaleString()`. `new Intl.DateTimeFormat().format(zonedDateTime)` throws a `TypeError` (the polyfill's message says to call `toLocaleString()`), and options that do not apply to the type are rejected (a `timeStyle` on a `PlainDate`). Both throw natively in Chrome 155 and in the polyfill; I did not read the matching ECMA-402 text.
 - `toString()` for `Instant` is always UTC (`…Z`); to show a zone, convert first.
 - `Date.prototype.toTemporalInstant` exists only where Temporal does; the polyfill exports it as a standalone function instead.
 

@@ -26,7 +26,10 @@ export interface QuestionSummary {
 export interface ChapterSummary {
   number: string
   slug: string
+  /** Plain text, for page titles, breadcrumbs and search. */
   title: string
+  /** The title as inline HTML, for headings, so inline code renders. */
+  titleHtml: string
   /** The README's opening paragraph, as inline HTML. */
   summaryHtml: string
   /** The same paragraph as plain text, for page descriptions. */
@@ -46,6 +49,8 @@ export interface TopicSummary {
   /** The same paragraph as plain text, for page descriptions. */
   summaryText: string
   chapters: ChapterSummary[]
+  /** Areas from the README's `## Not yet mapped` list, as inline HTML: planned parts with no chapter yet. */
+  plannedAreasHtml: string[]
   /** Cards in this topic's flashcard deck; 0 when it has none. */
   flashcardCount: number
 }
@@ -67,9 +72,18 @@ export interface TopicStats {
   drafted: number
 }
 
-/** A topic as the manifest lists it: everything the home page needs, without chapter or question lists. */
+/** A chapter as the manifest lists it: enough to draw it on a route diagram, without its questions. */
+export interface ChapterOverview {
+  number: string
+  slug: string
+  titleHtml: string
+  questionCount: number
+}
+
+/** A topic as the manifest lists it: everything the home page and route diagrams need, without question lists. */
 export interface TopicOverview extends Omit<TopicSummary, 'chapters'> {
   chapterCount: number
+  chapters: ChapterOverview[]
   stats: TopicStats
 }
 

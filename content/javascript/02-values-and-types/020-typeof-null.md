@@ -12,10 +12,15 @@ related:
 verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-typeof-operator
+  - https://tc39.es/ecma262/#sec-getvalue
+  - https://tc39.es/ecma262/#sec-toobject
+  - https://tc39.es/ecma262/#sec-ordinaryhasinstance
+  - https://tc39.es/ecma262/#sec-properties-of-the-object-prototype-object
+  - https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null
 tldr: >
-  It's a bug from the first JavaScript implementation, frozen into the language. Per MDN, values
+  Per MDN, it's a leftover of the first JavaScript implementation, frozen into the language. Values
   carried a type tag, objects had tag 0, and `null` was the NULL pointer, so it read as an object.
   A fix (`typeof null === "null"`) was proposed and rejected, so the spec now hard-codes `"object"`.
   `null` is a primitive: check it with `=== null`.

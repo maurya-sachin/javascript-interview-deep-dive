@@ -14,6 +14,18 @@ sources:
   - https://tc39.es/ecma262/#sec-symbol-description
   - https://tc39.es/ecma262/#sec-symbol.for
   - https://tc39.es/ecma262/#sec-symbol.prototype.description
+  - https://tc39.es/ecma262/#sec-symbol-constructor
+  - https://tc39.es/ecma262/#sec-symbol.keyfor
+  - https://tc39.es/ecma262/#sec-well-known-symbols
+  - https://tc39.es/ecma262/#sec-tostring
+  - https://tc39.es/ecma262/#sec-object.keys
+  - https://tc39.es/ecma262/#sec-enumerate-object-properties
+  - https://tc39.es/ecma262/#sec-json.stringify
+  - https://tc39.es/ecma262/#sec-reflect.ownkeys
+  - https://tc39.es/ecma262/#sec-object.getownpropertysymbols
+  - https://tc39.es/ecma262/#sec-copydataproperties
+  - https://tc39.es/ecma262/#sec-object.prototype.tostring
+  - https://tc39.es/ecma262/#sec-private-names
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures
 tldr: >
@@ -61,14 +73,14 @@ console.log(String(new Temperature())); // → [object Temperature]
 try {
   `${id}`;
 } catch (error) {
-  console.log(error.message); // → Cannot convert a Symbol value to a string
+  console.log(error.message); // → (V8 wording) Cannot convert a Symbol value to a string
 }
 ```
 
 ## Pitfalls
 
 - Calling symbol keys "private". They're only unlisted by default; `Object.getOwnPropertySymbols` and `Reflect.ownKeys` reveal them.
-- `new Symbol()`. It throws `TypeError: Symbol is not a constructor`.
+- `new Symbol()`. It throws a `TypeError` (V8 words it "Symbol is not a constructor").
 - Expecting `JSON.stringify` or `for…in` to include symbol keys. They're skipped, so symbol data silently disappears when you serialise.
 - Using `Symbol.for` for ordinary uniqueness. Registry symbols are shared, so two unrelated modules choosing the same key get the same symbol.
 

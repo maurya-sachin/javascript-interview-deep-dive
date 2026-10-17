@@ -349,6 +349,26 @@
   front: "Can `in` replace a discriminant tag?"
   back: "Yes when a property exists on only one member: `\"radius\" in shape` narrows to the circle member. It breaks once two members share the key, and a tag is clearer."
   question: typescript/inference-and-narrowing/discriminated-unions
+- id: discriminant-narrowing-filter
+  front: "How does the checker narrow `shape.kind === \"circle\"` on a union?"
+  back: "It treats `kind` as a discriminant property and filters the members. The true branch keeps members whose `kind` can be `\"circle\"`; the false branch drops those whose `kind` is exactly `\"circle\"`. A `switch` filters per `case`."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: exhaustiveness-filter-to-never
+  front: "Why does the `never` check detect a missing case in a `switch`?"
+  back: "Exhaustiveness is the same filtering run to completion. If every member is removed, the value is `never`, so the assignment compiles. If one remains, the assignment fails and the message names the leftover member."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: assert-never-vs-satisfies-never
+  front: "What does `assertNever` give you that `value satisfies never` does not?"
+  back: "A runtime throw, and it works on every TypeScript version. `satisfies never` needs TS 4.9+ and is purely a compile-time check with no helper function."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: widened-tag-loses-discrimination
+  front: "Why can a tag that widened to `string` lose narrowing even if you wrote literals?"
+  back: "Narrowing needs the property to be a literal in the declared type. A value widened from a `let`, or an object literal without `as const`, has type `string` and no longer discriminates."
+  question: typescript/inference-and-narrowing/discriminated-unions
+- id: union-vs-polymorphism-tradeoff
+  front: "When might classes with methods beat a discriminated union?"
+  back: "With many variants sharing behavior, polymorphism keeps each new case in one place instead of touching every `switch`. The cost is losing the compiler's exhaustiveness proof."
+  question: typescript/inference-and-narrowing/discriminated-unions
 - id: annotation-widens-to-declared
   front: "What is the type of a variable declared `const x: T = expr`?"
   back: "`T`. The annotation checks `expr` against `T`, then specific information is lost: properties typed `string | RGB` stay `string | RGB`."
@@ -446,6 +466,30 @@
 - id: generics-erased
   front: "Are generic type parameters available at runtime?"
   back: "No. Type parameters and arguments are erased on emit, so there is no `T` to inspect and no `new T()`."
+  question: typescript/generics/generics-and-constraints
+- id: constraint-violation-fallback
+  front: "When the best inferred candidate violates the constraint, what does inference do, and where is the error reported?"
+  back: "It falls back to the constraint itself, then the argument check reports the error. That is why `longest(10, 20)` complains about `HasLength`, not about `T`."
+  question: typescript/generics/generics-and-constraints
+- id: base-constraint-unknown
+  front: "Inside a generic body, what is the base constraint of `T` when none is written?"
+  back: "`unknown`. `T` is an opaque type whose property access resolves through its base constraint, so with `T extends HasLength`, `a.length` works."
+  question: typescript/generics/generics-and-constraints
+- id: self-referential-constraint-and-default
+  front: "Can a constraint or default refer to type parameters, including its own?"
+  back: "Yes. A constraint can mention its own parameter (`T extends Comparable<T>`), and a later parameter can use an earlier one in a constraint (`K extends keyof T`) or a default (`<A, B = A[]>`)."
+  question: typescript/generics/generics-and-constraints
+- id: extends-object-rejects-primitives
+  front: "What happens when a primitive is passed to a parameter constrained with `T extends object`?"
+  back: "It is rejected: `merge(1, {})` with `<A extends object, B extends object>` reports that `number` is not assignable to `object`."
+  question: typescript/generics/generics-and-constraints
+- id: union-print-order-unstable
+  front: "Can you rely on the printed order of union members in error messages?"
+  back: "No. Unions are unordered. `keyof { id; name }` printed `\"id\" | \"name\"` on TypeScript 7.0.2 and `\"name\" | \"id\"` on 5.9.3 for the same program."
+  question: typescript/generics/generics-and-constraints
+- id: generics-fewest-parameters
+  front: "What is the guideline for how many type parameters a generic signature should have?"
+  back: "The fewest that express the relationships, since each one shows up in error messages and hover text. Reach for overloads or conditional types only when one generic signature cannot express the contract."
   question: typescript/generics/generics-and-constraints
 - id: inference-candidates
   front: "How does the checker infer `T` in `f<T>(...)`?"
@@ -551,6 +595,34 @@
   front: "Why do you need `as const` for `(typeof roles)[number]` to give literal roles?"
   back: "Without it `typeof roles` is `string[]` and `[number]` gives `string`. With it, adding a role updates both the runtime list and the type."
   question: typescript/generics/keyof-typeof-indexed-access
+- id: values-types-separate-namespaces
+  front: "Why does a type position need `typeof` to refer to a variable?"
+  back: "Values and types live in separate namespaces, so a type cannot name a variable. `typeof` is the bridge: it queries the declared or inferred type of an identifier. It asks about a name, so calls are not allowed."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-indexed-access-lookup
+  front: "How do `keyof T` and `T[keyof T]` relate?"
+  back: "They are a lookup pair. `keyof T` enumerates the keys; `T[keyof T]` enumerates the value types."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: tuple-index-out-of-range
+  front: "For a tuple `Pair`, what differs between `Pair[number]`, `Pair[0]` and an out-of-range index?"
+  back: "`Pair[number]` unions all element types; `Pair[0]` gives one. An out-of-range tuple index is a compile error (TS2493), whereas an array's `number` index never is."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-enum-vs-typeof-enum
+  front: "For a numeric enum `E`, what is `keyof E` versus `keyof typeof E`? (checked on 7.0.2)"
+  back: "`keyof typeof E` is the member names, like `\"A\" | \"B\"`. Plain `keyof E` is the keys of `number` (`\"toFixed\" | \"toString\" | ...`), not the member names."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-string-contents
+  front: "What does `keyof string` include?"
+  back: "Every `String` method name, plus `number` for index access and a `unique symbol`. It is rarely what you want."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-union-print-order
+  front: "Is the printed order of a `keyof` union stable across compiler versions?"
+  back: "No. `\"admin\" | \"user\"` printed on 7.0.2 and `\"user\" | \"admin\"` on 5.9.3. Unions are unordered; do not depend on the order."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: derive-type-from-value-tradeoff
+  front: "What is the trade-off of deriving a type from a value with `typeof`?"
+  back: "One source of truth, but the type is coupled to the value's literal shape (`as const` required) and error messages mention the derived structure. For public APIs, prefer an explicit named type."
+  question: typescript/generics/keyof-typeof-indexed-access
 - id: const-type-parameter-effect
   front: "What does `function f<const T>(x: T)` do (TS 5.0)?"
   back: "Literal expressions in the argument get the most precise type, like `as const`: literals, `readonly` properties and `readonly` tuples. Callers no longer need to write `as const`."
@@ -625,6 +697,26 @@
   front: "How do you detect `any` with a conditional type?"
   back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, to which `0` is assignable; for other `T` the intersection is `1` or `never`."
   question: typescript/type-level-programming/conditional-types
+- id: distributive-true-branch-constraint
+  front: "In the true branch of a distributive conditional, what is `T`, and why does `T extends string ? Uppercase<T> : never` compile?"
+  back: "`T` refers to the individual union member and carries the extra constraint `U`. So `T` is known to be a string there, and `Uppercase<T>` type-checks without a cast."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-only-own-naked-parameter
+  front: "Does an outer alias distribute a union that sits inside an object, function return or tuple position?"
+  back: "No. A conditional there distributes only when its own check type is a naked parameter at instantiation. For example `Obj<string | number>` printed `{ v: 2 | 1 }`; union order differs by compiler."
+  question: typescript/type-level-programming/conditional-types
+- id: force-distribution-idiom
+  front: "What idiom forces distribution when you have no conditional you otherwise need?"
+  back: "`T extends T ? ... : never`. Checked: `Dist<1 | 2>` gave `[1] | [2]`, printed in either order."
+  question: typescript/type-level-programming/conditional-types
+- id: conditional-vs-overloads-choice
+  front: "When do overloads beat a conditional return type, and when does a conditional win?"
+  back: "Prefer overloads for two or three input shapes. Use a conditional when the mapping is open-ended or computed from the input type."
+  question: typescript/type-level-programming/conditional-types
+- id: nested-conditionals-split
+  front: "What is the problem with deeply nested conditional types, and the fix?"
+  back: "They are hard to read and slow to check. Split them into named aliases."
+  question: typescript/type-level-programming/conditional-types
 - id: infer-semantics
   front: "What does `infer` do, and where is it in scope?"
   back: "It introduces a type variable in the `extends` clause, solved by matching the checked type against the pattern. It is in scope only in the true branch; anywhere else it is a syntax error (TS1338)."
@@ -660,6 +752,30 @@
 - id: returntype-constraint-any
   front: "Why does the constraint on `ReturnType` use `(...args: any) => any` rather than `unknown`?"
   back: "Parameters are contravariant: `(x: string) => void` is not assignable to `(...args: unknown[]) => unknown`, but is to the `any` and `never[]` forms. The handbook version uses `never[]`."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-fresh-parameter-then-assignability
+  front: "How does the checker evaluate a conditional with `infer X`, step by step?"
+  back: "Each `infer X` is a fresh type parameter scoped to the conditional. The checker infers from the check type to the extends type, collecting candidates, then checks assignability with the inferred values substituted. Only then is the true branch taken."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-implicit-constraint
+  front: "Can `infer X` get a constraint without writing `extends C`, and which wins?"
+  back: "Yes, the compiler may derive an implicit constraint from where the variable sits. An explicit `extends C` overrides it (PR 48112)."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-keeps-labels-and-rest
+  front: "What does inferring the parameters of `(a: string, ...r: number[]) => void` into `infer P` give?"
+  back: "`[a: string, ...r: number[]]`: the tuple keeps the labels and the rest element."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-wrapper-signature
+  front: "How do you type a wrapper like `retry(fn)` so it does not lose the wrapped function's signature?"
+  back: "Constrain `F extends (...a: any) => Promise<any>` and return `(...a: Parameters<F>) => Promise<Awaited<ReturnType<F>>>`. Both utilities are `infer` underneath, so the type tracks the original."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-failure-shows-never
+  front: "How do you debug an `infer` pattern that resolves to `never`?"
+  back: "Errors show only the resolved `never`, with no hint why the pattern failed. Infer one piece at a time into a named alias."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-vs-indexed-access
+  front: "When should you use indexed access instead of `infer`?"
+  back: "When the position is known and constrained, such as `T[\"message\"]` or `T[number]`. Use `infer` for structure that cannot be indexed: return types, parameters and template segments."
   question: typescript/type-level-programming/infer-keyword
 - id: mapped-type-basics
   front: "What does a mapped type like `{ [K in \"a\" | \"b\"]: number }` do?"
@@ -700,6 +816,30 @@
 - id: mapped-types-shallow
   front: "Are mapped types deep?"
   back: "No. They touch only the first level; nested objects need recursion."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-nonliteral-keys-index-signatures
+  front: "What does a mapped type make of non-literal key members such as `string`? (checked)"
+  back: "Index signatures. A mapped type creates a property for each string, number or symbol literal in `C`; `[K in string | number | symbol]: 1` printed three index signatures."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-mutable-readonly-array
+  front: "What is `Mutable<readonly string[]>` for a `-readonly` homomorphic mapped type? (checked)"
+  back: "`string[]`. A homomorphic mapped type over an array keeps the array shape while removing `readonly`."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-index-signatures-survive
+  front: "Does a homomorphic identity mapping keep index signatures? (checked)"
+  back: "Yes. `Plain<{ [k: string]: number; a: 1 }>` printed `{ [x: string]: number; a: 1; }`."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-as-over-union-of-objects
+  front: "How do you build a handler map keyed by `kind` from a union of objects?"
+  back: "Map over the union with `as`: `{ [E in Ev as E[\"kind\"]]: (e: E) => void }`. Each member's `kind` literal becomes a key, and its handler takes that member."
+  question: typescript/type-level-programming/mapped-types
+- id: omit-keeps-modifiers
+  front: "Why does `Omit` keep `readonly` and `?` although it uses `Exclude<keyof T, K>`? (checked)"
+  back: "Because it goes through the homomorphic `Pick`, so modifiers are copied. `Omit<Point, \"z\">` keeps them."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-types-readability-tradeoff
+  front: "What are the costs of heavy mapped types, and how do you limit them?"
+  back: "Unreadable hover output and slower checking. Prefer the built-in utilities, name each step of a complex mapping as its own alias, and use an explicit interface when it is clearer."
   question: typescript/type-level-programming/mapped-types
 - id: template-literal-cross-product
   front: "How does a template literal type handle union placeholders?"
@@ -760,6 +900,26 @@
 - id: utility-infer-family
   front: "Which utilities follow the same `infer` pattern as `ReturnType`?"
   back: "`Parameters`, `Awaited`, `InstanceType` and `ConstructorParameters`."
+  question: typescript/type-level-programming/utility-types
+- id: partial-adds-undefined
+  front: "What is `Partial<User>[\"address\"]` when `address` is `{ city: string }`?"
+  back: "`{ city: string } | undefined`. The optional modifier adds `undefined`."
+  question: typescript/type-level-programming/utility-types
+- id: nonnullable-unknown
+  front: "What does `NonNullable<unknown>` resolve to, and why?"
+  back: "`{}`. `NonNullable<T>` is `T & {}` (since TS 4.8), and `unknown & {}` is `{}`: every non-nullish value."
+  question: typescript/type-level-programming/utility-types
+- id: pick-on-union-keeps-tag-union
+  front: "What does `Pick<Shape, \"kind\">` give for a union `Shape` whose `kind` is `\"a\"` or `\"b\"`?"
+  back: "`{ kind: \"a\" | \"b\" }`, one object type holding the union of the tags."
+  question: typescript/type-level-programming/utility-types
+- id: utility-form-draft-example
+  front: "How do utilities model a form draft and a submit payload?"
+  back: "`Partial<Omit<User, \"id\">>` for the editing state and `Required<Pick<User, \"name\" | \"email\">>` for the fields the submit handler must have. The compiler rejects a submit missing `email`."
+  question: typescript/type-level-programming/utility-types
+- id: utility-compounding-tradeoff
+  front: "What goes wrong when utility types compound, like `Partial<Omit<Pick<...>>>`, and what is the guideline?"
+  back: "Hover output becomes unreadable and errors point at the alias chain. Prefer one or two layers. When a variant becomes a domain concept (`CreateUserInput`), name it or write an interface."
   question: typescript/type-level-programming/utility-types
 - id: recursive-alias-lazy-positions
   front: "Where can a type alias reference itself?"

@@ -11,13 +11,17 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-scripts-static-semantics-early-errors
   - https://tc39.es/ecma262/#sec-hosts-and-implementations
+  - https://tc39.es/ecma262/#sec-error-handling-and-language-extensions
+  - https://tc39.es/ecma262/#sec-parse-script
   - https://v8.dev/blog/launching-ignition-and-turbofan
   - https://v8.dev/blog/sparkplug
   - https://v8.dev/blog/maglev
   - https://v8.dev/blog/preparser
+  - https://webkit.org/blog/10308/speculation-in-javascriptcore/
+  - https://hacks.mozilla.org/2020/11/warp-improved-js-performance-in-firefox-83/
 tldr: >
   The language is neither: the spec defines behaviour, not an execution strategy. Modern engines
-  do both. They parse the whole source up front, compile it to bytecode, interpret that bytecode,
+  do both. They report syntax errors for the whole source up front, compile it to bytecode, interpret that bytecode,
   and JIT-compile hot code to machine code, using runtime type feedback. So "compiled or
   interpreted" is a property of an implementation, not of JavaScript.
 ---
@@ -28,12 +32,12 @@ tldr: >
 
 A typical engine pipeline, using V8 as the example:
 
-1. **Parse.** The source becomes an AST. Syntax errors and *early errors* (such as duplicate `let` declarations) are reported here, before any code runs. V8 *pre-parses* inner functions lazily: it checks them for errors but skips building their full AST until first call.
+1. **Parse.** The source becomes an AST. Syntax errors and *early errors* (such as duplicate `let` declarations) are reported here; the spec requires a script's early errors at parse time, before any of its code runs. V8 *pre-parses* inner functions lazily: it checks them for errors but skips building their full AST until first call.
 2. **Compile to bytecode.** The **Ignition** interpreter runs compact bytecode. Starting here keeps startup fast and memory low.
 3. **Tier up.** While running, the engine collects feedback about types and shapes. Hot functions are compiled to machine code: V8 has **Sparkplug** (a fast baseline compiler), **Maglev** (a mid-tier optimizing compiler) and **TurboFan** (the top-tier optimizer).
 4. **Deoptimize.** Optimized code rests on assumptions from that feedback. If one breaks, say a function suddenly receives a different type, the engine discards the machine code and falls back to a lower tier.
 
-So JavaScript is parsed ahead of execution and compiled just in time, but a first call is still interpreted. Other engines use similar tiers with different names, and some embedded engines are interpreter-only.
+So JavaScript is parsed ahead of execution and compiled just in time, but a first call is still interpreted. Other engines use similar tiers with different names.
 
 The interview-safe answer: "It is usually parsed, compiled to bytecode, interpreted, and JIT-compiled for hot paths. It is not an ahead-of-time compiled language, and it is not line-by-line interpreted."
 
@@ -79,4 +83,4 @@ try {
 **A:** Optimizing is slow and costs memory, and most code runs once. Starting in the interpreter makes pages and scripts begin quickly; only hot code earns the expensive tiers.
 
 **Q:** Are all engines the same?
-**A:** No. SpiderMonkey and JavaScriptCore have their own tier names and heuristics, and some engines for constrained devices interpret only. The language semantics are identical either way.
+**A:** No. SpiderMonkey (Baseline, Warp) and JavaScriptCore (LLInt, Baseline, DFG, FTL) have their own tiers and heuristics. The language semantics are identical either way.

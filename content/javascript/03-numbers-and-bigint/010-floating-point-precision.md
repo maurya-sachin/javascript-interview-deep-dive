@@ -12,6 +12,11 @@ related:
 verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-number-type
+  - https://tc39.es/ecma262/#sec-numeric-types-number-add
+  - https://tc39.es/ecma262/#sec-numeric-types-number-tostring
+  - https://tc39.es/ecma262/#sec-number.epsilon
+  - https://tc39.es/ecma262/#sec-number.prototype.tofixed
+  - https://tc39.es/ecma262/#sec-math.sqrt
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed

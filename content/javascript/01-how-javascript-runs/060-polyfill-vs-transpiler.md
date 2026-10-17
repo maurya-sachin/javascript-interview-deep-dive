@@ -16,6 +16,9 @@ sources:
   - https://esbuild.github.io/api/#target
   - https://swc.rs/docs/configuration/supported-browsers
   - https://github.com/browserslist/browserslist
+  - https://esbuild.github.io/content-types/
+  - https://www.typescriptlang.org/tsconfig/#target
+  - https://babeljs.io/docs/babel-plugin-transform-async-to-generator
 tldr: >
   A polyfill is run-time code that adds a missing API (a function or object) to an old engine. A
   transpiler is a build-time tool that rewrites new syntax into older syntax. Syntax an old engine cannot
@@ -31,7 +34,7 @@ Both let you write modern JavaScript for older engines, but they fix different p
 
 The rule of thumb: **new syntax is transpiled, new built-ins are polyfilled.** Some features need both: a transpiled `async` function or generator relies on a runtime helper, and on `Promise`, which may itself need a polyfill.
 
-Neither is perfect. A transpiler can only emit what the older language can express, so some features are approximated with heavier output (private `#fields` become `WeakMap` lookups). A polyfill can only use what exists, so behaviour that needs engine support, such as `Proxy`, cannot be reproduced faithfully.
+Neither is perfect. A transpiler can only emit what the older language can express, so some features are approximated with heavier output (esbuild lowers private `#fields` to `WeakMap` lookups). A polyfill can only use what exists, so behaviour that needs engine support cannot be reproduced faithfully.
 
 Both are driven by **target environments**. A Browserslist query, or a tool option such as esbuild's `target`, states which engines you support, and the tool applies only the transforms and polyfills those engines lack. A wider target means larger, slower output.
 
@@ -77,4 +80,4 @@ console.log(modern, lowered); // → anonymous anonymous
 **A:** A module that exports the feature as a function instead of modifying globals, so it never changes the environment. The cost is that callers must import and use it explicitly.
 
 **Q:** Where does `@babel/preset-env` fit?
-**A:** It reads your targets and enables only the syntax transforms those engines need. It can also inject `core-js` polyfills, configured through its `useBuiltIns` option.
+**A:** It reads your targets and enables only the syntax transforms those engines need. In Babel 7 it can also inject `core-js` polyfills, configured through its `useBuiltIns` option.

@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from 'react-router'
 import { NotFound, PageShell } from '@/components/PageShell'
+import { InlineHtml } from '@/components/question/InlineHtml'
 import type { loadTopic } from '@/content/index-data'
 import { TopicCover } from '@/components/TopicCover'
 import { chapterStats } from '@/content/stats'
@@ -32,7 +33,7 @@ export function PracticeTopicPage() {
             <li key={chapter.slug} className="border-b">
               <Link to={`/practice/${topic.slug}/${chapter.slug}`} className="grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-4 py-4 hover:text-link">
                 <span className="font-mono text-sm text-muted-foreground">{chapter.number}</span>
-                <span className="text-lg font-semibold">{chapter.title}</span>
+                <InlineHtml html={chapter.titleHtml} className="text-lg font-semibold [&_code]:font-mono [&_code]:text-[0.9em]" />
                 <span className="text-sm text-muted-foreground">
                   {readable} {readable === 1 ? 'question' : 'questions'}
                   <span className="ml-3">Practice</span>

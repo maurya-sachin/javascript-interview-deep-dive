@@ -14,6 +14,12 @@ sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-number-type
   - https://tc39.es/ecma262/#sec-typeof-operator
+  - https://tc39.es/ecma262/#sec-getvalue
+  - https://tc39.es/ecma262/#sec-putvalue
+  - https://tc39.es/ecma262/#sec-string-exotic-objects
+  - https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
+  - https://tc39.es/ecma262/#sec-isstrictlyequal
+  - https://tc39.es/ecma262/#sec-islooselyequal
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures
   - https://developer.mozilla.org/en-US/docs/Glossary/Primitive
 tldr: >
@@ -50,7 +56,7 @@ console.log(word.toUpperCase(), word); // → ABC abc
 try {
   word[0] = 'X'; // modules are strict, so the failed write throws
 } catch (error) {
-  console.log(error.message); // → Cannot assign to read only property '0' of string 'abc'
+  console.log(error.message); // → (V8 wording) Cannot assign to read only property '0' of string 'abc'
 }
 
 console.log('x' === 'x', {} === {}); // → true false

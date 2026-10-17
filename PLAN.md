@@ -4,8 +4,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `dev` (cut from `main`; merge back with a merge commit → Vercel production); tag `v1-archive` = v1, tag `archive/improvements` = unmerged v1 audit fixes; repo-local email `sachinmaurya1710@gmail.com`
-- Next: Phase 5 — maintainer reviews drafts and marks them `published`; production shows only published questions and their cards. JavaScript (150 q, 762 cards) + TypeScript (47 q, 504 cards) are `draft`.
-- Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only; TS cards for ch 02–04 skip most Deep dive edge cases
+- Next: Phase 5 — maintainer reviews drafts and marks them `published` (label Draft → Reviewed); production shows drafts and published questions alike. JavaScript (150 q, 762 cards) + TypeScript (47 q, 544 cards) are `draft`.
+- Review flags: JS ch 03–08, 10–14 Node-only/spec-less claims (ch 01–02 checked against ECMA-262); 18–22 browser claims checked in Chrome 155 (Firefox/Safari versions are MDN data only); 26 V8 natives on Node 24.19 only
 - Designer: redraw the wordmark (draft lettering)
 - Open: chapter order for the 26 README-only topics
 
@@ -22,7 +22,7 @@ Non-goals: backend service, accounts, paid AI.
 - R5 Order: templates → structure → app → content. The JavaScript language track is finished first.
 - R6 Research before writing. Primary sources (ECMAScript spec, TC39, MDN, engine blogs, official docs) go in `sources`. Coverage is checked against YDKJS / javascript.info / spec tables of contents — titles only, never copy text.
 - R7 App is self-contained in `app/`: Vite, React 19, TypeScript, Tailwind 4, shadcn/ui, React Router; Markdown + Shiki compiled at build. Design direction approved before building.
-- R8 Flashcards are separate: `content/flashcards/<topic>.yaml`. A production build ships a card only when its `question` is published.
+- R8 Flashcards are separate: `content/flashcards/<topic>.yaml`. A build ships a card only when its `question` has a page (draft or published).
 - R9 npm; scripts run on Node 24 native TypeScript.
 - R10 Per-question progress: README status lines + `npm run content:status` (in `app/`) — never this file.
 - R11 Coverage lives in READMEs: each chapter sub-topic points to its questions or ends `→ —` (gap); topic READMEs list areas with no chapter under **Not yet mapped**. New content goes through `templates/README.md` → Adding content.

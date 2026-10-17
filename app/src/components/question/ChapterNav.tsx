@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { ComingSoon } from '@/components/PageShell'
+import { InlineHtml } from '@/components/question/InlineHtml'
 import { Button } from '@/components/ui/button'
 import { QuestionTitle } from '@/components/QuestionTitle'
 import type { ChapterSummary } from '@/content/types'
@@ -11,7 +12,9 @@ export function ChapterNav({ topicSlug, chapter, currentId }: { topicSlug: strin
   return (
     <nav aria-label="Questions in this chapter" className="text-sm">
       <p className="text-sm text-muted-foreground">Chapter {chapter.number}</p>
-      <p className="mt-1 text-xl font-semibold tracking-tight">{chapter.title}</p>
+      <p className="mt-1 text-xl font-semibold tracking-tight">
+        <InlineHtml html={chapter.titleHtml} className="[&_code]:font-mono [&_code]:text-[0.9em]" />
+      </p>
       <ol className="mt-4 flex flex-col gap-0.5">
         {chapter.questions.map((question) => {
           const label = (

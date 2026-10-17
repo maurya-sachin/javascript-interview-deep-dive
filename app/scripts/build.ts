@@ -1,15 +1,15 @@
-// content:build [--drafts] — compiles content/ into public/data/ for the app (R1, R7).
-// Only published questions get a page; --drafts adds drafts, for reviewing them locally.
-// A flashcard ships only when its question has a page in the same build (R8).
+// content:build — compiles content/ into public/data/ for the app (R1, R7).
+// Published and draft questions get a page (a draft is labelled Draft); planned stubs do not.
+// A flashcard ships only when its question has a page (R8); the changelog lists published questions only (R20).
 
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { parseArgs } from 'node:util'
 import { isStale } from '../src/content/freshness.ts'
 import type { ContentManifest, Exercise, Flashcard, FollowUp, QuestionPage, QuestionSummary, RolePath, SearchDoc, StartQuestion, TopicSummary } from '../src/content/types.ts'
 import { readChangelog, type ChangelogQuestion } from './lib/changelog.ts'
 import { collectProblems, printProblems } from './lib/check.ts'
 import { loadContent, type Question, type Topic } from './lib/content.ts'
+import { plannedAreas } from './lib/plannedAreas.ts'
 import type { Deck } from './lib/flashcards.ts'
 import type { Frontmatter } from './lib/frontmatter.ts'
 import { renderBlock, renderInline } from './lib/markdown.ts'
@@ -99,7 +99,6 @@ async function writeJson(file: string, data: unknown): Promise<void> {
   await writeFile(file, JSON.stringify(data))
 }
 
-const { values } = parseArgs({ options: { drafts: { type: 'boolean', default: false } } })
 const content = await loadContent()
 const problems = collectProblems(content)
 if (problems.length > 0) {
@@ -108,8 +107,7 @@ if (problems.length > 0) {
   process.exit(1)
 }
 
-const hasPage = (meta: Frontmatter): meta is WrittenMeta =>
-  meta.status === 'published' || (values.drafts && meta.status === 'draft')
+const hasPage = (meta: Frontmatter): meta is WrittenMeta => meta.status !== 'planned'
 
 await rm(outDir, { recursive: true, force: true })
 
@@ -178,15 +176,20 @@ const topics: TopicSummary[] = await Promise.all(
     track: trackOf(topic.readme),
     covers: coversOf(topic.readme),
     ...(await summaryOf(topic.readme)),
+    plannedAreasHtml: await Promise.all(plannedAreas(topic.readme).map(async (area) => (await renderInline(area)).html)),
     flashcardCount: decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
     chapters: await Promise.all(
-      topic.chapters.map(async (chapter) => ({
-        number: chapter.number,
-        slug: chapter.slug,
-        title: chapter.title,
-        ...(await summaryOf(chapter.readme)),
-        questions: await Promise.all(chapter.questions.map(summarize)),
-      })),
+      topic.chapters.map(async (chapter) => {
+        const title = await renderInline(chapter.title)
+        return {
+          number: chapter.number,
+          slug: chapter.slug,
+          title: title.text,
+          titleHtml: title.html,
+          ...(await summaryOf(chapter.readme)),
+          questions: await Promise.all(chapter.questions.map(summarize)),
+        }
+      }),
     ),
   })),
 )
@@ -201,7 +204,7 @@ async function searchDocs(topic: Topic): Promise<SearchDoc[]> {
         id: question.id,
         title: (await renderInline(meta.title)).text,
         topic: topic.title,
-        chapter: chapter.title,
+        chapter: (await renderInline(chapter.title)).text,
         tags: written ? meta.tags : [],
         tldr: written ? (await renderInline(meta.tldr)).text : '',
         hasPage: written,
@@ -244,7 +247,7 @@ for (const topic of content.topics) {
   for (const chapter of topic.chapters) {
     for (const question of chapter.questions) {
       const meta = metaOf(question)
-      if (!hasPage(meta)) continue
+      if (meta.status !== 'published') continue
       changelogQuestions.set(repoRelative(question.file), { id: question.id, title: (await renderInline(meta.title)).text, topic: topic.slug, topicTitle: topic.title })
     }
   }

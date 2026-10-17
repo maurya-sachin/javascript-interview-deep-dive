@@ -10,17 +10,25 @@ related:
   - javascript/values-and-types/typeof-null
   - javascript/values-and-types/symbols
 verified: 2026-10
+perishable:
+  - "`Error.isError` is not Baseline yet (MDN, 2026-10)"
 sources:
   - https://tc39.es/ecma262/#sec-typeof-operator
   - https://tc39.es/ecma262/#sec-isarray
   - https://tc39.es/ecma262/#sec-instanceofoperator
   - https://tc39.es/ecma262/#sec-object.prototype.tostring
   - https://tc39.es/ecma262/#sec-error.iserror
+  - https://tc39.es/ecma262/#sec-array.isarray
+  - https://tc39.es/ecma262/#sec-ordinaryhasinstance
+  - https://tc39.es/ecma262/#sec-number.isnan
+  - https://tc39.es/ecma262/#sec-isnan-number
+  - https://tc39.es/ecma262/#sec-code-realms
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError
+  - https://nodejs.org/docs/latest/api/vm.html
 tldr: >
   No single check works. Use `typeof` for primitives and functions, `=== null` for null,
   `Array.isArray` for arrays, `Error.isError` for errors, and `instanceof` for your own classes
@@ -48,7 +56,7 @@ Why the simple tools fail:
 - **`typeof`** knows eight results only. Arrays, dates, regexes and `null` are all `"object"`.
 - **`instanceof`** checks whether `Constructor.prototype` is on the value's prototype chain (or calls `Constructor[Symbol.hasInstance]`). It's false for primitives (`'s' instanceof String` is `false`), true for any object that merely inherits from the prototype, and breaks across **realms** (iframes, `vm` contexts), because each realm has its own `Array` and `Error`.
 - **`Array.isArray`** and **`Error.isError`** are *branded* checks: they look at internal slots (an Array exotic object; `[[ErrorData]]`), not the prototype chain. They work across realms and aren't fooled by `{ __proto__: Array.prototype }`. `Array.isArray` also sees through a `Proxy` to its target. `Error.isError` is newer and MDN lists it as not Baseline, so feature-detect it or use a polyfill.
-- **`Object.prototype.toString.call(v)`** returns `[object Tag]`: `Null` and `Undefined` for those values, a built-in tag for arrays, functions, errors, booleans, numbers, strings, dates and regexps, otherwise the value of its `Symbol.toStringTag` property if that's a string, else `Object`. The spec says this isn't a reliable test for other objects, since programs can set `Symbol.toStringTag` themselves.
+- **`Object.prototype.toString.call(v)`** returns `[object Tag]`: `Null` and `Undefined` for those values; otherwise the value of the object's `Symbol.toStringTag` property if that's a string, else a built-in tag (`Array`, `Arguments`, `Function`, `Error`, `Boolean`, `Number`, `String`, `Date`, `RegExp`) or `Object`. The spec says this isn't a reliable test for other objects, since programs can set `Symbol.toStringTag` themselves.
 
 ## Example
 
@@ -80,7 +88,7 @@ console.log('s' instanceof String, Number.isNaN('x'), isNaN('x')); // → false 
 ## Pitfalls
 
 - `typeof x === 'object'` as an "is it an object" test. It's `true` for `null`, so guard with `x !== null`, and it's `false` for functions.
-- `x instanceof Array` or `x instanceof Error` in code that may receive values from another realm (iframes, `vm`, some test runners). Use `Array.isArray` and `Error.isError`.
+- `x instanceof Array` or `x instanceof Error` in code that may receive values from another realm (iframes, Node's `vm`). Use `Array.isArray` and `Error.isError`.
 - Trusting `Object.prototype.toString` for your own types. Any class can define `Symbol.toStringTag` to return what it likes.
 - Using `isNaN(x)` to detect NaN. The global function coerces first, so `isNaN('x')` is `true`; `Number.isNaN` does not coerce.
 

@@ -1,54 +1,67 @@
-import { RouteLine, StationLegend, type Station } from '@/components/RouteLine'
-import { orderTrack, topicState, type TopicState } from '@/content/roadmap'
+import { RouteDiagram, type DiagramNode } from '@/components/RouteDiagram'
+import { orderTrack, topicState } from '@/content/roadmap'
 import type { RolePath, TopicOverview } from '@/content/types'
+import { topicBranches } from '@/lib/diagram'
+import { useProgress } from '@/lib/progress'
 import { CONTRIBUTE_URL } from '@/lib/repo'
 import { groupByTrack } from '@/lib/tracks'
 
-// The roadmap never shows a finished topic: finishing is per reader, and the roadmap is the same for everyone.
-const LEGEND_STATES = ['written', 'in-progress', 'planned'] as const
-
-function toStation(topic: TopicOverview): Station {
+function metaOf(topic: TopicOverview): string {
   const state = topicState(topic)
-  const details: Record<TopicState, string> = {
-    written: `${topic.stats.readable} questions`,
-    'in-progress': topic.stats.drafted > 0 ? `${topic.stats.drafted} in review` : 'In progress',
-    planned: 'Planned',
-  }
-  return { key: topic.slug, label: topic.title, to: `/${topic.slug}`, state, detail: details[state] }
+  if (state === 'planned') return 'Planned'
+  const { total, reviewed } = topic.stats
+  return state === 'published' ? `${total} questions · ${reviewed} reviewed` : `${total} questions · in review`
 }
 
-/** Every topic as one route line per track, ordered by the role paths. */
-export function Roadmap({ topics, paths, trackHeading: TrackHeading }: { topics: TopicOverview[]; paths: RolePath[]; trackHeading: 'h2' | 'h3' }) {
+/** One line on how far the library has got, with a way to help. */
+export function RoadmapSummary({ topics }: { topics: TopicOverview[] }) {
   const started = topics.filter((topic) => topicState(topic) !== 'planned').length
   // Published and drafted are facts about the content, so this line reads the same in every build.
   const published = topics.reduce((sum, topic) => sum + topic.stats.reviewed, 0)
   const drafted = topics.reduce((sum, topic) => sum + topic.stats.drafted, 0)
   return (
-    <>
-      <p className="max-w-2xl text-muted-foreground">
-        {started} of {topics.length} topics started · {published} questions published{drafted > 0 && ` · ${drafted} in review`}.{' '}
-        <a href={CONTRIBUTE_URL} className="text-link hover:text-link-hover">
-          Contribute a question
-        </a>
-      </p>
-      <StationLegend states={LEGEND_STATES} className="mt-4" />
-      <div className="mt-10 flex flex-col gap-12">
-        {groupByTrack(topics).map((group) => {
-          const stations = orderTrack(group.topics, paths).map(toStation)
-          const trackStarted = stations.filter((station) => station.state !== 'planned').length
-          return (
-            <section key={group.name}>
-              <TrackHeading className="mb-5 flex flex-wrap items-baseline gap-x-3">
-                <span className="font-semibold">{group.name}</span>
-                <span className="text-sm text-muted-foreground">
-                  {trackStarted} of {stations.length} started
-                </span>
-              </TrackHeading>
-              <RouteLine stations={stations} orientation="responsive" />
-            </section>
-          )
-        })}
-      </div>
-    </>
+    <p className="max-w-2xl text-muted-foreground">
+      {started} of {topics.length} topics started · {published} questions reviewed{drafted > 0 && ` · ${drafted} in review`}.{' '}
+      <a href={CONTRIBUTE_URL} className="text-link hover:text-link-hover">
+        Contribute a question
+      </a>
+    </p>
+  )
+}
+
+/** Every topic as route diagrams, one per track, ordered by the role paths. */
+export function Roadmap({ topics, paths }: { topics: TopicOverview[]; paths: RolePath[] }) {
+  const { read } = useProgress()
+  return (
+    <div className="flex flex-col gap-14">
+      {groupByTrack(topics).map((group) => {
+        const ordered = orderTrack(group.topics, paths)
+        const started = ordered.filter((topic) => topicState(topic) !== 'planned').length
+        const nodes = ordered.map(
+          (topic): DiagramNode => ({
+            key: topic.slug,
+            index: null,
+            title: topic.title,
+            to: `/${topic.slug}`,
+            meta: metaOf(topic),
+            note: null,
+            planned: topicState(topic) === 'planned',
+            current: false,
+            branches: topicBranches(topic, read),
+          }),
+        )
+        return (
+          <section key={group.name}>
+            <h2 className="flex flex-wrap items-baseline gap-x-3 border-b pb-3 font-serif text-2xl font-medium tracking-tight">
+              {group.name}
+              <span className="font-sans text-sm text-muted-foreground">
+                {started} of {ordered.length} started
+              </span>
+            </h2>
+            <RouteDiagram nodes={nodes} label={`${group.name} topics`} />
+          </section>
+        )
+      })}
+    </div>
   )
 }

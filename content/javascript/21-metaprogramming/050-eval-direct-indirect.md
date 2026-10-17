@@ -95,7 +95,7 @@ Only the first call sees `x = 'local'`. The `var` from the direct eval became a 
 **A:** Close. Both compile in the global scope. `new Function` builds a function from parameter and body strings and doesn't run anything until called, and it always creates a sloppy function unless the body opts in to strict mode.
 
 **Q:** Which CSP directive controls it?
-**A:** `script-src` (or `default-src`) without `'unsafe-eval'`. The host then throws `EvalError` for string compilation and reports a violation. `'wasm-unsafe-eval'` permits only WebAssembly.
+**A:** `script-src` (or `default-src`) without `'unsafe-eval'`. The host then throws `EvalError` for `eval` and `Function`, silently skips string timers, and reports a violation either way. `'wasm-unsafe-eval'` permits only WebAssembly.
 
 ## Deep dive
 
@@ -135,7 +135,7 @@ The direct eval inherits strict mode, so `inner` stays inside. The indirect eval
 
 Other results, run in Node.js 24 as CommonJS: `eval('({a:1})')` is `{ a: 1 }`, `eval('{a:1}')` is `1`, `eval(42)` is `42`, `eval('let q = 1')` declares nothing outside, `(0, eval)('typeof module')` is `'undefined'` because CommonJS wrapper variables aren't global, and `new Function('return this')() === globalThis` is `true` even when called from a module.
 
-CSP: with `script-src` and no `'unsafe-eval'`, MDN lists `eval()`, `Function()` and string arguments to `setTimeout`/`setInterval` as blocked; the CSP spec's string-compilation check throws `EvalError` and reports a violation. MDN also describes a way to allow it under Trusted Types: pass `TrustedScript` values created by a policy and add `'trusted-types-eval'`. I did not test any browser behaviour; these statements come from the CSP spec and MDN.
+CSP: with `script-src` and no `'unsafe-eval'`, direct eval, indirect eval and `Function()` throw `EvalError` and report a violation. String arguments to `setTimeout`/`setInterval` are blocked too, but quietly: the call returns `0`, the code never runs, and only the violation report shows it. I checked all four in Chrome 155 under `script-src 'self'`. MDN also describes a way to allow string compilation under Trusted Types: pass `TrustedScript` values created by a policy and add `'trusted-types-eval'` (not tested).
 
 ### Real-world scenario
 
