@@ -1,5 +1,6 @@
 // content:build [--drafts] — compiles content/ into public/data/ for the app (R1, R7).
 // Only published questions get a page; --drafts adds drafts, for reviewing them locally.
+// A flashcard ships only when its question has a page in the same build (R8).
 
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -113,13 +114,15 @@ const hasPage = (meta: Frontmatter): meta is WrittenMeta =>
 await rm(outDir, { recursive: true, force: true })
 
 const questions = content.topics.flatMap((topic) => topic.chapters.flatMap((chapter) => chapter.questions))
-let pageCount = 0
+const pageIds = new Set<string>()
 for (const question of questions) {
   const meta = metaOf(question)
   if (!hasPage(meta)) continue
   await writeJson(path.join(outDir, 'questions', `${question.id}.json`), await buildPage(question, meta))
-  pageCount++
+  pageIds.add(question.id)
 }
+
+const decks: Deck[] = content.decks.map((deck) => ({ ...deck, cards: deck.cards.filter((card) => pageIds.has(card.question)) }))
 
 async function summarize(question: Question): Promise<QuestionSummary> {
   const meta = metaOf(question)
@@ -175,7 +178,7 @@ const topics: TopicSummary[] = await Promise.all(
     track: trackOf(topic.readme),
     covers: coversOf(topic.readme),
     ...(await summaryOf(topic.readme)),
-    flashcardCount: content.decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
+    flashcardCount: decks.find((deck) => deck.topic === topic.slug)?.cards.length ?? 0,
     chapters: await Promise.all(
       topic.chapters.map(async (chapter) => ({
         number: chapter.number,
@@ -215,7 +218,7 @@ async function flashcardsOf(deck: Deck): Promise<Flashcard[]> {
       topic: deck.topic,
       frontHtml: (await renderInline(card.front)).html,
       backHtml: (await renderInline(card.back)).html,
-      question: card.question ?? null,
+      question: card.question,
     })),
   )
 }
@@ -261,12 +264,13 @@ for (const topic of content.topics) {
 }
 
 const allFlashcards: Flashcard[] = []
-for (const deck of content.decks) {
+for (const deck of decks) {
+  if (deck.cards.length === 0) continue // the app fetches a deck only when flashcardCount > 0
   const cards = await flashcardsOf(deck)
   allFlashcards.push(...cards)
   await writeJson(path.join(topicDir(deck.topic), 'flashcards.json'), cards)
 }
 
 console.log(
-  `✔ built ${pageCount} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s), ${allFlashcards.length} flashcard(s) and ${changelog.days.length} changelog day(s) → ${repoRelative(outDir)}`,
+  `✔ built ${pageIds.size} question page(s), a manifest of ${manifest.topics.length} topics, ${allSearchDocs.length} search doc(s), ${allFlashcards.length} flashcard(s) and ${changelog.days.length} changelog day(s) → ${repoRelative(outDir)}`,
 )

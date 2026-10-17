@@ -156,7 +156,9 @@ Flashcards are short recall prompts, separate from questions (R8). One file per 
 | `id` | yes | Kebab-case, unique within the file. It keys the learner's review history, so **never change it** once published — add a new card instead |
 | `front` | yes | ≤ 30 words; inline Markdown only |
 | `back` | yes | ≤ 60 words; inline Markdown only |
-| `question` | no | Id of the question that explains it; must exist |
+| `question` | yes | Id of the question that explains it; must exist |
+
+A production build ships a card only when its `question` is published.
 
 One fact per card. If the back needs a code block, it belongs in a question instead.
 

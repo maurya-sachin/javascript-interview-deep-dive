@@ -86,7 +86,7 @@ function checkDecks({ topics, decks }: Content): Problem[] {
     for (const card of deck.cards) {
       if (seen.has(card.id)) problems.push({ file, message: `card id \`${card.id}\` is used twice` })
       seen.add(card.id)
-      if (card.question !== undefined && !questionIds.has(card.question)) {
+      if (!questionIds.has(card.question)) {
         problems.push({ file, message: `card \`${card.id}\`: unknown question \`${card.question}\`` })
       }
     }

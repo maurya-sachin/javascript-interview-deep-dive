@@ -111,11 +111,9 @@ function Session({ topic, cards, isLaterRound, onNextRound }: { topic: string; c
             <section ref={answerRef} tabIndex={-1} aria-label="Answer" className="font-serif text-lg leading-relaxed outline-none">
               <InlineHtml html={card.backHtml} className={CODE_STYLE} />
             </section>
-            {card.question && (
-              <Link to={`/${card.question}`} className="mt-4 self-start text-sm text-link hover:text-link-hover">
-                Read the full question
-              </Link>
-            )}
+            <Link to={`/${card.question}`} className="mt-4 self-start text-sm text-link hover:text-link-hover">
+              Read the full question
+            </Link>
           </>
         )}
       </SessionCard>

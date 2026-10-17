@@ -32,7 +32,7 @@ test('next due is the soonest future review in the topic', () => {
 
 test('a session takes every overdue card, oldest first, then at most 20 new ones', () => {
   const cards = ['a', 'b', 'c', ...Array.from({ length: 30 }, (_, index) => `new-${index}`)].map((id) => ({
-    id: `javascript/${id}`, topic: 'javascript', frontHtml: '', backHtml: '', question: null,
+    id: `javascript/${id}`, topic: 'javascript', frontHtml: '', backHtml: '', question: 'javascript/c/q',
   }))
   const queue = dueQueue(cards, reviews, now).map((card) => card.id)
   assert.equal(NEW_CARDS_PER_SESSION, 20)

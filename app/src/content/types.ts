@@ -186,6 +186,6 @@ export interface Flashcard {
   topic: string
   frontHtml: string
   backHtml: string
-  /** Id of the question that explains it, if any. */
-  question: string | null
+  /** Id of the question that explains it; the build ships a card only when that question has a page. */
+  question: string
 }
