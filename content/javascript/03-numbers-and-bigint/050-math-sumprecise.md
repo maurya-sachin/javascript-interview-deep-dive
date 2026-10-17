@@ -8,14 +8,20 @@ tags: [math-sumprecise, floating-point, summation, tc39-proposal, precision]
 related:
   - javascript/numbers-and-bigint/floating-point-precision
 verified: 2026-10
+perishable:
+  - Proposal stage and ES2027 inclusion
+  - MDN Baseline 2026 status
+  - Absent in Node 24.19
 sources:
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise
   - https://github.com/tc39/proposal-math-sum
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-number-type
+  - https://tc39.es/ecma262/#sec-math.sumprecise
+  - https://github.com/tc39/proposals
 tldr: >
   A `reduce` loop rounds after every addition, so errors accumulate and large values can swallow small ones.
-  `Math.sumPrecise(iterable)` sums as if exactly and rounds once. It is a TC39 Stage 3 proposal that MDN lists
-  as newly available in 2026, but it is missing in Node 24, so feature-detect it or use a compensated sum.
+  `Math.sumPrecise(iterable)` sums as if exactly and rounds once. It is listed at TC39 Stage 3 and already in the ES2027
+  draft; MDN calls it newly available in 2026, but it is missing in Node 24, so feature-detect it or use a compensated sum.
 ---
 
 ## Answer
@@ -29,7 +35,7 @@ A plain loop (`xs.reduce((a, b) => a + b, 0)`) rounds to a double after every ad
 - Elements must be Numbers; anything else throws `TypeError` (no coercion).
 - It can't fix input error. `Math.sumPrecise([0.1, 0.2])` is still `0.30000000000000004`, because the literals `0.1` and `0.2` are already slightly off and their exact sum rounds to that value.
 
-**Availability.** The proposal is at TC39 **Stage 3** ("ready for implementations"), and MDN marks it "Baseline 2026", newly available since April 2026. It is **not available in Node 24**: `typeof Math.sumPrecise` is `'undefined'` in Node 24.19. So in portable code, feature-detect it and fall back.
+**Availability.** The TC39 proposals list shows it at **Stage 3** ("ready for implementations"), but the current ECMAScript draft already specifies it, and MDN marks it "Baseline 2026", newly available since April 2026. It is **not available in Node 24**: in Node 24.19 (V8), `typeof Math.sumPrecise` is `'undefined'`. So in portable code, feature-detect it and fall back.
 
 **Fallback: compensated summation.** Kahan's and Neumaier's algorithms carry the lost low-order bits in a second variable and add them back at the end. Neumaier's variant also handles the case where the next term is larger than the running sum. It is not guaranteed to match the exact rounding that `sumPrecise` gives in every case, but it is far better than a naive loop.
 
