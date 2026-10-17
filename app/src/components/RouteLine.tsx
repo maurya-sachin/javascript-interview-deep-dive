@@ -27,7 +27,7 @@ const MARK_FILL: Record<StationState, string> = {
   written: 'bg-link',
   // The left half is filled; the base colour hides the line behind the unfilled half.
   'in-progress': 'border-2 border-depth-3 bg-background bg-[linear-gradient(90deg,var(--color-depth-3)_50%,transparent_50%)]',
-  planned: 'border-2 border-muted-foreground/50 bg-background',
+  planned: 'border-2 border-muted-foreground/70 bg-background',
 }
 
 /** One station's dot; also the legend swatch on the roadmap. */
@@ -39,7 +39,7 @@ export function StationMark({ state, current = false, small = false, className }
 const isSolid = (from: Station, to: Station) => from.state !== 'planned' && to.state !== 'planned'
 
 const LINE_SOLID = 'bg-depth-3'
-const LINE_DASHED_X = 'border-dashed border-muted-foreground/40'
+const LINE_DASHED_X = 'border-dashed border-muted-foreground/70'
 
 const FOCUS = 'rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
 
