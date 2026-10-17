@@ -38,7 +38,7 @@ Node 24 is required (the content scripts run TypeScript natively).
 ```sh
 cd app
 npm ci
-npm run dev      # builds content including drafts, then starts Vite
+npm run dev      # builds content, then starts Vite
 ```
 
 Other commands: `npm run content:check` (validate all content), `npm run build` (production build), `npm run lint`. The full list is in [`templates/README.md`](templates/README.md).
