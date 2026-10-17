@@ -88,7 +88,7 @@ export function HomePage() {
           Roadmap
         </h2>
         <div className="mt-2">
-          <Roadmap topics={topics} />
+          <Roadmap topics={topics} paths={paths} />
         </div>
       </section>
     </PageShell>
