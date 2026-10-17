@@ -14,6 +14,11 @@ sources:
   - https://tc39.es/ecma262/#sec-runtime-semantics-argumentlistevaluation
   - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
   - https://tc39.es/ecma262/#sec-ecmascript-language-types
+  - https://tc39.es/ecma262/#sec-copydataproperties
+  - https://tc39.es/ecma262/#sec-object.assign
+  - https://tc39.es/ecma262/#sec-putvalue
+  - https://tc39.es/ecma262/#sec-array.prototype.sort
+  - https://html.spec.whatwg.org/multipage/structured-data.html#dom-structuredclone
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures
 tldr: >
@@ -39,7 +44,7 @@ That gives the rule to say in an interview:
 
 True pass-by-reference would let `swap(a, b)` exchange the caller's variables. In JavaScript it can't, because the function never has access to those bindings.
 
-Assignment works the same way: `const alias = obj` copies the reference, so `alias` and `obj` are one object. The same applies to spread and `Object.assign`: they copy the references held by the top-level properties (a shallow copy). Use `structuredClone` for a deep copy.
+Assignment works the same way: `const alias = obj` copies the reference, so `alias` and `obj` are one object. The same applies to spread and `Object.assign`: they copy the references held by the top-level properties (a shallow copy). For a deep copy, use `structuredClone`, a host API defined by the HTML standard rather than ECMAScript.
 
 ## Example
 
