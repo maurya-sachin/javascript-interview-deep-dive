@@ -579,3 +579,217 @@
   front: "Where should `NoInfer` be placed?"
   back: "On the dependent positions only, not on the one you want to infer from. It blocks candidates at its position. Below TS 5.4 it is `Cannot find name 'NoInfer'` (TS2304)."
   question: typescript/generics/const-type-params-noinfer
+
+# 04 Type-level programming
+- id: conditional-type-semantics
+  front: "When does `T extends U ? X : Y` resolve to `X`, and what is a deferred conditional?"
+  back: "It resolves to `X` when `T` is assignable to `U`, else `Y`. While `T` or `U` still contains an unresolved type parameter it is deferred: it stays as written until instantiated."
+  question: typescript/type-level-programming/conditional-types
+- id: deferred-conditional-return
+  front: "Why can't a function returning `T extends string ? \"s\" : \"n\"` simply return `\"s\"`?"
+  back: "The conditional is deferred, so the compiler cannot know which branch applies and reports TS2322. Use an overload, or a single assertion at the boundary, and keep the conditional in the public signature."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-naked-parameter
+  front: "When is a conditional type distributive?"
+  back: "When the checked type is a naked type parameter, just `T`, not `T[]`, `keyof T` or `[T]`. Instantiated with a union, it applies to each member and unions the results."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-boolean-result
+  front: "What is `IsString<string | number>` for `type IsString<T> = T extends string ? true : false`?"
+  back: "`boolean`, because it distributes to `true | false`."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-over-never
+  front: "What does a distributive conditional type give for `never`?"
+  back: "`never`, not either branch, because `never` is the empty union. Use `[T] extends [never]` to detect it."
+  question: typescript/type-level-programming/conditional-types
+- id: distribution-over-any
+  front: "What does a conditional type evaluate to when given `any`?"
+  back: "The union of both branches."
+  question: typescript/type-level-programming/conditional-types
+- id: disable-distribution
+  front: "How do you turn off distribution in a conditional type?"
+  back: "Wrap both sides in a tuple: `[T] extends [U]`. The union is then compared as one type."
+  question: typescript/type-level-programming/conditional-types
+- id: non-generic-no-distribution
+  front: "What is `string | number extends string ? 1 : 2` written directly, with no type parameter?"
+  back: "`2`. Distribution happens at instantiation of a naked type parameter, depending on the written form of the check type. The same check through a naked `T` gives a union."
+  question: typescript/type-level-programming/conditional-types
+- id: wrapped-never-true
+  front: "Why is `[T] extends [string]` true when `T` is `never`?"
+  back: "`never` is assignable to everything, so the non-distributive check succeeds."
+  question: typescript/type-level-programming/conditional-types
+- id: exclude-extract-distribution
+  front: "Which built-in utilities rely on distribution to filter unions?"
+  back: "`Exclude<T, U>` and `Extract<T, U>`. `Exclude<boolean, true>` leaves `false`, because `boolean` is `true | false`."
+  question: typescript/type-level-programming/conditional-types
+- id: detect-any
+  front: "How do you detect `any` with a conditional type?"
+  back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, to which `0` is assignable; for other `T` the intersection is `1` or `never`."
+  question: typescript/type-level-programming/conditional-types
+- id: infer-semantics
+  front: "What does `infer` do, and where is it in scope?"
+  back: "It introduces a type variable in the `extends` clause, solved by matching the checked type against the pattern. It is in scope only in the true branch; anywhere else it is a syntax error (TS1338)."
+  question: typescript/type-level-programming/infer-keyword
+- id: return-type-implementation
+  front: "How is `ReturnType<T>` implemented?"
+  back: "`T extends (...args: any) => infer R ? R : any`, constrained to `T extends (...args: any) => any`. It matches a function returning something and names that something `R`."
+  question: typescript/type-level-programming/infer-keyword
+- id: awaited-lib-version
+  front: "How does the lib `Awaited` (TS 4.5) differ from a simple `PromiseLike<infer U>` unwrap?"
+  back: "It only unwraps object types with a callable `then`, and special-cases `null | undefined`, mirroring `await`. For a thenable object the simple version returns it unchanged while the lib version gives the resolved value."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-multiple-candidates
+  front: "What happens when the same `infer U` appears in several positions?"
+  back: "In covariant positions (properties, returns) the candidates become a union. In contravariant positions (function parameters) they become an intersection."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-overloads
+  front: "Which signature does `infer` see on an overloaded function?"
+  back: "The last one. Generic signatures are inferred with their type parameters as `unknown`. So `ReturnType` and `Parameters` see only the last overload."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-extends-constraint
+  front: "What does `infer X extends C` (TS 4.7) do?"
+  back: "It constrains the inferred variable and falls to the false branch if it does not fit, replacing a nested conditional. From TS 4.8, in template literals it also parses literals: `\"42\"` infers `42`."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-readonly-array
+  front: "Why is `Elem<readonly string[]>` `never` for `T extends (infer E)[]`?"
+  back: "A readonly array is not assignable to a mutable array. Write `readonly (infer E)[]` to accept both arrays and tuples."
+  question: typescript/type-level-programming/infer-keyword
+- id: infer-parameters-tuple
+  front: "What does `infer P` yield in a function parameter list position?"
+  back: "A tuple of the parameter types. Positions that work include return slot, parameter list, tuple head and tail (`[infer H, ...infer T]`), array element, object property and template literal segments."
+  question: typescript/type-level-programming/infer-keyword
+- id: returntype-constraint-any
+  front: "Why does the constraint on `ReturnType` use `(...args: any) => any` rather than `unknown`?"
+  back: "Parameters are contravariant: `(x: string) => void` is not assignable to `(...args: unknown[]) => unknown`, but is to the `any` and `never[]` forms. The handbook version uses `never[]`."
+  question: typescript/type-level-programming/infer-keyword
+- id: mapped-type-basics
+  front: "What does a mapped type like `{ [K in \"a\" | \"b\"]: number }` do?"
+  back: "It iterates a union of keys and builds one property per member. The key union is usually `keyof T`, and `T[K]` reads the original property type."
+  question: typescript/type-level-programming/mapped-types
+- id: homomorphic-mapped-type
+  front: "What makes a mapped type homomorphic, and what does that copy?"
+  back: "Its key source is `keyof T`, or a type parameter constrained to `keyof T`. The compiler then copies each property's `readonly` and `?` from `T`."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-modifier-prefixes
+  front: "What do the `+` and `-` prefixes do in mapped types?"
+  back: "`-readonly` removes readonly, `+readonly` adds it. `-?` makes a property required, `?` or `+?` optional. This is how `Partial`, `Required` and `Readonly` are defined."
+  question: typescript/type-level-programming/mapped-types
+- id: required-strips-undefined
+  front: "What does `-?` do to `undefined` on a homomorphic mapped type?"
+  back: "It removes the `undefined` that `?` had added, so `Required<{ a?: string }>` is `{ a: string }`."
+  question: typescript/type-level-programming/mapped-types
+- id: key-remapping-as
+  front: "What does the `as` clause in `[K in keyof T as NewKey]` do (TS 4.1)?"
+  back: "`NewKey` can be any type computed from `K`, typically a template literal. If it resolves to `never` for a key, that property is dropped. Modifiers are still copied."
+  question: typescript/type-level-programming/mapped-types
+- id: non-homomorphic-loses-modifiers
+  front: "What happens when you iterate `Exclude<keyof T, X>` directly instead of using `as`?"
+  back: "The mapped type is not homomorphic and loses `readonly` and `?`. Keep `keyof T` and filter with `as`, or use `Pick`."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-over-arrays-primitives
+  front: "How do homomorphic mapped types treat unions, primitives, arrays and tuples?"
+  back: "They distribute over unions, leave primitives unchanged, and map the elements of arrays and tuples while keeping the array or tuple shape."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-extra-properties
+  front: "Can you declare extra properties next to the `[K in ...]` part of a mapped type?"
+  back: "No, it is TS7061. Intersect two types instead."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-template-key-symbol
+  front: "Why write `string & K` in a template literal key remap like `` `get${Capitalize<string & K>}` ``?"
+  back: "`K` may include `symbol` or `number`, and template literal placeholders do not accept `symbol`. Intersecting with `string` narrows the key."
+  question: typescript/type-level-programming/mapped-types
+- id: mapped-types-shallow
+  front: "Are mapped types deep?"
+  back: "No. They touch only the first level; nested objects need recursion."
+  question: typescript/type-level-programming/mapped-types
+- id: template-literal-cross-product
+  front: "How does a template literal type handle union placeholders?"
+  back: "They are cross-multiplied: `` `${\"en\" | \"ja\"}_${\"title\" | \"body\"}` `` is four literals. If the result grows too large the compiler errors with TS2590."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-literal-patterns
+  front: "What does a `string`, `number` or `bigint` placeholder in a template literal type do?"
+  back: "It makes a non-literal pattern: `` `${number}px` `` accepts `\"12px\"` and rejects `\"12em\"`; `` `--${string}` `` accepts any string with that prefix. A `boolean` placeholder just expands to `\"true\" | \"false\"`."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-infer-matching
+  front: "How does `` S extends `${infer A}-${infer B}` `` split a string?"
+  back: "`A` takes the shortest match up to the first delimiter and the last placeholder takes the rest. There is no backtracking: `\"a-b-c\"` gives `\"a\"` and `\"b-c\"`."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-adjacent-infer
+  front: "What does an `infer` capture when placeholders are adjacent, as in `` `${infer A}${infer B}` ``?"
+  back: "Each non-final `infer` captures a single character. `\"abc\"` gives `\"a\"` and `\"bc\"`."
+  question: typescript/type-level-programming/template-literal-types
+- id: intrinsic-string-types
+  front: "What are `Uppercase`, `Lowercase`, `Capitalize` and `Uncapitalize`?"
+  back: "Intrinsic string types, implemented inside the compiler (`intrinsic` in `lib.es5.d.ts`), not in TypeScript. They distribute over unions and turn `name` into `getName` with `Capitalize`."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-pattern-not-runtime
+  front: "Is a template literal pattern type like `` `${number}px` `` checked at runtime?"
+  back: "No. It only checks literals the compiler can see; a `string` variable is not assignable to it without a cast or guard."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-placeholder-types
+  front: "Which types may appear as template literal placeholders?"
+  back: "`string | number | bigint | boolean | null | undefined`. `` `x${symbol}` `` is TS2322; use `string & K` for a key type that may include symbols."
+  question: typescript/type-level-programming/template-literal-types
+- id: template-route-params
+  front: "What are typical uses of template literal types?"
+  back: "Typed event or route names, parsing route params such as `/users/:id`, typed `on(\"xChanged\")` APIs, CSS unit strings, and key renaming in mapped types."
+  question: typescript/type-level-programming/template-literal-types
+- id: utility-types-are-aliases
+  front: "What are the built-in utility types, implementation-wise?"
+  back: "Ordinary generic aliases in `lib.es5.d.ts`, each a mapped type, a conditional type or `infer`. For example `Pick<T, K extends keyof T> = { [P in K]: T[P] }`."
+  question: typescript/type-level-programming/utility-types
+- id: omit-implementation
+  front: "How is `Omit` defined, and which key type does it accept?"
+  back: "`Pick<T, Exclude<keyof T, K>>`, with `K extends keyof any`. So a typo like `Omit<User, \"nope\">` compiles silently, while `Pick<User, \"nope\">` is an error."
+  question: typescript/type-level-programming/utility-types
+- id: nonnullable-definition
+  front: "How has `NonNullable<T>` been defined since TS 4.8, and why?"
+  back: "`T & {}`. Intersections can be simplified and assigned to, unlike conditional types, so narrowing a `T` by `!= null` yields `T & {}`, which is `NonNullable<T>`."
+  question: typescript/type-level-programming/utility-types
+- id: utility-types-shallow
+  front: "Are `Partial` and `Readonly` deep?"
+  back: "No. They are shallow: `Partial<User>` leaves `address` as a full object, and `frozen.a.b = 2` compiles on `Readonly<{ a: { b: number } }>`. For nesting use a recursive type."
+  question: typescript/type-level-programming/utility-types
+- id: omit-pick-union-collapse
+  front: "What happens when you apply `Omit` or `Pick` to a union?"
+  back: "They collapse it, because `Omit` is not distributive: `Omit<Shape, \"kind\">` is `{}`. Distribute with a helper: `T extends unknown ? Omit<T, K> : never`."
+  question: typescript/type-level-programming/utility-types
+- id: record-string-vs-union
+  front: "How do `Record<string, T>` and `Record<\"a\" | \"b\", T>` differ?"
+  back: "`Record<string, T>` is an index signature. `Record<\"a\" | \"b\", T>` is an object with exactly those keys. Indexing the former gives `T` unless `noUncheckedIndexedAccess` is on."
+  question: typescript/type-level-programming/utility-types
+- id: utility-infer-family
+  front: "Which utilities follow the same `infer` pattern as `ReturnType`?"
+  back: "`Parameters`, `Awaited`, `InstanceType` and `ConstructorParameters`."
+  question: typescript/type-level-programming/utility-types
+- id: recursive-alias-lazy-positions
+  front: "Where can a type alias reference itself?"
+  back: "In a lazily resolved position: an object property, an array or tuple element (TS 3.7), a mapped type's property type, or a conditional branch (TS 4.1). `type A = A | string` is TS2456."
+  question: typescript/type-level-programming/recursive-types
+- id: deep-partial-function-branch
+  front: "Why does `DeepPartial` need a branch for function types?"
+  back: "The naive mapped recursion turns function properties into mapped types that are not callable. A first branch `T extends (...args: any) => any ? T` keeps them callable."
+  question: typescript/type-level-programming/recursive-types
+- id: deep-partial-builtin-classes
+  front: "What goes wrong when `DeepPartial` recurses into `Date`, `Map` or `Set`?"
+  back: "They are objects, so every method is mapped into an optional one. Add a branch for the types you want treated as leaves."
+  question: typescript/type-level-programming/recursive-types
+- id: deep-partial-array-elements
+  front: "Why do arrays under `DeepPartial` get `(T | undefined)[]` elements?"
+  back: "The mapped type is homomorphic so arrays keep their shape, but `?` is applied per element."
+  question: typescript/type-level-programming/recursive-types
+- id: recursion-depth-cap-ts2589
+  front: "What error does a deep non-tail-recursive conditional type produce?"
+  back: "TS2589, \"excessively deep and possibly infinite\", after only dozens of levels, when the result is built from the recursive call (`C | GetChars<R>`). Recursive types also slow checking."
+  question: typescript/type-level-programming/recursive-types
+- id: tail-recursion-accumulator
+  front: "How do you make a recursive conditional type tail recursive (TS 4.5)?"
+  back: "Put the recursive call in a branch with nothing wrapped around it and carry partial results in an accumulator parameter. The compiler then loops, allowing about a thousand iterations."
+  question: typescript/type-level-programming/recursive-types
+- id: json-type-self-reference
+  front: "Why can `Json` refer to itself but `type Circ = Circ | string` cannot?"
+  back: "In `Json` the self-references sit inside an array element and an object index signature, which the compiler resolves lazily. `Circ` must be resolved just to know what it is."
+  question: typescript/type-level-programming/recursive-types
+- id: recursion-limit-implementation-detail
+  front: "Is the recursion depth limit a documented constant?"
+  back: "No. PR 45711 describes a depth of 100 and 1000 tail iterations, and measurements here matched about 1000, but these are implementation details that may change."
+  question: typescript/type-level-programming/recursive-types
