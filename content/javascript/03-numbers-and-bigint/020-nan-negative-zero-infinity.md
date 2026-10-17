@@ -11,6 +11,20 @@ related:
 verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-number-type
+  - https://tc39.es/ecma262/#sec-numeric-types-number-equal
+  - https://tc39.es/ecma262/#sec-numeric-types-number-divide
+  - https://tc39.es/ecma262/#sec-numeric-types-number-remainder
+  - https://tc39.es/ecma262/#sec-numeric-types-number-tostring
+  - https://tc39.es/ecma262/#sec-number.isnan
+  - https://tc39.es/ecma262/#sec-number.isfinite
+  - https://tc39.es/ecma262/#sec-isnan-number
+  - https://tc39.es/ecma262/#sec-object.is
+  - https://tc39.es/ecma262/#sec-samevalue
+  - https://tc39.es/ecma262/#sec-samevaluezero
+  - https://tc39.es/ecma262/#sec-math.round
+  - https://tc39.es/ecma262/#sec-array.prototype.includes
+  - https://tc39.es/ecma262/#sec-array.prototype.indexof
+  - https://tc39.es/ecma262/#sec-json.stringify
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
@@ -44,6 +58,7 @@ console.log(NaN === NaN, Number.isNaN(NaN)); // → false true
 console.log(isNaN('foo'), Number.isNaN('foo')); // → true false
 
 console.log(0 === -0, Object.is(0, -0)); // → true false
+// Node.js console.log prints -0 as "-0"; the spec's ToString gives "0".
 console.log(String(-0), JSON.stringify(-0), -0); // → 0 0 -0
 console.log(Math.round(-0.4), 1 / Math.round(-0.4)); // → -0 -Infinity
 
@@ -58,7 +73,7 @@ console.log(new Set([NaN, NaN, 0, -0]).size); // → 2
 
 - Writing `x === NaN`. It is always `false`; use `Number.isNaN(x)` (or the less readable `x !== x`).
 - Using global `isNaN`/`isFinite` on user input. They coerce: `isNaN('')` is `false` because `Number('')` is `0`, and `isNaN({})` is `true`.
-- Assuming `-0` shows up in `String` or `JSON.stringify` output. Both print `0`, so the sign is lost on serialization (`console.log` and `Object.is` still show it).
+- Assuming `-0` shows up in `String` or `JSON.stringify` output. Both print `0`, so the sign is lost on serialization (`Object.is` still sees it, and Node.js `console.log` prints `-0`).
 - Using `indexOf` to look for `NaN`. It uses strict equality and returns `-1`; use `includes`.
 
 ## Follow-ups
