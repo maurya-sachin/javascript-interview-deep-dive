@@ -409,3 +409,173 @@
   front: "What should you prefer over `as` and `!` when an alternative exists?"
   back: "A type guard or assertion function (the claim gets checked), `?.`/`??` or an early `throw` instead of `!`, `satisfies` for object literals, and `unknown` plus narrowing for external data."
   question: typescript/inference-and-narrowing/assertions-and-non-null
+
+# 03 Generics
+- id: generics-purpose
+  front: "What do generics keep that `any` or a union would throw away?"
+  back: "A relationship between types. `identity<T>(x: T): T` says the result has the same type as the argument. Type parameters are filled in by callers, usually by inference."
+  question: typescript/generics/generics-and-constraints
+- id: generic-class-static-side
+  front: "Can a `static` member of a generic class use the class's type parameter?"
+  back: "No. Per the handbook, classes are generic only over their instance side."
+  question: typescript/generics/generics-and-constraints
+- id: extends-constraint-meaning
+  front: "What does `extends` mean in `T extends HasLength`, and what does it do?"
+  back: "It means assignable to, not inheritance. It restricts call-site arguments, and lets the body treat `T` as its constraint for property access."
+  question: typescript/generics/generics-and-constraints
+- id: constraint-keeps-caller-type
+  front: "Why write `<T extends X>(a: T): T` rather than `(a: X): X`?"
+  back: "The result is still `T`, not the constraint. `longest(\"ab\", \"c\")` returns `\"ab\" | \"c\"`, not `HasLength`, so the caller's type is kept."
+  question: typescript/generics/generics-and-constraints
+- id: keyof-constraint-pick
+  front: "What is the classic constraint referring to another type parameter?"
+  back: "`K extends keyof T`. It lets `pick(obj, \"name\")` accept only real keys and return `T[K]`."
+  question: typescript/generics/generics-and-constraints
+- id: generic-default-order
+  front: "What does a type parameter default like `<T = unknown>` do, and what ordering rule applies?"
+  back: "It makes the argument optional when it cannot be inferred or written. Required type parameters cannot follow optional ones (TS2706)."
+  question: typescript/generics/generics-and-constraints
+- id: return-generic-subtype-trap
+  front: "Why does `function f<T extends string>(): T { return \"x\"; }` fail?"
+  back: "The caller chooses `T`, and it could be a different subtype such as `\"y\"`. `\"x\"` is only assignable to the constraint, so TS2322 results."
+  question: typescript/generics/generics-and-constraints
+- id: single-use-type-parameter
+  front: "When is a type parameter not earning its place?"
+  back: "When it appears only once, as in `function f<T>(x: T): void`. It relates nothing; use the constraint or `unknown` instead. A parameter should appear at least twice."
+  question: typescript/generics/generics-and-constraints
+- id: generics-erased
+  front: "Are generic type parameters available at runtime?"
+  back: "No. Type parameters and arguments are erased on emit, so there is no `T` to inspect and no `new T()`."
+  question: typescript/generics/generics-and-constraints
+- id: inference-candidates
+  front: "How does the checker infer `T` in `f<T>(...)`?"
+  back: "It walks each argument against its parameter type, records candidates wherever `T` appears, then resolves them. The return-type context is also a source."
+  question: typescript/generics/generic-inference
+- id: covariant-candidate-conflict
+  front: "In `same<T>(a: T, b: T)`, what happens with `same(1, \"a\")`?"
+  back: "When no candidate is compatible with the others, the first candidate wins and later arguments are checked against it. So `\"a\"` is not assignable to `1`; swapping the arguments reports the other way round."
+  question: typescript/generics/generic-inference
+- id: contravariant-inference-subtype
+  front: "What does `both<T>(a: (x: T) => void, b: (x: T) => void)` infer for `both(onAnimal, onDog)`?"
+  back: "`Dog`. Since TS 2.6, candidates in contravariant positions such as callback parameters resolve to the best common subtype."
+  question: typescript/generics/generic-inference
+- id: literal-widening-in-inference
+  front: "How do `same(\"a\", \"b\")` with unconstrained `T` and with `T extends string` differ?"
+  back: "Unconstrained `T` widens to `string`. A constraint such as `T extends string` keeps the literals, giving `\"a\" | \"b\"`."
+  question: typescript/generics/generic-inference
+- id: no-inference-source
+  front: "What does `T` become if no argument mentions it?"
+  back: "The constraint, or `unknown` when there is none. An empty array literal gives `never`, so `first([])` is `never`."
+  question: typescript/generics/generic-inference
+- id: return-only-type-parameter
+  front: "Why is `parse<T>(json: string): T` a disguised assertion?"
+  back: "With no argument to infer from, `T` is `unknown` unless the context supplies one, and nothing validates the result. Validate at runtime or take a schema or parser argument."
+  question: typescript/generics/generic-inference
+- id: no-partial-explicit-type-args
+  front: "Can you supply only some explicit type arguments and let the rest be inferred?"
+  back: "No. `two<string>(\"a\", 1)` is TS2558. Supply every argument, or give the trailing parameters defaults; omitted defaulted parameters use the default, they are not inferred."
+  question: typescript/generics/generic-inference
+- id: noinfer-purpose
+  front: "What does `NoInfer<T>` (TS 5.4) do?"
+  back: "It blocks inference to that position, so a mismatching value is an error instead of a new candidate. Outside inference it is identical to `T`, and it is erased at runtime."
+  question: typescript/generics/generic-inference
+- id: covariant-definition
+  front: "What does covariant mean, and where does `T` appear in such a type?"
+  back: "`G<Dog>` is assignable to `G<Animal>` (`out T`). `T` is only produced: return types, readonly properties, `ReadonlyArray<T>`."
+  question: typescript/generics/variance
+- id: contravariant-definition
+  front: "What does contravariant mean, and where does `T` appear in such a type?"
+  back: "`G<Animal>` is assignable to `G<Dog>` (`in T`). `T` is only consumed, as in function parameters: a function accepting any `Animal` is safe where one accepting `Dog` is expected."
+  question: typescript/generics/variance
+- id: invariant-definition
+  front: "What does invariant mean (`in out T`)?"
+  back: "Neither direction is assignable. `T` is both read and written, like a mutable box."
+  question: typescript/generics/variance
+- id: strict-function-types
+  front: "What does `strictFunctionTypes` (TS 2.6) check, and what does it exclude?"
+  back: "It checks function parameters contravariantly; it is part of `strict`. It excludes method syntax, so `handle(x: Dog)` stays bivariant while `handle: (x: Dog) => void` is checked strictly."
+  question: typescript/generics/variance
+- id: array-covariance-unsound
+  front: "Why is assigning `Dog[]` to `Animal[]` unsound but allowed?"
+  back: "Array methods use method syntax, so `Array<T>` stays covariant. Then `push` of a non-Dog compiles and `dogs` holds a non-Dog. `readonly Dog[]` to `readonly Animal[]` is the sound case."
+  question: typescript/generics/variance
+- id: in-out-annotations
+  front: "What do `in` and `out` annotations (TS 4.7) provide?"
+  back: "They document intent, are checked (TS2636 when the body contradicts them), and let the compiler compare type arguments directly instead of walking the structure, which the notes say is faster for complex types."
+  question: typescript/generics/variance
+- id: annotation-overrides-method-exemption
+  front: "How does a variance annotation interact with method-syntax members?"
+  back: "It overrides the method exemption: `Box<in out T>` with method-syntax `get()` and `set(v)` is invariant. But `out T` on an interface whose `set(v: T)` is a method does not error, since method parameters are bivariant."
+  question: typescript/generics/variance
+- id: callback-parameter-contravariant
+  front: "Why is a callback parameter contravariant?"
+  back: "The callee supplies the argument, so the callback must accept everything the declared type could receive. A `(a: Animal) => void` accepts every `Dog`; a `(d: Dog) => void` does not accept every `Animal`."
+  question: typescript/generics/variance
+- id: variance-nesting-flips
+  front: "In `(x: A) => B`, which position is covariant, and what happens when you nest?"
+  back: "`B` (return) is covariant and `A` (parameter) is contravariant. Nesting flips it: `Handler<T> = (cb: (x: T) => void) => void` is covariant in `T`."
+  question: typescript/generics/variance
+- id: keyof-union-of-keys
+  front: "What does `keyof { x: number; y: number }` produce?"
+  back: "The union of keys as literal types: `\"x\" | \"y\"`. With an index signature it gives the index type, so `keyof { [k: string]: boolean }` is `string | number`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-string-index-number
+  front: "Why is `keyof { [k: string]: boolean }` `string | number`?"
+  back: "JavaScript converts numeric property keys to strings, so `obj[0]` and `obj[\"0\"]` are the same access."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-union-common-keys
+  front: "What does `keyof` give for a union type, versus an intersection?"
+  back: "For a union, only the keys common to every member. For an intersection, all of them."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-unknown-any
+  front: "What are `keyof unknown` and `keyof any`?"
+  back: "`keyof unknown` is `never`; `keyof any` is `string | number | symbol`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: typeof-type-position
+  front: "What does `typeof x` do in a type position, and what can it not take?"
+  back: "It takes a value (variable, property or class) and gives its static type. It accepts only identifiers and their properties, not calls: `typeof f()` is a syntax error, so write `ReturnType<typeof f>`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: keyof-class-static-side
+  front: "What is `keyof C` for a class `C`, and how do you get the static side's keys?"
+  back: "`keyof C` is the instance keys. The static side needs `keyof typeof C`, which also includes `\"prototype\"`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: indexed-access-forms
+  front: "What can `K` be in an indexed access type `T[K]`?"
+  back: "A union (`Config[\"host\" | \"port\"]` is `string | number`), `keyof T` for all values, or `number` for arrays and tuples (`Item[number]` is the element type)."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: indexed-access-value-as-key
+  front: "Why does `Config[key]` fail when `const key = \"port\"`?"
+  back: "`key` is a value, not a type (TS2538, TS2749). Write `Config[typeof key]` or declare `type Key = \"port\"`."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: union-from-as-const-array
+  front: "Why do you need `as const` for `(typeof roles)[number]` to give literal roles?"
+  back: "Without it `typeof roles` is `string[]` and `[number]` gives `string`. With it, adding a role updates both the runtime list and the type."
+  question: typescript/generics/keyof-typeof-indexed-access
+- id: const-type-parameter-effect
+  front: "What does `function f<const T>(x: T)` do (TS 5.0)?"
+  back: "Literal expressions in the argument get the most precise type, like `as const`: literals, `readonly` properties and `readonly` tuples. Callers no longer need to write `as const`."
+  question: typescript/generics/const-type-params-noinfer
+- id: const-type-parameter-where-allowed
+  front: "Where is the `const` modifier allowed on a type parameter?"
+  back: "On type parameters of functions, methods and classes. On interfaces and type aliases it is error TS1277."
+  question: typescript/generics/const-type-params-noinfer
+- id: const-type-parameter-variable-argument
+  front: "Does `<const T>` affect an argument passed as a variable?"
+  back: "No. It only affects literals written directly in the call, so `names(list)` with `const list = [\"a\", \"b\"]` stays `string[]`."
+  question: typescript/generics/const-type-params-noinfer
+- id: const-type-parameter-readonly-constraint
+  front: "Why constrain a `const T` array parameter as `readonly string[]` rather than `string[]`?"
+  back: "The readonly tuple candidate fails a mutable constraint. TS 5.0 falls back to `string[]`, while 5.9.3 and 7.0.2 gave the tuple. The `readonly` constraint gives the precise result everywhere."
+  question: typescript/generics/const-type-params-noinfer
+- id: noinfer-fallback-example
+  front: "How does `fallback?: NoInfer<C>` change `light(colors: C[], fallback?: C)`?"
+  back: "Without it a stray `\"blue\"` becomes another candidate and widens `C`, so the call is accepted. With it only `colors` supplies candidates, and `\"blue\"` is checked against them and rejected."
+  question: typescript/generics/const-type-params-noinfer
+- id: noinfer-before-54
+  front: "What was the pre-5.4 alternative to `NoInfer`, and why is it a smell?"
+  back: "A second type parameter `D extends C`. It is a type parameter used only once."
+  question: typescript/generics/const-type-params-noinfer
+- id: noinfer-placement
+  front: "Where should `NoInfer` be placed?"
+  back: "On the dependent positions only, not on the one you want to infer from. It blocks candidates at its position. Below TS 5.4 it is `Cannot find name 'NoInfer'` (TS2304)."
+  question: typescript/generics/const-type-params-noinfer
