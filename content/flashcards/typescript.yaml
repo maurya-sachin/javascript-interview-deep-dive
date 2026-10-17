@@ -1719,3 +1719,313 @@
   front: "What is the default of `noEmitOnError`?"
   back: "`false`, so emit flags do not depend on errors: output is written even when type errors are reported."
   question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+
+# 08 The compiler
+- id: erasure-what-is-removed
+  front: "Which constructs does `tsc` remove when emitting JavaScript?"
+  back: "Annotations and return types, `interface` and `type` declarations, generics, `as`, `satisfies`, `!`, overload signatures, `declare` statements, `abstract`/`private`/`readonly`/`override` modifiers, and `import type`/`export type`."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-design-goal
+  front: "What do the TypeScript Design Goals say about erasure and runtime type information?"
+  back: "Goals include \"impose no runtime overhead\" and \"use a consistent, fully erasable, structural type system\". \"Add or rely on run-time type information\" is a listed non-goal."
+  question: typescript/the-compiler/type-erasure
+- id: type-not-a-value
+  front: "Why is `x instanceof User` an error when `User` is an interface?"
+  back: "A type is not a value: nothing exists at runtime to refer to. It is TS2693, and the emitted code throws `ReferenceError: User is not defined`."
+  question: typescript/the-compiler/type-erasure
+- id: types-do-not-validate
+  front: "What does `JSON.parse(text) as User` compile to, and why is that a problem?"
+  back: "`JSON.parse(text)`. The assertion is erased, so a payload with `id: \"7\"` runs with a string where the type says `number` and fails later, away from the cause."
+  question: typescript/the-compiler/type-erasure
+- id: overloads-generics-no-runtime
+  front: "Can you dispatch at runtime on an overload signature or a type parameter?"
+  back: "No. There is one JavaScript function, and only the implementation signature is emitted. Branch with ordinary runtime checks inside it."
+  question: typescript/the-compiler/type-erasure
+- id: trust-boundary-validation
+  front: "Where must data be checked with runtime code?"
+  back: "Anywhere it crosses a trust boundary: network, `JSON.parse`, `localStorage`, `process.env`, user input. The type system describes data you already trust."
+  question: typescript/the-compiler/type-erasure
+- id: schema-library-infer
+  front: "How does a schema library such as Zod serve both validation and typing?"
+  back: "One schema value is the runtime validator, and `z.infer` extracts the static type from it, so the two cannot drift apart. Validation costs time per call, so put it at trust boundaries."
+  question: typescript/the-compiler/type-erasure
+- id: guard-is-a-promise
+  front: "Does TypeScript check the body of a guard like `(v: unknown): v is User => true`?"
+  back: "No. A guard is a promise, not a check: TypeScript believes the `v is User` return type without looking at the body, so a wrong guard breaks later at runtime."
+  question: typescript/the-compiler/type-erasure
+- id: private-field-runtime-visible
+  front: "What does `private tag = \"s\"` emit, and how do you get runtime privacy?"
+  back: "An ordinary public class field `tag = \"s\"`. A `#tag` field is not part of the logged object, so use `#` for runtime privacy."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-enums-exception
+  front: "Why are enums an exception to erasure?"
+  back: "An enum is also a runtime object, so the compiler must generate code for it. Node's type stripping rejects it for that reason."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-type-import-elision
+  front: "Why do `verbatimModuleSyntax` and `isolatedModules` exist, given type erasure?"
+  back: "A plain `import { Buffer }` used only as a type was removed from the 7.0.2 output, but a per-file tool cannot tell which imports are types."
+  question: typescript/the-compiler/type-erasure
+- id: narrowing-uses-real-values
+  front: "Which narrowing checks survive into the JavaScript?"
+  back: "`typeof`, `instanceof`, `in` and `Array.isArray` are real JavaScript that TypeScript merely reads as evidence. Narrowing by a checked fact is safe; by an unchecked claim (`as`, a guard returning `true`) it is not."
+  question: typescript/the-compiler/type-erasure
+- id: class-instanceof-shape
+  front: "Why is `instanceof User` legal for a class, and what does it check?"
+  back: "A class is both a type and a runtime constructor. `instanceof` checks the prototype chain, not the shape, so a plain `{ id: 1 }` object fails it."
+  question: typescript/the-compiler/type-erasure
+- id: erasure-enables-stripping
+  front: "Why can Node run `.ts` files by stripping?"
+  back: "If deleting the type syntax leaves valid JavaScript, a tool does not need the checker to run the code."
+  question: typescript/the-compiler/type-erasure
+- id: as-assertion-prints-concat
+  front: "What does `const p = raw as Point; console.log(p.x + 1)` print when `raw.x` is `\"1\"`?"
+  back: "`11`. The assertion is erased, so `p.x` is still the string and `+` concatenates."
+  question: typescript/the-compiler/type-erasure
+- id: checking-vs-transpiling
+  front: "How do type checking and transpiling differ in what they need?"
+  back: "Checking needs the whole program: it resolves imports across files, builds types and reports errors. Transpiling turns TypeScript into JavaScript, mostly by deleting syntax, and works one file at a time."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: tsc-emits-despite-errors
+  front: "Does `tsc` stop emitting when it reports type errors?"
+  back: "No. Checking and emit are independent: `noEmitOnError` defaults to `false`, so it exits non-zero but still writes output. Set `noEmitOnError` to block output."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: bundlers-only-transpile
+  front: "Why do esbuild, swc and Babel emit code that has type errors?"
+  back: "They only transpile and never type-check. Babel's plugin \"does not add the ability to type-check\"; Vite's docs say the same of its transformer. Skipping checking makes them fast and parallel."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: split-check-and-emit
+  front: "How are checking and emitting typically split in a project?"
+  back: "The bundler or runtime transpiles for fast feedback; `tsc --noEmit` type-checks in CI and the editor. The reference describes `noEmit` as leaving emit to another tool like Babel or swc."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: green-build-not-type-safe
+  front: "What is the risk if only the bundler runs on deploy?"
+  back: "Type errors ship. All three transpilers emitted `const n: number = \"oops\"` without complaint and the program crashed at runtime."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: isolated-modules-for-per-file-tools
+  front: "Why set `isolatedModules` when another tool emits?"
+  back: "It makes `tsc` report constructs per-file tools cannot compile correctly, such as TS1205 for a type re-export. Otherwise `tsc` elides the type and compiles cleanly, and the break shows only when Node or the tool runs it."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: no-check-flag
+  front: "What does `--noCheck` do?"
+  back: "The inverse of `--noEmit`: it emits and skips type checking. Released in TS 5.6, useful when a faster tool already checked, such as in a separate CI job."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: no-emit-exit-codes
+  front: "Is the exit code of `tsc --noEmit` with a type error stable across versions?"
+  back: "No. It was 2 on TS 5.9.3 and 6.0.3 but 1 on 7.0.2. Treat any non-zero as failure."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: esbuild-per-file-reason
+  front: "Why can't esbuild just ask TypeScript for types?"
+  back: "Its design compiles each file independently for speed and parallelism, which the esbuild docs list as a TypeScript caveat. Full checking would need the whole program graph."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: isolated-modules-no-emit-change
+  front: "Does `isolatedModules` change what `tsc` emits?"
+  back: "No. A file using only `import type`/`export type` emitted byte-identical output with and without it on TS 5.9.3, 6.0.3 and 7.0.2; the flag only adds diagnostics."
+  question: typescript/the-compiler/checking-vs-emitting
+- id: node-strip-whitespace
+  front: "How does `node file.ts` handle TypeScript syntax?"
+  back: "It replaces TypeScript syntax with whitespace and performs no type checking. Amaro, a wrapper around the SWC TypeScript parser, does the work. Line and column numbers are preserved."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-strip-availability
+  front: "When did Node's type stripping become available by default and stable?"
+  back: "On by default from v23.6.0 (and v22.18.0); the docs mark it stable from v24.12.0."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-strip-stack-traces
+  front: "Why are stack traces correct under Node type stripping without source maps?"
+  back: "Only syntax is deleted and replaced by whitespace, so line and column numbers are preserved."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-strip-unsupported-error
+  front: "What happens when stripped TypeScript uses an enum, parameter property or value namespace?"
+  back: "`ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`, e.g. \"TypeScript enum is not supported in strip-only mode\". Type-only namespaces run, since they have no runtime code."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-transform-types
+  front: "What does `--experimental-transform-types` do in Node?"
+  back: "Added in v22.7.0, it enables transforming enums, parameter properties and similar constructs, still with an experimental warning and with source maps on."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-no-tsconfig
+  front: "Does Node read `tsconfig.json` when running TypeScript?"
+  back: "No, so `paths`, `target` and other options are ignored and `paths` aliases fail with `ERR_MODULE_NOT_FOUND`. The nearest equivalent is `package.json` subpath imports starting with `#`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-real-extensions
+  front: "What file extensions must imports use under Node type stripping?"
+  back: "The real ones: `import \"./types.ts\"`, not `\"./types\"`, which gives `ERR_MODULE_NOT_FOUND`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-type-import-link-failure
+  front: "Why does `import { Config }` for an interface fail under Node but not `tsc`?"
+  back: "Node cannot know `Config` is a type, so the import stays and fails at link time: \"does not provide an export named 'Config'\". `verbatimModuleSyntax` makes `tsc` enforce the `type` keyword."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-no-type-checking
+  front: "Does a type error stop a program run by Node's type stripping?"
+  back: "No. Node never loads the checker, so `const bad: number = \"x\" as unknown as number` ran and `typeof bad` printed `string`. Run `tsc --noEmit` separately."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-modules-ts-refused
+  front: "Does Node strip types from `.ts` files inside `node_modules`?"
+  back: "No, it refuses them (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`) to discourage publishing `.ts` packages. Publish compiled JavaScript plus `.d.ts`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-tsx-decorators
+  front: "Which other TypeScript features does built-in Node stripping not support?"
+  back: "`.tsx` and decorators: `@dec class A {}` failed with `SyntaxError: Invalid or unexpected token`."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-recommended-tsconfig
+  front: "Which `tsc` options do the Node docs recommend alongside type stripping?"
+  back: "`erasableSyntaxOnly`, `verbatimModuleSyntax`, `rewriteRelativeImportExtensions` and `module: nodenext`, so `tsc` rejects exactly what Node would reject."
+  question: typescript/the-compiler/node-type-stripping
+- id: node-vs-tsx
+  front: "How does built-in Node stripping differ from `tsx` or `ts-node`?"
+  back: "The Node docs point to a third-party package such as `tsx` for full support, including `tsconfig.json`. Built-in stripping is the lightweight mode: no config, erasable syntax only."
+  question: typescript/the-compiler/node-type-stripping
+- id: strip-typescript-types-api
+  front: "What does `module.stripTypeScriptTypes(code)` return?"
+  back: "The code with types replaced by spaces: `const x: number = 1;` became `\"const x         = 1;\"`. It is Stability 1.2, and the output is not stable across Node versions."
+  question: typescript/the-compiler/node-type-stripping
+- id: program-definition
+  front: "What is a `Program` in the TypeScript compiler?"
+  back: "The set of source files (your roots plus everything they import and the `lib` files) and the compiler options. The compiler stages operate on it."
+  question: typescript/the-compiler/compiler-pipeline
+- id: scanner-stage
+  front: "What does the scanner do?"
+  back: "It turns text into tokens (`const`, `x`, `:`, `number`, ...), one `scan()` call at a time."
+  question: typescript/the-compiler/compiler-pipeline
+- id: parser-stage
+  front: "What does the parser produce, and are type annotations still present?"
+  back: "It drives the scanner and builds the AST; each file becomes a `SourceFile` node. Type annotations are still in the tree at this point."
+  question: typescript/the-compiler/compiler-pipeline
+- id: binder-stage
+  front: "What does the binder do?"
+  back: "It creates a `Symbol` for every declaration in a symbol table per scope, and builds the control-flow graph used for narrowing. Declarations sharing a name end up on one merged symbol."
+  question: typescript/the-compiler/compiler-pipeline
+- id: checker-stage
+  front: "What does the checker do, and is it eager?"
+  back: "It assigns types to symbols, resolves relationships and reports semantic diagnostics. It computes lazily and only examines what contributes to the question asked."
+  question: typescript/the-compiler/compiler-pipeline
+- id: emitter-stage
+  front: "What does the emitter do?"
+  back: "Transformers rewrite the AST (types removed, syntax down-levelled for `target`, modules converted), then a printer writes `.js`, `.d.ts` and `.js.map`."
+  question: typescript/the-compiler/compiler-pipeline
+- id: syntax-vs-semantic-errors
+  front: "Which stage reports syntax errors versus type errors, and does a syntax error stop checking?"
+  back: "Parsing reports syntax errors; the checker reports type errors. The parser recovers, so the checker still ran: TS1109 plus TS2322 and TS2304 in one test."
+  question: typescript/the-compiler/compiler-pipeline
+- id: language-service-same-compiler
+  front: "Is the language service a separate compiler?"
+  back: "No. `tsserver` builds on the same parser, binder and checker to answer hover, completion and rename, with incremental parsing keeping it fast. An editor error and a `tsc` error should agree; if not, suspect different versions or tsconfig."
+  question: typescript/the-compiler/compiler-pipeline
+- id: extended-diagnostics
+  front: "Which flag shows where compile time goes?"
+  back: "`--extendedDiagnostics`, printing Parse, Bind, Check and Emit time. In Microsoft's native-previews post, 5.8 spent 63.26s of 72.81s checking the Sentry codebase."
+  question: typescript/the-compiler/compiler-pipeline
+- id: module-resolution-in-program
+  front: "When does module resolution happen in the pipeline?"
+  back: "While building the Program, before binding: it follows imports and `/// <reference>` directives to find every file to parse. `--extendedDiagnostics` reports `ResolveModule time` separately."
+  question: typescript/the-compiler/compiler-pipeline
+- id: checker-single-file
+  front: "Why is the checker one huge file, according to the compiler notes?"
+  back: "The notes list the reasons given: keep everything together, share closure state for speed, avoid god objects and extra calls. It is the maintainers' rationale, not a measurement."
+  question: typescript/the-compiler/compiler-pipeline
+- id: ts7-no-compiler-api
+  front: "Can you call `require(\"typescript\").createProgram` on TS 7.0?"
+  back: "No. On 7.0.2 it returned only `version` and `versionMajorMinor`; the announcement says 7.0 ships without a JavaScript API and expects one in 7.1."
+  question: typescript/the-compiler/compiler-pipeline
+- id: native-port-what
+  front: "What is the native port of TypeScript?"
+  back: "TypeScript 7.0 (July 2026): the compiler and language service ported from TypeScript (codename Strada, up to 6.x) to Go (Corsa), shipped as the normal `typescript` package with a native `tsc`."
+  question: typescript/the-compiler/native-compiler-port
+- id: port-not-redesign
+  front: "Is the Go compiler a redesign?"
+  back: "No, it is a faithful port: same logic and structure, so results stay consistent between the two. The stages are the same."
+  question: typescript/the-compiler/native-compiler-port
+- id: why-go
+  front: "Why did the team choose Go for the port?"
+  back: "Idiomatic Go resembles the existing code, so the structurally similar codebase makes porting changes feasible, with memory-layout control and a garbage collector that costs little for a batch compiler."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-speedup
+  front: "Where do the native port's speed gains come from, and how large are they?"
+  back: "Native code plus parallelism: 7.0 parses, type-checks and emits in parallel. The announcement reports 8x to 12x faster full builds on large projects (vscode 125.7s to 10.6s)."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-speedup-small-app
+  front: "Did a small app get the announced 10x speedup?"
+  back: "No. On a 38-file app, `tsc --noEmit` went from about 1.1s to 0.16s, about 6x; the announced numbers are for large codebases and several cores."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-cli-flags
+  front: "What new CLI flags does TS 7.0 add?"
+  back: "`--checkers`, `--builders` and `--singleThreaded`. The announcement says the number of checkers can rarely surface order-dependent results, so pin one number in CI."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-install-names
+  front: "How is the native compiler installed?"
+  back: "`npm i -D typescript` now gives a native `tsc`. The previews used `@typescript/native-preview` and `tsgo`; nightlies move to `typescript@next`."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-defaults-from-6
+  front: "Which defaults and deprecations does TS 7.0 adopt from 6.0?"
+  back: "6.0's defaults (`strict: true`, `types: []`, ...), and 6.0's deprecations become hard errors, such as `target: es5` and `moduleResolution: node10` (TS5108). `--ignoreDeprecations 6.0` no longer helps."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-language-server
+  front: "How does the TS 7.0 language server differ?"
+  back: "It speaks the Language Server Protocol instead of the old `tsserver` protocol."
+  question: typescript/the-compiler/native-compiler-port
+- id: ts6-side-by-side
+  front: "How do API-based tools keep working with TS 7.0?"
+  back: "Tools that import `typescript` (typescript-eslint, Volar-based tooling) stay on 6.0, side by side via `@typescript/typescript6`, which provides `tsc6`. A new API is expected in 7.1."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-migration-path
+  front: "What migration path is suggested to TS 7?"
+  back: "Move to 6.0 first, fix its deprecations (`--stableTypeOrdering` helps compare outputs), then switch the CLI to 7."
+  question: typescript/the-compiler/native-compiler-port
+- id: tsc-ignore-config
+  front: "What happens running `tsc a.ts` when a `tsconfig.json` is present on TS 6.0.3 and 7.0.2?"
+  back: "It errors with TS5112 unless you pass `--ignoreConfig`."
+  question: typescript/the-compiler/native-compiler-port
+- id: native-rewritten-js-support
+  front: "What is still intentionally different in 7.0 from 6.0?"
+  back: "`tsc/CHANGES.md` lists intentional changes: JavaScript/JSDoc support was rewritten rather than ported, and declaration emit from `.js` files differs."
+  question: typescript/the-compiler/native-compiler-port
+- id: typescript-not-sound
+  front: "Is TypeScript's type system sound?"
+  back: "No, by design. The Design Goals list \"apply a sound or provably correct type system\" as a non-goal, aiming for \"a balance between correctness and productivity\"."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-any-assertions
+  front: "How do `any` and type assertions create unsoundness?"
+  back: "`any` switches checking off and anything assigns to or from it. Assertions (`as`, `!`) are claims the compiler trusts, erased and never checked. `unknown` is the safe top type."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-array-covariance
+  front: "What is the soundness hole with array covariance?"
+  back: "`Dog[]` is assignable to `Animal[]`, so you can push a `Cat` through the wider alias and a `Dog[]` then holds a `Cat`. The same applies to mutable object properties."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-method-bivariance
+  front: "Why does the FAQ call method parameter bivariance \"working as intended\"?"
+  back: "Making methods strict breaks idiomatic patterns, including array covariance. `strictFunctionTypes` checks function-typed properties contravariantly but not method declarations."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-index-signatures
+  front: "How do index signatures and array indexing create a hole?"
+  back: "`obj[key]` is typed as the value type without `undefined`. `noUncheckedIndexedAccess` adds it, but the FAQ calls it a \"big hammer\" that cannot detect provably in-bounds access."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-narrowing-across-calls
+  front: "Why does narrowing survive a function call that clears the property?"
+  back: "After `if (o.v !== null)` a call that nulls `o.v` does not undo the narrowing, giving `Cannot read properties of null`. Issue #9998 finds wrong results either way on real code."
+  question: typescript/the-compiler/type-system-soundness
+- id: unsound-boundaries
+  front: "Which boundaries inject unchecked data into typed code?"
+  back: "`JSON.parse`, third-party `any` and wrong `.d.ts` files."
+  question: typescript/the-compiler/type-system-soundness
+- id: soundness-practical-stance
+  front: "What is the practical stance on TypeScript's unsoundness, and how do you close the cheap holes?"
+  back: "Treat it as a strong bug-catcher, not a proof. Use `strict`, `noUncheckedIndexedAccess`, `unknown` over `any`, `readonly` arrays and parameters, function-typed properties for callbacks, and runtime validation at boundaries."
+  question: typescript/the-compiler/type-system-soundness
+- id: strict-not-sound
+  front: "Does `strict` make TypeScript sound?"
+  back: "No. It closes some holes (`strictFunctionTypes`, `strictNullChecks`) and leaves the rest open; every unsound line in the example passed under it."
+  question: typescript/the-compiler/type-system-soundness
+- id: readonly-aliasing-hole
+  front: "Does `readonly` protect an object from aliasing?"
+  back: "No. A `{ readonly id: string }` value was assignable to a mutable `{ id: string | number }` and `wide.id = 42` was accepted. It is a compile-time marker on one view of the object."
+  question: typescript/the-compiler/type-system-soundness
+- id: property-callback-still-covariant
+  front: "Does switching a method to a function-typed property make callbacks fully safe?"
+  back: "It is checked contravariantly: assigning `(e: Dog) => void` to `onEvent: (e: Animal) => void` gave TS2322. But it does not fix covariance of the arrays or objects passed through it."
+  question: typescript/the-compiler/type-system-soundness
+- id: soundness-flags-fix
+  front: "Which soundness holes can a flag or type fix?"
+  back: "`noUncheckedIndexedAccess` for index access, function-typed properties for callbacks, and `readonly Animal[]` for array aliasing (`push` is TS2339). None exists for `any` or assertions; lint rules cover those."
+  question: typescript/the-compiler/type-system-soundness
+- id: soundness-design-tradeoff
+  front: "Do the maintainers plan to fix these unsoundness cases?"
+  back: "They treat them as design trade-offs. The FAQ lists method bivariance as working as intended, and explains why a strict-methods flag is not tractable."
+  question: typescript/the-compiler/type-system-soundness
