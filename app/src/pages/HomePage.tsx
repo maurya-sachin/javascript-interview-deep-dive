@@ -26,13 +26,17 @@ export function HomePage() {
   return (
     <PageShell crumbs={[]} wide>
       <title>{`${SITE_NAME}: ${TAGLINE}`}</title>
-      <section className="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+      {/* Phones read intro, figure, roles; from lg the figure takes the right column beside both. */}
+      <section className="grid items-start gap-x-16 gap-y-10 lg:grid-cols-[1fr_1.1fr] lg:gap-y-9">
         <div>
           <h1 className="font-serif text-[2.75rem] leading-[1.05] font-medium tracking-[-0.025em] sm:text-6xl">{TAGLINE}.</h1>
           <p className="mt-5 max-w-lg font-serif text-xl leading-relaxed text-muted-foreground">
             Every question opens with the answer you would give in the room, then goes down to the mechanism, the edge cases, and the spec or engine underneath.
           </p>
-          <h2 className="mt-9 mb-1 text-sm font-semibold">What are you preparing as?</h2>
+        </div>
+        <StrataFigure className="mx-auto w-full max-w-md lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:max-w-[30rem]" />
+        <div>
+          <h2 className="mb-1 text-sm font-semibold">What are you preparing as?</h2>
           <RoleList paths={paths} />
           {lastQuestion && (
             <Link to={questionPath(lastQuestion)} className="group mt-8 flex max-w-lg items-baseline gap-3 border-l-2 border-link pl-4">
@@ -45,7 +49,6 @@ export function HomePage() {
             </Link>
           )}
         </div>
-        <StrataFigure className="max-lg:order-first" />
       </section>
 
       {start && (
