@@ -53,7 +53,7 @@ export function PathPage() {
 
       <StationLegend states={LEGEND_STATES} className="mt-6" />
       <div className="mt-8 max-w-2xl">
-        <RouteLine orientation="vertical" stations={stations} />
+        <RouteLine stations={stations} />
       </div>
     </PageShell>
   )
