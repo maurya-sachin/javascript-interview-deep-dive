@@ -3,7 +3,7 @@ import { DifficultyMix } from '@/components/DifficultyMix'
 import { PageShell } from '@/components/PageShell'
 import { InlineHtml } from '@/components/question/InlineHtml'
 import { QuestionTitle } from '@/components/QuestionTitle'
-import { Roadmap } from '@/components/Roadmap'
+import { RoadmapSummary } from '@/components/Roadmap'
 import { RoleList } from '@/components/RoleList'
 import { StrataFigure } from '@/components/StrataFigure'
 import { TopicCover } from '@/components/TopicCover'
@@ -95,8 +95,11 @@ export function HomePage() {
           Roadmap
         </h2>
         <div className="mt-2">
-          <Roadmap topics={topics} paths={paths} trackHeading="h3" />
+          <RoadmapSummary topics={topics} />
         </div>
+        <Link to="/roadmap" className="mt-4 inline-block text-link hover:text-link-hover">
+          See every topic on the roadmap
+        </Link>
       </section>
     </PageShell>
   )
