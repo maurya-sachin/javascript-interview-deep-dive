@@ -793,3 +793,313 @@
   front: "Is the recursion depth limit a documented constant?"
   back: "No. PR 45711 describes a depth of 100 and 1000 tail iterations, and measurements here matched about 1000, but these are implementation details that may change."
   question: typescript/type-level-programming/recursive-types
+
+# 05 Classes, enums, and runtime output
+- id: enum-type-and-object
+  front: "What does an `enum` declare, unlike most TypeScript features?"
+  back: "Both a type and a runtime object. The Handbook says an enum is not a type-level extension of JavaScript."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: numeric-enum-reverse-mapping
+  front: "What does a numeric enum emit, and why does `Object.keys` on it return names and numbers?"
+  back: "`E[E[\"A\"] = 0] = \"A\"`: an object with a forward map and a reverse mapping (`E[0] === \"A\"`). So `Object.keys(Role)` is `['0', '1', 'Admin', 'User']`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: string-enum-no-reverse-mapping
+  front: "Does a string enum get a reverse mapping?"
+  back: "No, only the forward map is emitted, because two names could share a value. `as const` objects have no reverse entries either."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: string-enum-rejects-literal
+  front: "Why does `const c: Color = \"RED\"` fail for `enum Color { Red = \"RED\" }`?"
+  back: "An enum type is not its literals: a string enum rejects the matching plain string (TS2322). Values from JSON or an API need a cast or a validator."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: numeric-enum-accepts-number
+  front: "Is a numeric enum a closed type?"
+  back: "Not fully. Since TS 5.0 an out-of-domain literal like `5` is an error, but any value typed `number` is still assignable, so an arbitrary number can reach a `Role`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-union-of-members-50
+  front: "What did TS 5.0 change about enum types?"
+  back: "Every enum became a union of its member types. Constant members get literal types and computed members get a unique type each. Only type checking changed; emit is unchanged."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: const-enum-emit
+  front: "What does a `const enum` emit by default?"
+  back: "No enum object: members are inlined at use sites, so `Level.High` becomes `2 /* Level.High */`. `preserveConstEnums` keeps the object too."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: const-enum-library-hazard
+  front: "Why is `const enum` risky in a published library?"
+  back: "Consumers inline your values at their compile time and can disagree with the runtime version. `isolatedModules` also rejects ambient const enums (TS2748)."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: const-enum-isolated-modules-emit
+  front: "What happens to an own `export const enum` under `isolatedModules`?"
+  back: "It was emitted as a normal object and the use site was not inlined, on TS 7.0.2 and 5.9.3. `preserveConstEnums` defaults to true under `isolatedModules`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: union-of-literals-no-emit
+  front: "What does a union of literals like `\"active\" | \"banned\"` give you over an enum?"
+  back: "It emits nothing, accepts plain strings, and narrows and exhausts well. It interoperates with JSON and other packages without conversion."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: as-const-object-union
+  front: "How do you get both runtime values and a union type from one declaration?"
+  back: "Use an `as const` object plus `type T = (typeof Obj)[keyof typeof Obj]`. The object stays plain JavaScript and `Object.values` works on it."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: as-const-object-needs-const
+  front: "What is the derived type if the object omits `as const`?"
+  back: "`string`. The properties widen, so `(typeof Dir)[keyof typeof Dir]` is just `string` instead of `\"UP\" | \"DOWN\"`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-when-to-use
+  front: "When is an enum still a reasonable choice over a union or `as const` object?"
+  back: "For numeric bit flags with computed members, or when the codebase already uses them. Enums give a namespaced type and autocomplete, but are not allowed under `erasableSyntaxOnly`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: keyof-typeof-enum
+  front: "Why is `keyof typeof Role` the enum's names, while `keyof Role` is not?"
+  back: "`Role` the value is an object, so `typeof Role` has keys `Admin` and `User`. `keyof Role` (the enum type) gives the keys of `number`, such as `\"toFixed\"`."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-constant-vs-computed
+  front: "Which enum member expressions are constant versus computed?"
+  back: "`1 << 2` is a constant enum expression; `\"123\".length` is computed. The Handbook lists the allowed operators."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: enum-emit-iife-merge
+  front: "How does an emitted enum let two declarations of the same enum merge?"
+  back: "It compiles to an immediately invoked function whose argument is `Role || (Role = {})`, so a second declaration fills the existing object."
+  question: typescript/classes-enums-runtime-output/enums-vs-unions
+- id: ts-private-soft
+  front: "How enforced is TypeScript's `private`?"
+  back: "Only at compile time. Bracket access `a[\"secret\"]` passes the checker, and at runtime it is an ordinary own property visible to `Object.keys` and `JSON.stringify`."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: protected-meaning
+  front: "What does `protected` allow, and what do `private` and `protected` allow across instances?"
+  back: "Access from the class and its subclasses. Both still allow cross-instance access inside the class, such as `other.secret`."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: hash-private-hard
+  front: "How does `#name` differ from `private`?"
+  back: "It is ECMAScript's hard private field, enforced at runtime (a syntax error outside the class) and invisible to `Object.keys`. TypeScript emits it as-is for ES2022+, or as a `WeakMap` for older targets."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: hash-vs-private-choice
+  front: "When do you choose `#` over `private`?"
+  back: "When privacy must hold at runtime: libraries, or secrets in objects that get serialised or inspected. Choose `private` for test access or where `WeakMap` emit is unwanted."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: readonly-class-member
+  front: "What does `readonly` on a class member enforce?"
+  back: "Compile-time only: assignment outside the constructor is TS2540. It changes nothing at runtime."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: parameter-properties-emit
+  front: "What is a parameter property, and what makes it unusual among modifiers?"
+  back: "`constructor(public id: string)` declares a field and assigns it. It is one of the few class features that emits code (`this.id = id`)."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: override-modifier
+  front: "What do `override` and `noImplicitOverride` do?"
+  back: "`override` (TS 4.3) asserts the base class has that member. `noImplicitOverride` makes it mandatory: omitting it is TS4114, while `override` on a missing base member is TS4113 regardless."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: private-members-nominal
+  front: "How do `private` or `#` members affect class assignability?"
+  back: "Those members are compared nominally. Two unrelated classes with an identically named private member are not assignable, and a class with a private member is not assignable to an object type with the same public-looking property."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: protected-widens-in-subclass
+  front: "What happens to a `protected` member that a subclass redeclares without a modifier?"
+  back: "It becomes public. The Handbook calls this \"Exposure of protected members\"."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: parameter-property-field-initializer
+  front: "Why can a field initializer using a parameter property give `NaN` with target ES2022?"
+  back: "`useDefineForClassFields` is true from ES2022, so fields initialise before the constructor body assigns the parameter property. It errors as TS2729; `new A(2).y` printed `NaN` for ES2022 but `4` for ES2021."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: mixin-pattern
+  front: "What is the TypeScript mixin pattern, and what can mixins not declare?"
+  back: "A function that takes a constructor type and returns a class expression extending it, such as `Timestamped(User)`. Per the Handbook, mixins cannot declare `private` or `protected` members; use `#` fields."
+  question: typescript/classes-enums-runtime-output/class-members-access
+- id: implements-compile-time-only
+  front: "What does `implements Interface` actually do?"
+  back: "It checks at compile time that the class is assignable to the interface, and emits nothing. A class can implement several, and you cannot `instanceof` an interface."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: implements-no-member-typing
+  front: "Does `implements` give a class's methods their parameter types?"
+  back: "No. It adds no members and infers no parameter types, so `log(msg)` is still an implicit `any` (TS7006). The clause only checks assignability afterwards."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-class-runtime
+  front: "What does an `abstract class` emit?"
+  back: "An ordinary JavaScript class. `abstract` members have no body and emit nothing. It can hold constructor logic, fields and concrete methods."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-checker-rules
+  front: "What does the checker enforce for abstract classes?"
+  back: "`new` on one is TS2511, and a concrete subclass must implement every abstract member (TS2515). A class can `extends` only one base."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: template-method-pattern
+  front: "What is the template method pattern in an abstract class?"
+  back: "A concrete method calls abstract ones, so the base enforces an order of steps and the subclass supplies the pieces."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-instanceof
+  front: "Which of an abstract class and an interface works with `instanceof`?"
+  back: "The abstract class, so it can serve as a runtime type check. A class that merely `implements` the same shape is not an instance."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-constructor-type
+  front: "Why does passing `Shape` to `new (side: number) => Shape` fail, and what accepts it (TS 4.2)?"
+  back: "The callee could `new` it, so an abstract constructor type is not assignable to a non-abstract one. Type the parameter `abstract new (...args) => T`, which accepts abstract and concrete classes."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: implements-class-private
+  front: "Why does `implements` on a class with `private` or `#` members fail?"
+  back: "`implements` treats the class as an interface including its private members, which can only come from the declaration itself (TS2720). Use `extends`."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-not-runtime-enforced
+  front: "Is `abstract` enforced at runtime?"
+  back: "No. After a cast, `new` works and calling an abstract member gave `this.area is not a function`. Anything arriving through `any`, a cast or plain JavaScript is unchecked."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: abstract-implements-interface
+  front: "How can an abstract class implement an interface without defining its members?"
+  back: "By redeclaring them as `abstract`. `abstract class A implements Named {}` alone is TS2420; the concrete subclass then does the work."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: extends-and-implements
+  front: "Can a class both `extends` and `implements`?"
+  back: "Yes: `class C extends Base implements A, B`. `extends` brings runtime code; `implements` only adds compile-time checks."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: interface-vs-abstract-rule
+  front: "What is the rule of thumb for interface versus abstract class?"
+  back: "Start with an interface. Use an abstract class when subclasses genuinely share implementation, or the base must enforce an order of steps. Composition is often better than either."
+  question: typescript/classes-enums-runtime-output/abstract-classes-implements
+- id: declaration-meanings
+  front: "What can a single declaration create?"
+  back: "A namespace, a type, a value, or a mix. A class makes a type and a value, an interface only a type, a namespace a namespace and a value. Merging needs compatible meanings."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: interface-merge-overloads
+  front: "How are same-named function members ordered when interfaces merge?"
+  back: "They become overloads with later declarations first. A signature with a single string-literal parameter bubbles to the top."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: interface-merge-property-conflict
+  front: "What happens when merged interfaces declare the same non-function property with different types?"
+  back: "TS2717: subsequent property declarations must have the same type."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-merge-exports
+  front: "What is visible across merged namespace blocks?"
+  back: "Only exported members. A non-exported member is local to the block that declared it, so the second block gets TS2304 rather than a runtime `ReferenceError`."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-merge-with-function
+  front: "What does a namespace declared after a function, class or enum do?"
+  back: "It adds properties to the function, inner types or statics to the class, or helper functions to the enum. It is the way to type a callable-with-properties built in plain JavaScript."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-must-follow
+  front: "Where must the namespace go when merging with a class, function or enum?"
+  back: "After it. The namespace extends the existing value, so declaring it first fails."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: interface-class-merge-undefined
+  front: "What is the trap of merging `interface Foo` with `class Foo`?"
+  back: "The interface types members the class does not initialise, but nothing assigns them. `f.extra` is typed `number` and is `undefined` at runtime."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: no-merge-cases
+  front: "Which declarations do not merge?"
+  back: "`type` aliases, class plus class, and class plus variable. A `type T` and an `interface T` of one name give a duplicate identifier error (TS2300), which is why libraries expose augmentable interfaces."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: module-augmentation-limits
+  front: "What can module augmentation (`declare module \"./x\"`) not do?"
+  back: "Introduce new top-level names or augment `default` exports. It patches existing declarations only, and merges across files."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespaces-still-used
+  front: "Are namespaces still used for organising application code?"
+  back: "No: a file is already a module, so wrapping exports in a `namespace` is \"needless namespacing\" and forces `shapes.Shapes.Triangle`. They remain for `declare namespace` typings, function and enum merging, and legacy code."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-emit-iife
+  front: "What does a namespace containing values emit?"
+  back: "An IIFE that receives the existing object, or `{}` if none, via `X || (X = {})`. That is why it is runtime code and a second block extends the first."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: namespace-erasable-flag
+  front: "Which namespaces survive `erasableSyntaxOnly`?"
+  back: "Type-only and `declare` namespaces. One with values is TS1294. TS 7.0.2 also reports `module Old {}` as TS1540; 5.9.3 did not."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: declare-namespace-emits-nothing
+  front: "What does an ambient `declare namespace` emit, and where is it used?"
+  back: "Nothing. It only describes a global, which is why typings for script-tag libraries use it."
+  question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
+- id: decorator-definition
+  front: "What is a decorator, and when does it run?"
+  back: "A function applied to a class or class element when the class is defined. `@dec` conceptually turns `member` into `dec(member, context) ?? member`. It runs once, not per call or instance."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: standard-decorator-signature
+  front: "What is the signature of a standard decorator (TS 5.0+)?"
+  back: "`(value, context)`. `value` is the method, class or accessor, or `undefined` for a field. It may return a replacement of the same kind, or nothing. No flag is needed."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-context-object
+  front: "What does a standard decorator's `context` object contain?"
+  back: "`kind`, `name`, `static`, `private`, `addInitializer`, and since TS 5.2 `metadata`. TypeScript types each kind, e.g. `ClassMethodDecoratorContext`."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: legacy-decorators
+  front: "What are `experimentalDecorators`?"
+  back: "The older, incompatible system based on the old Stage 2 design: `(target, key, descriptor)`, parameter decorators and `emitDecoratorMetadata`. It has a separate type-check and a separate emit."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: standard-decorators-lack
+  front: "What do standard decorators not support?"
+  back: "Parameter decorators and `emitDecoratorMetadata`. The 5.0 notes also say existing legacy decorators are unlikely to work as standard ones."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-order
+  front: "In what order do multiple decorators on one member run?"
+  back: "Expressions evaluate top to bottom; application is bottom to top. For `@d(\"A\") @d(\"B\")` the output was `eval A`, `eval B`, `apply B`, `apply A`."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: accessor-keyword
+  front: "What is `accessor x = 1`?"
+  back: "The proposal's auto-accessor keyword, which decorators can wrap."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-proposal-status
+  front: "What is the TC39 stage of the decorators proposal, and what did TS 5.0 implement?"
+  back: "The proposal README and tc39/proposals list Stage 2.7 (fetched 2026-10). TS 5.0 implemented the then-Stage-3 version (PR 50820)."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-runtime-support
+  front: "Can native Node 24 run `@dec` syntax, and how does TypeScript emit it?"
+  back: "No, it is a SyntaxError, so you need TypeScript, Babel or a bundler. TS downlevels with `__esDecorate` and `__runInitializers` for `--target es2022`; `--target esnext` kept the `@` syntax (7.0.2)."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-mixing-errors
+  front: "What errors appear when a legacy-style decorator is used without `experimentalDecorators`?"
+  back: "A three-argument decorator gives TS1241 (the runtime passes 2 arguments), and a parameter decorator gives TS1206."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-per-instance-work
+  front: "Where does per-instance decorator work go?"
+  back: "In `context.addInitializer` or a returned field initializer, because the decorator itself runs once at class definition."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: decorator-metadata-52
+  front: "What is `context.metadata` (TS 5.2)?"
+  back: "A shared object per class, readable afterwards via `Class[Symbol.metadata]`. Node 24 printed `Symbol.metadata` as `undefined`, so the check needed a polyfill."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: reflect-metadata-not-builtin
+  front: "Is `reflect-metadata` built into decorator metadata?"
+  back: "No. `emitDecoratorMetadata` is legacy-only, and `__decorate` calls `Reflect.decorate` only when something has defined it."
+  question: typescript/classes-enums-runtime-output/decorators
+- id: erased-syntax-list
+  front: "Which TypeScript syntax is erased, leaving valid JavaScript?"
+  back: "Annotations, interfaces, type aliases, generics, `as`, `satisfies`, `private`/`readonly`/`abstract`/`override`, and `declare`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: runtime-generating-syntax
+  front: "Which constructs generate JavaScript rather than being erased?"
+  back: "`enum` and `const enum`, `namespace`/`module` with values, parameter properties, `import x = require()`, `import A = B.C`, `export =`, and angle-bracket assertions `<T>expr`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: angle-bracket-assertion-not-erasable
+  front: "Is `as` erasable, and is `<T>expr`?"
+  back: "`as` is erasable. The angle-bracket form is a different syntax, and `erasableSyntaxOnly` flags it as TS1294."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: node-type-stripping
+  front: "What does Node 24's type stripping do?"
+  back: "It blanks out type syntax without checking or transforming anything, and does not read `tsconfig.json`. Constructs needing generated code fail with `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-syntax-only-flag
+  front: "What does `erasableSyntaxOnly` (TS 5.8) do?"
+  back: "It makes `tsc` report the runtime-generating constructs at compile time as TS1294, so editor and CI see them before `node` does."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-allowed-ambient
+  front: "Which enum and namespace forms pass `erasableSyntaxOnly`?"
+  back: "`declare enum`, `declare` namespaces and type-only namespaces, since they emit nothing."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-decorators-gap
+  front: "Does a clean `erasableSyntaxOnly` build guarantee Node can run the file?"
+  back: "No. Decorators are not flagged, yet Node cannot parse them (SyntaxError), and path aliases are ignored because Node does not read `tsconfig.json`."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-pair-verbatim
+  front: "Which flag should you pair with `erasableSyntaxOnly`, and why?"
+  back: "`verbatimModuleSyntax`, so imports are not silently elided. Importing a type without `type` is TS1484; otherwise Node fails with \"does not provide an export named 'Foo'\". The Node docs suggest both."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: const-enum-not-safe
+  front: "Is a `const enum` safe under `erasableSyntaxOnly` because it is erased?"
+  back: "No. It is still flagged (TS1294), and Node rejects it with the same enum error."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: transform-types-flag
+  front: "Can `node --experimental-transform-types` replace erasable syntax?"
+  back: "It handled an enum and a parameter property on Node 24.19.0, but the latest docs say it was removed in v26.0.0, so do not build on it."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-rewrites
+  front: "What replaces an enum, a parameter property and a value namespace under this flag?"
+  back: "An `as const` object plus a derived union type; explicit fields assigned in the constructor; and module exports (or a plain `const`)."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: erasable-version-5-8
+  front: "Which TypeScript version added `erasableSyntaxOnly`?"
+  back: "TS 5.8 (PR 61011). It is for runtimes that strip types, such as Node, Amaro and ts-blank-space, not a style flag."
+  question: typescript/classes-enums-runtime-output/erasable-syntax-only
