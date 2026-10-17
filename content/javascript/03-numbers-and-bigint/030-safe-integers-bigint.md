@@ -11,6 +11,20 @@ related:
 verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-bigint-type
+  - https://tc39.es/ecma262/#sec-number.max_safe_integer
+  - https://tc39.es/ecma262/#sec-number.issafeinteger
+  - https://tc39.es/ecma262/#sec-numeric-types-bigint-divide
+  - https://tc39.es/ecma262/#sec-numeric-types-bigint-unsignedRightShift
+  - https://tc39.es/ecma262/#sec-bigint-constructor
+  - https://tc39.es/ecma262/#sec-numbertobigint
+  - https://tc39.es/ecma262/#sec-bigint.asintn
+  - https://tc39.es/ecma262/#sec-bigint.asuintn
+  - https://tc39.es/ecma262/#sec-tonumber
+  - https://tc39.es/ecma262/#sec-toboolean
+  - https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
+  - https://tc39.es/ecma262/#sec-islessthan
+  - https://tc39.es/ecma262/#sec-json.parse
+  - https://tc39.es/ecma262/#sec-json.stringify
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
@@ -48,6 +62,7 @@ console.log(max, Number.isSafeInteger(max + 1)); // → 9007199254740991 false
 console.log(max + 1 === max + 2); // → true
 
 console.log(9007199254740993); // → 9007199254740992
+// Node.js console.log prints BigInts with an "n" suffix; String(1n) is "1".
 console.log(9007199254740993n); // → 9007199254740993n
 
 console.log(5n / 2n, -5n / 2n, 2n ** 64n); // → 2n -2n 18446744073709551616n
