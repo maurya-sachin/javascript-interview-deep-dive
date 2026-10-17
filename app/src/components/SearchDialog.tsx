@@ -39,10 +39,10 @@ export function SearchDialog() {
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)} aria-label="Search questions" className="w-9 px-0 sm:w-64 sm:justify-start sm:px-2.5">
+      <Button variant="outline" onClick={() => setOpen(true)} aria-label="Search questions" className="w-9 px-0 sm:w-64 sm:justify-start sm:px-2.5 md:w-40 lg:w-64">
         <Search />
         <span className="hidden flex-1 text-left text-muted-foreground sm:inline">Search questions</span>
-        <kbd className="hidden rounded border px-1.5 font-mono text-xs sm:inline">⌘K</kbd>
+        <kbd className="hidden rounded border px-1.5 font-mono text-xs lg:inline">⌘K</kbd>
       </Button>
 
       <CommandDialog open={open} onOpenChange={handleOpenChange} title="Search questions" description="Find a question by title, tag, or summary.">
