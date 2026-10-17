@@ -8,7 +8,6 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Brand draft for the designer: the JavaScript cover reads as near-concentric rings (tune `heightField` in `app/src/lib/contours.ts`)
 - Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
 - Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
-- Then: gate production flashcards on published questions (R8) in `app/scripts/build.ts`
 - Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
 
 ## Goal
