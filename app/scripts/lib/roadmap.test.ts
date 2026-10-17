@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { orderTrack, topicState } from '../../src/content/roadmap.ts'
 import type { PathStep, RolePath, TopicOverview } from '../../src/content/types.ts'
 
-function topic(slug: string, overrides: { chapterCount?: number; readable?: number } = {}): TopicOverview {
+function topic(slug: string, overrides: { chapterCount?: number; readable?: number; reviewed?: number } = {}): TopicOverview {
   return {
     slug,
     title: slug.toUpperCase(),
@@ -13,16 +13,17 @@ function topic(slug: string, overrides: { chapterCount?: number; readable?: numb
     summaryText: '',
     flashcardCount: 0,
     chapterCount: overrides.chapterCount ?? 0,
-    stats: { total: 0, readable: overrides.readable ?? 0, core: 0, byDifficulty: { easy: 0, medium: 0, hard: 0 }, lastVerified: null, stale: 0, reviewed: 0, drafted: 0 },
+    stats: { total: 0, readable: overrides.readable ?? 0, core: 0, byDifficulty: { easy: 0, medium: 0, hard: 0 }, lastVerified: null, stale: 0, reviewed: overrides.reviewed ?? 0, drafted: 0 },
   }
 }
 const step = (slug: string): PathStep => ({ topic: slug, topicTitle: slug, chapter: null, chapterTitle: null, why: '', ready: true, started: true, questionCount: 1 })
 const path = (slug: string, slugs: string[]): RolePath => ({ slug, title: slug, summary: '', start: null, steps: slugs.map(step) })
 const slugs = (topics: TopicOverview[]) => topics.map((t) => t.slug)
 
-test('topic state follows readable questions, then chapters', () => {
-  assert.equal(topicState(topic('a', { chapterCount: 2, readable: 3 })), 'written')
-  assert.equal(topicState(topic('a', { chapterCount: 2 })), 'in-progress')
+test('topic state follows published questions, then chapters, whatever this build can read', () => {
+  assert.equal(topicState(topic('a', { chapterCount: 2, readable: 3, reviewed: 1 })), 'published')
+  assert.equal(topicState(topic('a', { chapterCount: 2, readable: 3 })), 'in-review')
+  assert.equal(topicState(topic('a', { chapterCount: 2 })), 'in-review')
   assert.equal(topicState(topic('a')), 'planned')
 })
 
