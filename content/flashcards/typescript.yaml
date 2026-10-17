@@ -697,10 +697,6 @@
   front: "How do you detect `any` with a conditional type?"
   back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, to which `0` is assignable; for other `T` the intersection is `1` or `never`."
   question: typescript/type-level-programming/conditional-types
-- id: conditional-types-since-2-8
-  front: "In which TypeScript version were conditional types introduced?"
-  back: "TypeScript 2.8."
-  question: typescript/type-level-programming/conditional-types
 - id: distributive-true-branch-constraint
   front: "In the true branch of a distributive conditional, what is `T`, and why does `T extends string ? Uppercase<T> : never` compile?"
   back: "`T` refers to the individual union member and carries the extra constraint `U`. So `T` is known to be a string there, and `Uppercase<T>` type-checks without a cast."
@@ -910,8 +906,8 @@
   back: "`{ city: string } | undefined`. The optional modifier adds `undefined`."
   question: typescript/type-level-programming/utility-types
 - id: nonnullable-unknown
-  front: "What does `NonNullable<unknown>` print as?"
-  back: "`{}`."
+  front: "What does `NonNullable<unknown>` resolve to, and why?"
+  back: "`{}`. `NonNullable<T>` is `T & {}` (since TS 4.8), and `unknown & {}` is `{}`: every non-nullish value."
   question: typescript/type-level-programming/utility-types
 - id: pick-on-union-keeps-tag-union
   front: "What does `Pick<Shape, \"kind\">` give for a union `Shape` whose `kind` is `\"a\"` or `\"b\"`?"
