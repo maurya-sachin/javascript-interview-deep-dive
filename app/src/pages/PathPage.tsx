@@ -4,7 +4,7 @@ import { RouteLine, StationLegend } from '@/components/RouteLine'
 import { Button } from '@/components/ui/button'
 import { useManifest } from '@/content/index-data'
 import { readingHours } from '@/lib/effort'
-import { stepPath, stepProgress, stepState } from '@/lib/paths'
+import { readyQuestionCount, stepKey, stepLabel, stepPath, stepProgress, stepState } from '@/lib/paths'
 import { useProgress } from '@/lib/progress'
 import { SITE_NAME } from '@/lib/site'
 
@@ -18,7 +18,7 @@ export function PathPage() {
   if (!path) return <NotFound what="Path" />
 
   const ready = path.steps.filter((step) => step.ready)
-  const total = ready.reduce((sum, step) => sum + step.questionCount, 0)
+  const total = readyQuestionCount(path)
   const done = ready.reduce((sum, step) => sum + stepProgress(step, read).read, 0)
   const next = ready.find((step) => stepProgress(step, read).read < step.questionCount)
   const hours = readingHours(total)
@@ -26,8 +26,8 @@ export function PathPage() {
     const progress = stepProgress(step, read)
     const status = !step.ready ? 'Planned' : progress.read > 0 ? `${progress.read} of ${progress.total} read` : `${progress.total} questions`
     return {
-      key: `${step.topic}/${step.chapter ?? ''}`,
-      label: step.chapterTitle ? `${step.topicTitle}: ${step.chapterTitle}` : step.topicTitle,
+      key: stepKey(step),
+      label: stepLabel(step),
       to: stepPath(step),
       state: stepState(step, read),
       current: step === next,

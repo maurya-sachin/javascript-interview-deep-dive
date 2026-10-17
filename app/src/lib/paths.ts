@@ -20,6 +20,20 @@ export function stepPath({ topic, chapter }: PathStep): string {
   return chapter ? `/${topic}/${chapter}` : `/${topic}`
 }
 
+/** A stable React key; a topic step and a chapter step of the same topic differ. */
+export function stepKey({ topic, chapter }: PathStep): string {
+  return `${topic}/${chapter ?? ''}`
+}
+
+export function stepLabel({ topicTitle, chapterTitle }: PathStep): string {
+  return chapterTitle ? `${topicTitle}: ${chapterTitle}` : topicTitle
+}
+
+/** Readable questions across the steps that are ready. */
+export function readyQuestionCount({ steps }: RolePath): number {
+  return steps.reduce((sum, step) => sum + (step.ready ? step.questionCount : 0), 0)
+}
+
 /** Questions read under this step, out of the step's total. Ids are `<topic>/<chapter>/<question>`. */
 export function stepProgress({ topic, chapter, questionCount }: PathStep, read: readonly string[]): { read: number; total: number } {
   const prefix = chapter ? `${topic}/${chapter}/` : `${topic}/`

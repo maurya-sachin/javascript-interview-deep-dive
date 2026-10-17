@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readingHours } from '../../src/lib/effort.ts'
-import { describePath, stepPath, stepProgress, stepState } from '../../src/lib/paths.ts'
+import { describePath, readyQuestionCount, stepKey, stepLabel, stepPath, stepProgress, stepState } from '../../src/lib/paths.ts'
 import type { PathStep, RolePath } from '../../src/content/types.ts'
 
 function step(overrides: Partial<PathStep>): PathStep {
@@ -46,4 +46,16 @@ test('a step is done only when every question in it is read', () => {
 test('a started step that is not yet readable is in progress', () => {
   assert.equal(stepState(step({ ready: false, started: true, questionCount: 0 }), []), 'in-progress')
   assert.equal(stepState(step({ ready: false, started: false, questionCount: 0 }), []), 'planned')
+})
+
+test('a step is keyed and labelled by its topic and chapter', () => {
+  assert.equal(stepKey(step({})), 'javascript/')
+  assert.equal(stepKey(step({ chapter: 'engine' })), 'javascript/engine')
+  assert.equal(stepLabel(step({})), 'JavaScript')
+  assert.equal(stepLabel(step({ chapter: 'engine', chapterTitle: 'How it runs' })), 'JavaScript: How it runs')
+})
+
+test('only ready steps count towards a path total', () => {
+  assert.equal(readyQuestionCount(path([step({}), step({ questionCount: 5 }), step({ ready: false, questionCount: 0 })])), 15)
+  assert.equal(readyQuestionCount(path([step({ ready: false, questionCount: 0 })])), 0)
 })

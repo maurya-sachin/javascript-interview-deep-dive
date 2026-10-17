@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { RouteSummary } from '@/components/RouteLine'
 import type { RolePath } from '@/content/types'
 import { readingHours } from '@/lib/effort'
-import { describePath, stepPath, stepState } from '@/lib/paths'
+import { describePath, readyQuestionCount, stepKey, stepLabel, stepPath, stepState } from '@/lib/paths'
 import { useProgress } from '@/lib/progress'
 
 /** The role chooser: one row per path, with its steps drawn as a route. */
@@ -12,10 +12,10 @@ export function RoleList({ paths }: { paths: RolePath[] }) {
     <ul className="border-b">
       {paths.map((path) => {
         const ready = path.steps.filter((step) => step.ready)
-        const hours = readingHours(ready.reduce((sum, step) => sum + step.questionCount, 0))
+        const hours = readingHours(readyQuestionCount(path))
         const stations = path.steps.map((step) => ({
-          key: `${step.topic}/${step.chapter ?? ''}`,
-          label: step.chapterTitle ? `${step.topicTitle}: ${step.chapterTitle}` : step.topicTitle,
+          key: stepKey(step),
+          label: stepLabel(step),
           to: stepPath(step),
           state: stepState(step, read),
         }))
