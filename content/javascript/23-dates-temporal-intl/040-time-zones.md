@@ -45,7 +45,7 @@ Rules of thumb:
 ## Example
 
 ```js
-// polyfill-run: @js-temporal/polyfill 0.5.1 on Node 24.19.0 (Node 24 has no native Temporal)
+// Same output natively in Chrome 155 and with @js-temporal/polyfill 0.5.1 on Node 24.19.0 (no Temporal global)
 import { Temporal } from '@js-temporal/polyfill';
 
 // US clocks: 02:30 on 2026-03-08 never happens; 01:30 on 2026-11-01 happens twice
@@ -72,7 +72,7 @@ console.log(meeting.toInstant().toString(), meeting.offset);
 // → 2027-03-28T08:00:00Z +01:00
 ```
 
-Temporal output above is polyfill-run (not native).
+Temporal output above matches natively in Chrome 155 and with the polyfill on Node 24.19.0.
 
 ## Pitfalls
 
