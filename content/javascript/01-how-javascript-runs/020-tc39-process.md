@@ -12,6 +12,7 @@ verified: 2026-10
 sources:
   - https://tc39.es/process-document/
   - https://github.com/tc39/proposals
+  - https://github.com/tc39/proposals/blob/main/finished-proposals.md
   - https://github.com/tc39/test262
   - https://tc39.es/ecma262/multipage/
   - https://github.com/tc39/ecma262/blob/main/CONTRIBUTING.md
@@ -37,14 +38,14 @@ New language features are proposed to **TC39**, the Ecma International committee
 
 Stage 2.7 is the newer step: the design is frozen apart from changes found through testing, and tests are written. Stage 3 is where engines implement and ship, so feedback can still change or even stall a proposal.
 
-A Stage 4 proposal is merged into the spec draft. The **yearly edition** is cut from the draft after the March TC39 meeting; from then on only editorial changes are accepted, and Ecma publishes it mid-year. Anything that reaches Stage 4 later waits for the next edition.
+A Stage 4 proposal is merged into the spec draft. The **yearly edition** is branched from the draft at the March TC39 meeting; from then on only editorial changes are accepted, and the Ecma General Assembly approves it in July. Anything that reaches Stage 4 later waits for the next edition.
 
 **When is a feature safe to use?** Stage 4 means the spec is settled and two engines already pass the tests, but your users' browsers matter more than the stage. Check actual support (MDN compatibility data, `caniuse`) and your target environments. Stage 3 is for experiments or build-time tooling that you control.
 
 ## Example
 
 ```js
-// Feature-detect instead of guessing from the spec year.
+// Feature-detect instead of guessing from the spec year. Results shown for Node.js 24.
 const features = {
   'Object.groupBy': typeof Object.groupBy === 'function',
   'Promise.try': typeof Promise.try === 'function',
@@ -77,4 +78,4 @@ console.log(features);
 **A:** The `tc39/proposals` repository lists active proposals by stage and the finished ones awaiting the next edition. Stage 3 includes proposals such as Source Phase Imports and Await Dictionary at the time of writing.
 
 **Q:** Can engines ship before Stage 4?
-**A:** Yes, and they often ship at Stage 3, sometimes behind a flag. Shipping experience is itself an input to reaching Stage 4.
+**A:** Yes. Stage 3 means "recommended for implementation", so engines may ship then, sometimes behind a flag. Shipping experience is itself an input to reaching Stage 4.
