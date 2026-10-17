@@ -1,18 +1,17 @@
 import { Link, useParams } from 'react-router'
 import { NotFound, PageShell } from '@/components/PageShell'
-import { RouteLine, StationLegend } from '@/components/RouteLine'
+import { DiagramLegend, RouteDiagram, type DiagramNode } from '@/components/RouteDiagram'
 import { Button } from '@/components/ui/button'
 import { useManifest } from '@/content/index-data'
+import { topicBranches } from '@/lib/diagram'
 import { readingHours } from '@/lib/effort'
-import { describePath, readyQuestionCount, stepKey, stepLabel, stepPath, stepProgress, stepState } from '@/lib/paths'
+import { describePath, readyQuestionCount, stepKey, stepLabel, stepPath, stepProgress } from '@/lib/paths'
 import { useProgress } from '@/lib/progress'
 import { SITE_NAME } from '@/lib/site'
 
-const LEGEND_STATES = ['done', 'written', 'in-progress', 'planned'] as const
-
 export function PathPage() {
   const { slug } = useParams()
-  const { paths } = useManifest()
+  const { paths, topics } = useManifest()
   const { read } = useProgress()
   const path = paths.find((candidate) => candidate.slug === slug)
   if (!path) return <NotFound what="Path" />
@@ -22,16 +21,20 @@ export function PathPage() {
   const done = ready.reduce((sum, step) => sum + stepProgress(step, read).read, 0)
   const next = ready.find((step) => stepProgress(step, read).read < step.questionCount)
   const hours = readingHours(total)
-  const stations = path.steps.map((step) => {
+  const nodes = path.steps.map((step, index): DiagramNode => {
     const progress = stepProgress(step, read)
-    const status = !step.ready ? (step.started ? 'In progress' : 'Planned') : progress.read > 0 ? `${progress.read} of ${progress.total} read` : `${progress.total} questions`
+    const topic = topics.find((candidate) => candidate.slug === step.topic)
     return {
       key: stepKey(step),
-      label: stepLabel(step),
+      index: String(index + 1).padStart(2, '0'),
+      title: stepLabel(step),
       to: stepPath(step),
-      state: stepState(step, read),
+      meta: !step.ready ? (step.started ? 'In progress' : 'Planned') : progress.read > 0 ? `${progress.read} of ${progress.total} read` : `${progress.total} questions`,
+      note: step.why,
+      planned: !step.ready,
       current: step === next,
-      detail: `${step.why} · ${status}`,
+      // A step that names one chapter is that chapter; a topic step branches into the topic's chapters.
+      branches: step.chapter || !topic ? [] : topicBranches(topic, read),
     }
   })
 
@@ -51,9 +54,9 @@ export function PathPage() {
         </Button>
       )}
 
-      <StationLegend states={LEGEND_STATES} className="mt-6" />
-      <div className="mt-8 max-w-2xl">
-        <RouteLine stations={stations} />
+      <DiagramLegend className="mt-6" />
+      <div className="mt-6">
+        <RouteDiagram nodes={nodes} label={`${path.title} path`} />
       </div>
     </PageShell>
   )

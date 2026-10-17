@@ -15,6 +15,7 @@ Areas this topic owns that have no chapter yet.
 - Semantic HTML: document outline, landmarks
 - The \`<dialog>\` element: modal and non-modal
 - Transitions and animations
+- Design patterns (module, observer)
 
 ## Sources
 
@@ -22,7 +23,7 @@ Areas this topic owns that have no chapter yet.
 `
 
 test('reads the area names under Not yet mapped only', () => {
-  assert.deepEqual(plannedAreas(readme), ['Semantic HTML', 'The `<dialog>` element', 'Transitions and animations'])
+  assert.deepEqual(plannedAreas(readme), ['Semantic HTML', 'The `<dialog>` element', 'Transitions and animations', 'Design patterns'])
 })
 
 test('a README without the section has no planned areas', () => {
