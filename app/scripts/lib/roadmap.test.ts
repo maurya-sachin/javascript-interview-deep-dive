@@ -13,7 +13,7 @@ function topic(slug: string, overrides: { chapterCount?: number; readable?: numb
     summaryText: '',
     flashcardCount: 0,
     chapterCount: overrides.chapterCount ?? 0,
-    stats: { total: 0, readable: overrides.readable ?? 0, core: 0, byDifficulty: { easy: 0, medium: 0, hard: 0 }, lastVerified: null, stale: 0, reviewed: 0 },
+    stats: { total: 0, readable: overrides.readable ?? 0, core: 0, byDifficulty: { easy: 0, medium: 0, hard: 0 }, lastVerified: null, stale: 0, reviewed: 0, drafted: 0 },
   }
 }
 const step = (slug: string): PathStep => ({ topic: slug, topicTitle: slug, chapter: null, chapterTitle: null, why: '', ready: true, started: true, questionCount: 1 })

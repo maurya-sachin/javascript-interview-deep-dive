@@ -63,6 +63,8 @@ export interface TopicStats {
   stale: number
   /** Readable questions with status `published`. */
   reviewed: number
+  /** Questions with status `draft`, awaiting review; a production build gives them no page. */
+  drafted: number
 }
 
 /** A topic as the manifest lists it: everything the home page needs, without chapter or question lists. */

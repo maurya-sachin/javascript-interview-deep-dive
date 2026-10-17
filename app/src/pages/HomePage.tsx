@@ -20,6 +20,7 @@ export function HomePage() {
   const { last, lastTitleHtml } = useProgress()
   // Topics with something to read in this build; drafts appear only in a --drafts build.
   const available = topics.filter((topic) => topic.stats.readable > 0)
+  const drafted = topics.reduce((sum, topic) => sum + topic.stats.drafted, 0)
   const start = paths.find((path) => path.start)?.start ?? null
   const lastQuestion = last && lastTitleHtml ? { id: last, titleHtml: lastTitleHtml } : null
 
@@ -37,6 +38,9 @@ export function HomePage() {
         <StrataFigure className="mx-auto w-full max-w-md lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:max-w-[30rem]" />
         <div>
           <h2 className="mb-1 text-sm font-semibold">What are you preparing as?</h2>
+          {available.length === 0 && drafted > 0 && (
+            <p className="mb-2 text-sm text-muted-foreground">Nothing is published yet: {drafted} questions are written and in review.</p>
+          )}
           <RoleList paths={paths} />
           {lastQuestion && (
             <Link to={questionPath(lastQuestion)} className="group mt-8 flex max-w-lg items-baseline gap-3 border-l-2 border-link pl-4">

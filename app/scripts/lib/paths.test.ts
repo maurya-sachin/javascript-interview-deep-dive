@@ -9,11 +9,15 @@ function step(overrides: Partial<PathStep>): PathStep {
 }
 const path = (steps: PathStep[]): RolePath => ({ slug: 'p', title: 'P', summary: 's', start: null, steps })
 
-test('describes ready and planned topics', () => {
-  assert.equal(describePath(path([step({}), step({ topic: 'typescript', topicTitle: 'TypeScript' }), step({ topic: 'react', topicTitle: 'React', ready: false })])), 'JavaScript and TypeScript are ready; 1 more planned')
+const planned = (overrides: Partial<PathStep>) => step({ ready: false, started: false, ...overrides })
+
+test('describes ready, in-progress and planned topics', () => {
+  assert.equal(describePath(path([step({}), step({ topic: 'typescript', topicTitle: 'TypeScript' }), planned({ topic: 'react', topicTitle: 'React' })])), 'JavaScript and TypeScript are ready; 1 more planned')
   assert.equal(describePath(path([step({})])), 'JavaScript is ready')
-  assert.equal(describePath(path([step({ ready: false }), step({ topic: 'x', ready: false })])), 'Roadmap only: nothing published yet')
   assert.equal(describePath(path([step({}), step({ topic: 'b', topicTitle: 'B' }), step({ topic: 'c', topicTitle: 'C' })])), 'JavaScript, B and C are ready')
+  assert.equal(describePath(path([step({ ready: false }), step({ topic: 'typescript', topicTitle: 'TypeScript', ready: false }), planned({ topic: 'react' })])), 'JavaScript and TypeScript in progress; 1 more planned')
+  assert.equal(describePath(path([step({}), step({ topic: 'typescript', topicTitle: 'TypeScript', ready: false })])), 'JavaScript is ready; TypeScript in progress')
+  assert.equal(describePath(path([planned({}), planned({ topic: 'x' })])), 'Planned: nothing written yet')
 })
 
 test('step paths point at the chapter when one is named', () => {
