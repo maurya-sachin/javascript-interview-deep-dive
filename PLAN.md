@@ -6,9 +6,9 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Branch `v2` (merged to `main` by PR #1); tag `v1-archive` = v1; repo-local email `sachinmaurya1710@gmail.com`
 - Doing: UI first, content after. Redesign steps 1–7 are built and reviewed on `v2` (spec `docs/superpowers/specs/2026-10-14-isobath-redesign-design.md`, mockups in `specs/mockups/`), plus a practice-page redesign, the ring-"o" wordmark, and transit-map routes for the roadmap and paths. **Next: maintainer review of `v2`, then push/merge (needs OK); then Phase 5 content review/publish.**
 - Brand draft for the designer: the JavaScript cover reads as near-concentric rings (tune `heightField` in `app/src/lib/contours.ts`)
-- Content: JavaScript (150 q, 762 cards) + TypeScript (47 q) are `draft`, awaiting maintainer review
-- Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only
-- Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer); TypeScript flashcards not written
+- Content: JavaScript (150 q, 762 cards) + TypeScript (47 q, 504 cards) are `draft`, awaiting maintainer review; production ships a card only once its question is published (R8)
+- Review flags: JS ch 01–08, 10–14 Node-only/spec-less claims; 17 050 `Promise.try`; 18–22 browser/CSP/MDN not run; 23 polyfill-run; 26 V8 natives on Node 24.19 only; TS cards for ch 02–04 skip most Deep dive edge cases
+- Open: confirm `learn.sachinmaurya.com` resolves; 26 topics are README-only (chapter order from maintainer)
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
@@ -64,7 +64,7 @@ app/            scripts/ (new · check · status · build) · src/ · public/dat
 
 
 ### 7 — Next topics
-- [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content; plus TypeScript flashcards
+- [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content
 
 ## Parked (don't start without maintainer)
 Supabase sync/votes · in-browser AI (WebLLM + retrieval; no paid APIs, no fine-tuning) · PWA offline · runnable challenges (Sandpack)
