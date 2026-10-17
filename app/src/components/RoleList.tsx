@@ -19,6 +19,7 @@ export function RoleList({ paths }: { paths: RolePath[] }) {
           to: stepPath(step),
           state: stepState(step, read),
         }))
+        const finished = stations.filter((station) => station.state === 'done').length
         return (
           <li key={path.slug} className="border-t">
             <Link to={`/paths/${path.slug}`} className="group grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-3 py-4 hover:bg-linear-to-r hover:from-muted hover:to-transparent">
@@ -31,6 +32,7 @@ export function RoleList({ paths }: { paths: RolePath[] }) {
                 <RouteLine stations={stations} orientation="compact" />
                 <span className="mt-2 block text-sm text-muted-foreground">
                   {ready.length} of {path.steps.length} ready{hours > 0 && ` · about ${hours} ${hours === 1 ? 'hour' : 'hours'}`}
+                  {finished > 0 && ` · ${finished} finished`}
                 </span>
               </span>
             </Link>

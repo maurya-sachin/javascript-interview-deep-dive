@@ -32,7 +32,20 @@ const MARK_FILL: Record<StationState, string> = {
 
 /** One station's dot; also the legend swatch on the roadmap. */
 export function StationMark({ state, current = false, small = false, className }: { state: StationState; current?: boolean; small?: boolean; className?: string }) {
-  return <span aria-hidden="true" className={cn('box-border inline-block shrink-0 rounded-full', small ? 'size-2.5' : 'size-3.5', MARK_FILL[state], current && 'ring-4 ring-link/25', className)} />
+  return (
+    <span aria-hidden="true" className={cn('box-border inline-flex shrink-0 items-center justify-center rounded-full', small ? 'size-2.5' : 'size-3.5', MARK_FILL[state], current && 'ring-4 ring-link/25', className)}>
+      {state === 'done' && <CheckIcon />}
+    </span>
+  )
+}
+
+/** Finished steps differ from published ones by shape, so colour alone never carries the state. */
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 10 10" aria-hidden="true" className="size-2/3 text-white" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 5.25 4.25 7.5 8 2.75" />
+    </svg>
+  )
 }
 
 /** A connector is solid when both stations have content, dashed when either is still planned. */
