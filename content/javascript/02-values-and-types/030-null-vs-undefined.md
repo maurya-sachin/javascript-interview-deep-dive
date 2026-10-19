@@ -30,6 +30,7 @@ sources:
   - https://tc39.es/ecma262/#sec-copydataproperties
   - https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot
   - https://www.typescriptlang.org/tsconfig/#strictNullChecks
+  - https://dom.spec.whatwg.org/#dom-parentnode-queryselector
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/void
@@ -88,7 +89,7 @@ console.log(null ?? 'fallback', 0 ?? 'fallback'); // → fallback 0
 ## Follow-ups
 
 **Q:** Which should my API return for "no result"?
-**A:** Pick one and document it. MDN's guidance is that callers should usually accept both. Returning `undefined` matches what built-ins like `Array.prototype.find` do.
+**A:** Pick one and document it. MDN's guidance is that an API should likely accept both as equivalent inputs. Returning `undefined` matches what built-ins like `Array.prototype.find` do.
 
 **Q:** Can `undefined` be overwritten?
 **A:** The global `undefined` property is non-writable and non-configurable, so global assignment can't change it. A local variable named `undefined` is legal and shadows it, which is why you shouldn't write one.
@@ -103,7 +104,7 @@ The two values enter the language in different places. `undefined` is produced b
 - A function body that finishes without a `return` value completes with `undefined`, and a parameter with no matching argument is `undefined`.
 - `OrdinaryGet` returns `undefined` when it walks the prototype chain and reaches a `null` parent without finding the key. It also returns `undefined` for an accessor property whose getter is `undefined`.
 
-`null`, by contrast, comes from the language in few places: it is the `[[Prototype]]` of `Object.prototype`, which is what ends the chain `OrdinaryGet` walks, and of objects you create with `Object.create(null)`; and built-ins such as `RegExp.prototype.exec` and `String.prototype.match` return it for "no match". Other `null`s were written by a program or parsed from JSON.
+`null`, by contrast, comes from the language in few places: it is the `[[Prototype]]` of `Object.prototype`, which is what ends the chain `OrdinaryGet` walks, and of objects you create with `Object.create(null)`; and built-ins such as `RegExp.prototype.exec` and `String.prototype.match` return it for "no match". Other `null`s come from host APIs (such as the DOM's `querySelector`), from JSON, or from program code.
 
 ```js
 const proto = Object.getPrototypeOf(Object.prototype);
@@ -150,7 +151,7 @@ const { theme = 'light', pageSize = 20 } = fromForm;
 console.log(theme, pageSize); // → light null
 ```
 
-- **Spread and `Object.assign`** copy own enumerable properties as they are, so `theme: undefined` overwrites the default. Only destructuring defaults and `??` treat `undefined` as "use the fallback", and they still keep `null`.
+- **Spread and `Object.assign`** copy own enumerable properties as they are, so `theme: undefined` overwrites the default. Only defaults (destructuring or parameter) and `??` treat `undefined` as "use the fallback"; defaults keep `null`, while `??` replaces it too.
 - **JSON** has `null` but no `undefined`, so a PATCH body can say "clear the nickname" (`null`) versus "leave the bio alone" (omitted). Setting a field to `undefined` and expecting the server to clear it silently sends nothing.
 - **Defaults** applied with `= value` skip `null`, so a `null` from an API response reaches code that assumed a default had been applied.
 
