@@ -15,7 +15,10 @@ sources:
   - https://tc39.es/ecma262/#sec-isstrictlyequal
   - https://tc39.es/ecma262/#sec-tonumber
   - https://tc39.es/ecma262/#sec-toprimitive
+  - https://tc39.es/ecma262/#sec-stringtonumber
   - https://tc39.es/ecma262/#sec-stringtobigint
+  - https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot
+  - https://tc39.es/ecma262/#sec-date.prototype-%symbol.toprimitive%
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Equality_comparisons_and_sameness
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Equality
 tldr: >
