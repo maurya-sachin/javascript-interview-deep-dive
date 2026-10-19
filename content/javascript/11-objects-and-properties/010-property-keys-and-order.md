@@ -16,6 +16,7 @@ sources:
   - https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
   - https://tc39.es/ecma262/#array-index
   - https://tc39.es/ecma262/#sec-object.keys
+  - https://tc39.es/ecma262/#sec-enumerate-object-properties
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects#objects_and_properties
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 tldr: >
@@ -40,7 +41,7 @@ tldr: >
 2. Other strings in the order the properties were created.
 3. Symbols in the order they were created.
 
-`Reflect.ownKeys`, `Object.keys`, `Object.values`, `Object.entries`, `Object.assign`, spread and `JSON.stringify` all follow it, because they all start from `[[OwnPropertyKeys]]`. `'01'`, `'-1'` and `'1.5'` are not array indices, so they sort by creation. Deleting and re-adding a key moves it to the end of its group.
+`Reflect.ownKeys`, `Object.keys`, `Object.values`, `Object.entries`, `Object.assign`, spread and `JSON.stringify` all follow it, because they all start from `[[OwnPropertyKeys]]`. `'01'`, `'-1'` and `'1.5'` are not array indices, so they sort by creation. Deleting and re-adding a string or symbol key moves it to the end of its group; an array index goes back to its numeric place.
 
 When you need arbitrary keys of any type, or insertion order that ignores integer-looking keys, use a `Map`.
 
@@ -72,7 +73,7 @@ console.log(bag); // → { '1': 'string', '[object Object]': 'object' }
 ## Follow-ups
 
 **Q:** Is the order guaranteed for `for…in` too?
-**A:** Yes, for ordinary objects. The spec's `EnumerateObjectProperties` must behave like an informative generator built on `Reflect.ownKeys` (strings only, own keys first, then the prototype chain), as long as the object isn't mutated mid-loop. The chain walk is covered in the enumeration question.
+**A:** Mostly. `EnumerateObjectProperties` must match `CreateForInIterator` (own string keys in this order, then the prototype chain) unless the chain holds a Proxy, TypedArray, module namespace or host object, or mid-loop a prototype changes, a property is deleted or enumerability changes, or a prototype gains a property.
 
 **Q:** What about `4294967295` and larger integers?
 **A:** Array indices stop at `2**32 - 2`. In Node 24, `Object.keys({ 4294967295: 1, z: 1, 5: 1 })` gives `['5', '4294967295', 'z']`: the larger number is an ordinary string and sorts by creation.
