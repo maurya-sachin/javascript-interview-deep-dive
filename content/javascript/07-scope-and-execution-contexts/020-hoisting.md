@@ -16,6 +16,7 @@ sources:
   - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
   - https://tc39.es/ecma262/#sec-blockdeclarationinstantiation
   - https://tc39.es/ecma262/#sec-block-level-function-declarations-web-legacy-compatibility-semantics
+  - https://nodejs.org/docs/latest-v24.x/api/modules.html#the-module-wrapper
   - https://developer.mozilla.org/en-US/docs/Glossary/Hoisting
 tldr: >
   The spec has no "hoisting" step and moves no code. Before a scope's code runs, the engine
@@ -85,15 +86,15 @@ The spec has one instantiation operation per scope kind, each run before the sco
 - **BlockDeclarationInstantiation** for blocks, `switch` bodies, and so on.
 - Module and `eval` code have their own variants.
 
-Each follows the same pattern. First it collects the names. *Var-scoped* declarations are `var` and top-level function declarations; *lexically scoped* ones are `let`, `const`, `class`, and block-level functions. Next it checks for conflicts, which are early errors (a `SyntaxError` for a `let` that clashes with a `var` in the same scope). Then it creates bindings. Function declarations are created and *initialized* straight away with `InstantiateFunctionObject`. Plain `var` names are initialized to `undefined` only if the name isn't a parameter or an already-declared function. `let`, `const`, and `class` get uninitialized bindings, and `InitializeBinding` runs later when the declaration is evaluated.
+Each follows the same pattern. First it collects the names. *Var-scoped* declarations are `var` and top-level function declarations; *lexically scoped* ones are `let`, `const`, `class`, and block-level functions. Conflicts inside one scope (a `let` that clashes with a `var`) are early errors, so the code never runs; `GlobalDeclarationInstantiation` also checks names against earlier scripts and throws a `SyntaxError` at run time. Then it creates bindings. Plain `var` names that aren't already bound (as a parameter, say) are initialized to `undefined`. Function declarations are *initialized* with a function object from `InstantiateFunctionObject`, which beats a `var` of the same name. `let`, `const`, and `class` get uninitialized bindings, and `InitializeBinding` runs later when the declaration is evaluated.
 
 That ordering explains the classic puzzles:
 
 ```js
 function order() {
-  console.log(typeof item); // → function (the function wins at instantiation)
-  var item = 1;
-  console.log(typeof item); // → number (the assignment runs in place)
+  console.log(typeof item); // → function
+  var item = 1; // the assignment runs in place
+  console.log(typeof item); // → number
   function item() {}
 }
 order();
@@ -105,7 +106,7 @@ function param(value) {
 console.log(param(5)); // → 5
 ```
 
-Function declarations are processed in source order and the last one with a name wins, so `function a(){}; function a(){}` leaves the second.
+When one name has several function declarations, instantiation keeps only the last, so `function a(){}; function a(){}` leaves the second.
 
 ### Edge cases
 
@@ -114,17 +115,17 @@ Function declarations are processed in source order and the last one with a name
 ```js
 console.log(typeof inner); // → undefined
 {
-  console.log(typeof inner); // → function (initialized at block entry)
+  console.log(typeof inner); // → function
   function inner() {}
 }
 console.log(typeof inner); // → undefined
 ```
 
-- **Annex B for sloppy code.** *Legacy:* in non-strict scripts on web-compatible hosts, a block function also creates a function-scoped `var` binding (initialized to `undefined`) if that wouldn't cause an early error. When the declaration is evaluated, the block's value is copied to that `var`. Node's CommonJS files are sloppy, so this runs there too, but ES modules don't see it:
+- **Annex B for sloppy code.** *Legacy:* in non-strict scripts on web-compatible hosts, a block function also creates a function-scoped `var` binding (initialized to `undefined`) if that wouldn't cause an early error. When the declaration is evaluated, the block's value is copied to that `var`, which holds `undefined` until then. Node.js wraps each CommonJS file in a plain function, which is sloppy, so this runs there too, but ES modules don't see it:
 
 ```js
 // Sloppy script or CommonJS file, not an ES module
-console.log(typeof legacy); // → undefined (the var exists, but holds no function yet)
+console.log(typeof legacy); // → undefined
 if (true) {
   function legacy() {}
 }
