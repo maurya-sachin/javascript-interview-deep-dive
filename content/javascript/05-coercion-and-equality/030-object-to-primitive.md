@@ -13,6 +13,11 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-toprimitive
   - https://tc39.es/ecma262/#sec-ordinarytoprimitive
+  - https://tc39.es/ecma262/#sec-tostring
+  - https://tc39.es/ecma262/#sec-tonumber
+  - https://tc39.es/ecma262/#sec-topropertykey
+  - https://tc39.es/ecma262/#sec-islessthan
+  - https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
   - https://tc39.es/ecma262/#sec-date.prototype-%symbol.toprimitive%
   - https://tc39.es/ecma262/#sec-symbol.prototype-%symbol.toprimitive%
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/toPrimitive
