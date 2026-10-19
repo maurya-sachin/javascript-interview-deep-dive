@@ -13,6 +13,7 @@ sources:
   - https://tc39.es/ecma262/#sec-automatic-semicolon-insertion
   - https://tc39.es/ecma262/#sec-rules-of-automatic-semicolon-insertion
   - https://tc39.es/ecma262/#sec-interesting-cases-of-automatic-semicolon-insertion
+  - https://tc39.es/ecma262/#sec-comments
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#automatic_semicolon_insertion
 tldr: >
   The parser inserts a semicolon only where the next token is illegal and follows a newline,
