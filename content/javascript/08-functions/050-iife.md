@@ -37,7 +37,7 @@ An **immediately invoked function expression** is a function expression that is 
 - Private state: a module-level variable, a factory function, or a class `#private` field.
 - Per-iteration capture in loops: `let` in `for` creates a binding per iteration.
 
-**Still useful:** an `async` IIFE to use `await` in a context without top-level `await` (CommonJS, older scripts), and a one-off initialisation that needs statements but must produce a `const` value.
+**Still useful:** an `async` IIFE to use `await` in a context without top-level `await` (CommonJS, classic scripts), and a one-off initialisation that needs statements but must produce a `const` value.
 
 ## Example
 
@@ -61,7 +61,7 @@ const counter = (function () {
 counter.next();
 console.log(counter.next()); // → 2
 
-console.log(!function () { return 1; }()); // → false  (a leading `!` also forces an expression)
+console.log(!function () { return 1; }()); // → false
 
 // The modern replacements:
 {
