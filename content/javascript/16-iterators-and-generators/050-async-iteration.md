@@ -16,7 +16,7 @@ sources:
   - https://tc39.es/ecma262/#sec-createasyncfromsynciterator
   - https://tc39.es/ecma262/#sec-asynciteratorclose
   - https://tc39.es/ecma262/#sec-asyncgenerator-objects
-  - https://tc39.es/ecma262/#sec-runtime-semantics-forinofbodyevaluation
+  - https://tc39.es/ecma262/#sec-runtime-semantics-forin-div-ofbodyevaluation-lhs-stmt-iterator-lhskind-labelset
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of
   - https://nodejs.org/docs/latest-v24.x/api/stream.html
 tldr: >
