@@ -4,7 +4,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `dev`; production = `main` (last release `efcb20a`). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
-- Doing: Opus accuracy audit of JavaScript (R21; `write-question` skill → Audit mode). Ch 01–08 done; next ch 10–11, then 12–14 (ch 09 was the Opus-written style bar).
+- Doing: Opus accuracy audit of JavaScript (R21; `write-question` skill → Audit mode). Ch 01–11 done; next ch 12–14, then 15–26 in groups of 2–3 (ch 09 was the Opus-written style bar).
 - Then JS gaps: chapters for **Not yet mapped** (design patterns; functional programming beyond composition) and a question for every open `→ —` sub-topic; unfinished proposals (decorators, ShadowRealm, import defer, …) stay parked.
 - Then Phase 5: maintainer reviews drafts → `published` (label Draft → Reviewed). JS 150 q / 762 cards, TS 47 q / 544 cards: all `draft`, readable in production.
 - Known limits: ch 18–22 browser claims checked in Chrome 155 only (Firefox/Safari from MDN); ch 26 V8 natives on Node 24.19 only. Open: chapter order for the 26 README-only topics; designer redraws the wordmark.
