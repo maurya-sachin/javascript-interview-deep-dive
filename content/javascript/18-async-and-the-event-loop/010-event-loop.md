@@ -18,6 +18,7 @@ sources:
   - https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint
   - https://html.spec.whatwg.org/multipage/webappapis.html#hostenqueuepromisejob
   - https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick
+  - https://nodejs.org/docs/latest-v24.x/api/process.html#when-to-use-queuemicrotask-vs-processnexttick
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model
 tldr: >
   The language only defines jobs that run to completion, one at a time per agent; the event loop belongs to
@@ -30,7 +31,7 @@ tldr: >
 JavaScript code runs on a call stack. When the stack is empty, the host decides what runs next. That scheduler is the **event loop**, and it is defined by the host, not by ECMAScript.
 
 - **What the spec defines.** A *job* is a piece of work started when the execution context stack is empty. Once a job starts, it runs to completion before another job starts in that agent. Promise reactions are enqueued through the host hook `HostEnqueuePromiseJob`. The spec says nothing about `setTimeout`, I/O, or user events.
-- **What the host adds.** The HTML Standard (browsers) defines *tasks* in task queues. One iteration of the loop runs one task, then performs a **microtask checkpoint**: it runs microtasks until the microtask queue is empty, including microtasks queued by microtasks. Then the browser may render, and the loop continues. Promise jobs go on the microtask queue.
+- **What the host adds.** The HTML Standard (browsers) defines *tasks* in task queues. One iteration of the loop runs one task, then performs a **microtask checkpoint**: it runs microtasks until the microtask queue is empty, including microtasks queued by microtasks. Rendering is not a step after every task: when the browser has a rendering opportunity, it queues a separate *update the rendering* task. Promise jobs go on the microtask queue.
 - **Node.js** implements its own loop (libuv) with phases such as timers, poll and check, and runs promise jobs and `process.nextTick` callbacks between callbacks.
 
 Consequences interviewers want to hear:
@@ -85,7 +86,9 @@ The HTML Standard fills in the rest. Its event loop processing model, in the ord
 1. Choose a task queue that has a runnable task, in an implementation-defined way.
 2. Remove the oldest task from that queue and run it.
 3. Perform a microtask checkpoint.
-4. Report long tasks and update bookkeeping, then, for a window event loop, run the *update the rendering* steps when the browser decides a rendering opportunity exists. Rendering is covered in the browser topic.
+4. Report long tasks and update timing bookkeeping.
+
+Rendering is not one of these steps. For a window event loop, a parallel process waits for a rendering opportunity and then queues an *update the rendering* task on the rendering task source, so rendering happens between tasks, not after every task. Rendering is covered in the browser topic.
 
 HTML's `HostEnqueuePromiseJob` queues the job on the microtask queue. The microtask checkpoint dequeues and runs microtasks while the queue is not empty. A flag, *performing a microtask checkpoint*, prevents re-entrant checkpoints when a callback finishes while a checkpoint is already running. After the queue is empty, the checkpoint notifies about rejected promises, which is why unhandled rejection reports arrive after microtasks.
 
