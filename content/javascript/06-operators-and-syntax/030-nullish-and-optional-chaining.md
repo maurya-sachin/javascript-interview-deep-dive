@@ -47,7 +47,7 @@ console.log(opts.retries || 3, opts.retries ?? 3); // → 3 0
 console.log(opts.timeout ?? 1000, opts.missing ?? 'x'); // → 1000 x
 
 const user = { profile: null, greet() { return 'hi'; }, list: [1] };
-console.log(user.profile?.name.first.deep); // → undefined (stops at ?.)
+console.log(user.profile?.name.first.deep); // → undefined
 console.log(user.greet?.(), user.missing?.(), user.list?.[0]); // → hi undefined 1
 // (user.profile?.name).first → TypeError: parentheses end the chain
 
