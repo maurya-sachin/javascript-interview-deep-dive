@@ -15,6 +15,8 @@ related:
 verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-function-objects
+  - https://tc39.es/ecma262/#sec-array.prototype.map
+  - https://tc39.es/ecma262/#sec-parseint-string-radix
   - https://developer.mozilla.org/en-US/docs/Glossary/First-class_Function
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
