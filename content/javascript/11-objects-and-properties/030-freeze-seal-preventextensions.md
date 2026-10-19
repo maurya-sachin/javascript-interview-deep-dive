@@ -16,6 +16,8 @@ sources:
   - https://tc39.es/ecma262/#sec-object.freeze
   - https://tc39.es/ecma262/#sec-object.seal
   - https://tc39.es/ecma262/#sec-object.preventextensions
+  - https://tc39.es/ecma262/#sec-typedarray-defineownproperty
+  - https://tc39.es/ecma262/#sec-array.prototype.push
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions
@@ -31,7 +33,7 @@ tldr: >
 | Level | Add | Delete | Change value | Redefine attributes |
 |---|---|---|---|---|
 | `Object.preventExtensions(o)` | no | yes | yes | yes |
-| `Object.seal(o)` | no | no | yes | no (values still writable) |
+| `Object.seal(o)` | no | no | yes | only `writable` → `false` |
 | `Object.freeze(o)` | no | no | no | no |
 
 Each level includes the one before it:
@@ -95,7 +97,7 @@ for (const [level, apply] of Object.entries(levels)) {
 **A:** Different layers. `const` stops re-binding the variable; `freeze` stops changing the object's properties. Use both for a true constant object.
 
 **Q:** What happens when you `push` onto a frozen array?
-**A:** It throws a `TypeError` in Node 24 ("Cannot add property 2, object is not extensible"), because built-in methods like `push` throw on failed writes even in sloppy code. A plain `arr[2] = 3` would be silent there.
+**A:** It throws a `TypeError`: `push` writes with `Set(O, P, V, true)`, which throws on failure even in sloppy code (Node 24's message: "Cannot add property 2, object is not extensible"). A plain `arr[2] = 3` would be silent there.
 
 ## Exercises
 
