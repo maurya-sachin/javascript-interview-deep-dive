@@ -35,7 +35,7 @@ tldr: >
 1. **Same type** → compare as `===` does (so `NaN == NaN` is `false`).
 2. **`null` and `undefined`** are equal to each other, and to nothing else.
 3. **Number and String** → convert the string with `ToNumber`, then compare again.
-4. **BigInt and String** → parse the string as a BigInt; if it is not a valid BigInt literal, the result is `false`.
+4. **BigInt and String** → parse the string as a BigInt (`StringToBigInt`); if it is not a valid integer string, the result is `false`.
 5. **Boolean on either side** → convert it to a Number (`true` → `1`, `false` → `0`), then compare again.
 6. **Object vs String, Number, BigInt or Symbol** → convert the object with `ToPrimitive` (no hint, so `valueOf` first for ordinary objects), then compare again.
 7. **BigInt and Number** → equal if they represent the same mathematical value.
@@ -43,25 +43,30 @@ tldr: >
 
 Each conversion step returns to the top of the algorithm, so one comparison can convert several times: `"1" == true` becomes `"1" == 1`, then `1 == 1`.
 
-Notable consequences: `null == 0` is `false` (rule 2 consumes `null` before any numeric conversion), `NaN` is never equal to anything, and two objects compare by identity because they have the same type. Not transitive: `"0" == 0` and `0 == ""` are `true`, but `"0" == ""` is `false` (same type, so strict string comparison).
+Notable consequences: `null == 0` is `false` (no rule converts `null`, so it falls through to rule 8), `NaN` is never equal to anything, and two objects compare by identity because they have the same type. Not transitive: `"0" == 0` and `0 == ""` are `true`, but `"0" == ""` is `false` (same type, so strict string comparison).
 
 Default to `===`. The widely accepted exception is `x == null`, which tests for `null` or `undefined` in one check.
 
 ## Example
 
 ```js
-console.log("1" == 1); // → true   (String → Number)
-console.log(true == 1); // → true   (Boolean → Number)
-console.log("1" == true); // → true   ("1" == 1, then 1 == 1)
-console.log("true" == true); // → false  (NaN == 1)
-console.log(null == 0); // → false  (null only equals undefined)
+console.log("1" == 1); // → true
+console.log(true == 1); // → true
+// "1" == true → "1" == 1 → 1 == 1
+console.log("1" == true); // → true
+// "true" == true → "true" == 1 → NaN == 1
+console.log("true" == true); // → false
+console.log(null == 0); // → false
 console.log(null == undefined); // → true
 console.log(NaN == NaN); // → false
-console.log([1] == 1); // → true   ([1] → "1" → 1)
-console.log([] == false); // → true   (false → 0, [] → "" → 0)
-console.log([] == ![]); // → true   (![] is false)
+// [1] → "1" → 1
+console.log([1] == 1); // → true
+// false → 0 first, then [] → "" → 0
+console.log([] == false); // → true
+// ![] is false, so this is [] == false
+console.log([] == ![]); // → true
 console.log(1n == "1"); // → true
-console.log("0" == "");  // → false  (same type: strict string compare)
+console.log("0" == ""); // → false
 ```
 
 ## Pitfalls
@@ -86,7 +91,7 @@ console.log("0" == "");  // → false  (same type: strict string compare)
 
 ### How it works
 
-The spec text (ECMA-262, IsLooselyEqual) in order:
+The spec steps (ECMA-262, IsLooselyEqual), condensed:
 
 ```
 1. If SameType(x, y): return IsStrictlyEqual(x, y).
@@ -112,10 +117,10 @@ console.log("" == 0); // → true
 console.log("0x10" == 16); // → true
 console.log("1_0" == 10); // → false
 console.log(2n == "2"); // → true
-console.log(2n == "2.5"); // → false (not a valid BigInt string)
-console.log(Symbol.iterator == Symbol.iterator); // → true (same type)
-console.log(Object("a") == "a"); // → true (wrapper → primitive)
-console.log(Object("a") == Object("a")); // → false (two objects, identity)
+console.log(2n == "2.5"); // → false
+console.log(Symbol.iterator == Symbol.iterator); // → true
+console.log(Object("a") == "a"); // → true
+console.log(Object("a") == Object("a")); // → false
 ```
 
 Large values: a BigInt and a Number compare by exact mathematical value, so `2n ** 53n + 1n == 2 ** 53` is `false` even though `Number(2n ** 53n + 1n) === 2 ** 53`. `NaN` and the infinities are never equal to any BigInt.
@@ -126,7 +131,7 @@ Form values and query parameters arrive as strings, so `req.query.page == 1` "wo
 
 ```js
 const raw = "0x1";
-console.log(raw == 1); // → true (surprising)
+console.log(raw == 1); // → true
 const page = Number.parseInt(raw, 10);
 console.log(page, page === 1); // → 0 false
 ```
