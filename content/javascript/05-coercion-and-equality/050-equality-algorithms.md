@@ -15,14 +15,19 @@ sources:
   - https://tc39.es/ecma262/#sec-samevaluezero
   - https://tc39.es/ecma262/#sec-array.prototype.includes
   - https://tc39.es/ecma262/#sec-array.prototype.indexof
+  - https://tc39.es/ecma262/#sec-array.prototype.lastindexof
   - https://tc39.es/ecma262/#sec-map.prototype.set
+  - https://tc39.es/ecma262/#sec-set.prototype.add
+  - https://tc39.es/ecma262/#sec-canonicalizekeyedcollectionkey
+  - https://tc39.es/ecma262/#sec-validateandapplypropertydescriptor
+  - https://tc39.es/ecma262/#sec-runtime-semantics-caseclauseisselected
   - https://tc39.es/ecma262/#sec-object.is
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Equality_comparisons_and_sameness
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
 tldr: >
   The three algorithms differ only for `NaN` and signed zero. `===` (IsStrictlyEqual) and `indexOf` treat
   `NaN` as unequal to itself and `0 === -0`. `Object.is` (SameValue) equates `NaN` with `NaN` and
-  distinguishes `0` from `-0`. SameValueZero, used by `includes`, `Map` and `Set`, equates `NaN` and also treats `0` and `-0` as the same.
+  distinguishes `0` from `-0`. SameValueZero, used by `includes`, equates `NaN` and also treats `0` and `-0` as the same. `Map` and `Set` match it.
 ---
 
 ## Answer
@@ -33,14 +38,14 @@ None of the three coerces types: different types are never equal. They differ on
 |---|---|---|---|
 | IsStrictlyEqual | not equal | equal | `===`, `!==`, `switch`, `indexOf`, `lastIndexOf` |
 | SameValue | equal | **not** equal | `Object.is`, property redefinition checks (`Object.defineProperty`) |
-| SameValueZero | equal | equal | `includes`, `Map` keys, `Set` values |
+| SameValueZero | equal | equal | `includes`; `Map` keys and `Set` values behave the same way |
 
 Everything else matches: two Strings are equal when their code units match, two BigInts when their values match, and objects, symbols, `null`, `undefined` and Booleans compare by identity or value as you would expect.
 
 Practical consequences:
 
 - `[NaN].indexOf(NaN)` is `-1` but `[NaN].includes(NaN)` is `true`.
-- A `Map` or `Set` treats `NaN` as one key. It also treats `-0` and `+0` as the same key (the spec's key canonicalization turns `-0` into `+0` first).
+- A `Map` or `Set` treats `NaN` as one key. It also treats `-0` and `+0` as the same key. The spec turns `-0` into `+0` first (CanonicalizeKeyedCollectionKey), then compares with SameValue, which matches SameValueZero; MDN describes this as SameValueZero.
 - `Object.is(0, -0)` is `false`; use it when the sign matters (for example, detecting `-0` from `Math.round(-0.4)`).
 - Use `Number.isNaN(x)` or `Object.is(x, NaN)` to test for `NaN`, never `x === NaN`.
 
