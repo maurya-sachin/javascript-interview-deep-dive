@@ -78,7 +78,7 @@ console.log(new Set([0, -0, NaN, NaN]).size); // → 2
 ## Follow-ups
 
 **Q:** Why does `Map` use SameValueZero rather than SameValue?
-**A:** So `NaN` works as a key and `0`/`-0` do not become different entries. The spec canonicalizes `-0` to `+0` before storing, and compares keys with SameValue afterwards; the observable effect is SameValueZero.
+**A:** So `0` and `-0` do not become different entries; `NaN` works as a key under either algorithm. The spec canonicalizes `-0` to `+0` before storing, and compares keys with SameValue afterwards; the observable effect is SameValueZero.
 
 **Q:** Does `Object.is` coerce its arguments?
 **A:** No. `Object.is("1", 1)` is `false`, and `Object.is(1n, 1)` is `false`.
