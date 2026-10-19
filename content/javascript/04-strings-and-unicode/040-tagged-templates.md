@@ -46,15 +46,15 @@ Tagging is how safe-by-construction APIs are built: the tag sees the fixed text 
 ```js
 function tag(strings, ...values) {
   console.log(strings.length === values.length + 1); // → true
-  console.log(strings, strings.raw); // → [ 'line\n', '' ] [ 'line\\n', '' ] (Node.js formatting)
+  console.log(strings, strings.raw); // → [ 'line\n', '' ] [ 'line\\n', '' ]
   console.log(Object.isFrozen(strings), values); // → true [ 'x' ]
 }
 tag`line\n${"x"}`;
 
 const same = (strings) => strings;
 const calls = [1, 2].map(() => same`site`);
-console.log(calls[0] === calls[1]); // → true (one call site)
-console.log(same`site` === same`site`); // → false (two call sites)
+console.log(calls[0] === calls[1]); // → true
+console.log(same`site` === same`site`); // → false
 
 console.log(String.raw`C:\new\table${1}`); // → C:\new\table1
 
@@ -71,7 +71,7 @@ console.log(html`<p>${'<img src=x onerror="alert(1)">'}</p>`);
 - Expecting the tag to receive strings for the values. `${[1, 2]}` arrives as the array; call `String(value)` yourself if needed.
 - Treating `strings` as always plain data. It is frozen, so `strings.push(...)` throws, and `strings[0] = ...` throws in strict code (modules). Copy it first.
 - Not handling `undefined` cooked pieces. With an invalid escape such as `\unicode`, `strings[i]` is `undefined`, so string methods on it throw. Read `strings.raw` when you accept arbitrary escapes.
-- Assuming an untagged template stringifies like a tag would. Untagged `${x}` calls `ToString`, so a Symbol throws a `TypeError`, and objects become `"[object Object]"`.
+- Assuming an untagged template stringifies like a tag would. Untagged `${x}` calls `ToString`, so a Symbol throws a `TypeError`, and plain objects become `"[object Object]"`.
 
 ## Follow-ups
 
