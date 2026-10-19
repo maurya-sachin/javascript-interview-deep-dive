@@ -30,7 +30,7 @@ tldr: >
 `get name() {}` and `set name(value) {}` in an object literal or class body define an **accessor property**: a property whose attributes are `get`, `set`, `enumerable` and `configurable` instead of `value` and `writable`.
 
 - **Read:** `[[Get]]` finds the accessor and calls the getter with the *receiver* (the object you read from) as `this`. No getter means `undefined`.
-- **Write:** `[[Set]]` calls the setter with the new value. No setter means the write fails: silent in sloppy code, a `TypeError` in strict code ("Cannot set property x of #<Object> which has only a getter").
+- **Write:** `[[Set]]` calls the setter with the new value. No setter means the write fails: silent in sloppy code, a `TypeError` in strict code.
 - **No storage:** the accessor holds functions, not data. The value lives elsewhere: another property (conventionally `_x`), a closure, or a private field.
 
 Because the receiver is `this`, an inherited accessor works on the child: `child.balance = 10` runs the setter with `this === child`, so the data lands on `child`.
@@ -73,7 +73,7 @@ console.log(account.balance, account.summary); // → 150 balance: 150
 try {
   account.summary = 'x'; // getter only: the write is rejected
 } catch (error) {
-  console.log(error.message); // → Cannot set property summary of #<Object> which has only a getter
+  console.log(error.name); // → TypeError
 }
 
 const copy = { ...account };
@@ -95,7 +95,7 @@ console.log(Object.hasOwn(child, '_balance'), account.balance); // → true 150
 ## Follow-ups
 
 **Q:** How do you make a getter lazy and cached?
-**A:** On first call, replace it with a data property using `Object.defineProperty(this, 'key', { value, enumerable: true })`, then return the value. Later reads skip the getter. This only works when the object is extensible and the accessor is configurable.
+**A:** On first call, replace it with a data property using `Object.defineProperty(this, 'key', { value, enumerable: true })`, then return the value. Later reads skip the getter. An own accessor must be configurable; an inherited one (a class getter) needs `this` to be extensible.
 
 **Q:** Getter or a method?
 **A:** A getter reads like data, so it should be cheap, idempotent and side-effect free. Anything that is slow, async or takes arguments should be a method.
