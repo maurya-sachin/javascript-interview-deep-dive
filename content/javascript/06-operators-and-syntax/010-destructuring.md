@@ -17,6 +17,7 @@ sources:
   - https://tc39.es/ecma262/#sec-runtime-semantics-bindinginitialization
   - https://tc39.es/ecma262/#sec-runtime-semantics-keyedbindinginitialization
   - https://tc39.es/ecma262/#sec-copydataproperties
+  - https://tc39.es/ecma262/#sec-expression-statement
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring
 tldr: >
   Destructuring unpacks properties (object pattern) or iterated values (array pattern) into
@@ -37,11 +38,11 @@ Destructuring is a pattern on the left of a declaration, assignment, parameter, 
 **Where it throws:**
 
 - Object pattern on `null` or `undefined` — `RequireObjectCoercible` fails with `TypeError`. This includes the empty pattern `const {} = null`.
-- Array pattern on a non-iterable (`{}`, a number, `null`) — `TypeError: … is not iterable`.
+- Array pattern on a non-iterable (`{}`, a number, `null`) — `TypeError` from `GetIterator` (V8 words it `{} is not iterable`).
 - A nested pattern whose parent value is `undefined`: `const { a: { b } } = {}` reads `b` from `undefined` and throws. Give the parent a default: `{ a: { b } = {} }`.
 - A default that reads a binding declared later in the same pattern hits the temporal dead zone (`ReferenceError`).
 
-For assignment (no `const`/`let`), a statement starting with `{` parses as a block, so wrap it: `({ x } = obj);`.
+For assignment (no `const`/`let`), an `ExpressionStatement` can't start with `{` (it would parse as a block), so wrap it: `({ x } = obj);`.
 
 ## Example
 
