@@ -19,6 +19,8 @@ sources:
   - https://tc39.es/ecma262/#sec-globalthis
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis
   - https://nodejs.org/api/vm.html
+  - https://nodejs.org/docs/latest-v24.x/api/globals.html#global
+  - https://html.spec.whatwg.org/multipage/nav-history-apis.html#the-windowproxy-exotic-object
 tldr: >
   The global object holds the built-ins (`Array`, `Math`, …) and, in classic scripts, the
   top-level `var` and function declarations. `globalThis` is the standard way to reach it in any
@@ -28,7 +30,7 @@ tldr: >
 
 ## Answer
 
-The **global object** is an ordinary object created per realm that supplies the global scope with its built-in bindings (`Array`, `Math`, `undefined`, …) and any properties added later. **`globalThis`** is a property of it that points back to the global `this` value. Hosts used to name it differently (`window` and `self` in browsers, `global` in Node); `globalThis` works in all of them.
+The **global object** is an object created per realm that supplies the global scope with its built-in bindings (`Array`, `Math`, `undefined`, …) and any properties added later. **`globalThis`** is a property of it that points back to the global `this` value. Hosts also have their own names for it (`window` and `self` in browsers, `global` in Node.js); `globalThis` works in all of them.
 
 Which top-level declarations end up on it depends on the declaration and the kind of code. The spec's Global Environment Record has two halves: an Object record backed by the global object, and a Declarative record.
 
@@ -57,7 +59,7 @@ vm.runInContext(
 );
 
 console.log(Object.keys(context).sort()); // → [ 'fromFn', 'fromVar', 'implicit' ]
-console.log(vm.runInContext('fromLet + fromConst', context)); // → 5 (global bindings, no properties)
+console.log(vm.runInContext('fromLet + fromConst', context)); // → 5
 
 var inModule = 1; // this file is a module, so this is module-scoped
 console.log('inModule' in globalThis); // → false
@@ -65,10 +67,10 @@ console.log('inModule' in globalThis); // → false
 
 ## Pitfalls
 
-- Expecting `var x` to create `globalThis.x` in modules, bundles, or Node files. Only a classic `<script>` (or the REPL-like script context above) does.
+- Expecting `var x` to create `globalThis.x` in modules, bundles, or Node files. Only a classic `<script>` (or a `node:vm` script, as above) does.
 - Saying `let` and `const` aren't global. They are global *bindings*; they are just not properties of the global object.
-- Reading top-level `this` as the global object. It is `undefined` in modules and `module.exports` in a Node CommonJS file; only a classic script's top level has `this === globalThis`.
-- Treating `window` as the global object in a browser. `globalThis` there is a `WindowProxy` that wraps the real global, so identity checks across frames can surprise you.
+- Reading top-level `this` as the global object. It is `undefined` in modules, and Node.js 24 sets it to `module.exports` in a CommonJS file; only a classic script's top level has `this === globalThis`.
+- Treating `window` as the global object itself. Per HTML, `window` and `globalThis` are a `WindowProxy` that wraps the current `Window` and is re-pointed when the frame navigates, so a saved reference can reach a different global later.
 
 ## Follow-ups
 
