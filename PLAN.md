@@ -5,8 +5,9 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `dev` (cut from `main`; merge back with a merge commit → Vercel production); tag `v1-archive` = v1, tag `archive/improvements` = unmerged v1 audit fixes; repo-local email `sachinmaurya1710@gmail.com`
 - Next: Phase 5 — maintainer reviews drafts and marks them `published` (label Draft → Reviewed); production shows drafts and published questions alike. JavaScript (150 q, 762 cards) + TypeScript (47 q, 544 cards) are `draft`.
-- Review flags: JS ch 06–08, 10–14 Node-only/spec-less claims (ch 01–05 checked against ECMA-262); 18–22 browser claims checked in Chrome 155 (Firefox/Safari versions are MDN data only); 26 V8 natives on Node 24.19 only
+- Review flags: JS ch 07–08, 10–14 Node-only/spec-less claims; ch 01–06 were reviewed by Sonnet and get an Opus re-audit first; 18–22 browser claims checked in Chrome 155 (Firefox/Safari versions are MDN data only); 26 V8 natives on Node 24.19 only
 - Designer: redraw the wordmark (draft lettering)
+- Then JS gaps: chapters for **Not yet mapped** (design patterns; functional programming beyond composition) and a question for every open `→ —` sub-topic; unfinished proposals (decorators, ShadowRealm, import defer, …) stay parked
 - Open: chapter order for the 26 README-only topics
 
 ## Goal
@@ -34,6 +35,7 @@ Non-goals: backend service, accounts, paid AI.
 - R13 Brand: **isobath, by Sachin Maurya**, "engineering interviews, in depth". Wordmark = "isobath" with a contour ring as its "o"; the favicon is that ring (draft lettering; a human designer redraws the final); topic covers are generated from slug + data (`app/src/lib/contours.ts`); depth scale = `--depth-1..4`. Type: Geist, Geist Mono, Newsreader (SIL OFL); accent #2F4FD8 / #9DAEF7; prose column 720px. Originals only.
 - R14 Hosting: Vercel, host `learn.sachinmaurya.com`, production from `main`. Project root = repo root (Vercel's Root Directory can't reach `../content`); `vercel.json` builds `app/`, sets `cleanUrls` (prerendered `<path>.html`), rewrites unknown paths to `/app-shell.html` and redirects `/portfolio` to the portfolio. v1 stays on `gh-pages` until v2 has published content.
 - R15 Data: `manifest.json` + `topics/<slug>/{index,search,flashcards}.json`; a topic's shard loads on demand, never one big file.
+- R21 Content accuracy work (writing questions, spec reviews) runs on Opus; Sonnet only for mechanical work such as flashcards from finished text.
 - R16 Licence: code MIT (`LICENSE`); questions and flashcards in `content/` CC BY-NC-SA 4.0 (`content/LICENSE`).
 - R17 Paths: `content/paths/<role>.yaml` (ordered `<topic>` or `<topic>/<chapter>` entries with a one-line `why`, unique `order`, optional `start` question), validated by `content:check`; format in `templates/README.md` → Paths.
 - R18 Progress backup: JSON `isobath-progress` v1; import merges and never carries HTML; max 20 new flashcards per session.
