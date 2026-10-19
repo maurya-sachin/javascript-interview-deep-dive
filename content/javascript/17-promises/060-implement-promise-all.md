@@ -112,7 +112,7 @@ console.log(await promiseAll([, 1]));                    // → [ undefined, 1 ]
 
 (This reuses `promiseAll` and `wait` from the example above.) A hole in a sparse array is visited by the array iterator as `undefined`, which is the same thing the native method does.
 
-Once the outer promise has rejected, later rejections reach the same `reject`, which does nothing. They still count as handled, because `then` was called on those promises with a rejection handler, so there is no unhandled rejection. If you had only attached the fulfillment handler, a second rejection would crash a Node process by default.
+Once the outer promise has rejected, later rejections reach the same `reject`, which does nothing. They still count as handled, because `then` was called on those promises with a rejection handler, so there is no unhandled rejection. If you had attached only the fulfillment handler, any rejection would leave the promise returned by that `then` rejected and unhandled, which crashes a Node process by default.
 
 ### Real-world scenario
 
