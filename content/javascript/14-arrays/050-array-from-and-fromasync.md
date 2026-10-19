@@ -15,6 +15,7 @@ sources:
   - https://tc39.es/ecma262/#sec-array.of
   - https://tc39.es/ecma262/#sec-lengthofarraylike
   - https://github.com/tc39/proposal-array-from-async
+  - https://github.com/tc39/proposals/blob/main/finished-proposals.md
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fromAsync
 tldr: >
@@ -41,7 +42,7 @@ An **iterable** implements `[Symbol.iterator]()` (strings, `Set`, `Map`, generat
 
 **`Array.fromAsync(items, mapper?, thisArg?)`** returns a `Promise` of an array. It checks `Symbol.asyncIterator` first, then `Symbol.iterator`, then falls back to an array-like. It processes **one item at a time**: it requests the next item, awaits it, and only then asks for the following one. The mapper's result is awaited, so an `async` mapper works. For sync iterables and array-likes each element is awaited too. It does not run work in parallel: for that, start the promises first and use `Promise.all`.
 
-Availability: Node 24.19 has it. MDN marks it Baseline "Widely available" (since January 2024), and the proposal is Stage 4. Check your target runtimes for older environments.
+Availability: Node 24.19 has it. MDN marks it Baseline "Widely available" (since July 2026; in every major browser since January 2024), and TC39 lists it as finished for ES2026. Check your target runtimes for older environments.
 
 ## Example
 
