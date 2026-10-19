@@ -28,7 +28,7 @@ tldr: >
 
 ## Answer
 
-- **`for…in`** enumerates **string keys** of **enumerable** properties, including those inherited through the prototype chain; symbols and non-enumerable properties are skipped. Keys are always strings (array indexes too), for ordinary objects, each object's own keys come in `[[OwnPropertyKeys]]` order (integer-like keys ascending, then insertion order), then its prototype's. The spec leaves Proxy and other exotic objects unspecified. It runs on `null`/`undefined` as a no-op. It is meant for plain-object keys; for arrays it also visits extra properties, and anything added to `Array.prototype` shows up.
+- **`for…in`** enumerates **string keys** of **enumerable** properties, including those inherited through the prototype chain; symbols and non-enumerable properties are skipped. Keys are always strings (array indexes too). Each object's own keys come in `[[OwnPropertyKeys]]` order (integer-like keys ascending, then insertion order), then its prototype's; the spec drops that guarantee when a Proxy, TypedArray or other listed exotic object is on the chain, or the chain changes mid-loop. It runs on `null`/`undefined` as a no-op. It is meant for plain-object keys; for arrays it also visits extra properties, and anything added to `Array.prototype` shows up.
 - **`for…of`** works on any **iterable** (arrays, strings, `Map`, `Set`, generators, `arguments`, DOM collections). It calls `[Symbol.iterator]()` and gives you the *values*. A plain object is not iterable, so `for (x of {})` throws `TypeError`. It supports `break`, `continue`, `return`, and `await` inside an `async` function, and on early exit it calls the iterator's `return()` so generators can clean up.
 - **`forEach`** is `Array.prototype.forEach(callback)` (also on `Map`, `Set`, `NodeList`). It reads indexes `0…length-1` captured at the start, skips holes, and ignores the callback's return value. You can't `break`, and `return` only ends that one callback. It is synchronous: an `async` callback returns a promise that `forEach` discards, so nothing waits for it and rejections go unhandled.
 
@@ -46,29 +46,29 @@ obj[1] = 'one';
 Object.defineProperty(obj, 'hidden', { value: 1 }); // non-enumerable
 obj[Symbol('id')] = 1; // symbol key
 
-const keys = [];
-for (const key in obj) keys.push(key);
+const keys = []; for (const key in obj) keys.push(key);
 console.log(keys); // → [ '1', 'b', 'inherited' ]
 console.log(Object.keys(obj)); // → [ '1', 'b' ]
 
 const letters = ['x', 'y'];
 letters.extra = true;
-const indexes = [];
-for (const key in letters) indexes.push(key);
+const indexes = []; for (const key in letters) indexes.push(key);
 console.log(indexes); // → [ '0', '1', 'extra' ]
 
-async function main() {
-  [1, 2].forEach(async (n) => {
-    await null;
-    console.log('forEach', n); // → forEach 1, forEach 2
-  });
-  console.log('after forEach'); // → after forEach (printed first)
-  for (const n of [1, 2]) {
-    await null; // for…of really waits
-    console.log('for…of', n); // → for…of 1, for…of 2
-  }
+[1, 2].forEach(async (n) => {
+  await null;
+  console.log('forEach', n);
+});
+console.log('after forEach');
+for (const n of [1, 2]) {
+  await null; // for…of really waits
+  console.log('for…of', n);
 }
-await main();
+// → after forEach
+// → forEach 1
+// → forEach 2
+// → for…of 1
+// → for…of 2
 ```
 
 ## Pitfalls
