@@ -79,7 +79,6 @@ console.log(SubCounter.inc(), Counter.count, Object.hasOwn(SubCounter, 'count'))
 
 - Mutating an inherited static through `this`. `SubCounter.inc()` does `++this.count`, which reads the parent's `count` and then creates an **own** `count` on the subclass, leaving the parent at `0`. Reference the class by name if you want one shared value.
 - Static private members aren't inherited. `this.#items` in a static method called on a subclass throws a `TypeError`, since the subclass doesn't have that private element. Name the class (`Store.#items`) instead.
-
 - Assuming a static field is reachable from instances (`obj.count`). Use `obj.constructor.count` or the class name.
 - Expecting statics to be copied. A subclass shares the parent's by lookup, not by copy.
 
