@@ -10,8 +10,11 @@ related:
   - javascript/promises/promise-chaining
   - javascript/async-and-the-event-loop/async-await-mechanics
 verified: 2026-10
+perishable:
+  - Promise.try result identity differs between Node 24 and Chrome 155
+  - Promise.try Baseline newly available since January 2025
 sources:
-  - https://tc39.es/ecma262/#sec-promise.withresolvers
+  - https://tc39.es/ecma262/#sec-promise.withResolvers
   - https://tc39.es/ecma262/#sec-promise.try
   - https://tc39.es/ecma262/#sec-promise-resolve
   - https://github.com/tc39/ecma262/pull/3883
