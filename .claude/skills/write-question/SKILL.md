@@ -27,6 +27,13 @@ One subagent per chapter, run serially (they share README sync and `PLAN.md`). I
 
 Flashcards run the same loop, one subagent per group of chapters: cards come only from the written questions (every section, Deep dive included), one card per distinct fact, appended to `content/flashcards/<topic>.yaml`, one commit per chapter. Recount cards with `grep` rather than trusting the reported totals.
 
+## Audit mode (re-checking written questions)
+Opus only (R21), one subagent per 2–3 chapters, serially; the main session verifies each hand-back and spot-checks its sharpest corrections by running them or reading the source.
+
+Per question: re-run every example in Node 24; every `// →` and `**Answer:**` matches real output exactly, with no notes inside `// →` lines (print `error.name`, not engine messages). Check every claim against a source actually fetched: ECMA-262/402 algorithm steps for language behaviour (with a `#sec-…` anchor in `sources` that really exists), TC39's finished-proposals list for stage and edition year, nodejs.org / v8.dev / HTML for host and engine behaviour, which the text must label as such ("In V8…", "Node.js 24 prints…"). MDN for compat only. Soften unconfirmable claims; when primary sources disagree, say so; add `perishable` for stale-prone facts; fix internal slips (step numbers, follow-ups contradicting the Answer). Minimal edits, word limits respected, one question per commit.
+
+Errors past audits caught, so look for them: stale process documents trusted over the published record, wrong proposal stages, overstated attributions, spec algorithms misread (`??`, primitive writes, `==` rules, for-in order), and source anchors that don't exist.
+
 ## Never
 - Read v1 content (`main` / tag `v1-archive`) or copy text from books/courses.
 - State something engine-specific as if it were spec behaviour.

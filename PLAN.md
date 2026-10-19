@@ -3,12 +3,11 @@
 Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene.
 
 ## Now
-- Branch `dev` (cut from `main`; merge back with a merge commit → Vercel production); tag `v1-archive` = v1, tag `archive/improvements` = unmerged v1 audit fixes; repo-local email `sachinmaurya1710@gmail.com`
-- Next: Phase 5 — maintainer reviews drafts and marks them `published` (label Draft → Reviewed); production shows drafts and published questions alike. JavaScript (150 q, 762 cards) + TypeScript (47 q, 544 cards) are `draft`.
-- Review flags: JS ch 07–08, 10–14 Node-only/spec-less claims (ch 01–06 audited by Opus); 18–22 browser claims checked in Chrome 155 (Firefox/Safari versions are MDN data only); 26 V8 natives on Node 24.19 only
-- Designer: redraw the wordmark (draft lettering)
-- Then JS gaps: chapters for **Not yet mapped** (design patterns; functional programming beyond composition) and a question for every open `→ —` sub-topic; unfinished proposals (decorators, ShadowRealm, import defer, …) stay parked
-- Open: chapter order for the 26 README-only topics
+- Branch `dev`; release = `--no-ff` merge into `main` + push (Vercel production, learn.sachinmaurya.com; last release `efcb20a`). Tags `v1-archive`, `archive/improvements`; `gh-pages` serves v1 until v2 has reviewed content.
+- Doing: Opus accuracy audit of JavaScript (R21; brief = `write-question` skill → Audit mode). Ch 01–06 done. **Ch 07–08 agent was still running at handoff: verify its commits first** (`git log -- content/javascript/07-* content/javascript/08-*`, `content:check`), then audit ch 10–11, then 12–14.
+- Then JS gaps: chapters for **Not yet mapped** (design patterns; functional programming beyond composition) and a question for every open `→ —` sub-topic; unfinished proposals (decorators, ShadowRealm, import defer, …) stay parked.
+- Then Phase 5: maintainer reviews drafts → `published` (label Draft → Reviewed). JS 150 q / 762 cards, TS 47 q / 544 cards: all `draft`, readable in production.
+- Known limits: ch 18–22 browser claims checked in Chrome 155 only (Firefox/Safari from MDN); ch 26 V8 natives on Node 24.19 only. Open: chapter order for the 26 README-only topics; designer redraws the wordmark.
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.

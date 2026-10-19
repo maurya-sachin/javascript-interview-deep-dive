@@ -4,7 +4,7 @@ Interview questions for any software engineer, from language to spec/engine to i
 One Markdown file per question in `content/`; the client-only app in `app/` reads generated JSON.
 
 ## Every session
-1. Read `PLAN.md` → **Now**. Its rules are settled.
+1. Read `PLAN.md` → **Now**. Its rules are settled. If it names work an agent was still doing at handoff, verify those commits (`git log`, `content:check`) before starting anything new.
 2. Work one phase task or one chapter. New design work gets an approved spec in `docs/superpowers/specs/` before any product code.
 3. Before ending, apply Plan hygiene.
 
