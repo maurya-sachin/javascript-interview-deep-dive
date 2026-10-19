@@ -56,7 +56,7 @@ console.log(create(null).id, calls); // → null 1
 try {
   ((a = b, b = 1) => {})();
 } catch (e) {
-  console.log(e.name); // → ReferenceError (b is in its TDZ)
+  console.log(e.name); // → ReferenceError
 }
 
 const x = 'outer';
