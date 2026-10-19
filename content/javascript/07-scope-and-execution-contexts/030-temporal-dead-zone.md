@@ -14,6 +14,7 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-let-and-const-declarations-runtime-semantics-evaluation
   - https://tc39.es/ecma262/#sec-declarative-environment-records-getbindingvalue-n-s
+  - https://tc39.es/ecma262/#sec-declarative-environment-records-setmutablebinding-n-v-s
   - https://tc39.es/ecma262/#sec-typeof-operator-runtime-semantics-evaluation
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cant_access_lexical_declaration_before_init
@@ -48,8 +49,7 @@ function readLimit() {
 try {
   readLimit();
 } catch (error) {
-  console.log(error.name, error.message);
-  // → ReferenceError Cannot access 'limit' before initialization
+  console.log(error.name); // → ReferenceError
 }
 
 let limit = 10;
