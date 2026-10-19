@@ -15,6 +15,7 @@ sources:
   - https://tc39.es/ecma262/#sec-generatorresumeabrupt
   - https://tc39.es/ecma262/#sec-generatorstart
   - https://tc39.es/ecma262/#sec-generator-function-definitions-runtime-semantics-evaluation
+  - https://tc39.es/ecma262/#sec-runtime-semantics-evaluategeneratorbody
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
 tldr: >
@@ -95,7 +96,7 @@ console.log(second.return('stop'));   // → cleanup
 
 The spec models a generator object with `[[GeneratorState]]` and `[[GeneratorContext]]`. The state is one of `suspended-start`, `suspended-yield`, `executing` or `completed`.
 
-When you call a generator function, `EvaluateGeneratorBody` runs `FunctionDeclarationInstantiation` (arguments, defaults, scope setup), creates the generator object with `OrdinaryCreateFromConstructor` from the function's `prototype`, sets it to `suspended-start`, and runs `GeneratorStart`. `GeneratorStart` stores an Abstract Closure that evaluates the body and returns the object. Nothing in the body has run.
+When you call a generator function, `EvaluateGeneratorBody` runs `FunctionDeclarationInstantiation` (arguments, defaults, scope setup), creates the generator object with `OrdinaryCreateFromConstructor` from the function's `prototype`, sets it to `suspended-start`, and runs `GeneratorStart`. `GeneratorStart` stores an Abstract Closure that will evaluate the body, and `EvaluateGeneratorBody` returns the object. Nothing in the body has run.
 
 `next(value)` calls `GeneratorResume`:
 
