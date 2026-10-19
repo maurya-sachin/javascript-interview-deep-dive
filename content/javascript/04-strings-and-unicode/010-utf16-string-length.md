@@ -53,7 +53,7 @@ console.log(s.split("").length, [...s].length); // → 2 1
 
 const text = "a😀b";
 console.log(text.length, [...text].length); // → 4 3
-console.log(text.slice(0, 2).isWellFormed()); // → false (cut the pair in half)
+console.log(text.slice(0, 2).isWellFormed()); // → false
 console.log(text.slice(0, 3)); // → a😀
 ```
 
