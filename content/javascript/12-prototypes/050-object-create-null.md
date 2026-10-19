@@ -15,6 +15,8 @@ sources:
   - https://tc39.es/ecma262/#sec-object.create
   - https://tc39.es/ecma262/#sec-object.prototype.__proto__
   - https://tc39.es/ecma262/#sec-runtime-semantics-propertydefinitionevaluation
+  - https://tc39.es/ecma262/#sec-ParseJSON
+  - https://tc39.es/ecma262/#sec-object.groupby
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/groupBy
   - https://nodejs.org/docs/latest/api/querystring.html#querystringparsestr-sep-eq-options
@@ -41,7 +43,7 @@ The costs:
 - No `toString`/`valueOf`: `` `${dict}` `` and `dict + ''` throw `TypeError`.
 - No `hasOwnProperty`: use `Object.hasOwn(dict, key)` or `key in dict` (safe, because nothing is inherited).
 - `dict instanceof Object` is `false`, and some libraries and assertion helpers assume `Object.prototype` exists.
-- `{ ...dict }` and `Object.assign({}, dict)` return ordinary objects, so copying loses the property.
+- `{ ...dict }` and `Object.assign({}, dict)` return ordinary objects, so copying loses the null prototype.
 
 `{ __proto__: null }` in an object literal is equivalent and more readable, because the literal form sets `[[Prototype]]` directly. For a real dictionary, prefer `Map`: any key type, insertion order, `size`, and no prototype pitfalls at all. Reach for a null-prototype object when you need an object shape, like JSON output or property syntax.
 
@@ -75,7 +77,7 @@ console.log(dict instanceof Object, Object.hasOwn(dict, '__proto__')); // → fa
 ## Pitfalls
 
 - Using a plain `{}` as a counter or cache keyed by user input. Keys like `constructor`, `toString` and `__proto__` collide with inherited members.
-- Calling `dict.hasOwnProperty(key)` on a null-prototype object. It throws `TypeError: dict.hasOwnProperty is not a function`. Use `Object.hasOwn`.
+- Calling `dict.hasOwnProperty(key)` on a null-prototype object. There is no such method, so the call throws a `TypeError`. Use `Object.hasOwn`.
 - Logging or concatenating one and getting a `TypeError`. Convert explicitly, e.g. with `JSON.stringify(dict)` or `Object.entries`.
 - Copying it with spread or `Object.assign({}, dict)` and expecting the null prototype to survive. `Object.assign` also uses `[[Set]]`, so a `__proto__` key in the source runs the setter on the target instead of copying a key.
 
