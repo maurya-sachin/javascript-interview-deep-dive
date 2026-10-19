@@ -13,7 +13,7 @@ sources:
   - https://tc39.es/ecma262/#sec-iteration
   - https://tc39.es/ecma262/#sec-getiterator
   - https://tc39.es/ecma262/#sec-iteratorclose
-  - https://tc39.es/ecma262/#sec-runtime-semantics-forinofbodyevaluation
+  - https://tc39.es/ecma262/#sec-runtime-semantics-forin-div-ofbodyevaluation-lhs-stmt-iterator-lhskind-labelset
   - https://tc39.es/ecma262/#sec-runtime-semantics-bindinginitialization
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols
 tldr: >
