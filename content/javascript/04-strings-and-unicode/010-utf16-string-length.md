@@ -10,10 +10,14 @@ related:
   - javascript/strings-and-unicode/well-formed-strings
   - javascript/values-and-types/language-types
 verified: 2026-10
+perishable:
+  - Node.js MAX_STRING_LENGTH value depends on the V8 version.
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type
   - https://tc39.es/ecma262/#sec-string.prototype-%symbol.iterator%
   - https://tc39.es/ecma262/#sec-properties-of-string-instances-length
+  - https://tc39.es/ecma262/#sec-string-exotic-objects
+  - https://nodejs.org/docs/latest-v24.x/api/buffer.html#bufferconstantsmax_string_length
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
 tldr: >
@@ -56,9 +60,9 @@ console.log(text.slice(0, 3)); // → a😀
 ## Pitfalls
 
 - Using `s.length` for a character limit or a counter. It over-counts every emoji and every character above U+FFFF.
-- `s.split("").reverse().join("")` and `s.slice(0, n)` break surrogate pairs; the result contains lone surrogates that render as `�` or get replaced when encoded.
+- `s.split("").reverse().join("")` and `s.slice(0, n)` break surrogate pairs; the result contains lone surrogates. Hosts typically render them as `�`, and encoders such as `TextEncoder` replace them with U+FFFD.
 - `s.codePointAt(i)` with `i` pointing at the trailing surrogate returns that lone unit, not the full code point. It reads from the index you give it.
-- Assuming `length` equals byte size. UTF-8 size is different: `new TextEncoder().encode("😀").length` is `4`.
+- Assuming `length` equals byte size. UTF-8 size is different: `new TextEncoder().encode("😀").length` is `4` (`TextEncoder` is a host API, not part of ECMAScript).
 
 ## Follow-ups
 
@@ -95,7 +99,7 @@ console.log(s.codePointAt(2).toString(16)); // → de00
 console.log([..."\ud83d"].length); // → 1
 ```
 
-`length` is bounded by `2 ** 53 - 1` elements by the spec, though engines impose much smaller limits.
+The spec bounds a string at `2 ** 53 - 1` elements. Engines impose much smaller limits: Node.js 24 (V8) reports `buffer.constants.MAX_STRING_LENGTH` as `536870888`, and its docs say the value may depend on the JS engine.
 
 Unit counts also differ from "what you see" even for BMP text. `"é".length` is `1` when precomposed (U+00E9) but `2` when written as `e` plus U+0301. The grapheme question is covered in the next question.
 
