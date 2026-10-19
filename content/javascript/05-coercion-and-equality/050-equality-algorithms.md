@@ -45,7 +45,7 @@ Everything else matches: two Strings are equal when their code units match, two 
 Practical consequences:
 
 - `[NaN].indexOf(NaN)` is `-1` but `[NaN].includes(NaN)` is `true`.
-- A `Map` or `Set` treats `NaN` as one key. It also treats `-0` and `+0` as the same key. The spec turns `-0` into `+0` first (CanonicalizeKeyedCollectionKey), then compares with SameValue, which matches SameValueZero; MDN describes this as SameValueZero.
+- A `Map` or `Set` treats `NaN` as one key. It also treats `-0` and `+0` as the same key. The spec turns `-0` into `+0` first (CanonicalizeKeyedCollectionKey), then compares with SameValue, which matches SameValueZero; the spec's introduction to `Map` and `Set` calls it SameValueZero too.
 - `Object.is(0, -0)` is `false`; use it when the sign matters (for example, detecting `-0` from `Math.round(-0.4)`).
 - Use `Number.isNaN(x)` or `Object.is(x, NaN)` to test for `NaN`, never `x === NaN`.
 
