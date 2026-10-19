@@ -40,14 +40,14 @@ There are three levels, and each needs a different tool:
 
 The string iterator in ECMA-262 yields one code point at a time, so surrogate pairs stay together. That is enough for a plain emoji such as `😀`.
 
-It is not enough for everything a user sees as one character. Unicode UAX #29 defines **grapheme clusters** as user-perceived characters. Examples that are several code points:
+It is not enough for everything a user sees as one character. Unicode UAX #29 defines **grapheme clusters** to approximate user-perceived characters. Examples that are several code points:
 
 - `e` + U+0301 (combining acute accent), which renders as `é`.
 - A flag such as `🇮🇳`: two regional-indicator code points.
 - A family emoji `👨‍👩‍👧`: three emoji joined by zero-width joiners (U+200D).
 - An emoji with a skin-tone modifier, `👍🏽`.
 
-`Intl.Segmenter` (ECMA-402) segments text for you; the spec leaves the exact boundary rules to the implementation, and engines follow UAX #29. Create it with `granularity: "grapheme"`, call `segment(text)`, and iterate: each item is `{ segment, index, input }`, where `index` is the UTF-16 offset. Use it for truncation, caret movement, character counters, and reversing text. The default granularity is `"grapheme"`. `"word"` adds `isWordLike`, and `"sentence"` splits sentences.
+`Intl.Segmenter` (ECMA-402) segments text for you; the spec makes boundaries implementation-dependent and points to the default rules in UAX #29. Create it with `granularity: "grapheme"`, call `segment(text)`, and iterate: each item is `{ segment, index, input }`, where `index` is the UTF-16 offset. Use it for truncation, caret movement, character counters, and reversing text. The default granularity is `"grapheme"`. `"word"` adds `isWordLike`, and `"sentence"` splits sentences.
 
 Boundaries come from the engine's Unicode data (V8 and Node.js use ICU), so results can change when Unicode or the engine updates. Don't persist counts as exact data.
 
@@ -68,7 +68,7 @@ for (const text of ["😀", "é", "🇮🇳", "👨‍👩‍👧"]) {
 // → 8 5 1
 
 const text = "Hi 👨‍👩‍👧 there";
-console.log([...text].slice(0, 5).join("")); // → Hi 👨‍ (family cut apart)
+console.log([...text].slice(0, 5).join("")); // → Hi 👨‍
 console.log(graphemes(text).slice(0, 5).join("")); // → Hi 👨‍👩‍👧 
 console.log(graphemes(text).reverse().join("")); // → ereht 👨‍👩‍👧 iH
 ```
