@@ -5,7 +5,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `dev` (cut from `main`; merge back with a merge commit → Vercel production); tag `v1-archive` = v1, tag `archive/improvements` = unmerged v1 audit fixes; repo-local email `sachinmaurya1710@gmail.com`
 - Next: Phase 5 — maintainer reviews drafts and marks them `published` (label Draft → Reviewed); production shows drafts and published questions alike. JavaScript (150 q, 762 cards) + TypeScript (47 q, 544 cards) are `draft`.
-- Review flags: JS ch 04–08, 10–14 Node-only/spec-less claims (ch 01–03 checked against ECMA-262); 18–22 browser claims checked in Chrome 155 (Firefox/Safari versions are MDN data only); 26 V8 natives on Node 24.19 only
+- Review flags: JS ch 05–08, 10–14 Node-only/spec-less claims (ch 01–04 checked against ECMA-262); 18–22 browser claims checked in Chrome 155 (Firefox/Safari versions are MDN data only); 26 V8 natives on Node 24.19 only
 - Designer: redraw the wordmark (draft lettering)
 - Open: chapter order for the 26 README-only topics
 
