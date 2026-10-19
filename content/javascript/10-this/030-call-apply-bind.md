@@ -87,7 +87,7 @@ console.log(Array.prototype.map.call('abc', (c) => c.toUpperCase())); // → [ '
 ## Follow-ups
 
 **Q:** What happens if you `new` a bound function?
-**A:** The bound `this` is dropped: `[[Construct]]` constructs the target with the bound arguments prepended and, when `new.target` is the bound function itself, `new.target` becomes the target. `instanceof` therefore works against either function.
+**A:** The bound `this` is dropped: `[[Construct]]` constructs the target with the bound arguments prepended and, when `new.target` is the bound function itself, `new.target` becomes the target. `instanceof` works against either function, because it unwraps a bound function to its target.
 
 **Q:** Can `bind` be applied twice to add arguments?
 **A:** Yes. Bound arguments accumulate in order: `f.bind(null, 1).bind(null, 2)(3)` calls `f(1, 2, 3)`. Only the first `thisArg` counts.
@@ -128,7 +128,7 @@ const noLength = Object.defineProperty(function () {}, 'length', { value: Infini
 console.log(noLength.bind(null, 1).length); // → Infinity
 ```
 
-`instanceof` works in both directions because a bound function has no `prototype`; `instanceof` unwraps it to `[[BoundTargetFunction]]`. Binding twice yields `"bound bound "` plus the target name, and the second bind sees the first bound function's `length` (`3 - 1 - 1`).
+`instanceof` works in both directions: `new BoundChild()` constructs with `new.target` set to `Child`, and `OrdinaryHasInstance` unwraps a bound function to its `[[BoundTargetFunction]]` before it would read `prototype`, which a bound function lacks. Binding twice yields `"bound bound "` plus the target name, and the second bind sees the first bound function's `length` (`3 - 1 - 1`).
 
 ### Edge cases
 
