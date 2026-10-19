@@ -74,7 +74,7 @@ console.log("0" == "");  // → false  (same type: strict string compare)
 ## Follow-ups
 
 **Q:** Why is `x == null` acceptable when `==` is otherwise avoided?
-**A:** Rules 2 and 3 of the algorithm mean only `null` and `undefined` satisfy it. It reads as "is nullish" and has no coercion surprises. (Legacy: `document.all` also matches, via Annex B `[[IsHTMLDDA]]`.)
+**A:** Rules 1 and 2 of the algorithm mean only `null` and `undefined` satisfy it. It reads as "is nullish" and has no coercion surprises. (Legacy: `document.all` also matches, via Annex B `[[IsHTMLDDA]]`.)
 
 **Q:** Does `==` ever throw?
 **A:** Yes: converting an object calls `ToPrimitive`, which can run user code or throw a `TypeError`. Symbols are never converted to Numbers by `==`, so `Symbol() == 1` is `false`, not an error.
