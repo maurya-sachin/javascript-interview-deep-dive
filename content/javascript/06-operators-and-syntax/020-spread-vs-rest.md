@@ -51,8 +51,8 @@ A rest element must be last and appear once (`SyntaxError` otherwise), and it ta
 
 ```js
 const sum = (...nums) => nums.reduce((a, b) => a + b, 0); // rest: collect
-const args = [1, 2, 3];
-console.log(sum(...args, 4)); // spread: expand → 10
+const args = [1, 2, 3]; // spread: expanded into the call below
+console.log(sum(...args, 4)); // → 10
 console.log([...'hi', ...new Set([1, 1, 2])]); // → [ 'h', 'i', 1, 2 ]
 
 const base = { a: 1, b: 2 };
