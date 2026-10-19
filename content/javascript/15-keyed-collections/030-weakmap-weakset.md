@@ -50,12 +50,13 @@ const node = { id: 1 };
 meta.set(node, { visits: 0 });
 meta.get(node).visits++;
 console.log(meta.get(node));      // → { visits: 1 }
-console.log(meta.has({ id: 1 })); // → false (different object)
+console.log(meta.has({ id: 1 })); // → false
 
 try { meta.set('key', 1); } catch (error) { console.log(error.name); }
 // → TypeError
+// A registered symbol cannot be held weakly:
 try { meta.set(Symbol.for('app'), 1); } catch (error) { console.log(error.name); }
-// → TypeError (registered symbols are not allowed)
+// → TypeError
 const token = Symbol('token');
 meta.set(token, 'ok');
 console.log(meta.get(token));     // → ok
