@@ -9,6 +9,10 @@ related:
   - javascript/how-javascript-runs/ecmascript-engine-host
   - javascript/how-javascript-runs/polyfill-vs-transpiler
 verified: 2026-10
+perishable:
+  - Stage 3 examples Source Phase Imports, Await Dictionary (2026-10)
+  - Example output is Node.js 24; Math.sumPrecise absent there
+  - Process document says July approval; Ecma editions are dated June
 sources:
   - https://tc39.es/process-document/
   - https://github.com/tc39/proposals
