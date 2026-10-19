@@ -36,7 +36,7 @@ For `[] + {}`: `[]` calls `valueOf` (returns the array itself, not a primitive),
 
 The rule explains the common cases: `1 + "2"` is `"12"`, `1 + 2 + "3"` is `"33"` (left to right), `"3" + 1 + 2` is `"312"`, `true + 1` is `2`, `null + 1` is `1`, and `undefined + 1` is `NaN`.
 
-Only `+` concatenates. `-`, `*`, `/` and the others always convert to numbers, so `"5" - 2` is `3`. The unary `+x` is also numeric: it is the idiomatic short form of `Number(x)`.
+Only `+` concatenates. `-`, `*`, `/` and the others always convert with `ToNumeric`, so `"5" - 2` is `3`. The unary `+x` is also numeric: it applies `ToNumber`, like `Number(x)`, except that `+1n` throws a `TypeError` where `Number(1n)` is `1`.
 
 `{} + []` can evaluate to `0`. That is a parsing artifact: an expression statement cannot start with `{`, so at the start of a statement `{}` is an empty block, leaving the expression `+[]`, which is `0`. `eval("{} + []")` returns `0`, though the Node.js 24 REPL prints `'[object Object]'` for the same input. In expression position (such as an argument, `console.log({} + [])`) it is `"[object Object]"` again.
 
