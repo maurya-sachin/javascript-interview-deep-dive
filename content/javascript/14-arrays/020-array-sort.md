@@ -9,13 +9,17 @@ related:
   - javascript/arrays/mutating-vs-copying-methods
   - javascript/arrays/sparse-arrays
 verified: 2026-10
+perishable:
+  - V8 sorts with TimSort
 sources:
   - https://tc39.es/ecma262/#sec-array.prototype.sort
   - https://tc39.es/ecma262/#sec-sortindexedproperties
   - https://tc39.es/ecma262/#sec-comparearrayelements
   - https://tc39.es/ecma262/#sec-array.prototype.tosorted
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+  - https://262.ecma-international.org/10.0/#sec-array.prototype.sort
   - https://v8.dev/features/stable-sort
+  - https://v8.dev/blog/array-sort
 tldr: >
   `sort` sorts in place and returns the same array. Without a comparator it compares elements as
   strings (UTF-16 code units), so `[10, 9, 1].sort()` gives `[1, 10, 9]`. A comparator returns
@@ -50,8 +54,8 @@ const people = [
   { name: 'Ana', age: 30 }, { name: 'Bo', age: 25 },
   { name: 'Cy', age: 30 }, { name: 'Di', age: 25 },
 ];
-const byAge = people.toSorted((a, b) => a.age - b.age);
-console.log(byAge.map((p) => p.name).join()); // → Bo,Di,Ana,Cy  (equal ages keep input order)
+const byAge = people.toSorted((a, b) => a.age - b.age); // equal ages keep input order
+console.log(byAge.map((p) => p.name).join()); // → Bo,Di,Ana,Cy
 
 console.log(['b', undefined, 'a', , 'c'].sort());
 // → [ 'a', 'b', 'c', undefined, <1 empty item> ]
@@ -73,7 +77,7 @@ console.log([3, 1, 2].sort((a, b) => a > b)); // → [ 3, 1, 2 ]
 ## Follow-ups
 
 **Q:** Why did older code add an index tiebreaker to get a stable sort?
-**A:** Before ES2019 the spec did not require stability, and some engines used an unstable sort for larger arrays (Chrome 70 shipped a stable sort, and V8 uses TimSort). Today equal keys keep their order, so a single sort with a tie-breaker comparator is enough.
+**A:** Before ES2019 the spec did not require stability, and some engines used an unstable sort for larger arrays. V8 became stable in v7.0 (Chrome 70) and sorts with TimSort. Today equal keys keep their order, so a single sort with a tie-breaker comparator is enough.
 
 **Q:** How do you sort by an expensive derived key?
 **A:** Compute the key once per element (map to `{ key, value }` pairs), sort the pairs, then map back. A comparator that recomputes the key runs O(n log n) times.
