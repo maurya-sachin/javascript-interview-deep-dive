@@ -9,11 +9,17 @@ related:
   - javascript/strings-and-unicode/utf16-string-length
   - javascript/strings-and-unicode/graphemes-and-code-points
 verified: 2026-10
+perishable:
+  - Browser availability of isWellFormed and toWellFormed, per MDN.
 sources:
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-string-type
   - https://tc39.es/ecma262/#sec-string.prototype.iswellformed
   - https://tc39.es/ecma262/#sec-string.prototype.towellformed
   - https://tc39.es/ecma262/#sec-isstringwellformedunicode
+  - https://tc39.es/ecma262/#sec-encode
+  - https://tc39.es/ecma262/#sec-quotejsonstring
+  - https://github.com/tc39/proposals/blob/main/finished-proposals.md
+  - https://encoding.spec.whatwg.org/#textencoder
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/isWellFormed
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toWellFormed
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
@@ -30,12 +36,12 @@ A JavaScript string is any sequence of 16-bit values. The spec places no restric
 
 They usually come from code that treats strings as units: `slice` or `substring` cutting a pair in half, `split("")` followed by manipulation, or a truncating `charAt` loop.
 
-Two methods handle them (widely available in browsers since October 2023, per MDN):
+Two methods, added in ES2024, handle them (MDN lists them as widely available in browsers since October 2023):
 
 - `str.isWellFormed()` returns `false` if the string contains any lone surrogate.
 - `str.toWellFormed()` returns a new string with every lone surrogate replaced by U+FFFD (`�`). It returns a copy even when nothing needed fixing.
 
-Why it matters: APIs that need valid Unicode reject ill-formed input. `encodeURI` and `encodeURIComponent` throw a `URIError`. Encoding to UTF-8 has no representation for a lone surrogate, so `TextEncoder` substitutes U+FFFD. `JSON.stringify` escapes lone surrogates (`"\ud800"`) so its output stays valid.
+Why it matters: APIs that need valid Unicode reject ill-formed input. `encodeURI` and `encodeURIComponent` throw a `URIError`. UTF-8 has no representation for a lone surrogate, so `TextEncoder` (a host API, defined by the WHATWG Encoding Standard) substitutes U+FFFD. Since ES2019, `JSON.stringify` escapes lone surrogates (`"\ud800"`) so its output stays valid.
 
 Use `isWellFormed()` to validate or reject input, and `toWellFormed()` to sanitize it before passing it to such APIs. The fix is lossy: the original surrogate value is gone. Better still, avoid creating them: iterate by code point or grapheme instead of slicing by unit.
 
@@ -72,7 +78,7 @@ console.log("😄".isWellFormed()); // → true
 **A:** No. Strings are immutable. It returns a new string, which is a copy even for well-formed input.
 
 **Q:** What does `JSON.stringify` do with a lone surrogate?
-**A:** Engines that implement the well-formed `JSON.stringify` change write it as an escape such as `"\ud800"` instead of the raw unit, so the output is valid Unicode. `JSON.parse` reads the escape back as the same lone surrogate.
+**A:** Since ES2019 (well-formed `JSON.stringify`) it writes it as an escape such as `"\ud800"` instead of the raw unit, so the output is valid Unicode. `JSON.parse` reads the escape back as the same lone surrogate.
 
 **Q:** Does `[...str]` drop or fix lone surrogates?
 **A:** Neither. The string iterator yields a lone surrogate as its own one-unit string, which stays ill-formed.
