@@ -116,7 +116,7 @@ setImmediate(() => c.catch(() => console.log('c handled late')));
 // → c handled late
 ```
 
-A handler attached from a microtask or `process.nextTick` is in time. One from `setImmediate` is late: `unhandledRejection` fires first, and then `rejectionHandled`.
+A handler attached from a microtask or `process.nextTick` is in time. One from `setImmediate` is late: `unhandledRejection` fires first, and then `rejectionHandled`. Node 24 also writes a `PromiseRejectionHandledWarning` to stderr.
 
 ### Edge cases
 
@@ -168,4 +168,4 @@ const p = Promise.reject(new Error('x'));
 setTimeout(() => p.catch(() => console.log('late')), 0);
 ```
 
-**Answer:** `unhandled`, then `late`. Node checks after the microtasks and `nextTick` queue drain, and the `setTimeout` callback runs after that. With the listener present the process stays alive, so the timer still fires.
+**Answer:** `unhandled`, then `late`, and Node 24 writes a `PromiseRejectionHandledWarning` to stderr. Node checks after the microtasks and `nextTick` queue drain, and the `setTimeout` callback runs after that. With the listener present the process stays alive, so the timer still fires.
