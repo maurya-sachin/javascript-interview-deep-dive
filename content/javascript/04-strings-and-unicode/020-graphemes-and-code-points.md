@@ -9,9 +9,16 @@ related:
   - javascript/strings-and-unicode/utf16-string-length
   - javascript/strings-and-unicode/well-formed-strings
 verified: 2026-10
+perishable:
+  - Example output is from Node 24.19, ICU 78.3, Unicode 17.0.
+  - Grapheme boundaries for new emoji vary by engine and Unicode version.
 sources:
   - https://tc39.es/ecma262/#sec-string.prototype-%symbol.iterator%
   - https://tc39.es/ecma402/#sec-intl.segmenter.prototype.segment
+  - https://tc39.es/ecma402/#sec-intl-segmenter-constructor
+  - https://tc39.es/ecma402/#sec-%segmentsprototype%.containing
+  - https://tc39.es/ecma402/#sec-createsegmentdataobject
+  - https://nodejs.org/docs/latest-v24.x/api/intl.html
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
   - https://www.unicode.org/reports/tr29/
@@ -40,9 +47,9 @@ It is not enough for everything a user sees as one character. Unicode UAX #29 de
 - A family emoji `👨‍👩‍👧`: three emoji joined by zero-width joiners (U+200D).
 - An emoji with a skin-tone modifier, `👍🏽`.
 
-`Intl.Segmenter` (ECMA-402) implements these boundaries. Create it with `granularity: "grapheme"`, call `segment(text)`, and iterate: each item is `{ segment, index, input }`, where `index` is the UTF-16 offset. Use it for truncation, caret movement, character counters, and reversing text. The default granularity is `"grapheme"`. `"word"` adds `isWordLike`, and `"sentence"` splits sentences.
+`Intl.Segmenter` (ECMA-402) segments text for you; the spec leaves the exact boundary rules to the implementation, and engines follow UAX #29. Create it with `granularity: "grapheme"`, call `segment(text)`, and iterate: each item is `{ segment, index, input }`, where `index` is the UTF-16 offset. Use it for truncation, caret movement, character counters, and reversing text. The default granularity is `"grapheme"`. `"word"` adds `isWordLike`, and `"sentence"` splits sentences.
 
-Boundaries come from the engine's Unicode data (ICU in V8), so results can change when Unicode or the engine updates. Don't persist counts as exact data.
+Boundaries come from the engine's Unicode data (V8 and Node.js use ICU), so results can change when Unicode or the engine updates. Don't persist counts as exact data.
 
 ## Example
 
@@ -79,7 +86,7 @@ console.log(graphemes(text).reverse().join("")); // → ereht 👨‍👩‍👧
 **A:** A lazy, iterable `Segments` object, not an array. Iterate it with `for...of` or `Array.from`. It also has `containing(index)` to find the segment at a UTF-16 index.
 
 **Q:** How do you split text into words?
-**A:** Use `granularity: "word"`. Each segment has `isWordLike`, which is `true` for words and numbers and `false` for spaces and punctuation. It also handles languages written without spaces, which `split(" ")` cannot.
+**A:** Use `granularity: "word"`. Each segment has `isWordLike`, which is typically `true` for words and numbers and `false` for spaces and punctuation; the spec leaves the exact rule to the implementation. It also handles languages written without spaces, which `split(" ")` cannot.
 
 ## Exercises
 
