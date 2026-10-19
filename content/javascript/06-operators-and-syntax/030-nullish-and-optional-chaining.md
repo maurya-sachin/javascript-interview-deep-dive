@@ -66,7 +66,7 @@ console.log(cache, calls); // → { a: 'computed', b: 'computed', c: 'computed',
 - Using `||` for defaults when `0`, `''`, or `false` is a valid value: `const port = config.port || 3000` ignores a deliberate `0`.
 - Chaining `?.` on every step "to be safe". It hides real bugs (a misspelled property returns `undefined` silently) and `a?.b?.c` is only needed where a value can truly be nullish.
 - Expecting `?.` to guard a missing variable: `undeclared?.x` still throws `ReferenceError`, since the name is resolved before the check.
-- Reading `x ??= y` as always assigning. It writes only when `x` is `null` or `undefined`, which matters with setters, frozen objects, and getters that have side effects.
+- Reading `x ??= y` as always assigning. It writes only when `x` is `null` or `undefined`, which matters with setters and frozen objects. The read of `x` always happens, so a getter still runs.
 
 ## Follow-ups
 
