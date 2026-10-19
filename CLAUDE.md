@@ -26,5 +26,5 @@ One Markdown file per question in `content/`; the client-only app in `app/` read
 ## Working rules
 - Work on branch `dev`, cut from `main`. Commit after every finished task — small, one concern (deletion, docs, dependency, feature, one question or chapter). Conventional messages (`feat:`, `docs:`, `content:`, `chore:`). No big catch-all commits.
 - Merge `dev` into `main` with a merge commit (PR or local `--no-ff`) — never squash (GitHub's heatmap counts only commits on `main`). `main` deploys to production.
-- Push, deploy, DNS and `published` need the maintainer's OK (an explicit instruction counts).
+- Any push (even `dev`), deploy, DNS change or `published` needs the maintainer's OK each time.
 - Content follows `templates/README.md`; write it with the `write-question` skill.

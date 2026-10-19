@@ -23,7 +23,7 @@ The contract is `templates/README.md`. Read it once per session; don't restate i
 7. **Commit** one question per commit: `content(<topic>/<chapter>): <slug>`.
 
 ## Batch mode (a whole chapter)
-One subagent per chapter, run serially (they share README sync and `PLAN.md`). It does steps 1–7 per question top to bottom, commits after each question, stages only its own chapter's paths, and returns ≤ 5 lines with an "unverified" list. The main session verifies each hand-back (`git status`, `git log`, `content:check`, count of `status: draft`) before starting the next chapter.
+One Opus subagent per chapter (R21), run serially (they share README sync and `PLAN.md`). It does steps 1–7 per question top to bottom, commits after each question, stages only its own chapter's paths, and returns ≤ 5 lines with an "unverified" list. The main session verifies each hand-back (`git status`, `git log`, `content:check`, count of `status: draft`) before starting the next chapter.
 
 Flashcards run the same loop, one subagent per group of chapters: cards come only from the written questions (every section, Deep dive included), one card per distinct fact, appended to `content/flashcards/<topic>.yaml`, one commit per chapter. Recount cards with `grep` rather than trusting the reported totals.
 
