@@ -21,7 +21,7 @@ sources:
 tldr: >
   `new F(...args)` creates an object whose `[[Prototype]]` is `F.prototype`, calls `F` with
   `this` set to that object, and returns it. If `F` returns an object, that object replaces the
-  new one; a returned primitive is ignored (and throws in a derived class). Only functions with
+  new one; a returned primitive is ignored (a derived class throws for any but `undefined`). Only functions with
   a `[[Construct]]` method qualify, so arrows, methods and built-in non-constructors throw.
 ---
 
@@ -30,13 +30,13 @@ tldr: >
 `new F(...args)` evaluates `F` and the arguments, throws a `TypeError` if `F` is not a constructor, then calls `F.[[Construct]](args, newTarget)`. For an ordinary `function` (a *base* constructor) that does four things:
 
 1. **Create** an ordinary object.
-2. **Link** it: its `[[Prototype]]` is `newTarget.prototype`. If that property isn't an object, the intrinsic `Object.prototype` is used instead.
+2. **Link** it: its `[[Prototype]]` is `newTarget.prototype`. If that property isn't an object, the `Object.prototype` of `newTarget`'s realm is used instead.
 3. **Call** `F` with `this` bound to the new object and `new.target` set to the constructor.
 4. **Return** a value: if `F` returns an *object* (including a function or array), that is the result of `new` and the object from step 1 is discarded. Otherwise, the new object is the result and the return value is ignored.
 
 The return rule is the one interviewers probe: `return 42` is ignored, `return {}` replaces the instance. In a **derived class** constructor, the rules are stricter: returning anything but an object or `undefined` throws a `TypeError`, and `this` isn't created until `super()` returns.
 
-Only constructors have `[[Construct]]`: ordinary `function`s and `class`es, bound versions of them, and some built-ins like `Date` or `Map`. Arrow functions, shorthand methods, async functions and `Math.max` do not, so `new` on them throws `TypeError: ... is not a constructor`. A class constructor does the reverse and throws if called *without* `new`.
+Only constructors have `[[Construct]]`: ordinary `function`s and `class`es, bound versions of them, and some built-ins like `Date` or `Map`. Arrow functions, shorthand methods, async functions and `Math.max` do not, so `new` on them throws a `TypeError`. A class constructor does the reverse and throws if called *without* `new`.
 
 Inside a function, **`new.target`** is the constructor `new` was applied to, or `undefined` for a plain call. It lets a function detect how it was called, and it is how `Reflect.construct(F, args, NewTarget)` and subclassing choose which `prototype` to link.
 
@@ -70,7 +70,7 @@ function Guarded() { if (!new.target) return new Guarded(); this.ok = true; }
 console.log(Guarded()); // → Guarded { ok: true }
 
 class Plain {}
-try { Plain(); } catch (error) { console.log(error.message); } // → Class constructor Plain cannot be invoked without 'new'
+try { Plain(); } catch (error) { console.log(error.name); } // → TypeError
 ```
 
 ## Pitfalls
