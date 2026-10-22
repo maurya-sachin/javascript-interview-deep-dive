@@ -2,7 +2,7 @@
 
 > **Covers:** ECMAScript through ES2026, plus Stage 4 proposals shipping in ES2027; V8 as the reference engine.
 > **Track:** Frontend
-> **Status:** 🔴 planned · **Published:** 0/150 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/176 · **Last verified:** —
 
 The ECMAScript language, from values and types up to modules, memory, and the V8 engine.
 Frontend, backend, and full-stack interviews all test this layer — frameworks and runtimes are built on it.
