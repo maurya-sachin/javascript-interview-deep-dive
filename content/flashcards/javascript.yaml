@@ -2901,7 +2901,7 @@
   question: javascript/memory-and-gc/weakref-finalizationregistry
 - id: weakref-keepduringjob
   front: "What does the spec's KeepDuringJob guarantee for `WeakRef`?"
-  back: "`new WeakRef(target)` and `deref()` hold the target strongly until the end of the current synchronous job. It cannot vanish between two `deref()` calls in the same job, but can between jobs."
+  back: "`new WeakRef(target)` and `deref()` hold the target strongly until the host calls `ClearKeptObjects` after the synchronous run. HTML does that after the microtask checkpoint, so the pin survives an `await` in the same task; the target can vanish between tasks."
   question: javascript/memory-and-gc/weakref-finalizationregistry
 - id: finalization-no-guarantee
   front: "Is a `FinalizationRegistry` callback guaranteed to run?"
