@@ -39,7 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [How do you sum floating-point numbers accurately?](050-math-sumprecise.md) | medium | 🟡 draft |
 | 060 | [How do `toFixed`, `toPrecision` and `toLocaleString` differ, and why does `(1.005).toFixed(2)` give `"1.00"`?](060-number-formatting.md) | medium | 🟡 draft |
 | 070 | [What happens to a number when you apply a bitwise operator?](070-bitwise-and-int32.md) | medium | 🟡 draft |
-| 080 | [Why shouldn't you use `Math.random` for tokens or IDs?](080-math-random-not-secure.md) | easy | 🔴 planned |
+| 080 | [Why shouldn't you use `Math.random` for tokens or IDs?](080-math-random-not-secure.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
