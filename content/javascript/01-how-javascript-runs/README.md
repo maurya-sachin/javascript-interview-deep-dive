@@ -41,7 +41,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [What's the difference between a script and a module?](040-scripts-vs-modules.md) | medium | 🟡 draft |
 | 050 | [What does strict mode change, and when is code strict automatically?](050-strict-mode.md) | medium | 🟡 draft |
 | 060 | [What's the difference between a polyfill and a transpiler?](060-polyfill-vs-transpiler.md) | easy | 🟡 draft |
-| 070 | [What is a hashbang comment, and why is it in the grammar?](070-hashbang-comments.md) | easy | 🔴 planned |
+| 070 | [What is a hashbang comment, and why is it in the grammar?](070-hashbang-comments.md) | easy | 🟡 draft |
 | 080 | [What is Annex B, and which legacy behaviours does it keep alive?](080-annex-b-legacy-features.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
