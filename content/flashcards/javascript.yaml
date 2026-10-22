@@ -618,7 +618,7 @@
   question: javascript/operators-and-syntax/nullish-and-optional-chaining
 - id: for-in-keys-and-order
   front: "What does `for…in` enumerate, and in what order?"
-  back: "Enumerable string keys, own and inherited through the prototype chain, as strings. Integer-like keys come first in ascending order, then other keys in insertion order. Symbols and non-enumerable keys are skipped."
+  back: "Enumerable string keys, own and inherited, as strings; symbols and non-enumerable keys are skipped. Each object's own keys come integer-like ascending, then insertion order, then its prototype's. The spec drops that guarantee when a Proxy, TypedArray or other listed exotic object is on the chain."
   question: javascript/operators-and-syntax/loop-statements
 - id: for-of-iterator-return
   front: "What does `break` inside `for…of` do to the iterable?"
