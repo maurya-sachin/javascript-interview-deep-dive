@@ -10,8 +10,12 @@ related:
   - javascript/inside-the-engine/deoptimization
   - javascript/memory-and-gc/v8-generational-gc
 verified: 2026-10
+perishable:
+  - Node 24.19 build has pointer compression off (32-bit Smis)
+  - Chrome ships pointer compression on (31-bit Smis)
 sources:
   - https://v8.dev/blog/pointer-compression
+  - https://v8.dev/blog/v8-release-80
   - https://v8.dev/blog/elements-kinds
   - https://tc39.es/ecma262/#sec-ecmascript-language-types-number-type
   - https://nodejs.org/docs/latest/api/process.html#processconfig
@@ -24,11 +28,11 @@ tldr: >
 
 ## Answer
 
-The language has one Number type: the spec defines it as an IEEE 754 double-precision value. **Smi** and **HeapNumber** are V8's internal representations (observed on Node 24.19, V8 13.6, 64-bit arm64); you cannot see them from JavaScript semantics, only from performance and debug tooling.
+The language has one Number type: the spec defines it as an IEEE 754 double-precision value. **Smi** and **HeapNumber** are V8's internal representations (observed on Node 24.19, V8 `13.6.233.17-node.51`, 64-bit arm64); you cannot see them from JavaScript semantics, only from performance and debug tooling.
 
 **Tagging.** V8 values are tagged words. Per the pointer-compression post, the least significant bit(s) distinguish a heap-object pointer from a **small integer (Smi)**. A Smi carries its value in the word itself, so it needs no heap allocation and no pointer to follow.
 
-**Range.** The post says a Smi has a 32-bit payload on 64-bit builds and 31 bits when pointer compression is on, because compression makes the tagged word 32 bits wide. On this Node, `process.config.variables.v8_enable_pointer_compression` is `0`, and `%IsSmi` was `true` for `2**31 - 1` and `-(2**31)` and `false` one step beyond either. So the range here is the 32-bit one. A browser such as Chrome ships with compression on, per the post, so I would expect 31 bits there; I did not test it.
+**Range.** The post says a Smi has a 32-bit payload on 64-bit builds and 31 bits when pointer compression is on, because compression makes the tagged word 32 bits wide. On this Node, `process.config.variables.v8_enable_pointer_compression` is `0`, and `%IsSmi` was `true` for `2**31 - 1` and `-(2**31)` and `false` one step beyond either. So the range here is the 32-bit one. Chrome has shipped with compression on since V8 8.0 (Chrome 80), per V8's release post, so expect the 31-bit range there (not tested here).
 
 **HeapNumber.** Any number that does not fit a Smi is a heap object holding a boxed double: fractions, `-0`, `NaN`, `Infinity`, and integers outside the Smi range. In `%DebugPrint`, `1.5` is a `[HeapNumber]` with `instance size: 16` here.
 
@@ -49,7 +53,7 @@ console.log(%IsSmi(-(2 ** 31)), %IsSmi(-(2 ** 31) - 1)); // → true false
 console.log(%IsSmi(1.0), %IsSmi(1.5)); // → true false
 console.log(%IsSmi(-0), %IsSmi(NaN)); // → false false
 console.log(%IsSmi(10 / 2), %IsSmi(7 / 2)); // → true false
-%DebugPrint(1.5); // → [HeapNumber] ... - value: 1.5 ... - instance size: 16
+%DebugPrint(1.5); // includes "[HeapNumber]", "- value: 1.5", "- instance size: 16"
 ```
 
 ## Pitfalls
