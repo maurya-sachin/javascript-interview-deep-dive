@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [How do tagged template literals work?](040-tagged-templates.md) | medium | 🟡 draft |
 | 050 | [How do you compare strings correctly across languages?](050-locale-comparison-normalization.md) | medium | 🟡 draft |
 | 060 | [`slice` vs `substring` vs `at`: which string methods accept negative indices, and why?](060-everyday-string-methods.md) | easy | 🟡 draft |
-| 070 | [Is building a string with `+=` in a loop slow?](070-string-concatenation-ropes.md) | medium | 🔴 planned |
+| 070 | [Is building a string with `+=` in a loop slow?](070-string-concatenation-ropes.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
