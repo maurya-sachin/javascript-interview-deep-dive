@@ -751,7 +751,7 @@
   question: javascript/scope-and-execution-contexts/global-object-globalthis
 - id: top-level-this-by-host
   front: "What is top-level `this` in a classic script, an ES module and a Node CommonJS file?"
-  back: "Classic script: `globalThis`. ES module: `undefined`. CommonJS file: `module.exports`, because the file is wrapped in a function."
+  back: "Classic script: `globalThis`. ES module: `undefined`. CommonJS file: `module.exports`, which Node.js 24 passes as `this` to the function wrapping the file."
   question: javascript/scope-and-execution-contexts/global-object-globalthis
 - id: global-let-redeclare-across-scripts
   front: "Why do two classic scripts both declaring a top-level `let x` collide?"
@@ -1022,7 +1022,7 @@
   question: javascript/this/call-apply-bind
 - id: bound-function-new
   front: "What happens when you call `new` on a bound function?"
-  back: "The bound `this` is ignored, but bound arguments are prepended and the target is constructed. If `new.target` is the bound function, it becomes the target, so `instanceof` works against either."
+  back: "The bound `this` is ignored, but bound arguments are prepended and the target is constructed. If `new.target` is the bound function, it becomes the target. `instanceof` works against either, because it unwraps a bound function to its target."
   question: javascript/this/call-apply-bind
 - id: bound-function-name-length
   front: "What are a bound function's `name`, `length` and `prototype`?"
