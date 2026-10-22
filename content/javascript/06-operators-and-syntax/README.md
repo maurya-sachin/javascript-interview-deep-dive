@@ -38,7 +38,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [`for…in` vs `for…of` vs `forEach` — when do you use each?](040-loop-statements.md) | easy | 🟡 draft |
 | 050 | [How does automatic semicolon insertion work, and when does it bite?](050-automatic-semicolon-insertion.md) | medium | 🟡 draft |
 | 060 | [Which precedence and associativity rules trip people up?](060-operator-precedence.md) | medium | 🟡 draft |
-| 070 | [What do the comma operator, `void`, labels and `switch` fall-through do?](070-comma-void-labels-switch.md) | medium | 🔴 planned |
+| 070 | [What do the comma operator, `void`, labels and `switch` fall-through do?](070-comma-void-labels-switch.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
