@@ -10,6 +10,8 @@ related:
   - javascript/dates-temporal-intl/temporal-types
   - javascript/dates-temporal-intl/intl-formatting
 verified: 2026-10
+perishable:
+  - tz database versions bundled with each Node.js release
 sources:
   - https://data.iana.org/time-zones/tzdb/theory.html
   - https://tc39.es/ecma262/#sec-utc-t
@@ -31,7 +33,7 @@ Three different things get called "time zone":
 
 - **Instant:** a moment on the UTC timeline (`2026-03-08T12:00:00Z`). It is the same everywhere.
 - **Offset:** a fixed difference from UTC at one moment (`-04:00`, `+05:30`, `+05:45`). It says nothing about what it will be next month.
-- **Zone:** an IANA identifier (`America/New_York`, `Asia/Kolkata`) naming a history of offset rules, including DST. The IANA database says to prefer such identifiers over abbreviations, because `CST` or `IST` are ambiguous.
+- **Zone:** an IANA identifier (`America/New_York`, `Asia/Kolkata`) naming a history of offset rules, including DST. Abbreviations are no substitute: the IANA database's notes warn that `CST` or `IST` are ambiguous.
 
 Rules of thumb:
 
@@ -45,7 +47,7 @@ Rules of thumb:
 ## Example
 
 ```js
-// Same output natively in Chrome 155 and with @js-temporal/polyfill 0.5.1 on Node 24.19.0 (no Temporal global)
+// Same output natively in Node 26.11.1 and Chrome 155, and with @js-temporal/polyfill 0.5.1 on Node 24.19.0
 import { Temporal } from '@js-temporal/polyfill';
 
 // US clocks: 02:30 on 2026-03-08 never happens; 01:30 on 2026-11-01 happens twice
@@ -72,7 +74,7 @@ console.log(meeting.toInstant().toString(), meeting.offset);
 // → 2027-03-28T08:00:00Z +01:00
 ```
 
-Temporal output above matches natively in Chrome 155 and with the polyfill on Node 24.19.0.
+Temporal output above matches natively in Node 26.11.1 and Chrome 155, and with the polyfill on Node 24.19.0.
 
 ## Pitfalls
 
