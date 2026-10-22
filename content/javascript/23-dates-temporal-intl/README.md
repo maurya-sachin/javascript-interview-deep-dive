@@ -42,4 +42,4 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 
 ## Open questions
 
-- [ ] Re-check Temporal support (Safari, Node builds) and re-run polyfill outputs natively when available
+- [ ] Re-check Temporal once Safari ships it outside preview (outputs re-run natively on Node 26.11, 2026-10)
