@@ -1,6 +1,6 @@
 # 03 — Numbers and BigInt
 
-> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/8 · **Last verified:** —
 
 How JavaScript numbers work as IEEE 754 doubles, their special values, and when BigInt takes over.
 
@@ -23,9 +23,9 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - BigInt: literals, operators, no mixing with Number, `BigInt.asIntN` → 030
 - `Number()`, `parseInt` (radix), `parseFloat`, unary `+` → 040
 - `Math.sumPrecise` and exact summation → 050
-- Number formatting: `toFixed`, `toPrecision`, `toLocaleString` → —
-- Bitwise operators and 32-bit integer conversion → —
-- `Math.random` is not cryptographically secure → —
+- Number formatting: `toFixed`, `toPrecision`, `toLocaleString` → 060
+- Bitwise operators and 32-bit integer conversion → 070
+- `Math.random` is not cryptographically secure → 080
 
 ## Questions
 
@@ -37,6 +37,9 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What's `Number.MAX_SAFE_INTEGER`, and when do you need BigInt?](030-safe-integers-bigint.md) | medium | 🟡 draft |
 | 040 | [`Number()` vs `parseInt()` vs unary `+` — how do they differ?](040-parsing-numbers.md) | easy | 🟡 draft |
 | 050 | [How do you sum floating-point numbers accurately?](050-math-sumprecise.md) | medium | 🟡 draft |
+| 060 | [How do `toFixed`, `toPrecision` and `toLocaleString` differ, and why does `(1.005).toFixed(2)` give `"1.00"`?](060-number-formatting.md) | medium | 🔴 planned |
+| 070 | [What happens to a number when you apply a bitwise operator?](070-bitwise-and-int32.md) | medium | 🔴 planned |
+| 080 | [Why shouldn't you use `Math.random` for tokens or IDs?](080-math-random-not-secure.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
