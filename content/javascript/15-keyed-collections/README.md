@@ -1,6 +1,6 @@
 # 15 — Keyed collections
 
-> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
 
 `Map`, `Set`, and their weak variants, plus grouping and upsert helpers.
 
@@ -24,7 +24,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Symbols as `WeakMap` keys → 030
 - `Object.groupBy`, `Map.groupBy` → 040
 - `getOrInsert`, `getOrInsertComputed` → 050
-- Implementing an LRU cache with `Map` → —
+- Implementing an LRU cache with `Map` → 060
 
 ## Questions
 
@@ -36,6 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What are `WeakMap` and `WeakSet` for, and why can't you iterate them?](030-weakmap-weakset.md) | medium | 🟡 draft |
 | 040 | [How do `Object.groupBy` and `Map.groupBy` work?](040-groupby.md) | easy | 🟡 draft |
 | 050 | [What does `Map.prototype.getOrInsert` solve?](050-map-upsert.md) | easy | 🟡 draft |
+| 060 | [Implement an LRU cache with `Map`.](060-lru-cache-with-map.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
