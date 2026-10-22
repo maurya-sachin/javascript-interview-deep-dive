@@ -1264,7 +1264,7 @@
   question: javascript/prototypes/instanceof
 - id: instanceof-bound-function
   front: "How does `x instanceof BoundFn` work when bound functions have no `prototype`?"
-  back: "`OrdinaryHasInstance` forwards the check to the bound target function and tests against that function's `prototype`."
+  back: "`OrdinaryHasInstance` sees the `[[BoundTargetFunction]]` slot and reruns `instanceof` against the target, so the target's `prototype`, or its own `Symbol.hasInstance`, decides."
   question: javascript/prototypes/instanceof
 - id: is-prototype-of-vs-instanceof
   front: "How does `proto.isPrototypeOf(obj)` differ from `obj instanceof Ctor`?"
@@ -1272,7 +1272,7 @@
   question: javascript/prototypes/instanceof
 - id: null-proto-dictionary-collisions
   front: "Why is a plain `{}` risky as a counter keyed by user input?"
-  back: "Keys such as `constructor`, `toString` and `__proto__` collide with inherited members. `'toString' in table` is truthy unprompted, and assigning `__proto__` changes the prototype instead of storing a key."
+  back: "Keys such as `constructor`, `toString` and `__proto__` collide with inherited members. `'toString' in table` is truthy unprompted, and assigning `__proto__` runs the inherited setter instead of storing a key."
   question: javascript/prototypes/object-create-null
 - id: null-proto-missing-methods
   front: "What breaks on an `Object.create(null)` object?"
