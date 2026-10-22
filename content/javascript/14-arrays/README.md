@@ -1,6 +1,6 @@
 # 14 — Arrays
 
-> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/8 · **Last verified:** —
 
 Array semantics and methods — mutating vs copying, sorting, holes, searching — and the polyfills interviewers ask for.
 
@@ -25,7 +25,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - `includes` (SameValueZero) vs `indexOf`; `find`, `findLast`, `findIndex`, `at` → 060
 - `flat`, `flatMap`; implementing `flatten` → 070
 - `Array(n)` vs `Array.from({ length: n })` → 040, 050
-- `some`, `every`, `fill`, `copyWithin` → —
+- `some`, `every`, `fill`, `copyWithin` → 080
 
 ## Questions
 
@@ -39,6 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [Array-likes vs iterables: how do `Array.from` and `Array.fromAsync` work?](050-array-from-and-fromasync.md) | medium | 🟡 draft |
 | 060 | [`includes` vs `indexOf` vs `find` vs `findLast` vs `at`?](060-searching-arrays.md) | easy | 🟡 draft |
 | 070 | [How do `flat` and `flatMap` work?](070-flat-and-flatmap.md) | medium | 🟡 draft |
+| 080 | [Why does `[].every(fn)` return `true`, and what does `fill` do with an object?](080-some-every-fill-copywithin.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
