@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What's `Number.MAX_SAFE_INTEGER`, and when do you need BigInt?](030-safe-integers-bigint.md) | medium | 🟡 draft |
 | 040 | [`Number()` vs `parseInt()` vs unary `+` — how do they differ?](040-parsing-numbers.md) | easy | 🟡 draft |
 | 050 | [How do you sum floating-point numbers accurately?](050-math-sumprecise.md) | medium | 🟡 draft |
-| 060 | [How do `toFixed`, `toPrecision` and `toLocaleString` differ, and why does `(1.005).toFixed(2)` give `"1.00"`?](060-number-formatting.md) | medium | 🔴 planned |
+| 060 | [How do `toFixed`, `toPrecision` and `toLocaleString` differ, and why does `(1.005).toFixed(2)` give `"1.00"`?](060-number-formatting.md) | medium | 🟡 draft |
 | 070 | [What happens to a number when you apply a bitwise operator?](070-bitwise-and-int32.md) | medium | 🔴 planned |
 | 080 | [Why shouldn't you use `Math.random` for tokens or IDs?](080-math-random-not-secure.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
