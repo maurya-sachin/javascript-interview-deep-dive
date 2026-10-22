@@ -41,7 +41,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 060 | [Shallow vs deep copy — spread, `Object.assign`, or `structuredClone`?](060-shallow-vs-deep-copy.md) | medium | 🟡 draft |
 | 070 | [How do you compare two objects for equality?](070-deep-equality.md) | medium | 🟡 draft |
 | 080 | [What do computed keys, shorthand properties and method syntax change beyond brevity?](080-object-literal-syntax.md) | medium | 🟡 draft |
-| 090 | [How do you map or filter an object's properties?](090-transforming-objects.md) | easy | 🔴 planned |
+| 090 | [How do you map or filter an object's properties?](090-transforming-objects.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
