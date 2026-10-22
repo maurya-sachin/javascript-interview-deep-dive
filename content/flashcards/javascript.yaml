@@ -1111,7 +1111,7 @@
   question: javascript/objects-and-properties/property-descriptors
 - id: integrity-levels-table
   front: "How do `preventExtensions`, `seal` and `freeze` differ?"
-  back: "`preventExtensions`: no adding. `seal`: also no deleting or reconfiguring (`configurable: false`). `freeze`: also `writable: false` on data properties. Each includes the previous level."
+  back: "`preventExtensions`: no adding. `seal`: also no deleting (`configurable: false`); the only redefinition left is `writable` to `false`. `freeze`: also `writable: false` on data properties. Each includes the previous level."
   question: javascript/objects-and-properties/freeze-seal-preventextensions
 - id: freeze-shallow
   front: "Is `Object.freeze` deep?"
@@ -1195,7 +1195,7 @@
   question: javascript/objects-and-properties/deep-equality
 - id: deep-equal-cycle-guard
   front: "How does a deep-equality function avoid infinite recursion on cycles?"
-  back: "It remembers the `(a, b)` pairs currently being compared and assumes equal when a pair repeats. Without the guard, self-referencing data overflows the stack with `RangeError`."
+  back: "It remembers the `(a, b)` pairs currently being compared and assumes equal when a pair repeats. Without the guard, self-referencing data overflows the stack (a `RangeError` in V8)."
   question: javascript/objects-and-properties/deep-equality
 - id: json-stringify-equality-trap
   front: "Why is `JSON.stringify(a) === JSON.stringify(b)` unreliable for equality?"
@@ -1203,7 +1203,7 @@
   question: javascript/objects-and-properties/deep-equality
 - id: deep-equal-prototype-check
   front: "Why should a deep-equality function compare prototypes?"
-  back: "Otherwise instances of different classes with the same fields compare equal. It is a policy choice; `util.isDeepStrictEqual` treats them as different."
+  back: "Otherwise instances of different classes with the same fields compare equal. It is a policy choice; `util.isDeepStrictEqual` treats them as different by default."
   question: javascript/objects-and-properties/deep-equality
 # 12 Prototypes
 - id: prototype-write-shadows
