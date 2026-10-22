@@ -131,11 +131,11 @@
   question: javascript/values-and-types/typeof-null
 - id: document-all-typeof
   front: "What is the surprising `typeof` of `document.all`?"
-  back: "`'undefined'`, although it is an object. The spec allows it through the `[[IsHTMLDDA]]` internal slot, a willful violation kept for web compatibility."
+  back: "`'undefined'`, although it is an object. Once a willful violation of the original ECMAScript standard, it is now allowed by the spec through the `[[IsHTMLDDA]]` internal slot."
   question: javascript/values-and-types/typeof-null
 - id: undefined-vs-null-origin
   front: "Who produces `undefined` and who produces `null`?"
-  back: "The language produces `undefined` (unassigned variable, missing argument or property, no `return`). `null` is usually assigned by a programmer; the language yields it mainly as the end of the prototype chain."
+  back: "The language produces `undefined` (unassigned variable, missing argument or property, no `return`). `null` mostly comes from program code, JSON and host APIs such as `querySelector`; the language yields it in few places, such as the end of the prototype chain."
   question: javascript/values-and-types/null-vs-undefined
 - id: default-parameter-null
   front: "Does a default parameter value apply when the argument is `null`?"
@@ -163,7 +163,7 @@
   question: javascript/values-and-types/primitive-wrappers
 - id: primitive-property-write-lost
   front: "What happens when you write `str.foo = 1` on a string primitive?"
-  back: "The write lands on a throwaway wrapper and is lost. Strict mode throws `TypeError`; sloppy mode silently ignores it."
+  back: "Nothing is stored. The `[[Set]]` receiver is the primitive, not a wrapper, and ordinary `[[Set]]` won't create a property on a non-object. Strict mode throws `TypeError`; sloppy mode silently ignores it."
   question: javascript/values-and-types/primitive-wrappers
 - id: null-undefined-no-wrapper
   front: "Why does `undefined.x` throw?"
