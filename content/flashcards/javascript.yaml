@@ -1870,7 +1870,7 @@
   question: javascript/async-and-the-event-loop/event-loop
 - id: event-loop-iteration-order
   front: "What does one browser event-loop iteration do?"
-  back: "Runs one task, then a microtask checkpoint that drains the microtask queue (including microtasks queued by microtasks), then the browser may render, and the loop continues."
+  back: "Runs one task, then a microtask checkpoint that drains the microtask queue (including microtasks queued by microtasks), and the loop continues. Rendering is not a step after every task: at a rendering opportunity the browser queues a separate *update the rendering* task."
   question: javascript/async-and-the-event-loop/event-loop
 - id: run-to-completion
   front: "What does run-to-completion mean for a running function?"
