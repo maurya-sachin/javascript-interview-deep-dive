@@ -375,7 +375,7 @@
   question: javascript/strings-and-unicode/graphemes-and-code-points
 - id: grapheme-cluster-definition
   front: "What is a grapheme cluster?"
-  back: "A user-perceived character, defined by Unicode UAX #29. It can span several code points: `e` plus a combining accent, a flag (two regional indicators), or a family emoji joined by U+200D."
+  back: "Unicode UAX #29's approximation of a user-perceived character. It can span several code points: `e` plus a combining accent, a flag (two regional indicators), or a family emoji joined by U+200D."
   question: javascript/strings-and-unicode/graphemes-and-code-points
 - id: spread-length-not-characters
   front: "Why is `[...s].length` not a count of user-visible characters?"
