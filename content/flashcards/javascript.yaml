@@ -2526,7 +2526,7 @@
   question: javascript/regular-expressions/regex-methods
 - id: replace-dollar-patterns
   front: "Why pass a function instead of user text as the `replace` replacement?"
-  back: "A replacement string expands `$&`, `$1`, `$<name>` and similar patterns. A function such as `() => userText` is used verbatim."
+  back: "A replacement string expands `$&`, `$$`, `` $` `` and `$'`, plus `$1` when the pattern is a regex with groups. A function such as `() => userText` is used verbatim."
   question: javascript/regular-expressions/regex-methods
 - id: split-capture-groups
   front: "What does `split` do with a capturing group in the regex?"
