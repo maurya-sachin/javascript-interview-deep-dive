@@ -1845,7 +1845,7 @@
   question: javascript/promises/implement-a-promise
 - id: promise-impl-queue-microtask
   front: "Why use `queueMicrotask` and not `setTimeout` for handlers in a custom promise?"
-  back: "`setTimeout` makes handlers macrotasks, running after rendering and timers that should come later. Native promises use the microtask queue, which `queueMicrotask` matches."
+  back: "`setTimeout` makes handlers macrotasks, which can run after a rendering update and after timers queued earlier. Native promises use the microtask queue, which `queueMicrotask` matches."
   question: javascript/promises/implement-a-promise
 - id: promisify-error-first
   front: "What callback convention does `util.promisify` assume?"
