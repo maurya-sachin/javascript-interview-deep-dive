@@ -1,6 +1,6 @@
 # 12 — Prototypes and inheritance
 
-> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/8 · **Last verified:** —
 
 The `[[Prototype]]` chain, how lookup and assignment walk it, and what `new` and `instanceof` do.
 
@@ -25,8 +25,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - `OrdinaryHasInstance`, `Symbol.hasInstance`, `isPrototypeOf` → 040
 - Null-prototype objects as dictionaries → 050
 - Monkey-patching built-ins and web-compatibility fallout → 060
-- Prototype pollution → —
-- Delegation-style objects (OLOO) vs constructor functions → —
+- Prototype pollution → 070
+- Delegation-style objects (OLOO) vs constructor functions → 080
 
 ## Questions
 
@@ -39,6 +39,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [How does `instanceof` work?](040-instanceof.md) | medium | 🟡 draft |
 | 050 | [When do you use `Object.create(null)`?](050-object-create-null.md) | medium | 🟡 draft |
 | 060 | [Should you extend native prototypes?](060-extending-native-prototypes.md) | medium | 🟡 draft |
+| 070 | [What is prototype pollution, and how do you prevent it?](070-prototype-pollution.md) | hard | 🔴 planned |
+| 080 | [What is delegation-style object linking, and how does it compare with constructors and classes?](080-delegation-vs-constructors.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
