@@ -11,6 +11,9 @@ related:
   - javascript/memory-and-gc/memory-leaks
   - javascript/memory-and-gc/v8-generational-gc
 verified: 2026-10
+perishable:
+  - Example heap MB figures measured on Node 24.19 / V8 13.6
+  - Early collection of an unused variable observed in V8 13.6
 sources:
   - https://tc39.es/ecma262/#sec-weakref-processing-model
   - https://tc39.es/ecma262/#sec-liveness
@@ -63,14 +66,15 @@ for (let i = 0; i < 500_000; i++) {
   pairs.push(a);
 }
 const held = heapMB();
-console.log(pairs.length); // → 500000 (also keeps `pairs` in use)
+console.log(pairs.length); // also keeps `pairs` in use
+// → 500000
 pairs = null;              // the only path from a root is gone
 const collected = heapMB();
 console.log({ baseline, held, collected });
 // → { baseline: 3, held: 111, collected: 4 }
 ```
 
-The MB figures are one machine, Node 24.19, macOS, run 3 times with the same result. Yours will differ; the shape (grow, then fall back once unreachable) is the point.
+The MB figures are one machine, Node 24.19 (V8 `13.6.233.17-node.51`), macOS, run 3 times with the same result. Yours will differ; the shape (grow, then fall back once unreachable) is the point.
 
 ## Pitfalls
 
@@ -98,13 +102,13 @@ The spec never says "mark-and-sweep". It defines a weaker idea, **liveness**: a 
 
 That is the real contract. Reachability is a *safe approximation*: anything reachable might be used, so it must stay. Anything unreachable can never be observed again, so freeing it cannot change the program's behaviour. The cost is that a reachable-but-never-used object (the leak case) is kept.
 
-V8 uses **tri-colour marking** for the mark phase. The concurrent-marking post describes it as two mark bits per object encoding three colours: white (not yet discovered), grey (discovered, children not yet processed) and black (fully processed). Marking ends when no grey objects remain; "all the remaining white objects are unreachable and can be safely reclaimed." Because JavaScript keeps running while helper threads mark, V8 needs a **write barrier**: when your code stores a pointer into an already-black object, the barrier records the new edge so the collector does not miss it. Both details are V8-specific; other engines differ but all trace from roots.
+V8 uses **tri-colour marking** for the mark phase. The concurrent-marking post describes it as two mark bits per object encoding three colours: white (not yet discovered), grey (discovered, children not yet processed) and black (fully processed). Marking ends when no grey objects remain; "all the remaining white objects are unreachable and can be safely reclaimed." Because JavaScript keeps running while helper threads mark, V8 needs a **write barrier**: when your code stores a pointer during marking, the barrier turns a still-white target grey so the collector does not miss it. Both details are V8-specific; other engines differ but all trace from roots.
 
 After marking, V8 **sweeps** (puts the freed gaps on a free-list so later allocations can reuse them) and may **compact** (copy survivors into fresh pages to fight fragmentation). The full pipeline is covered in the V8 generational GC question.
 
 ### Edge cases
 
-**A live-looking variable can be dead.** Roots are *live* variables, not every variable in scope. Delete the `console.log(pairs.length)` line from the example above, so `pairs` is never read after the loop, and the same program printed `{ baseline: 3, held: 3, collected: 3 }` in my runs (3 of 3). The engine knew the array was never used again, so the "held" collection already freed it. This is V8/Node 24.19 behaviour observed on one machine, not something the spec specifies. The lesson: do not assume that a variable in scope means the object is alive, and do not benchmark leaks with variables you never use afterwards.
+**A live-looking variable can be dead.** Roots are *live* variables, not every variable in scope. Delete the `console.log(pairs.length)` line from the example above, so `pairs` is never read after the loop, and the same program printed `{ baseline: 3, held: 3, collected: 3 }` in my runs (3 of 3). The engine knew the array was never used again, so the "held" collection already freed it. This is V8 13.6 / Node 24.19 behaviour observed on one machine, not something the spec specifies. The lesson: do not assume that a variable in scope means the object is alive, and do not benchmark leaks with variables you never use afterwards.
 
 **A cycle is garbage only if no root reaches it.** An unreachable cycle is collected. A cycle with a single path from a root is live, however large it is.
 
@@ -118,10 +122,10 @@ After marking, V8 **sweeps** (puts the freed gaps on a free-list so later alloca
 |---|---|---|
 | Frees cycles | No | Yes |
 | When memory is released | Immediately at count 0 | At a collection, later |
-| Cost | Count update on every pointer write | Work proportional to live objects, paid in bursts |
+| Cost | Count update on every pointer write | Marking work proportional to live objects, paid in bursts |
 | Pauses | Spread across pointer writes | Must be hidden by parallel, incremental and concurrent work |
 
-Tracing wins for JavaScript because cycles are everywhere (DOM trees with parent pointers, closures that reference their own function, doubly-linked structures) and because the cost scales with *live* data. The price is non-determinism: you cannot rely on when memory is released or on destructors, which is why JavaScript has explicit cleanup APIs (`try/finally`, `AbortController`, `using`) for non-memory resources like file handles and sockets.
+Tracing wins for JavaScript because cycles are everywhere (DOM trees with parent pointers, closures that reference their own function, doubly-linked structures) and because marking cost scales with *live* data. The price is non-determinism: you cannot rely on when memory is released or on destructors, which is why JavaScript has explicit cleanup APIs (`try/finally`, `AbortController`, `using`) for non-memory resources like file handles and sockets.
 
 ## Exercises
 
@@ -149,4 +153,4 @@ function f() {
 f();
 ```
 
-**Answer:** Yes under reference counting: `x` and `y` reference each other, so each keeps a count of at least 1 after `f` returns. A tracing collector frees both, because once `f` has returned no root can reach either one. This is the example MDN uses for the cycle problem.
+**Answer:** Yes under reference counting: `x` and `y` reference each other, so each keeps a count of at least 1 after `f` returns. A tracing collector frees both, because once `f` has returned no root can reach either one. MDN illustrates the cycle problem with the same pattern.
