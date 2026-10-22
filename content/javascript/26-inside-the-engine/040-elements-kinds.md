@@ -9,20 +9,23 @@ related:
   - javascript/inside-the-engine/hidden-classes-inline-caches
   - javascript/inside-the-engine/smi-and-heap-numbers
 verified: 2026-10
+perishable:
+  - Elements-kind names and the fill exception, as of V8 13.6
 sources:
   - https://v8.dev/blog/elements-kinds
+  - https://chromium-review.googlesource.com/c/v8/v8/+/6285929
   - https://v8.dev/blog/fast-properties
   - https://nodejs.org/docs/latest/api/cli.html
 tldr: >
   V8-specific, not ECMAScript. Integer-indexed properties live in a separate elements store whose
   representation V8 tracks as an elements kind: packed or holey, crossed with Smi, double, or
-  generic. Kinds only move from specific to general, so one stray value or hole costs
+  generic. Kinds only move from specific to general (`fill` is a recent exception), so one stray value or hole costs
   every later access on that array.
 ---
 
 ## Answer
 
-This is **V8 behaviour**, per V8's elements-kinds blog and checked on Node 24.19 (V8 13.6). The language only specifies that arrays behave like objects with index keys.
+This is **V8 behaviour**, per V8's elements-kinds blog and checked on Node 24.19 (V8 `13.6.233.17-node.51`). The language only specifies that arrays behave like objects with index keys.
 
 V8 keeps **array-indexed properties** in an **elements store**, separate from named properties ([fast properties](https://v8.dev/blog/fast-properties)). The store's representation is tracked as the array's **elements kind**:
 
@@ -31,7 +34,7 @@ V8 keeps **array-indexed properties** in an **elements store**, separate from na
 
 That gives `PACKED_SMI_ELEMENTS`, `PACKED_DOUBLE_ELEMENTS`, `PACKED_ELEMENTS` and the three `HOLEY_` forms. There are also other kinds: a very sparse array moves to `DICTIONARY_ELEMENTS`, a hash table.
 
-**Transitions are one-way**, from specific to general: Smi to double to generic, and packed to holey. Pushing `4.5` into a Smi array makes it double; pushing a string makes it generic. Emptying the array does not reset the kind. Per the blog, `-0`, `NaN` and `Infinity` count as doubles, so one of them downgrades a Smi array.
+**Transitions are one-way** (a 2025 change exempts `fill`, see Pitfalls), from specific to general: Smi to double to generic, and packed to holey. Pushing `4.5` into a Smi array makes it double; pushing a string makes it generic. Emptying the array does not reset the kind. Per the blog, `-0`, `NaN` and `Infinity` count as doubles, so one of them downgrades a Smi array.
 
 **Why it matters.** Code and inline caches specialise on the kind, so a function that sees several kinds is polymorphic, just like with object shapes. Reading a hole forces a prototype-chain lookup, because `arr[i]` on a missing index may find a value on `Array.prototype`. Packed arrays avoid that check.
 
@@ -40,7 +43,7 @@ That gives `PACKED_SMI_ELEMENTS`, `PACKED_DOUBLE_ELEMENTS`, `PACKED_ELEMENTS` an
 ## Example
 
 ```js
-// kinds.mjs. Run: node --allow-natives-syntax kinds.mjs | grep "elements kind"
+// kinds.mjs. Run: node --allow-natives-syntax kinds.mjs | grep -o "elements kind: .*"
 // %DebugPrint is a debug-only native, not public API. Node 24.19, V8 13.6.
 const a = [1, 2, 3];
 %DebugPrint(a); // → elements kind: PACKED_SMI_ELEMENTS
@@ -49,8 +52,8 @@ a.push(4.5);
 a.push('x');
 %DebugPrint(a); // → elements kind: PACKED_ELEMENTS
 a.length = 0;
-a.push(1);
-%DebugPrint(a); // → elements kind: PACKED_ELEMENTS (never goes back)
+a.push(1);      // the kind never goes back
+%DebugPrint(a); // → elements kind: PACKED_ELEMENTS
 
 const h = [1, 2, 3];
 h[5] = 6;
@@ -62,7 +65,7 @@ h[5] = 6;
 ## Pitfalls
 
 - Believing a Smi array turns into a double array only when you add a fraction. `-0` and `NaN` do it too, per the blog, and I confirmed `[1, 2, 3, -0]` is `PACKED_DOUBLE_ELEMENTS`.
-- Believing "once holey, always holey" without checking. The blog describes one-way transitions between kinds, but on Node 24.19 `new Array(3)` is `HOLEY_SMI_ELEMENTS` and `new Array(3).fill(0)` printed `PACKED_SMI_ELEMENTS`. I did not find the reason in a source; do not rely on this either way.
+- Believing "once holey, always holey" without exception. The blog's 2025-02-28 update adds one for `Array.prototype.fill`: on Node 24.19 `new Array(3)` is `HOLEY_SMI_ELEMENTS` and `new Array(3).fill(0)` printed `PACKED_SMI_ELEMENTS`. Filling the holes by index still left it `HOLEY_SMI_ELEMENTS`.
 - Treating `[1, undefined]` as a number array. It printed `PACKED_ELEMENTS`.
 - Expecting `%DebugPrint` to be a stable interface. Treat kind names and the transition rules as version-dependent.
 
