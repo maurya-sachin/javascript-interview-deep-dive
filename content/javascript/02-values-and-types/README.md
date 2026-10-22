@@ -1,6 +1,6 @@
 # 02 — Values and types
 
-> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/8 · **Last verified:** —
 
 The eight language types, how primitives differ from objects, and how to check what a value is.
 
@@ -24,7 +24,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Value vs reference semantics; mutation vs reassignment → 050
 - Symbols: uniqueness, `description`, global registry (`Symbol.for`) → 060
 - `instanceof`, `Array.isArray`, `Object.prototype.toString`, `Symbol.toStringTag`, `Error.isError` → 070
-- Records & Tuples (withdrawn) — why there are no immutable compound primitives → —
+- Records & Tuples (withdrawn) — why there are no immutable compound primitives → 080
 
 ## Questions
 
@@ -38,6 +38,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [Is JavaScript pass-by-value or pass-by-reference?](050-pass-by-sharing.md) | medium | 🟡 draft |
 | 060 | [What are Symbols for?](060-symbols.md) | medium | 🟡 draft |
 | 070 | [How do you reliably check a value's type?](070-type-checking.md) | medium | 🟡 draft |
+| 080 | [Why doesn't JavaScript have immutable records and tuples?](080-why-no-records-and-tuples.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
