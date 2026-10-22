@@ -38,7 +38,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [Is JavaScript pass-by-value or pass-by-reference?](050-pass-by-sharing.md) | medium | 🟡 draft |
 | 060 | [What are Symbols for?](060-symbols.md) | medium | 🟡 draft |
 | 070 | [How do you reliably check a value's type?](070-type-checking.md) | medium | 🟡 draft |
-| 080 | [Why doesn't JavaScript have immutable records and tuples?](080-why-no-records-and-tuples.md) | medium | 🔴 planned |
+| 080 | [Why doesn't JavaScript have immutable records and tuples?](080-why-no-records-and-tuples.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
