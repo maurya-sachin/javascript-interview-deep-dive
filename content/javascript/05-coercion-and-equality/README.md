@@ -36,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [How does an object convert to a primitive?](030-object-to-primitive.md) | hard | 🟡 draft |
 | 040 | [Why does `[] + {}` give `"[object Object]"`?](040-addition-operator-coercion.md) | medium | 🟡 draft |
 | 050 | [`===` vs `Object.is` vs SameValueZero — which comparison does each API use?](050-equality-algorithms.md) | medium | 🟡 draft |
-| 060 | [How does `<` compare values of different types, and why is `null >= 0` true?](060-relational-comparison.md) | medium | 🔴 planned |
+| 060 | [How does `<` compare values of different types, and why is `null >= 0` true?](060-relational-comparison.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
