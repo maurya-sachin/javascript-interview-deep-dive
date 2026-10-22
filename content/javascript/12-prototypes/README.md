@@ -39,7 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [How does `instanceof` work?](040-instanceof.md) | medium | 🟡 draft |
 | 050 | [When do you use `Object.create(null)`?](050-object-create-null.md) | medium | 🟡 draft |
 | 060 | [Should you extend native prototypes?](060-extending-native-prototypes.md) | medium | 🟡 draft |
-| 070 | [What is prototype pollution, and how do you prevent it?](070-prototype-pollution.md) | hard | 🔴 planned |
+| 070 | [What is prototype pollution, and how do you prevent it?](070-prototype-pollution.md) | hard | 🟡 draft |
 | 080 | [What is delegation-style object linking, and how does it compare with constructors and classes?](080-delegation-vs-constructors.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
