@@ -2692,7 +2692,7 @@
   question: javascript/json-and-binary-data/json-stringify-edge-cases
 - id: json-stringify-bigint-throws
   front: "What does `JSON.stringify` do with a BigInt value, and why is there no default?"
-  back: "It throws `TypeError`. Most consumers read JSON numbers as doubles, so you choose a format: a string, `BigInt.prototype.toJSON` or a replacer."
+  back: "It throws `TypeError`. Many consumers read JSON numbers as doubles, so you choose a format: a string, `BigInt.prototype.toJSON` or a replacer."
   question: javascript/json-and-binary-data/json-stringify-edge-cases
 - id: json-stringify-own-enumerable
   front: "Which properties does `JSON.stringify` write for an object?"
@@ -2744,7 +2744,7 @@
   question: javascript/json-and-binary-data/json-parse-reviver
 - id: arraybuffer-no-indexing
   front: "What is an `ArrayBuffer`, and how do you read it?"
-  back: "A fixed block of zero-filled raw bytes with a `byteLength` and no indexing. You read and write through a view: a typed array or a `DataView`."
+  back: "A block of zero-filled raw bytes with a `byteLength` and no indexing. You read and write through a view: a typed array or a `DataView`."
   question: javascript/json-and-binary-data/arraybuffer-typed-arrays
 - id: typedarray-slice-subarray
   front: "How do `slice()` and `subarray()` differ on a typed array?"
@@ -2784,7 +2784,7 @@
   question: javascript/json-and-binary-data/modern-binary-data
 - id: float16-range
   front: "What is `Float16Array`'s precision and range?"
-  back: "Half precision: 1 sign, 5 exponent and 10 fraction bits, about 3 decimal digits. The largest finite value is 65504, and larger values round to `Infinity`. ES2025, Node 24+."
+  back: "Half precision: 1 sign, 5 exponent and 10 fraction bits, about 3 decimal digits. The largest finite value is 65504; 65519 rounds down to it, and values from 65520 up round to `Infinity`. ES2025, Node 24+."
   question: javascript/json-and-binary-data/modern-binary-data
 - id: base64-uint8array-guard
   front: "What is the status of `Uint8Array` base64 and hex methods, and how should you guard them?"
