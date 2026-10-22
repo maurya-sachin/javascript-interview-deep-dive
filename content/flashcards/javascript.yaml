@@ -3005,8 +3005,8 @@
   back: "Uninitialised, monomorphic (one Map), polymorphic (a few) and megamorphic (too many). For property loads, 2-4 shapes were polymorphic and 5 megamorphic on Node 24.19 / V8 13.6; this is an observation, not a spec."
   question: javascript/inside-the-engine/hidden-classes-inline-caches
 - id: delete-dictionary-mode
-  front: "What does `delete` on a property other than the last added do to a V8 object?"
-  back: "It switched the object to slow dictionary mode in the Node 24.19 run, where inline caches do not work and the Map is no longer shared. Assign `undefined` or build a new object instead."
+  front: "What does `delete` on a property do to a V8 object?"
+  back: "It switched the object to slow dictionary mode in every case tried on V8 13.6 (Node 24.19), even deleting the most recently added property, where inline caches do not work and the Map is no longer shared. Assign `undefined` or build a new object instead."
   question: javascript/inside-the-engine/hidden-classes-inline-caches
 - id: conditional-field-two-maps
   front: "Why does conditionally adding a field in a constructor hurt V8 performance?"
@@ -3042,7 +3042,7 @@
   question: javascript/inside-the-engine/elements-kinds
 - id: elements-kinds-one-way
   front: "In which direction do V8 elements kind transitions go?"
-  back: "One way, from specific to general: Smi to double to generic, and packed to holey. Pushing `4.5` makes a Smi array double; a string makes it generic. Emptying the array does not reset the kind."
+  back: "One way, from specific to general: Smi to double to generic, and packed to holey. Pushing `4.5` makes a Smi array double; a string makes it generic. Emptying the array does not reset the kind. A 2025 V8 change exempts `fill`: `new Array(3).fill(0)` is `PACKED_SMI_ELEMENTS`."
   question: javascript/inside-the-engine/elements-kinds
 - id: elements-kinds-minus-zero-nan
   front: "Does `-0` or `NaN` keep an array as `PACKED_SMI_ELEMENTS`?"
