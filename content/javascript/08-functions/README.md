@@ -1,6 +1,6 @@
 # 08 — Functions
 
-> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/9 · **Last verified:** —
 
 The function forms and how they differ, parameters, and the functional techniques interviews ask you to implement.
 
@@ -24,8 +24,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - IIFEs and why block scope and modules replaced them → 050
 - Currying, partial application, arity (`length`) → 060
 - Function composition → 070
-- Function `name` and `length`; name inference → —
-- Pure functions and side effects → —
+- Function `name` and `length`; name inference → 080
+- Pure functions and side effects → 090
 
 ## Questions
 
@@ -39,6 +39,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [What is an IIFE, and do you still need one?](050-iife.md) | easy | 🟡 draft |
 | 060 | [What are currying and partial application?](060-currying-partial-application.md) | medium | 🟡 draft |
 | 070 | [Implement `compose` and `pipe`.](070-compose-and-pipe.md) | medium | 🟡 draft |
+| 080 | [Where do a function's `name` and `length` come from?](080-function-name-and-length.md) | medium | 🔴 planned |
+| 090 | [What makes a function pure, and why does it matter?](090-pure-functions.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
