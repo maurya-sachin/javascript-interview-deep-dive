@@ -1393,7 +1393,7 @@
   question: javascript/classes/composition-vs-inheritance
 - id: mixin-subclass-factory
   front: "What is the subclass-factory mixin pattern, and why does `instanceof` fail on it?"
-  back: "`const M = (Base) => class extends Base { ... }` keeps the chain linear and `super` working. Each call returns a distinct class, so `instanceof M` is unreliable."
+  back: "`const M = (Base) => class extends Base { ... }` keeps the chain linear and `super` working. Each call returns a distinct class, so there is no single class to test, and `x instanceof M` throws `TypeError`: the arrow factory has no `prototype`."
   question: javascript/classes/composition-vs-inheritance
 - id: object-assign-mixin-flaw
   front: "Why is `Object.assign(Target.prototype, mixin)` a flawed mixin?"
