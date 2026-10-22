@@ -15,11 +15,12 @@ sources:
   - https://tc39.es/ecma262/#sec-dataview-objects
   - https://tc39.es/ecma262/#sec-getviewvalue
   - https://tc39.es/ecma262/#sec-getvaluefrombuffer
+  - https://encoding.spec.whatwg.org/#interface-textencoder
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView
 tldr: >
-  An `ArrayBuffer` is a fixed block of raw bytes with no way to read it. You read and write through a view: a typed
+  An `ArrayBuffer` is a block of raw bytes with no way to read it. You read and write through a view: a typed
   array (`Uint8Array`, `Float32Array`, ...) that reinterprets the bytes as one element type in platform byte order,
   or a `DataView` that reads any type at any byte offset with explicit endianness. Views share memory, they don't copy.
 ---
@@ -29,7 +30,7 @@ tldr: >
 Three pieces, with separate jobs:
 
 - **`ArrayBuffer`** owns a contiguous block of bytes, zero-filled, with a `byteLength`. It has no indexing; `slice()` copies a range into a new buffer.
-- **Typed arrays** (`Int8Array`, `Uint8Array`, `Uint8ClampedArray`, `Int16Array`, `Uint16Array`, `Int32Array`, `Uint32Array`, `Float32Array`, `Float64Array`, `BigInt64Array`, `BigUint64Array`) are array-like **views** over a buffer. Each has an element type, `BYTES_PER_ELEMENT`, a `byteOffset`, and a `length`. `new Uint8Array(buffer)` shares the memory, `new Uint8Array([1, 2])` or `new Uint8Array(4)` allocates a fresh buffer.
+- **Typed arrays** (`Int8Array`, `Uint8Array`, `Uint8ClampedArray`, `Int16Array`, `Uint16Array`, `Int32Array`, `Uint32Array`, `Float16Array` (ES2025), `Float32Array`, `Float64Array`, `BigInt64Array`, `BigUint64Array`) are array-like **views** over a buffer. Each has an element type, `BYTES_PER_ELEMENT`, a `byteOffset`, and a `length`. `new Uint8Array(buffer)` shares the memory, `new Uint8Array([1, 2])` or `new Uint8Array(4)` allocates a fresh buffer.
 - **`DataView`** is a view with no fixed element type. `getUint16(byteOffset, littleEndian)`, `setFloat32(...)` and similar read or write at any byte offset, **unaligned**, with the byte order you pass.
 
 Behaviours interviewers probe:
@@ -37,7 +38,7 @@ Behaviours interviewers probe:
 - **Views alias.** Writing through one view is visible through all others on the same buffer. `subarray()` returns a new view on the same buffer; `slice()` copies.
 - **Endianness.** A typed array stores multi-byte elements in the host's byte order (implementation-defined in the spec; most current hardware is little-endian). `DataView` defaults to **big-endian** (network order) unless `littleEndian` is `true`. Use `DataView` for file and network formats.
 - **Alignment.** A typed array's `byteOffset` must be a multiple of its element size, and the buffer length must be a multiple of the element size if you don't pass a length, or it throws `RangeError`. `DataView` has no such limit.
-- **Element conversion.** Writing wraps modulo 2ⁿ for integers (`Uint8Array` `255 + 1` is `0`), saturates for `Uint8ClampedArray`, and rounds to nearest `Float32` for floats. Writes never throw: an index outside `length` is silently ignored, and reads give `undefined`.
+- **Element conversion.** Writing wraps modulo 2ⁿ for integers (`Uint8Array` `255 + 1` is `0`), saturates for `Uint8ClampedArray`, and rounds to nearest `Float32` for floats. Out-of-range writes never throw: an index outside `length` is silently ignored, and reads give `undefined`.
 - **BigInt arrays** only accept BigInt values.
 - **Typed arrays aren't `Array`s.** `Array.isArray` is `false`, they have fixed length, and they lack `push` and `pop`, but they share most iteration methods. Their `sort()` is numeric by default, unlike `Array.prototype.sort`.
 
@@ -49,8 +50,8 @@ const bytes = new Uint8Array(buf);
 const words = new Uint16Array(buf); // second view over the same 8 bytes
 
 words[0] = 0x0102;
-console.log(bytes[0], bytes[1]);
-// → 2 1   (little-endian host; a big-endian host would print 1 2)
+console.log(bytes[0], bytes[1]); // a big-endian host prints 1 2
+// → 2 1
 
 const view = new DataView(buf);
 view.setUint16(2, 0x0102); // DataView is big-endian unless told otherwise
