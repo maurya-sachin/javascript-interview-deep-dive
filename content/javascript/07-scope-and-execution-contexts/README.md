@@ -44,7 +44,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 070 | [What is the global object, and how does `globalThis` relate to global variables?](070-global-object-globalthis.md) | medium | 🟡 draft |
 | 080 | [What causes "Maximum call stack size exceeded", and do tail calls help?](080-stack-overflow-tail-calls.md) | medium | 🟡 draft |
 | 090 | [What is a realm, and why does `instanceof Array` fail across iframes?](090-realms.md) | hard | 🟡 draft |
-| 100 | [How do `with` and direct `eval` change scope at run time?](100-with-and-direct-eval-scope.md) | hard | 🔴 planned |
+| 100 | [How do `with` and direct `eval` change scope at run time?](100-with-and-direct-eval-scope.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
