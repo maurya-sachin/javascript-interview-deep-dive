@@ -39,7 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [What is an IIFE, and do you still need one?](050-iife.md) | easy | 🟡 draft |
 | 060 | [What are currying and partial application?](060-currying-partial-application.md) | medium | 🟡 draft |
 | 070 | [Implement `compose` and `pipe`.](070-compose-and-pipe.md) | medium | 🟡 draft |
-| 080 | [Where do a function's `name` and `length` come from?](080-function-name-and-length.md) | medium | 🔴 planned |
+| 080 | [Where do a function's `name` and `length` come from?](080-function-name-and-length.md) | medium | 🟡 draft |
 | 090 | [What makes a function pure, and why does it matter?](090-pure-functions.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
