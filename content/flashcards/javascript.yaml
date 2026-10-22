@@ -457,7 +457,7 @@
 # 05 Coercion and equality
 - id: loose-equality-null-undefined
   front: "What does `==` do with `null` and `undefined`?"
-  back: "They are equal to each other and to nothing else, so `null == 0` is `false`. This rule applies before any numeric conversion."
+  back: "They are equal to each other and to nothing else, so `null == 0` is `false`. No rule converts `null` to a number, so that comparison falls through to `false`."
   question: javascript/coercion-and-equality/loose-equality
 - id: loose-equality-boolean-first
   front: "How does `==` handle a Boolean operand?"
@@ -477,7 +477,7 @@
   question: javascript/coercion-and-equality/loose-equality
 - id: loose-equality-bigint-string
   front: "How does `==` compare a BigInt with a String?"
-  back: "It parses the string as a BigInt; if it is not a valid BigInt literal the result is `false`. So `1n == '1'` is `true` and `2n == '2.5'` is `false`."
+  back: "It parses the string as a BigInt (`StringToBigInt`); if it is not a valid integer string the result is `false`. So `1n == '1'` is `true` and `2n == '2.5'` is `false`."
   question: javascript/coercion-and-equality/loose-equality
 - id: falsy-values-list
   front: "List the exact falsy values in JavaScript."
@@ -533,7 +533,7 @@
   question: javascript/coercion-and-equality/addition-operator-coercion
 - id: minus-always-numeric
   front: "Why does `'5' - 2` give `3` while `'5' + 2` gives `'52'`?"
-  back: "Only `+` has a string-concatenation branch. `-`, `*` and `/` always convert operands to numbers."
+  back: "Only `+` has a string-concatenation branch. `-`, `*` and `/` always convert operands with `ToNumeric`."
   question: javascript/coercion-and-equality/addition-operator-coercion
 - id: empty-block-plus-array
   front: "Why does a console often show `0` for `{} + []` but `'[object Object]'` for `console.log({} + [])`?"
