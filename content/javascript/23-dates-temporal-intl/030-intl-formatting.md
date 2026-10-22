@@ -10,6 +10,9 @@ related:
   - javascript/dates-temporal-intl/temporal-types
   - javascript/strings-and-unicode/locale-comparison-normalization
 verified: 2026-10
+perishable:
+  - Formatted strings depend on ICU 78.3 / CLDR 48.0
+  - Intl.DurationFormat availability and Baseline status
 sources:
   - https://tc39.es/ecma402/
   - https://github.com/tc39/ecma402/blob/main/spec/datetimeformat.html
@@ -45,7 +48,7 @@ What interviewers look for:
 - **Do not hand-roll patterns.** Field order, separators, digits, currency placement and list grammar all vary by locale, and `Intl` gets them from CLDR data.
 - **The time zone is separate from the locale.** `DateTimeFormat` uses the *host's* zone unless you pass an IANA `timeZone`. Formatting server-side without one gives different strings on different machines.
 - **Plurals are categories, not `n === 1`.** English has `one`/`other`; Polish has `one`/`few`/`many`/`other`; Arabic has six. Select a category and map it to a message.
-- **`dateStyle`/`timeStyle` cannot be mixed with field options** such as `hour`. V8 throws a `TypeError` at construction. `hour12` overrides `hourCycle`.
+- **`dateStyle`/`timeStyle` cannot be mixed with field options** such as `hour`. ECMA-402 requires a `TypeError` at construction. `hour12` overrides `hourCycle`.
 - **Reuse formatters.** Construction loads locale data. Build once at module level or memoize per locale and options.
 - **Output is data-dependent.** The same call can differ across engines and ICU/CLDR versions, so never parse formatted strings or assert on them in cross-environment tests.
 
@@ -98,7 +101,7 @@ Run on Node 24.19.0 (ICU 78.3, CLDR 48.0); identical output on Node 22.23.2 and 
 **A:** `formatToParts(date)` returns `{ type, value }` entries (`month`, `literal`, `day`, `dayPeriod`, …) in locale order. Render by `type` instead of splitting the formatted string.
 
 **Q:** What are `Intl.DisplayNames` and `Intl.DurationFormat`?
-**A:** `new Intl.DisplayNames('en', { type: 'region' }).of('IN')` gives `India` (also `language`, `currency`, `script`). `new Intl.DurationFormat('en', { style: 'long' }).format({ hours: 1, minutes: 30 })` gives `1 hour, 30 minutes`. In my runs `DurationFormat` existed on Node 24.19 and 26.7 but not Node 22.23; MDN lists Baseline 2025.
+**A:** `new Intl.DisplayNames('en', { type: 'region' }).of('IN')` gives `India` (also `language`, `currency`, `script`). `new Intl.DurationFormat('en', { style: 'long' }).format({ hours: 1, minutes: 30 })` gives `1 hour, 30 minutes`. `DurationFormat` exists on Node 24.19 and 26 but not 22.23; Baseline *newly* available since March 2025, not widely available.
 
 **Q:** How is string sorting localized?
 **A:** `Intl.Collator`, covered in [locale comparison](../04-strings-and-unicode/050-locale-comparison-normalization.md). `['ä','z','a'].sort(new Intl.Collator('de').compare)` gives `a, ä, z`.
