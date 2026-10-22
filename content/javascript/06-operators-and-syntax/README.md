@@ -1,6 +1,6 @@
 # 06 — Operators and syntax
 
-> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
 
 Everyday syntax interviewers probe: destructuring, spread and rest, short-circuiting operators, loops, and semicolons.
 
@@ -24,8 +24,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Optional chaining on properties and calls, and how far it short-circuits → 030
 - `for…in` (enumerable string keys, inherited), `for…of` (iterables), `forEach` (no `break`, no `await`) → 040
 - ASI rules and restricted productions (`return`, `++`, lines starting with `(` or `[`) → 050
-- Operator precedence and associativity (`**`, mixing `??` with `||`) → —
-- Comma operator, `void`, labels, `switch` fall-through → —
+- Operator precedence and associativity (`**`, mixing `??` with `||`) → 060
+- Comma operator, `void`, labels, `switch` fall-through → 070
 
 ## Questions
 
@@ -37,6 +37,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [`??` vs `\|\|`, and how do optional chaining and logical assignment short-circuit?](030-nullish-and-optional-chaining.md) | easy | 🟡 draft |
 | 040 | [`for…in` vs `for…of` vs `forEach` — when do you use each?](040-loop-statements.md) | easy | 🟡 draft |
 | 050 | [How does automatic semicolon insertion work, and when does it bite?](050-automatic-semicolon-insertion.md) | medium | 🟡 draft |
+| 060 | [Which precedence and associativity rules trip people up?](060-operator-precedence.md) | medium | 🔴 planned |
+| 070 | [What do the comma operator, `void`, labels and `switch` fall-through do?](070-comma-void-labels-switch.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
