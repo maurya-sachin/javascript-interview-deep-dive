@@ -699,7 +699,7 @@
   question: javascript/scope-and-execution-contexts/temporal-dead-zone
 - id: lexical-scope-definition
   front: "What does 'lexical scope' mean, and what is the contrast case?"
-  back: "Variable visibility is fixed by the nesting of the source text, not by the call stack. Dynamic scope, where a function sees its caller's variables, does not exist for identifiers; only `this` depends on the call site."
+  back: "Variable visibility is fixed by the nesting of the source text, not by the call stack. Dynamic scope, where a function sees its caller's variables, does not exist for identifiers; `this` is the main thing the call site chooses."
   question: javascript/scope-and-execution-contexts/lexical-scope-chain
 - id: scope-chain-outerenv-lookup
   front: "How is a function's scope chain built and walked in spec terms?"
@@ -719,7 +719,7 @@
   question: javascript/scope-and-execution-contexts/execution-context-call-stack
 - id: lexical-vs-variable-environment
   front: "What is the difference between LexicalEnvironment and VariableEnvironment?"
-  back: "`var` bindings live in the VariableEnvironment, fixed for the context's lifetime. LexicalEnvironment is where lookups start and is swapped for a new record when execution enters a block."
+  back: "`var` bindings live in the VariableEnvironment, which blocks never swap. LexicalEnvironment is where lookups start and is swapped for a new record when execution enters a block."
   question: javascript/scope-and-execution-contexts/execution-context-call-stack
 - id: execution-context-per-call
   front: "Does a function have one execution context, or one per call?"
@@ -763,7 +763,7 @@
   question: javascript/scope-and-execution-contexts/global-object-globalthis
 - id: stack-overflow-cause
   front: "What causes 'Maximum call stack size exceeded', and does the spec define the limit?"
-  back: "Each call pushes an execution context onto a fixed-size host stack. Too-deep or endless recursion throws `RangeError` in V8 and JavaScriptCore. The spec defines neither the limit nor the error type."
+  back: "Each call pushes an execution context onto a fixed-size stack set by the engine or host. Too-deep or endless recursion throws `RangeError` in V8 and JavaScriptCore. The spec defines neither the limit nor the error type."
   question: javascript/scope-and-execution-contexts/stack-overflow-tail-calls
 - id: proper-tail-calls-support
   front: "Does the spec require proper tail calls, and which engines implement them?"
