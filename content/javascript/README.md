@@ -2,7 +2,7 @@
 
 > **Covers:** ECMAScript through ES2026, plus Stage 4 proposals shipping in ES2027; V8 as the reference engine.
 > **Track:** Frontend
-> **Status:** 🔴 planned · **Published:** 0/176 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/183 · **Last verified:** —
 
 The ECMAScript language, from values and types up to modules, memory, and the V8 engine.
 Frontend, backend, and full-stack interviews all test this layer — frameworks and runtimes are built on it.
@@ -48,14 +48,15 @@ None — this is the first track. It assumes you've written some JavaScript.
 | 24 | [JSON and binary data](24-json-and-binary-data/) | 🔴 |
 | 25 | [Memory and garbage collection](25-memory-and-gc/) | 🔴 |
 | 26 | [Inside the engine](26-inside-the-engine/) | 🔴 |
+| 27 | [Functional programming](27-functional-programming/) | 🔴 |
+| 28 | [Design patterns](28-design-patterns/) | 🔴 |
 <!-- generated:chapters:end -->
 
 ## Not yet mapped
 
 Areas this topic owns that have no chapter yet. Move an item into a chapter's sub-topics when the chapter exists.
 
-- Design patterns in JavaScript (module, observer/pub-sub, singleton, factory)
-- Functional programming beyond composition (immutability, persistent data structures)
+- None: every area has a chapter.
 
 ## Sources
 
