@@ -10,6 +10,8 @@ related:
   - javascript/regular-expressions/regex-methods
   - javascript/regular-expressions/regex-flags
 verified: 2026-10
+perishable:
+  - V8 experimental linear-engine flags and fallback limits (V8 13.6)
 sources:
   - https://tc39.es/ecma262/#sec-pattern-semantics
   - https://tc39.es/ecma262/#sec-compileassertion
@@ -69,7 +71,8 @@ for (const n of [20, 22, 24, 26]) {
 // → risky n=20: 7 ms
 // → risky n=22: 27 ms
 // → risky n=24: 106 ms
-// → risky n=26: 426 ms  (one machine; each +2 chars is about x4)
+// → risky n=26: 426 ms
+// (timings from one machine: each +2 chars is about x4)
 
 const big = 'a'.repeat(1_000_000) + '!';
 console.log(safe.test(big), ms(safe, big) < 50);
@@ -106,7 +109,7 @@ For `/^(a+)+$/` on `'aaa!'`, the outer group can consume `aaa`, `aa|a`, `a|aa`, 
 
 ### Edge cases
 
-The overlapping-alternative and delimiter-optional forms behave the same. On the same machine, cold, with n = 26: `^(a|a)+$` took about 3.7 s, and `^(\w+\s?)*$` about 2.8 s. In contrast `^(a|aa)+$` took 15 ms at n = 26: the alternatives overlap but the failure is found in a Fibonacci number of steps, not 2^n, which is why you test rather than eyeball.
+The overlapping-alternative and delimiter-optional forms behave the same. On the same machine, cold, with n = 26: `^(a|a)+$` took about 3.7 s, and `^(\w+\s?)*$` about 2.8 s. In contrast `^(a|aa)+$` took 15 ms at n = 26: the alternatives overlap but the failure is found in a Fibonacci number of steps, not 2^n. That is still exponential, about x1.6 per character (95 ms warm at n = 34), which is why you test rather than eyeball.
 
 The quadratic case needs no nesting:
 
@@ -169,7 +172,7 @@ I confirmed that both `vm` with `timeout` and `worker.terminate()` stop this reg
 | V8 `--enable-experimental-regexp-engine-on-excessive-backtracks` | A process flag | Falls back after 50,000 backtracks (`--regexp-backtracks-before-fallback`), only for patterns without backreferences or lookarounds |
 | V8 `l` flag (`--enable-experimental-regexp-engine`) | Non-standard flag, much slower on ordinary patterns | Throws on construction for patterns it cannot run in linear time |
 
-With the fallback flag, `/^(a+)+$/` on 40 `a`s plus `!` returned in about a millisecond on my machine, while the same pattern with a lookahead added (`/^(?=)(a+)+$/`) or the `i` flag still took about 0.5 s at n = 24 because the fallback does not apply. V8's post calls the engine experimental and warns that Irregexp is far faster on most ordinary patterns. These are V8 flags and V8 behaviour, not part of ECMAScript, and other engines differ.
+With the fallback flag, `/^(a+)+$/` on 40 `a`s plus `!` returned in about a millisecond on my machine, while the same pattern with a lookahead added (`/^(?=)(a+)+$/`) or the `i` flag still took about 0.5 s cold at n = 24 because the fallback does not apply. V8's post calls the engine experimental and warns that Irregexp is far faster on most ordinary patterns. These are V8 flags and V8 behaviour, not part of ECMAScript, and other engines differ.
 
 ## Exercises
 
