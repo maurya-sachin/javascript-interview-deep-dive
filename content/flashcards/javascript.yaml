@@ -796,7 +796,7 @@
   question: javascript/functions/function-forms
 - id: function-forms-constructors
   front: "Which function forms have `[[Construct]]` so that `new` works?"
-  back: "Declarations and `function` expressions. Arrows, methods, getters/setters and async functions do not. Generators have a `prototype` property but no `[[Construct]]`."
+  back: "Plain `function` declarations and expressions. Arrows, methods, getters/setters and async functions do not. Generators have a `prototype` property but no `[[Construct]]`."
   question: javascript/functions/function-forms
 - id: arrow-no-own-bindings
   front: "Which bindings does an arrow function lack?"
@@ -804,7 +804,7 @@
   question: javascript/functions/function-forms
 - id: function-name-inference
   front: "What determines the `name` of an anonymous function?"
-  back: "The assignment syntax, not the function form: `const f = () => {}` gives `'f'`. The function takes its name from the binding or property it is assigned to."
+  back: "The assignment syntax, not the function form: `const f = () => {}` gives `'f'`. It takes its name from the binding it initializes or the literal key it is defined under; `obj.f = () => {}` gives `''`."
   question: javascript/functions/function-forms
 - id: default-param-evaluated-per-call
   front: "When is a default parameter expression evaluated?"
@@ -864,7 +864,7 @@
   question: javascript/functions/iife
 - id: iife-async-use
   front: "When is an IIFE still useful?"
-  back: "An `async` IIFE to use `await` where top-level `await` is unavailable (CommonJS, older scripts), and one-off initialisation that needs statements but yields a `const` value."
+  back: "An `async` IIFE to use `await` where top-level `await` is unavailable (CommonJS, classic scripts), and one-off initialisation that needs statements but yields a `const` value."
   question: javascript/functions/iife
 - id: iife-this-value
   front: "What is `this` inside a non-arrow IIFE?"
