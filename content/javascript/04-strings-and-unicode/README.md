@@ -1,6 +1,6 @@
 # 04 — Strings and Unicode
 
-> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
 
 Strings as UTF-16 code units, what that means for length and iteration, and template literals.
 
@@ -23,8 +23,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Surrogate pairs, lone surrogates, `isWellFormed`/`toWellFormed` → 030
 - Template literals, tag functions, `String.raw`, cooked vs raw strings → 040
 - `localeCompare`, `Intl.Collator`, `normalize` (NFC/NFD) → 050
-- Everyday string methods (`slice` vs `substring`, `padStart`, `replaceAll`, `at`) → —
-- String concatenation cost and ropes in V8 → —
+- Everyday string methods (`slice` vs `substring`, `padStart`, `replaceAll`, `at`) → 060
+- String concatenation cost and ropes in V8 → 070
 
 ## Questions
 
@@ -36,6 +36,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What are lone surrogates, and what do `isWellFormed` and `toWellFormed` fix?](030-well-formed-strings.md) | hard | 🟡 draft |
 | 040 | [How do tagged template literals work?](040-tagged-templates.md) | medium | 🟡 draft |
 | 050 | [How do you compare strings correctly across languages?](050-locale-comparison-normalization.md) | medium | 🟡 draft |
+| 060 | [`slice` vs `substring` vs `at`: which string methods accept negative indices, and why?](060-everyday-string-methods.md) | easy | 🔴 planned |
+| 070 | [Is building a string with `+=` in a loop slow?](070-string-concatenation-ropes.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
