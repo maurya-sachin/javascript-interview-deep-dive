@@ -41,7 +41,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [What does top-level `await` do to the module graph?](050-top-level-await.md) | medium | 🟡 draft |
 | 060 | [What are import attributes and JSON modules?](060-import-attributes-json-modules.md) | easy | 🟡 draft |
 | 070 | [What is `import.meta`?](070-import-meta.md) | easy | 🟡 draft |
-| 080 | [How does tree shaking work, and what stops it?](080-tree-shaking.md) | medium | 🔴 planned |
+| 080 | [How does tree shaking work, and what stops it?](080-tree-shaking.md) | medium | 🟡 draft |
 | 090 | [How do browsers resolve bare specifiers with import maps?](090-import-maps.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
