@@ -1733,6 +1733,74 @@
   front: "Why should a deep-equality function compare prototypes?"
   back: "Otherwise instances of different classes with the same fields compare equal. It is a policy choice; `util.isDeepStrictEqual` treats them as different by default."
   question: javascript/objects-and-properties/deep-equality
+- id: method-shorthand-vs-function-property
+  front: "How does `{ greet() {} }` differ from `{ greet: function () {} }`?"
+  back: "Method syntax records the object as `[[HomeObject]]`, so `super.greet()` works, and the method has no `[[Construct]]` or `prototype`, so `new obj.greet()` throws a TypeError. A `function` expression value is a constructor and can't contain `super` (a SyntaxError)."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: method-home-object-fixed
+  front: "If you copy a method that uses `super` to another object, what does `super` refer to?"
+  back: "The original object's prototype. `[[HomeObject]]` is fixed at definition."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: computed-key-evaluation-order
+  front: "In what order are a computed key and its value evaluated in an object literal versus in `obj[key] = value()`?"
+  back: "In a literal, `expr` is evaluated, then `ToPropertyKey` runs, then the value, in source order. In `obj[key] = value()` the current spec delays `ToPropertyKey` until after the right-hand side, and Node.js 24 follows that order."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: literal-proto-non-object-ignored
+  front: "What does `{ __proto__: 5 }` do?"
+  back: "Nothing: if the value is neither an object nor `null` it is silently ignored, and no own property is created. Writing a non-computed `__proto__` twice is a SyntaxError."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: literal-proto-shorthand-own-property
+  front: "What does the shorthand `{ __proto__ }` do?"
+  back: "It creates an ordinary own property named `\"__proto__\"` and leaves the prototype alone, like the computed `['__proto__']` form. Only the plain `__proto__: value` form sets the prototype."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: literal-numeric-keys-normalised
+  front: "How are numeric literal keys and duplicate keys handled in an object literal?"
+  back: "Numeric literals become their canonical string (`0x10` is `'16'`, `1.0` is `'1'`). Duplicate keys are allowed with the last winning, except `__proto__`."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: literal-proto-null-dictionary
+  front: "Why is `{ __proto__: null, … }` a useful idiom?"
+  back: "It creates a prototype-less dictionary in one expression, like `Object.create(null)` plus properties, so keys like `toString` or `constructor` aren't pre-defined. It is spec syntax, unlike the legacy `Object.prototype.__proto__` accessor."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: method-name-from-computed-key
+  front: "How do methods and anonymous property-value functions get their `name` from a computed key?"
+  back: "Methods get `SetFunctionName` with the evaluated key, so `{ [Symbol('id')]() {} }` has the name `'[id]'`. An anonymous function or arrow as a value gets the key through NamedEvaluation, except under a non-computed `__proto__` key."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: literal-spread-setters
+  front: "Does spread in an object literal call setters?"
+  back: "No. `{ ...src }` uses CopyDataProperties, which defines own data properties on the new object and reads `src`'s getters. `Object.assign` uses `[[Set]]`."
+  question: javascript/objects-and-properties/object-literal-syntax
+- id: object-map-filter-idiom
+  front: "What is the idiom for mapping or filtering an object's properties?"
+  back: "Round-trip through arrays: `Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value)]))`. Use `filter` instead of `map` to drop entries."
+  question: javascript/objects-and-properties/transforming-objects
+- id: object-entries-scope
+  front: "Which properties does `Object.entries` (ES2017) return, in what order?"
+  back: "The object's own, enumerable, string-keyed properties as `[key, value]` arrays, in property order: integer-like keys ascending, then other strings in creation order. Values come from `Get`, so getters run."
+  question: javascript/objects-and-properties/transforming-objects
+- id: object-fromentries-behaviour
+  front: "What does `Object.fromEntries` (ES2019) accept, and how does it build the object?"
+  back: "Any iterable of pairs (array, `Map`, generator). Each key goes through `ToPropertyKey` and `CreateDataPropertyOrThrow` on a new plain object. Later duplicates overwrite earlier ones."
+  question: javascript/objects-and-properties/transforming-objects
+- id: fromentries-proto-key-own-property
+  front: "What happens with a `'__proto__'` key in `Object.fromEntries`?"
+  back: "It defines properties rather than assigning, so `'__proto__'` becomes an ordinary own property instead of changing the prototype."
+  question: javascript/objects-and-properties/transforming-objects
+- id: entries-round-trip-drops
+  front: "What does the entries/fromEntries round trip drop?"
+  back: "Symbol keys, non-enumerable properties, accessor-ness (a getter's current value becomes data), property attributes and the prototype, so a class instance comes back plain. It is also shallow."
+  question: javascript/objects-and-properties/transforming-objects
+- id: reduce-spread-quadratic
+  front: "Why is building an object with `reduce` and `{ ...acc, [key]: value }` slow?"
+  back: "It copies the accumulator on every step, which is O(n²) for n keys. Mutate one accumulator instead if you use `reduce`."
+  question: javascript/objects-and-properties/transforming-objects
+- id: swap-keys-values
+  front: "What goes wrong when swapping keys and values with `fromEntries`?"
+  back: "Values become keys through `ToPropertyKey`, so they are stringified, and duplicate values collapse with the last key winning. Use a `Map` if values aren't unique strings."
+  question: javascript/objects-and-properties/transforming-objects
+- id: entries-mutation-during-walk
+  front: "How does `Object.entries` handle properties changed by a getter during the walk?"
+  back: "It takes the own key list first and re-checks each string key's descriptor before reading. A property deleted or made non-enumerable by an earlier getter is skipped; keys added during the walk aren't seen."
+  question: javascript/objects-and-properties/transforming-objects
 # 12 Prototypes
 - id: prototype-write-shadows
   front: "After `dog.kind = 'dog'` where `kind` is inherited from a prototype, which object changed?"
