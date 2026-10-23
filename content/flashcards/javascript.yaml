@@ -2333,6 +2333,50 @@
   front: "What does `getOrInsertComputed` pass to its callback?"
   back: "The key, as `callback(key)`, called with `undefined` as `this`, and only when the key is missing. A non-callable callback throws `TypeError`."
   question: javascript/keyed-collections/map-upsert
+- id: lru-map-recipe
+  front: "How does a `Map`-based LRU cache track recency and evict?"
+  back: "Keep the `Map` ordered least to most recently used. On `get`, `delete` and re-`set` the key to move it to the end. On `set`, do the same, then if `size` exceeds capacity delete `map.keys().next().value`, the first key."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-map-complexity-claim
+  front: "Is a `Map`-based LRU O(1) per operation? What does the spec promise?"
+  back: "The spec requires only sublinear average access time, not O(1). In V8 `get`, `set` and `delete` are constant on average, but eviction via `keys().next()` slows down as deleted-entry holes pile up at the front."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: v8-map-delete-holes
+  front: "In V8, what happens to a deleted `Map` entry, and how did it affect `keys().next()` on Node 24.19?"
+  back: "In V8's `OrderedHashTable` a deleted entry leaves a hole until a rehash. On Node 24.19 (V8 13.6) with 20,000 entries, `keys().next()` took about 90 ns, and about 7 µs after the first 10,000 keys were deleted (one machine's numbers)."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: spec-map-delete-tombstone
+  front: "In the spec's model, what does `Map.prototype.delete` do to the entry record?"
+  back: "It doesn't remove the record: it sets the entry's key and value to *empty*, a tombstone, and a note says implementations may physically remove it. `CreateMapIterator` skips empty entries, so the first value yielded is the oldest live key."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-use-has-not-undefined
+  front: "Why should an LRU `get` use `has` rather than `get(key) === undefined`?"
+  back: "So a cached `undefined` still counts as a hit. Otherwise `get` returns `undefined` for both a miss and a cached `undefined`, and callers who need the distinction need a `has` method or a sentinel."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-evict-spread-pitfall
+  front: "Why is `[...map.keys()][0]` a poor way to find the LRU entry to evict?"
+  back: "It copies every key on each insert, turning an O(1) step into O(n). Take the first value from the iterator instead: `map.keys().next().value`."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-weakmap-unsuitable
+  front: "Why can't a `WeakMap` back an LRU cache?"
+  back: "It can't be iterated and has no `size`, so it can't know which entry is oldest or when the cache is full."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: map-iterators-are-live
+  front: "What happens if you move a key to the end of a `Map` during a `for...of` over it?"
+  back: "Map iterators are live, so the moved key is visited again and a \"touch every entry\" loop never ends. Snapshot with `[...map.keys()]` first."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-linked-list-version
+  front: "When and why write an LRU with a hash map plus doubly linked list instead of a single `Map`?"
+  back: "When you need guaranteed O(1), can't rely on `Map` ordering, or the cache is large and eviction-heavy. The `Map` is only an index; order lives in a doubly linked list with sentinel nodes, so each operation is a constant number of pointer updates."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-peek-no-recency
+  front: "How do you add a `peek` to a `Map`-based LRU that doesn't count as a use?"
+  back: "Return `this.#entries.get(key)` without the `delete`/`set` pair. Recency changes only on purpose, so monitoring or debugging reads don't keep entries alive."
+  question: javascript/keyed-collections/lru-cache-with-map
+- id: lru-ttl-lazy-expiry
+  front: "How would you add expiry (TTL) to a `Map`-based LRU?"
+  back: "Store `{ value, expiresAt }` and treat an expired entry as a miss in `get`, deleting it there. Eviction by recency stays the same; expired entries are cleaned up lazily, or by a periodic sweep from the front of the `Map`."
+  question: javascript/keyed-collections/lru-cache-with-map
 # 16 Iterators and generators
 - id: iterable-vs-iterator-contract
   front: "What is the difference between an iterable and an iterator?"
