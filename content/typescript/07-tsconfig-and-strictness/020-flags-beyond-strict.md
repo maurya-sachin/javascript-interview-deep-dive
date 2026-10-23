@@ -18,7 +18,9 @@ sources:
   - https://www.typescriptlang.org/tsconfig/#noPropertyAccessFromIndexSignature
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-1.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-3.html
+  - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-2.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-4.html
+  - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html
 tldr: >
   `strict` leaves out several useful checks. I turn on `noUncheckedIndexedAccess` (index reads include
   `undefined`), `noImplicitOverride`, `noImplicitReturns` and `noFallthroughCasesInSwitch` by default,
@@ -27,7 +29,7 @@ tldr: >
 
 ## Answer
 
-None of these are part of `strict`, and none are on by default (a strict-only config accepted every violation in the example below on 5.9.3 and 7.0.2). I add them deliberately.
+None of these are part of `strict`, and none are compiler defaults (a strict-only config accepted every violation in the example below on 6.0.3 and 7.0.2), though `tsc --init` on both writes the first two into new configs. I add them deliberately.
 
 - **`noUncheckedIndexedAccess`** (4.1). Reading through an index signature or an array index adds `| undefined`: `nums[0]` is `number | undefined`. It is the most valuable one, because out-of-range reads are a real runtime source of `undefined` that `strictNullChecks` cannot see. Cost: you narrow or use `??` at each read. Tuple positions and `for...of` elements are unaffected; `.at()` already returns `T | undefined`.
 - **`exactOptionalPropertyTypes`** (4.4). `theme?: "dark" | "light"` then means "absent or one of these", not "or `undefined`". Writing `{ theme: undefined }` is an error. Turn it on when presence matters at runtime (`in`, `Object.keys`, spread). The 4.4 notes warn of friction with existing typings; it requires `strictNullChecks`.
@@ -41,7 +43,7 @@ I leave `noUnusedLocals` and `noUnusedParameters` to the linter, which can auto-
 ## Example
 
 ```ts
-// TypeScript 7.0.2, 6.0.3 and 5.9.3; strict plus the four flags below
+// TypeScript 7.0.2 and 6.0.3; strict plus the four flags below
 const nums = [10, 20, 30];
 const first: number = nums[0];
 // Error TS2322: Type 'number | undefined' is not assignable to type 'number'.
@@ -67,14 +69,14 @@ function label(c: boolean): string | undefined {
 ## Pitfalls
 
 - Expecting `nums[i]` inside `for (let i = 0; i < nums.length; i++)` to be safe. It stays `number | undefined` (checked), as the 4.1 notes say. Use `for...of`, or read once into a `const` and narrow.
-- Assuming narrowing works on any key. With `const i = 1`, `if (nums[i] !== undefined)` narrowed `nums[i]`; with `let j` it did not (7.0.2).
+- Assuming narrowing works on any key. Since 5.5 `obj[key]` narrows only when both are effectively constant: with `const i = 1` (or a never-reassigned `let`), `if (nums[i] !== undefined)` narrowed `nums[i]`; with a reassigned `let` or a `for` counter it did not (6.0.3 and 7.0.2).
 - Enabling `exactOptionalPropertyTypes` and then writing `Partial<Opts>` with `undefined`. `Partial<Opts>` stayed exact and rejected `{ theme: undefined }` (TS2375). Say `theme?: "dark" | undefined` where `undefined` is intended.
 - Expecting `noImplicitReturns` to exempt a return type that includes `undefined`. The `label` function above still errors (TS7030); add `return undefined`.
 
 ## Follow-ups
 
 **Q:** Does `noUncheckedIndexedAccess` affect destructuring?
-**A:** Yes. `const [d0] = nums` made `d0` `number | undefined` (checked on 7.0.2). Destructuring a tuple type is not affected, since its length is known.
+**A:** Yes. `const [d0] = nums` made `d0` `number | undefined` (checked on 6.0.3 and 7.0.2). Destructuring a tuple type is not affected, since its length is known.
 
-**Q:** Do these flags behave the same across TS 5.9, 6.0 and 7.0?
-**A:** For the cases in this file, identical: 5.9.3, 6.0.3 and 7.0.2 printed the same diagnostics for the same config.
+**Q:** Do these flags behave the same across TS 6.0 and 7.0?
+**A:** For the cases in this file, identical: 6.0.3 and 7.0.2 printed the same diagnostics for the same config.
