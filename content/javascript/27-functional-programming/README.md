@@ -25,7 +25,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How do you update nested data immutably, and what does each copy cost?](010-immutable-updates.md) | medium | 🔴 planned |
+| 010 | [How do you update nested data immutably, and what does each copy cost?](010-immutable-updates.md) | medium | 🟡 draft |
 | 020 | [What are persistent data structures, and how does structural sharing make them cheap?](020-persistent-data-structures.md) | hard | 🔴 planned |
 | 030 | [Is a Promise a monad? `map`, `flatMap` and `then` in functional terms](030-functors-and-monads.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
