@@ -965,7 +965,7 @@
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: string-enum-no-reverse-mapping
   front: "Does a string enum get a reverse mapping?"
-  back: "No, only the forward map is emitted, because two names could share a value. `as const` objects have no reverse entries either."
+  back: "No, only the forward map is emitted. `as const` objects have no reverse entries either."
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: string-enum-rejects-literal
   front: "Why does `const c: Color = \"RED\"` fail for `enum Color { Red = \"RED\" }`?"
@@ -989,7 +989,7 @@
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: const-enum-isolated-modules-emit
   front: "What happens to an own `export const enum` under `isolatedModules`?"
-  back: "It was emitted as a normal object and the use site was not inlined, on TS 7.0.2 and 5.9.3. `preserveConstEnums` defaults to true under `isolatedModules`."
+  back: "It was emitted as a normal object and the use site was not inlined, on TS 7.0.2 and 6.0.3. `preserveConstEnums` defaults to true under `isolatedModules`."
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: union-of-literals-no-emit
   front: "What does a union of literals like `\"active\" | \"banned\"` give you over an enum?"
@@ -1060,8 +1060,8 @@
   back: "`useDefineForClassFields` is true from ES2022, so fields initialise before the constructor body assigns the parameter property. It errors as TS2729; `new A(2).y` printed `NaN` for ES2022 but `4` for ES2021."
   question: typescript/classes-enums-runtime-output/class-members-access
 - id: mixin-pattern
-  front: "What is the TypeScript mixin pattern, and what can mixins not declare?"
-  back: "A function that takes a constructor type and returns a class expression extending it, such as `Timestamped(User)`. Per the Handbook, mixins cannot declare `private` or `protected` members; use `#` fields."
+  front: "What is the TypeScript mixin pattern, and why does the Handbook advise `#` fields in it?"
+  back: "A function that takes a constructor type and returns a class expression extending it, such as `Timestamped(User)`. With `declaration` on, an exported mixin's class cannot have `private` or `protected` members (TS4094)."
   question: typescript/classes-enums-runtime-output/class-members-access
 - id: implements-compile-time-only
   front: "What does `implements Interface` actually do?"
@@ -1097,7 +1097,7 @@
   question: typescript/classes-enums-runtime-output/abstract-classes-implements
 - id: abstract-not-runtime-enforced
   front: "Is `abstract` enforced at runtime?"
-  back: "No. After a cast, `new` works and calling an abstract member gave `this.area is not a function`. Anything arriving through `any`, a cast or plain JavaScript is unchecked."
+  back: "No. After a cast, `new` works and calling an abstract member gave a `TypeError` (`this.area is not a function` in Node.js 24). Anything arriving through `any`, a cast or plain JavaScript is unchecked."
   question: typescript/classes-enums-runtime-output/abstract-classes-implements
 - id: abstract-implements-interface
   front: "How can an abstract class implement an interface without defining its members?"
@@ -1157,7 +1157,7 @@
   question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
 - id: namespace-erasable-flag
   front: "Which namespaces survive `erasableSyntaxOnly`?"
-  back: "Type-only and `declare` namespaces. One with values is TS1294. TS 7.0.2 also reports `module Old {}` as TS1540; 5.9.3 did not."
+  back: "Type-only and `declare` namespaces. One with values is TS1294. Separately, `module Old {}` is TS1540 on 6.0.3 and 7.0.2 with or without the flag: 6.0 made the `module` keyword for namespaces a hard deprecation."
   question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
 - id: declare-namespace-emits-nothing
   front: "What does an ambient `declare namespace` emit, and where is it used?"
@@ -1197,7 +1197,7 @@
   question: typescript/classes-enums-runtime-output/decorators
 - id: decorator-runtime-support
   front: "Can native Node 24 run `@dec` syntax, and how does TypeScript emit it?"
-  back: "No, it is a SyntaxError, so you need TypeScript, Babel or a bundler. TS downlevels with `__esDecorate` and `__runInitializers` for `--target es2022`; `--target esnext` kept the `@` syntax (7.0.2)."
+  back: "No, it is a SyntaxError, so you need TypeScript, Babel or a bundler. TS downlevels with `__esDecorate` and `__runInitializers` for `--target es2022`; `--target esnext` kept the `@` syntax (6.0.3 and 7.0.2)."
   question: typescript/classes-enums-runtime-output/decorators
 - id: decorator-mixing-errors
   front: "What errors appear when a legacy-style decorator is used without `experimentalDecorators`?"
