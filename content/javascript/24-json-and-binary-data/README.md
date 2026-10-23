@@ -36,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What are `ArrayBuffer`, typed arrays, and `DataView`?](030-arraybuffer-typed-arrays.md) | medium | 🟡 draft |
 | 040 | [What's new in binary data?](040-modern-binary-data.md) | medium | 🟡 draft |
 | 050 | [What are `SharedArrayBuffer` and `Atomics` for?](050-sharedarraybuffer-atomics.md) | hard | 🟡 draft |
-| 060 | [What does JavaScript's memory model guarantee when threads race on shared memory?](060-memory-model-data-races.md) | hard | 🔴 planned |
+| 060 | [What does JavaScript's memory model guarantee when threads race on shared memory?](060-memory-model-data-races.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
