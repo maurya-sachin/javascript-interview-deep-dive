@@ -2212,6 +2212,42 @@
   front: "Which values does `flat` flatten, and what happens to holes?"
   back: "Only values where `Array.isArray` is true. Array-likes, `Set`s, strings and typed arrays stay as single elements. Holes are skipped, so `flat` removes them."
   question: javascript/arrays/flat-and-flatmap
+- id: every-some-empty-array
+  front: "What do `[].every(fn)` and `[].some(fn)` return, and is the callback called?"
+  back: "`every` returns `true` and `some` returns `false`; the callback is never called. With `length` 0 the loop never runs, so each returns its default: no counterexample, no witness (vacuous truth)."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: every-some-short-circuit
+  front: "When do `every` and `some` stop iterating?"
+  back: "At the first deciding element: `every` returns `false` at the first falsy callback result, `some` returns `true` at the first truthy one. Unlike `filter(...).length`, they short-circuit."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: every-some-holes-and-range
+  front: "Do `every` and `some` visit holes or elements pushed during the loop?"
+  back: "No to both. Each index is checked with `HasProperty` first, so holes are skipped, and `length` is read once up front, so elements pushed during the loop aren't visited."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: fill-shares-object-reference
+  front: "What does `new Array(3).fill([])` produce, and how do you get three separate arrays?"
+  back: "Three slots holding one shared array, so a push through one slot shows in all. `fill` assigns the same value everywhere. Use `Array.from({ length: 3 }, () => [])` for a fresh object per slot."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: fill-fills-holes
+  front: "Does `fill` skip holes the way `some` and `every` do?"
+  back: "No. `fill` doesn't check `HasProperty`, so it fills holes. It also mutates and returns the same array, with no copying twin; copy first with `[...arr].fill(0)`."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: copywithin-overlap-no-growth
+  front: "How does `copyWithin(target, start, end)` handle overlapping ranges and `length`?"
+  back: "It copies `[start, end)` to positions from `target` in the same array and never grows it: copying stops at `length`. When the target is after the source it copies backwards, like C's `memmove`, so the source isn't overwritten first."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: copywithin-holes-copied
+  front: "What happens to holes in a `copyWithin` source range?"
+  back: "They're copied as holes. When the source index has no property, the spec runs `DeletePropertyOrThrow` on the target index, so `[1, , 3, 4].copyWithin(2, 0)` yields `[1, <hole>, 1, <hole>]`."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: typedarray-fill-converts-once
+  front: "How does `%TypedArray%.prototype.fill` convert its value, and what does `new Uint8Array(4).fill(300)` hold?"
+  back: "It converts `value` once with `ToNumber` (or `ToBigInt`) before the loop, then stores it with the element type's conversion, so each slot holds `44`. There are no holes or shared references."
+  question: javascript/arrays/some-every-fill-copywithin
+- id: every-some-tobooleans-result
+  front: "Must an `every`/`some` callback return a boolean?"
+  back: "No. Both apply `ToBoolean` to the result, so any truthy or falsy value works. `[1, 2].some((x) => x - 1)` is `true` because `1` is truthy."
+  question: javascript/arrays/some-every-fill-copywithin
 # 15 Keyed collections
 - id: map-key-types-and-equality
   front: "How does a `Map` compare keys, and how does that differ from object keys?"
