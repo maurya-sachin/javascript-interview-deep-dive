@@ -3670,6 +3670,66 @@
   front: "When is `SharedArrayBuffer` unnecessary?"
   back: "When one thread owns the data at a time. A `postMessage` transfer list moves an `ArrayBuffer` without copying and is race-free."
   question: javascript/json-and-binary-data/sharedarraybuffer-atomics
+- id: memory-model-atomic-vs-data-access
+  front: "What are the two kinds of shared-memory access in the ECMAScript memory model?"
+  back: "Atomic (`Atomics.load`, `store`, `add`, `compareExchange`, …) is sequentially consistent: all agents agree on one total order. Data (plain `view[i]` reads and writes) is unordered between agents. There is no weaker acquire/release ordering."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: happens-before-edges
+  front: "What builds happens-before in the ECMAScript memory model?"
+  back: "Program order within an agent (*agent-order*) plus *synchronizes-with* edges. A SeqCst write synchronizes-with a SeqCst read of the same range that reads its value. Hosts add edges, such as sending a buffer with `postMessage` or starting and stopping a worker."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: data-race-definition
+  front: "When do two shared-memory accesses race, and when is it a data race?"
+  back: "They race when neither happens-before the other and they are two writes to overlapping bytes, or a read and the write it reads from. It is a data race unless both are atomic with identical ranges."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: drf-sequential-consistency
+  front: "What does the memory model guarantee for a data-race-free program?"
+  back: "It is sequentially consistent: every execution looks like some interleaving of each agent's steps. That is the model to program to."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: racy-no-undefined-behaviour
+  front: "Unlike C++, what happens when a JavaScript read races with a write?"
+  back: "No undefined behaviour. The read can't return arbitrary garbage or break the engine; it returns bytes some write to that location produced (or the initial zeros), though not necessarily the latest, and agents may disagree on order."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: aligned-integer-no-tearing
+  front: "Which racing accesses are tear-free, and which can mix bytes?"
+  back: "A racing read through an integer typed array gets all its bytes from one of the equal-sized writes when aligned. `Float64Array` and `DataView` carry no such promise, and overlapping writes of different sizes can always mix bytes."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: plain-flag-publish-race
+  front: "Why can't a plain flag safely publish data (`data = 42; ready = 1`) to another agent?"
+  back: "Without a SeqCst write and read there is no happens-before edge, so the reader may see `ready` as 1 and still read the old `data`. Use `Atomics.store` and `Atomics.load` on the flag; that creates the edge."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: spin-loop-plain-read-hoisting
+  front: "Why is spinning on a plain read (`while (flag[0] === 0) {}`) unsafe?"
+  back: "The spec lets compilers hoist non-atomic reads out of loops \"even if that affects termination\", so the loop may never see the change. Use `Atomics.load` or `Atomics.wait`. In a Node.js 24 test the loop did exit, but that is an engine choice."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: mixing-atomic-and-plain-access
+  front: "What do the spec's shared-memory guidelines advise about mixing access kinds and sizes?"
+  back: "Treat shared memory as strongly typed: one access size and kind per location. Mixing atomic and plain accesses, or different sizes, on the same bytes risks data races and mixed bytes."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: atomics-load-cost
+  front: "Does `Atomics.load` cost more than a plain read?"
+  back: "It can. The spec's implementer notes say atomic loads and stores compile to sequentially consistent instructions, or to bare accesses with memory barriers where none exist. Compilers may not remove or reorder SeqCst operations, so atomics block optimizations plain accesses allow."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: no-acquire-release-in-js
+  front: "Why doesn't JavaScript offer acquire/release orderings like C++?"
+  back: "The spec just states that no ordering between SeqCst and unordered is supported, with no rationale. One strong ordering is simpler to reason about, but you can't ask for cheaper acquire/release barriers on weakly ordered CPUs."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: data-race-needs-sharedarraybuffer
+  front: "Is a data race possible without `SharedArrayBuffer`?"
+  back: "No. Ordinary objects are never shared between agents; `postMessage` copies or transfers them. Shared Data Blocks, reachable only through `SharedArrayBuffer`, are the only memory several agents access at once."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: valid-execution-conditions
+  front: "What makes a candidate execution valid in the memory model?"
+  back: "Reads are coherent (a read can't see a write that happens after it, or one already overwritten by a write that happens-before the read), aligned integer reads don't tear, and a total memory order consistent with happens-before exists for all SeqCst events. SeqCst writes also become visible in finite time."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: reads-must-be-stable
+  front: "What may compilers not do to shared-memory accesses?"
+  back: "Turn one source read into several reads that observe different values (rematerialization), or invent writes the program couldn't make. Racy code is unpredictable in timing, not in which values exist."
+  question: javascript/json-and-binary-data/memory-model-data-races
+- id: atomics-on-non-shared-buffers
+  front: "Do `Atomics` work on ordinary `ArrayBuffer`s?"
+  back: "Yes, with no other agent to race. `Atomics.wait` is stricter: it requires an `Int32Array` or `BigInt64Array` on shared memory."
+  question: javascript/json-and-binary-data/memory-model-data-races
 # 25 Memory and garbage collection
 - id: gc-reachability-not-refcount
   front: "When does a JavaScript engine free an object: when its reference count hits zero, or when it is unreachable?"
