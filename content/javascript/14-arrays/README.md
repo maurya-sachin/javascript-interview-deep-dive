@@ -39,7 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [Array-likes vs iterables: how do `Array.from` and `Array.fromAsync` work?](050-array-from-and-fromasync.md) | medium | 🟡 draft |
 | 060 | [`includes` vs `indexOf` vs `find` vs `findLast` vs `at`?](060-searching-arrays.md) | easy | 🟡 draft |
 | 070 | [How do `flat` and `flatMap` work?](070-flat-and-flatmap.md) | medium | 🟡 draft |
-| 080 | [Why does `[].every(fn)` return `true`, and what does `fill` do with an object?](080-some-every-fill-copywithin.md) | easy | 🔴 planned |
+| 080 | [Why does `[].every(fn)` return `true`, and what does `fill` do with an object?](080-some-every-fill-copywithin.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
