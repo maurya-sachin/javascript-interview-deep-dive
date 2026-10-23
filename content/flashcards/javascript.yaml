@@ -932,6 +932,74 @@
   front: "Which semicolon insertions does ASI refuse to make?"
   back: "One that would become an empty statement, and one that would become either semicolon in a `for(;;)` header. So `for (let i = 0⏎i < 3⏎i++)` is a `SyntaxError`; ASI cannot repair real syntax errors."
   question: javascript/operators-and-syntax/automatic-semicolon-insertion
+- id: precedence-from-grammar
+  front: "Where does the spec define operator precedence?"
+  back: "It has no precedence table. Precedence falls out of the expression grammar, where each level is a nonterminal built from the next tighter one. MDN's table summarises that grammar."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: right-associative-operators
+  front: "Which operators are right-associative in JavaScript?"
+  back: "`**` (`2 ** 3 ** 2` is `2 ** 9`), the conditional operator (`a ? b : c ? d : e` chains like `else if`), and assignment (`a = b = 5`). Most binary operators are left-associative."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: precedence-vs-evaluation-order
+  front: "Does precedence decide which operand is evaluated first?"
+  back: "No. Precedence only decides grouping. Binary operators evaluate the left operand before the right, so in `f() + g() * h()` the calls still run `f`, `g`, `h`."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: plus-binds-tighter-than-conditional
+  front: "Why is `'Role: ' + isAdmin ? 'admin' : 'user'` always `'admin'`?"
+  back: "`+` binds tighter than `?:`, so the condition is the non-empty string `'Role: false'`, which is truthy."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: not-binds-tighter-than-in
+  front: "What does `!key in obj` test, and how do you fix it?"
+  back: "Unary `!` binds tighter than `in` (and `instanceof`), so it tests `false in obj`. Negate the whole test: `!(key in obj)`."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: equality-binds-tighter-than-bitwise-and
+  front: "Why is `n & 1 === 0` wrong for an even check?"
+  back: "Equality binds tighter than bitwise AND, so it computes `n & false`, and `false` converts to `0`. Write `(n & 1) === 0`."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: negative-base-exponent-syntaxerror
+  front: "Why is `-2 ** 2` a SyntaxError, and how do you write it?"
+  back: "The left operand of `**` must be an update expression, not a unary one. Write `(-2) ** 2` or `-(2 ** 2)`. `typeof x ** 2` and `await x ** 2` are rejected for the same reason."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: nullish-mix-needs-parentheses
+  front: "Why is `a ?? b || c` a SyntaxError while `a && b || c` is fine?"
+  back: "`&&` is a level inside the `||` grammar. `??` sits beside `||` in `ShortCircuitExpression`, not inside it, so a mixed chain has no parse. Parentheses are required."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: new-member-access-binding
+  front: "Does `new Foo.Bar()` construct `Foo` or `Foo.Bar`?"
+  back: "`Foo.Bar`. Member access binds as part of the `new` expression, so `Foo.Bar` is the constructor and `()` its argument list. To construct the result of a call, write `new (getClass())()`."
+  question: javascript/operators-and-syntax/operator-precedence
+- id: comma-operator-semantics
+  front: "What does the comma operator `a, b` do, and which commas are not it?"
+  back: "It evaluates `a`, calls `GetValue` on it (getters still run), discards it, then evaluates and returns `b`. It has the lowest precedence. Commas in argument lists, array and object literals and `let a = 1, b = 2` are separators."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: comma-operator-for-update-clause
+  front: "Where is the comma operator typically seen?"
+  back: "In the update clause of a `for` loop, such as `i++, j--`, and in `(0, fn)()` or `(0, eval)(code)`, which call without a `this` or as an indirect eval."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: void-operator-uses
+  front: "What does `void expr` do, and what are its uses today?"
+  back: "It evaluates `expr` and returns `undefined`. `void 0` is an unshadowable `undefined`. It marks a discarded result, as in `() => void save()`, and typescript-eslint's `no-floating-promises` accepts `void promise` as deliberately not awaited, though rejections still go unhandled."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: labels-break-continue
+  front: "What do `break name` and `continue name` do with a label?"
+  back: "`break name` jumps past the end of the labelled statement, even a plain block. `continue name` starts the next iteration of a labelled loop. Labels don't cross function boundaries, so you can't `break` out of a `forEach` callback."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: switch-strict-equality-lazy-cases
+  front: "How does `switch` compare cases, and how are case expressions evaluated?"
+  back: "The discriminant is evaluated once, then `case` expressions top to bottom, lazily, compared with `IsStrictlyEqual`. So `'1'` never matches `1` and `NaN` never matches anything."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: switch-fall-through-default
+  front: "Where does `switch` execution start, and where can `default` sit?"
+  back: "At the first match, falling through every later clause until `break`, `return` or `throw`. `default` runs only when no `case` matches, but it can sit anywhere, and fall-through enters it in source order."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: switch-block-scope-let
+  front: "What scope does `let` have inside `switch` clauses, and how do you get per-clause scope?"
+  back: "The whole `{ … }` is one block scope, so `let x` in two clauses is a SyntaxError. Wrap each clause body in braces for its own Declarative Environment Record."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
+- id: switch-true-pattern
+  front: "What does `switch (true)` do, and what is its catch?"
+  back: "Each `case` expression is evaluated in order and compared to `true` with strict equality, so it works like an `if`/`else if` chain. A truthy non-boolean such as `1` doesn't match."
+  question: javascript/operators-and-syntax/comma-void-labels-switch
 # 07 Scope and execution contexts
 - id: var-let-const-scope-redeclare
   front: "How do `var`, `let` and `const` differ in scope and redeclaration?"
