@@ -1443,6 +1443,70 @@
   front: "Why does debouncing alone not prevent stale search results?"
   back: "It only limits when requests start. Two requests can still be in flight and resolve out of order. Abort the previous one with an `AbortController` as well."
   question: javascript/closures/debounce-throttle-once
+- id: memoize-basic-implementation
+  front: "How does a basic `memoize(fn)` work?"
+  back: "It creates a `Map` and returns a wrapper closing over it: on `cache.has(arg)` return `cache.get(arg)`; otherwise call `fn`, store the result and return it. Each memoized function gets its own private cache."
+  question: javascript/closures/memoization
+- id: memoize-has-not-truthy
+  front: "Why test `cache.has(arg)` instead of `if (cache.get(arg))`?"
+  back: "A truthiness test treats cached `0`, `''` or `undefined` as misses, so they are recomputed on every call."
+  question: javascript/closures/memoization
+- id: memoize-map-not-object
+  front: "Why use a `Map` rather than an object as the memoize cache?"
+  back: "Object keys convert to strings, so `1` and `'1'` (or `null` and `'null'`) would share an entry. A `Map` keeps keys distinct."
+  question: javascript/closures/memoization
+- id: memoize-negative-zero-key
+  front: "How does a `Map`-keyed memoize treat `NaN` and `-0`?"
+  back: "SameValueZero lets `NaN` find `NaN`. But `Map.prototype.set` canonicalises `-0` to `+0`, so a function that distinguishes them returns the wrong cached value."
+  question: javascript/closures/memoization
+- id: memoize-json-stringify-key-lossy
+  front: "Why is `JSON.stringify(args)` a lossy memoize key?"
+  back: "`undefined`, `NaN` and functions become `null`, a `Map` becomes `{}`, BigInt throws, and equal objects with different key order give different keys."
+  question: javascript/closures/memoization
+- id: memoize-join-key-collision
+  front: "Why does `args.join(',')` collide as a memoize key?"
+  back: "`(1, 2)` and `('1,2')` produce the same string. A collision-free option is a nested `Map` per argument position."
+  question: javascript/closures/memoization
+- id: memoize-object-args-identity-vs-structure
+  front: "What is the trade-off between identity keys and structural keys for object arguments?"
+  back: "Identity keys are fast but miss mutation: change the object and you get a stale result. Structural keys cost a deep serialisation per call. Immutable data makes identity keys correct."
+  question: javascript/closures/memoization
+- id: memoize-pure-and-bounded
+  front: "What two rules surround memoization?"
+  back: "Only memoize pure functions, since anything reading time, randomness or mutable state returns stale data. And bound the cache with an LRU, a TTL, or a `WeakMap` when keys are objects."
+  question: javascript/closures/memoization
+- id: memoize-this-not-keyed
+  front: "What goes wrong when memoizing a method shared across instances?"
+  back: "Wrappers forward `this` but don't key on it, so one instance's answer is returned to another. Key on `this` first, or memoize per instance."
+  question: javascript/closures/memoization
+- id: memoize-throw-not-cached
+  front: "What happens to the cache if the memoized `fn` throws?"
+  back: "Nothing is stored, so the next call retries."
+  question: javascript/closures/memoization
+- id: memoize-recursion-wrapper
+  front: "In a memoized recursive function like `fib`, what must the recursion call?"
+  back: "The memoized wrapper, not the raw function."
+  question: javascript/closures/memoization
+- id: lodash-memoize-first-arg-key
+  front: "How does lodash's `_.memoize` choose the key by default?"
+  back: "It uses only the first argument, so `f(1, 2)` and `f(1, 3)` share an entry. Pass a resolver to build the key from all arguments. The cache is exposed as `memoized.cache`."
+  question: javascript/closures/memoization
+- id: usememo-vs-memoize
+  front: "How does React's `useMemo` differ from a general memoize cache?"
+  back: "It is per component instance and keeps only the latest value. Each render compares dependencies with their previous values using `Object.is`; if none changed it returns the stored value. It is a render optimisation, not a general cache."
+  question: javascript/closures/memoization
+- id: memoize-async-cache-promise
+  front: "How should an async function be memoized?"
+  back: "Cache the promise, not the resolved value, so concurrent callers share one request, and delete the entry on rejection so a failure isn't cached forever. Production versions add a TTL."
+  question: javascript/closures/memoization
+- id: memoize-weakmap-primitives-trie
+  front: "How can a multi-argument memoize avoid retaining object arguments, and why do both collections matter?"
+  back: "Use a trie of maps: a `WeakMap` for object keys and a `Map` for primitives at each level, since a `WeakMap` can't hold primitives. A private symbol can mark the stored result at the end of the path."
+  question: javascript/closures/memoization
+- id: memoize-bad-trade
+  front: "When is memoization a bad trade?"
+  back: "When the function is cheaper than building and looking up the key, when inputs rarely repeat, or when results are large. You pay memory for every entry and time for every key, hit or miss."
+  question: javascript/closures/memoization
 # 10 this
 - id: this-binding-order
   front: "In what order are the `this` binding rules checked for a non-arrow function?"
