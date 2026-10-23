@@ -9,7 +9,7 @@ related: []
 verified: 2026-10
 sources:
   - https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces
-  - https://www.typescriptlang.org/docs/handbook/2/objects.html#interfaces-vs-intersections
+  - https://www.typescriptlang.org/docs/handbook/2/objects.html#interface-extension-vs-intersection
   - https://www.typescriptlang.org/docs/handbook/declaration-merging.html
   - https://github.com/microsoft/TypeScript/wiki/Performance
   - https://github.com/microsoft/TypeScript/issues/15300
@@ -31,7 +31,7 @@ Both name an object type, and for plain object shapes they are interchangeable: 
 - **Composition.** `interface B extends A` checks that `B` is compatible with `A` and reports a conflict at the declaration. `type B = A & {...}` accepts anything; a conflicting property silently becomes `never` (or the whole intersection collapses to `never` when the conflict is a discriminant).
 - **What they can name.** Only `type` can alias unions, tuples, primitives, mapped types, and conditional types. An interface can only describe an object-like type.
 - **Implicit index signatures.** A type alias of an object literal type is assignable to `Record<string, string>`; an interface is not, by design, because it could still be merged with more members.
-- **Performance and messages.** The handbook says interfaces with `extends` can be cheaper for the compiler than intersections, and interface names always appear in error messages.
+- **Performance and messages.** The handbook says interfaces with `extends` can be cheaper for the compiler than intersections, and an interface used by name always appears by that name in error messages.
 
 **What to say in an interview:** use `interface` for object shapes that are extended or augmented, `type` when you need unions, tuples, or type-level computation, and stay consistent within a codebase. The handbook's heuristic is "use `interface` until you need features from `type`."
 
