@@ -3026,6 +3026,98 @@
   front: "What do `import.meta.filename` and `import.meta.dirname` replace, and where do they exist?"
   back: "They replace CommonJS `__filename` and `__dirname`. They are Node.js-only conventions, defined for `file:` modules."
   question: javascript/modules/import-meta
+- id: tree-shaking-who-does-it
+  front: "Who performs tree shaking, and what does ECMAScript contribute?"
+  back: "Bundlers and minifiers (esbuild, Rollup, webpack with Terser), not the language. ECMAScript contributes static syntax: `import` and `export` appear only at module top level with string-literal specifiers, so tools can build the import graph without running code."
+  question: javascript/modules/tree-shaking
+- id: tree-shaking-conservative
+  front: "What top-level code does a tree shaker keep even when its result is unused?"
+  back: "Code that might have a side effect: calls, property reads (a getter could run) and global writes. Removal is conservative. In the esbuild 0.28.2 example, an unannotated `makeTable()` call was kept while a `/*#__PURE__*/` one was dropped."
+  question: javascript/modules/tree-shaking
+- id: pure-annotation-meaning
+  front: "What does `/*#__PURE__*/` before a call promise?"
+  back: "Only that the call can be removed if its result is unused. It doesn't mean the function is pure in the functional sense, doesn't make repeated calls cacheable, and covers only the call, not side effects in its arguments."
+  question: javascript/modules/tree-shaking
+- id: package-sideeffects-field
+  front: "What does `\"sideEffects\": false` in `package.json` do, and who reads it?"
+  back: "It is a webpack convention, also honoured by esbuild: a module whose exports are all unused can be skipped entirely, top-level code included. Rollup's core doesn't read it; `@rollup/plugin-node-resolve` passes it on."
+  question: javascript/modules/tree-shaking
+- id: sideeffects-false-pitfall
+  front: "Why is `\"sideEffects\": false` dangerous on a package that imports CSS or polyfills?"
+  back: "Those files exist for their effect, so they're dropped in production. List them instead: `\"sideEffects\": [\"*.css\", \"./src/polyfills.js\"]`."
+  question: javascript/modules/tree-shaking
+- id: tree-shaking-commonjs
+  front: "Why does CommonJS defeat tree shaking, and how do esbuild and webpack 5 treat it?"
+  back: "`require` is an ordinary call that can take a computed path, and `module.exports` is a mutable object with computed keys. esbuild doesn't shake CommonJS at all; webpack 5 recognises a few static patterns (`exports.x = …`, `require('a').x`) and bails out on anything else."
+  question: javascript/modules/tree-shaking
+- id: tree-shaking-other-blockers
+  front: "Besides CommonJS, what else stops tree shaking?"
+  back: "Compiling ESM to CommonJS too early (e.g. a Babel config transforming modules before bundling), exporting one big object like `export default { a, b, c }` (the object is used, so all of it stays), and top-level side effects such as patching prototypes on import."
+  question: javascript/modules/tree-shaking
+- id: tree-shaking-mode-dependent
+  front: "When do webpack and esbuild actually tree shake?"
+  back: "webpack enables `usedExports` by default only in `production` mode. esbuild shakes only when bundling or emitting `iife`. An unused export isn't gone in every build."
+  question: javascript/modules/tree-shaking
+- id: usedexports-vs-sideeffects
+  front: "How do webpack's `usedExports` and `sideEffects` differ?"
+  back: "`usedExports` marks unused exports so they aren't generated, and the minimizer (Terser) removes the dead declarations if it can prove them side-effect-free. `sideEffects` skips whole modules and their dependency subtrees when none of their exports are used; webpack's guide calls it the more effective."
+  question: javascript/modules/tree-shaking
+- id: no-side-effects-annotation
+  front: "How do you mark a whole function as removable, and did esbuild 0.28.2 honour it across modules?"
+  back: "Put `/*#__NO_SIDE_EFFECTS__*/` before the function declaration; Rollup then treats every unused call as removable across modules. esbuild 0.28.2 also reads it, but in a test it removed only calls in the declaring file, not calls to an imported function."
+  question: javascript/modules/tree-shaking
+- id: dynamic-import-tree-shaking
+  front: "Does dynamic `import()` prevent tree shaking?"
+  back: "It limits it: `import('./x.js')` yields the whole namespace object and a tool can't always see which properties are read. With `--splitting`, esbuild 0.28.2 put every export of the example's `math.js` into the lazy chunk, unused ones included."
+  question: javascript/modules/tree-shaking
+- id: sideeffects-false-esbuild-example
+  front: "With `\"sideEffects\": false`, esbuild 0.28.2 bundles an app importing only `Button` from `fake-ui`. What happens to `chart.js`, which logs on load?"
+  back: "`index.js` and `chart.js` are dropped, log included, because `sideEffects: false` promises unused modules have no effects. With `\"sideEffects\": true`, esbuild keeps `console.log(\"chart loaded\")` but still drops the unused `Chart` binding."
+  question: javascript/modules/tree-shaking
+- id: import-map-bare-specifier-error
+  front: "What happens when a browser module imports a bare specifier like `'chart'` with no import map?"
+  back: "A `TypeError`. ECMAScript leaves specifiers to the host, and HTML's *resolve a module specifier* algorithm has no URL meaning for a bare specifier. Relative and absolute URLs resolve against the importing module's URL."
+  question: javascript/modules/import-maps
+- id: import-map-imports-prefix
+  front: "How does an import map's `imports` key ending in `/` behave, and what does a `null` value do?"
+  back: "A trailing-`/` key maps a whole prefix: `\"chart/\": \"/vendor/chart@4/\"` sends `chart/helpers.js` to `/vendor/chart@4/helpers.js`. A `null` value blocks the specifier. Mapping `\"chart\"` alone matches only the exact specifier."
+  question: javascript/modules/import-maps
+- id: import-map-scopes
+  front: "How do import map `scopes` work, and what do they match against?"
+  back: "A URL prefix maps to its own specifier map, used only when the *importing module's* URL matches the prefix, not the imported module's. Scopes are tried most-specific first, then `imports`. This lets two versions of one package coexist."
+  question: javascript/modules/import-maps
+- id: import-map-integrity
+  front: "What does an import map's `integrity` key cover?"
+  back: "It maps URL to an SRI hash, applied to modules fetched through `import` and `import()`. A top-level `<script src>` still uses its own `integrity` attribute."
+  question: javascript/modules/import-maps
+- id: import-map-resolution-order
+  front: "In what order does a browser resolve a specifier with an import map?"
+  back: "Matching scopes, then `imports`, then plain URL resolution, else `TypeError`. Within a map the most specific key wins, and a prefix match can't climb above its prefix with `../`."
+  question: javascript/modules/import-maps
+- id: import-map-multiple-merge
+  front: "How do multiple import maps in one document merge, and when is a rule dropped?"
+  back: "Each is merged into one global map when registered, even after modules have loaded. A new rule is dropped if its scope and specifier already exist or if it would change an already-resolved specifier; the existing rule wins, and Chrome logs a console warning."
+  question: javascript/modules/import-maps
+- id: import-map-external-src
+  front: "Can an import map be loaded with `<script type=\"importmap\" src=\"map.json\">`?"
+  back: "No. External import maps aren't supported: the `src` attribute fires an `error` event and the map is ignored. It must be inline JSON."
+  question: javascript/modules/import-maps
+- id: import-map-support
+  front: "What is the browser support status of import maps and of multiple import maps?"
+  back: "Import maps are Baseline widely available, in every major engine since March 2023. Multiple import maps aren't Baseline yet: Chrome 133 and Safari 18.4 ship them, Firefox only behind a flag."
+  question: javascript/modules/import-maps
+- id: import-map-node-and-workers
+  front: "Do import maps work in Node.js or in workers?"
+  back: "Node.js has no built-in import maps; its docs show a resolve hook implementing a subset, and package.json `\"imports\"` covers in-package aliases. In workers, *resolve a module specifier* uses an empty map (the import map applies only when the global is a `Window`), so bare specifiers throw."
+  question: javascript/modules/import-maps
+- id: import-map-late-map-pitfall
+  front: "What happens if you add an import map remapping a specifier that code has already resolved?"
+  back: "The merge silently drops that rule (Chrome logs a console warning). Declare maps before the first module that needs them."
+  question: javascript/modules/import-maps
+- id: import-map-why-with-bundlers
+  front: "Why use import maps when bundlers resolve bare specifiers anyway?"
+  back: "Unbundled or partly bundled apps, CDN-hosted dependencies, and cache busting: map `\"app/\"` to a hashed folder and only the map changes on deploy. They also let module code shared with Node.js and bundlers keep bare specifiers in the browser."
+  question: javascript/modules/import-maps
 # 21 Metaprogramming
 - id: proxy-no-trap-forwards
   front: "What happens when a Proxy handler lacks the trap for an operation?"
