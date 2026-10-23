@@ -16,6 +16,7 @@ sources:
   - https://www.typescriptlang.org/tsconfig/#module
   - https://www.typescriptlang.org/tsconfig/#useDefineForClassFields
   - https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html
+  - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-9.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html
   - https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/
   - https://github.com/microsoft/TypeScript/pull/63067
@@ -42,7 +43,7 @@ Practical picks: Node runs the output, so `module: nodenext` and a `target` matc
 ## Example
 
 ```ts
-// a.ts, TypeScript 7.0.2 (b.ts exports `helper`)
+// a.ts, TypeScript 7.0.2 and 6.0.3 (b.ts exports `helper`)
 import { helper } from "./b";
 export const last = [1, 2, 3].at(-1) ?? helper;
 export const cube = last ** 3;
@@ -66,17 +67,17 @@ The first compile also wrote the JavaScript above (errors do not stop emit unles
 ## Pitfalls
 
 - Treating `target` as a polyfill switch. Lowering it never adds missing APIs; only syntax changes.
-- Setting `lib: ["es2022"]` and then using `document` or `window`. `dom` is no longer included (TS2584, checked on 7.0.2 and 5.9.3).
-- Assuming `module` and `target` move together. On 7.0.2 and 6.0.3, `--module nodenext` still compiled `using` declarations down; on 5.9.3 it left them as written. The TSConfig reference still says nodenext "implies the floating `--target esnext`", so ❓ the page is out of date for 6.0+.
-- Upgrading from 5.x with no `target` or `module` in the config. The same file compiled to CommonJS on 5.9.3 and to ES module output on 6.0.3 and 7.0.2.
+- Setting `lib: ["es2022"]` and then using `document` or `window`. `dom` is no longer included (TS2584, checked on 7.0.2 and 6.0.3).
+- Assuming `module` and `target` move together. On 7.0.2 and 6.0.3, `--module nodenext` still compiled `using` declarations down, and `--explainFiles` showed target ES2025 for `nodenext` and `node20` alike. The 5.9 notes and the TSConfig reference say nodenext "implies the floating `--target esnext`" (and `node20` ES2023), so ❓ the reference is out of date for 6.0+.
+- Upgrading from 5.x with no `target` or `module` in the config. 5.x defaulted to CommonJS output for the ES5 target; on 6.0.3 and 7.0.2 the same file compiled to ES module output.
 
 ## Follow-ups
 
 **Q:** Which `lib` file does the default load?
-**A:** `--listFiles` showed `lib.d.ts` (ES5 plus `dom`) on 5.9.3 and `lib.es2025.full.d.ts` on 6.0.3 and 7.0.2. With `--target es2022` on 7.0.2 it was `lib.es2022.full.d.ts`.
+**A:** `--explainFiles` named `lib.es2025.full.d.ts` ("Default library for target ES2025") on 6.0.3 and 7.0.2; with `--target es2022` it was `lib.es2022.full.d.ts`. Under 5.x's ES5 default it was `lib.d.ts` (ES5 plus `dom`).
 
 **Q:** Does `target` change class field emit?
-**A:** Yes. For `class Counter { count = 0 }` the `es2015` target emitted a constructor assignment and `es2022` emitted a `count = 0;` field (7.0.2), following `useDefineForClassFields`.
+**A:** Yes. For `class Counter { count = 0 }` the `es2015` target emitted a constructor assignment and `es2022` emitted a `count = 0;` field (6.0.3 and 7.0.2), following `useDefineForClassFields`.
 
 **Q:** Can I still use `target: es5`?
 **A:** On 6.0.3 it is `TS5107` (deprecated); on 7.0.2 it is `TS5108` (removed). The 6.0 notes suggest an external compiler for ES5 output.
