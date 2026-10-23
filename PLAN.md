@@ -4,8 +4,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `dev`; production = `main` (last release `efcb20a`). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
-- Doing: writing the 33 JS gap stubs (`planned`; `content:status`), Opus `write-question` Batch mode, serial groups: ch 01–05 → 06–12 → 14/15/20/24/26 → 27–28 (new chapters). Then flashcards for them. Unfinished proposals (decorators, ShadowRealm, import defer, stack accessor, legacy RegExp statics) stay `→ —`.
-- Then Phase 5: maintainer reviews drafts → `published` (label Draft → Reviewed). JS 150 q / 762 cards, TS 47 q / 544 cards: all `draft`, readable in production.
+- Doing: flashcards for the 33 new JS questions (gap stubs + ch 27–28, all `draft`); Sonnet, from the written text, one commit per chapter. Unfinished proposals (decorators, ShadowRealm, import defer, stack accessor, legacy RegExp statics) stay `→ —`.
+- Then Phase 5: maintainer reviews drafts → `published` (label Draft → Reviewed). JS 183 q / 762 cards, TS 47 q / 544 cards: all `draft`, readable in production.
 - Known limits: ch 18–22 browser claims checked in Chrome 155 only (Firefox/Safari from MDN); ch 26 V8 natives on Node 24.19 only. Open: chapter order for the 26 README-only topics; designer redraws the wordmark.
 
 ## Goal
