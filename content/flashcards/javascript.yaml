@@ -1294,6 +1294,70 @@
   front: "What happens to a second argument passed to a composed function?"
   back: "It is dropped. Only one value flows through the chain, so `pipe(parseInt)('10', 2)` uses the default radix. Adapt other shapes with currying or partial application."
   question: javascript/functions/compose-and-pipe
+- id: function-name-length-descriptor
+  front: "What property attributes do a function's `name` and `length` have?"
+  back: "Own data properties with `{ writable: false, enumerable: false, configurable: true }`. Assignment fails (a TypeError in strict code) but `Object.defineProperty` can replace them."
+  question: javascript/functions/function-name-and-length
+- id: namedevaluation-positions
+  front: "In which positions does the spec name an anonymous function (NamedEvaluation)?"
+  back: "Initializers of a plain identifier (including parameter and destructuring defaults), assignment to a plain identifier (including `||=`, `&&=`, `??=`), object-literal properties and class fields (the key), and `export default function () {}`, which gives `'default'`."
+  question: javascript/functions/function-name-and-length
+- id: function-name-prefixes
+  front: "What `name` do getters, setters, Symbol-keyed methods, private methods and `new Function` get?"
+  back: "Getters and setters get `'get x'` and `'set x'`, Symbol keys become `'[description]'`, private methods `'#x'`, bound functions `'bound f'`, and `new Function` gives `'anonymous'`."
+  question: javascript/functions/function-name-and-length
+- id: function-name-comma-expression
+  front: "Does `(() => {})` in parentheses get an inferred name? What about `(0, () => {})`?"
+  back: "Parentheses still count as an anonymous function definition, so `const wrapped = (() => {})` is named `wrapped`. A comma expression isn't a function definition, so its `name` is `''`."
+  question: javascript/functions/function-name-and-length
+- id: function-length-destructuring-pattern
+  front: "How does a destructuring parameter count toward `length`?"
+  back: "Each destructuring pattern counts as one parameter, so `({ x, y }, [z]) => {}` has `length` 2. Built-ins have a `length` fixed by their spec entry: `Math.max.length` is `2`."
+  question: javascript/functions/function-name-and-length
+- id: function-name-length-no-behaviour
+  front: "Do `name` and `length` change how a function behaves, and why are they fragile for tooling?"
+  back: "No, any function can be called with any number of arguments. `name` is fragile because minifiers may rename functions. Adding a default parameter silently lowers `length`."
+  question: javascript/functions/function-name-and-length
+- id: stack-trace-name-vs-name-property
+  front: "Why can a stack trace show `api.load` when `api.load.name` is `''`?"
+  back: "Stack traces are an engine and host feature. V8's parser runs its own name inference for anonymous functions and uses it in traces, while the spec-visible `name` stays `''`."
+  question: javascript/functions/function-name-and-length
+- id: class-static-name-override
+  front: "Can a class's `name` differ from its binding?"
+  back: "Yes. `class A { static name = 'X' }` defines a static field after `SetFunctionName` has run, so `A.name` is `'X'`. A named class expression keeps its own name: `const B = class Inner {}` gives `'Inner'`."
+  question: javascript/functions/function-name-and-length
+- id: pure-function-two-conditions
+  front: "What two conditions make a function pure?"
+  back: "Same inputs give the same output (no reliance on mutable outer variables, the clock, randomness, DOM or network), and no side effects: nothing that existed before the call is changed, logged, requested or timed."
+  question: javascript/functions/pure-functions
+- id: pure-function-local-mutation
+  front: "Can a pure function mutate local state?"
+  back: "Yes. Building an array with `push` inside its own body is still pure, because nobody else can observe it."
+  question: javascript/functions/pure-functions
+- id: pure-function-benefits
+  front: "Why does purity matter?"
+  back: "Referential transparency (calls can be cached, skipped, repeated or reordered), testing without mocks, reference-based change detection in React state and memoised selectors, and safe re-runs such as Strict Mode's double-calling of components in development."
+  question: javascript/functions/pure-functions
+- id: pure-function-js-no-enforcement
+  front: "Does JavaScript enforce purity, and which built-ins break it?"
+  back: "No marker or compiler check exists, and objects are passed by sharing. `sort`, `reverse`, `splice` and `fill` mutate their receiver. ES2023 added `toSorted`, `toReversed`, `toSpliced` and `with`."
+  question: javascript/functions/pure-functions
+- id: pure-function-effects-at-edges
+  front: "What is the practical goal regarding side effects in real programs?"
+  back: "Keep the core computation pure and push effects (I/O, state writes, logging) to the edges, like event handlers, where they are explicit and few."
+  question: javascript/functions/pure-functions
+- id: pure-function-const-spread-shallow
+  front: "Do `const` or a spread make data immutable?"
+  back: "No. `const` fixes the binding, and spread copies one level, so nested objects are still shared."
+  question: javascript/functions/pure-functions
+- id: pure-function-getter-proxy
+  front: "Is `(item) => item.price` always pure?"
+  back: "Only for plain data. Property access can run a getter or a Proxy trap, so a caller can pass an object that counts reads or throws."
+  question: javascript/functions/pure-functions
+- id: pure-function-throws-and-console
+  front: "Are a deterministic throw and `console.log` inside a function side effects?"
+  back: "A function that throws deterministically is usually treated as pure; functional style often returns errors as values instead. `console.log` is a side effect: a memoised or double-invoked function logs a different number of times than it is called in source."
+  question: javascript/functions/pure-functions
 # 09 Closures
 - id: closure-spec-mechanism
   front: "In spec terms, how does a function become a closure?"
