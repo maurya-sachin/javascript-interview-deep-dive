@@ -4100,3 +4100,120 @@
   front: "What is the cost of having more tiers?"
   back: "Engineering and memory: each compiled version of a function occupies memory, and SpiderMonkey's docs note Baseline machine code needs memory protection changes and cache flushing. Fewer tiers mean longer waits or worse code in the middle."
   question: javascript/inside-the-engine/other-engine-tiers
+# 27 Functional programming
+- id: immutable-update-path-copying
+  front: "What is path copying for an immutable update?"
+  back: "Copy each object between the root and the thing you change, and point the copies at the original, unchanged siblings. The old version stays untouched and unchanged subtrees keep their identity."
+  question: javascript/functional-programming/immutable-updates
+- id: object-spread-copydataproperties
+  front: "What does `{ ...obj }` copy, and how deep?"
+  back: "`CopyDataProperties`: own enumerable string and symbol keys, read with `Get`, so getters run and their results become plain values. One level only; nested objects are shared."
+  question: javascript/functional-programming/immutable-updates
+- id: structuredclone-not-update-tool
+  front: "Why is `structuredClone` not an update tool, and where is it defined?"
+  back: "It is defined by the HTML Standard, not ECMAScript. It copies the whole tree and shares nothing, so every unchanged branch gets a new identity and memoised consumers all re-render. It suits snapshots, not updates."
+  question: javascript/functional-programming/immutable-updates
+- id: immutable-update-cost
+  front: "What does one immutable update cost, and what does it preserve?"
+  back: "One new node per level of the path, each copying all its own keys or elements: changing one item in a 10,000-element array copies 10,000 slots. Unchanged subtrees stay the same objects, so React, Redux selectors or `memo` can skip them with one `===`."
+  question: javascript/functional-programming/immutable-updates
+- id: freeze-silent-in-sloppy-mode
+  front: "What happens when sloppy-mode code writes to a frozen object's property?"
+  back: "The write fails silently instead of throwing. `Object.freeze` is also a guard rather than a copy, and it freezes one level only."
+  question: javascript/functional-programming/immutable-updates
+- id: immer-produce
+  front: "How does Immer's `produce(base, recipe)` work, and is it a language feature?"
+  back: "It is a library. It hands your recipe a draft (a Proxy), records the writes, and builds the next state by copying only changed paths; its docs say unchanged parts are shared with the previous version."
+  question: javascript/functional-programming/immutable-updates
+- id: copy-methods-species
+  front: "Do `toSorted` and `with` preserve an `Array` subclass, unlike `map` and `filter`?"
+  back: "No. They create the result with `ArrayCreate`, so you always get a plain `Array`. `map` and `filter` use `ArraySpeciesCreate` and return the subclass."
+  question: javascript/functional-programming/immutable-updates
+- id: with-negative-index
+  front: "How does `arr.with(i, v)` treat a negative index?"
+  back: "It runs `ToAbsoluteIndex`, so `-1` means the last element. If the resulting index is outside `0…length - 1` it throws a `RangeError`, so unlike assignment it can't grow the array."
+  question: javascript/functional-programming/immutable-updates
+- id: persistent-meaning
+  front: "What does \"persistent\" mean in a persistent data structure?"
+  back: "Every version survives, not \"saved to disk\". `set`, `push` and `delete` return a new version and anyone holding the old one still sees it unchanged, giving undo, time travel and safe sharing between readers."
+  question: javascript/functional-programming/persistent-data-structures
+- id: structural-sharing-cost
+  front: "How does structural sharing keep a persistent update cheap?"
+  back: "Data is a tree of small, never-mutated nodes. An update copies only the nodes from the root to the changed leaf and reuses every other node, so the cost is the tree's depth times the node width, not the collection size."
+  question: javascript/functional-programming/persistent-data-structures
+- id: hamt-structure
+  front: "What is a HAMT as described in Bagwell's *Ideal Hash Trees* (2001)?"
+  back: "A hash array mapped trie: hash the key, use 5 bits of the hash per level to pick one of 32 branches, and store only present branches in a compact array indexed by a 32-bit bitmap and a population count."
+  question: javascript/functional-programming/persistent-data-structures
+- id: persistent-32-way-four-nodes
+  front: "Why does updating a million-entry persistent collection copy only about four nodes?"
+  back: "With 32-way nodes a million entries fit in four levels (32⁴ = 1,048,576), so path copying copies about four nodes. In Immutable.js 5's source, `SHIFT = 5`, so nodes are 32 wide."
+  question: javascript/functional-programming/persistent-data-structures
+- id: immutablejs-structures
+  front: "What does Immutable.js's README say its `Map` and `List` use, and does JavaScript have built-in persistent collections?"
+  back: "Structural sharing via hash map tries and vector tries. JavaScript has no built-in persistent collections; the Records & Tuples proposal was withdrawn."
+  question: javascript/functional-programming/persistent-data-structures
+- id: spread-freeze-not-persistent
+  front: "Why aren't spread-and-freeze copies truly persistent structures?"
+  back: "Old versions survive, but each node is a flat copy, so updating one slot of an n-element array still costs O(n). Persistent structures bound the node size."
+  question: javascript/functional-programming/persistent-data-structures
+- id: immutablejs-equality
+  front: "How do you compare two Immutable.js collections for equal content?"
+  back: "Not with `===`: two separately built maps with the same content are different objects. Its docs say to use `Immutable.is()` or `.equals()`."
+  question: javascript/functional-programming/persistent-data-structures
+- id: immutablejs-noop-update
+  front: "Does a no-op update, such as `map.set('a', 1)` where `a` is already `1`, allocate in Immutable.js?"
+  back: "No. Its README says it avoids creating new objects when the value doesn't change, so the same reference comes back. Your own path-copying code should do the same check to keep identity stable."
+  question: javascript/functional-programming/persistent-data-structures
+- id: persistent-tojs-pitfall
+  front: "Why is converting with `toJS()` and `fromJS()` on every render a pitfall?"
+  back: "Each conversion walks the whole structure and throws away the sharing you paid for."
+  question: javascript/functional-programming/persistent-data-structures
+- id: persistent-read-cost-tradeoff
+  front: "What do persistent structures trade away, and when do they pay off?"
+  back: "Read speed and interoperability: every lookup walks several levels of pointers, and they cross poorly into JSON, most UI libraries and `structuredClone`. They pay off for large collections, frequent updates and old versions that stay alive; for small state, spread is simpler."
+  question: javascript/functional-programming/persistent-data-structures
+- id: vector-trie-index-bits
+  front: "How does a vector trie find element *i*, and what does the HAMT bitmap do?"
+  back: "It slices the index into 5-bit chunks, most significant first; each chunk picks a child at one level. In a HAMT, a node holds a bitmap of which slots exist and a packed array of those children; a child's position is the number of set bits below its slot."
+  question: javascript/functional-programming/persistent-data-structures
+- id: functor-laws
+  front: "What is a functor and what two laws must its `map` obey (Fantasy Land)?"
+  back: "A container with `map` where mapping the identity function changes nothing, and `m.map(x => f(g(x)))` equals `m.map(g).map(f)`. Fantasy Land is a community spec, not part of ECMAScript."
+  question: javascript/functional-programming/functors-and-monads
+- id: monad-laws
+  front: "What does a monad add to a functor, and which laws does it obey (Fantasy Land)?"
+  back: "`of` (wrap a value) and `chain` (map with a function that returns a wrapped value, then remove one layer). Laws: left identity (`of(a).chain(f)` equals `f(a)`), right identity (`m.chain(of)` equals `m`) and associativity."
+  question: javascript/functional-programming/functors-and-monads
+- id: array-as-monad
+  front: "How do arrays map onto functor and monad operations, and how deep does `flatMap` flatten?"
+  back: "`map` is the functor operation, `x => [x]` is `of`, `flatMap` is `chain`. `flatMap` calls `FlattenIntoArray` with depth 1: each result passing `IsArray` is spread one level, anything else appended as a value."
+  question: javascript/functional-programming/functors-and-monads
+- id: promise-monad-like
+  front: "Is a Promise a lawful monad? How does `then` play `map` and `chain`?"
+  back: "Monad-like, not lawful. `Promise.resolve` is `of`; `then` acts as `map` if the callback returns a plain value and as `chain` if it returns a promise. The resolve function adopts any thenable recursively, so laws fail whenever a value happens to be thenable."
+  question: javascript/functional-programming/functors-and-monads
+- id: promise-resolve-steps
+  front: "What are the steps of the promise resolve function that decide between `map` and `chain`?"
+  back: "If the result is the derived promise itself, reject with `TypeError`. If not an object, fulfil with it. Otherwise `Get(resolution, \"then\")`: if that throws, reject; if not callable, fulfil with the object; if callable, queue `NewPromiseResolveThenableJob`, applied recursively."
+  question: javascript/functional-programming/functors-and-monads
+- id: no-promise-of-promise
+  front: "Why can't you have a `Promise<Promise<T>>`?"
+  back: "`Promise.resolve(p)` returns `p` itself when it's already a promise from the same constructor, and the resolve function adopts any thenable it's given, so the outer promise takes on the inner one's state. Nesting collapses at every step."
+  question: javascript/functional-programming/functors-and-monads
+- id: thenable-module-namespace
+  front: "What happens when a module exports a function named `then` and is loaded with dynamic `import()`?"
+  back: "The namespace is treated as a thenable: `import()` calls its `then` and unwraps the result instead of returning the namespace. The same applies to an object with a `then` method returned from a `then` callback or `async` function."
+  question: javascript/functional-programming/functors-and-monads
+- id: flatmap-isarray-vs-concat
+  front: "Does `flatMap` spread array-likes, and how does it differ from `concat`?"
+  back: "No. `FlattenIntoArray` checks `IsArray`, so only real arrays (and proxies of arrays) are spread. `concat` checks `IsConcatSpreadable`, which also honours `Symbol.isConcatSpreadable`, so the two disagree on such objects."
+  question: javascript/functional-programming/functors-and-monads
+- id: flatmap-as-filter
+  front: "Why does `flatMap` double as a filter?"
+  back: "Non-array results are appended as values and an empty array contributes nothing: `[1, 2, 3, 4].flatMap(n => n % 2 ? [] : [n * 10])` gives `[20, 40]`. That is `chain` with an empty result: a map and a filter in one pass."
+  question: javascript/functional-programming/functors-and-monads
+- id: then-law-behaviour
+  front: "Which monad laws does `then` keep for non-thenable values?"
+  back: "It settles to the values the laws predict: `p.then(x => x)` settles like `p`, and chains associate. It always returns a new promise, so \"equal\" means equal settled outcome, and settling takes extra microtask ticks when a callback returns a promise."
+  question: javascript/functional-programming/functors-and-monads
