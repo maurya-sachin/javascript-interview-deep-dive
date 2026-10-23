@@ -1919,11 +1919,11 @@
   question: typescript/the-compiler/type-erasure
 - id: erasure-enums-exception
   front: "Why are enums an exception to erasure?"
-  back: "An enum is also a runtime object, so the compiler must generate code for it. Node's type stripping rejects it for that reason."
+  back: "An enum is also a runtime object, so the compiler must generate code for it. Node.js 24's type stripping rejects it for that reason."
   question: typescript/the-compiler/type-erasure
 - id: erasure-type-import-elision
   front: "Why do `verbatimModuleSyntax` and `isolatedModules` exist, given type erasure?"
-  back: "A plain `import { Buffer }` used only as a type was removed from the 7.0.2 output, but a per-file tool cannot tell which imports are types."
+  back: "A plain `import { Buffer }` used only as a type was removed from the 6.0.3 and 7.0.2 output, but a per-file tool cannot tell which imports are types."
   question: typescript/the-compiler/type-erasure
 - id: narrowing-uses-real-values
   front: "Which narrowing checks survive into the JavaScript?"
@@ -1971,7 +1971,7 @@
   question: typescript/the-compiler/checking-vs-emitting
 - id: no-emit-exit-codes
   front: "Is the exit code of `tsc --noEmit` with a type error stable across versions?"
-  back: "No. It was 2 on TS 5.9.3 and 6.0.3 but 1 on 7.0.2. Treat any non-zero as failure."
+  back: "No. It was 2 on TS 6.0.3 but 1 on 7.0.2. Treat any non-zero as failure."
   question: typescript/the-compiler/checking-vs-emitting
 - id: esbuild-per-file-reason
   front: "Why can't esbuild just ask TypeScript for types?"
@@ -1979,7 +1979,7 @@
   question: typescript/the-compiler/checking-vs-emitting
 - id: isolated-modules-no-emit-change
   front: "Does `isolatedModules` change what `tsc` emits?"
-  back: "No. A file using only `import type`/`export type` emitted byte-identical output with and without it on TS 5.9.3, 6.0.3 and 7.0.2; the flag only adds diagnostics."
+  back: "Almost never: a file using only `import type`/`export type` emitted byte-identical output with and without it on TS 6.0.3 and 7.0.2. The exception is const enums: the flag implies `preserveConstEnums`, and `tsc` then emits `E.A` instead of inlining the value."
   question: typescript/the-compiler/checking-vs-emitting
 - id: node-strip-whitespace
   front: "How does `node file.ts` handle TypeScript syntax?"
@@ -2071,11 +2071,11 @@
   question: typescript/the-compiler/compiler-pipeline
 - id: extended-diagnostics
   front: "Which flag shows where compile time goes?"
-  back: "`--extendedDiagnostics`, printing Parse, Bind, Check and Emit time. In Microsoft's native-previews post, 5.8 spent 63.26s of 72.81s checking the Sentry codebase."
+  back: "`--extendedDiagnostics`, printing Parse, Bind, Check and Emit time. In Microsoft's native-previews post (May 2025), 5.8 spent 63.26s of 72.81s checking the Sentry codebase."
   question: typescript/the-compiler/compiler-pipeline
 - id: module-resolution-in-program
   front: "When does module resolution happen in the pipeline?"
-  back: "While building the Program, before binding: it follows imports and `/// <reference>` directives to find every file to parse. `--extendedDiagnostics` reports `ResolveModule time` separately."
+  back: "While building the Program, before binding: it follows imports and `/// <reference>` directives to find every file to parse. `--extendedDiagnostics` reports `ResolveModule time` separately on 6.0.3; 7.0.2 prints only parse, bind, check, emit and total times."
   question: typescript/the-compiler/compiler-pipeline
 - id: checker-single-file
   front: "Why is the checker one huge file, according to the compiler notes?"
@@ -2083,7 +2083,7 @@
   question: typescript/the-compiler/compiler-pipeline
 - id: ts7-no-compiler-api
   front: "Can you call `require(\"typescript\").createProgram` on TS 7.0?"
-  back: "No. On 7.0.2 it returned only `version` and `versionMajorMinor`; the announcement says 7.0 ships without a JavaScript API and expects one in 7.1."
+  back: "No. On 7.0.2 it returned only `version` and `versionMajorMinor`. 7.0 has no stable API, only experimental `typescript/unstable/*` entry points; the announcement expects a new, different one in 7.1."
   question: typescript/the-compiler/compiler-pipeline
 - id: native-port-what
   front: "What is the native port of TypeScript?"
@@ -2100,10 +2100,6 @@
 - id: native-speedup
   front: "Where do the native port's speed gains come from, and how large are they?"
   back: "Native code plus parallelism: 7.0 parses, type-checks and emits in parallel. The announcement reports 8x to 12x faster full builds on large projects (vscode 125.7s to 10.6s)."
-  question: typescript/the-compiler/native-compiler-port
-- id: native-speedup-small-app
-  front: "Did a small app get the announced 10x speedup?"
-  back: "No. On a 38-file app, `tsc --noEmit` went from about 1.1s to 0.16s, about 6x; the announced numbers are for large codebases and several cores."
   question: typescript/the-compiler/native-compiler-port
 - id: native-cli-flags
   front: "What new CLI flags does TS 7.0 add?"
