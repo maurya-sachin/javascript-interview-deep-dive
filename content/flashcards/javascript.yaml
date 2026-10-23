@@ -285,6 +285,38 @@
   front: "Why prefer `Number.isNaN` over the global `isNaN`?"
   back: "Global `isNaN` coerces its argument first, so `isNaN('x')` is `true`. `Number.isNaN` does not coerce."
   question: javascript/values-and-types/type-checking
+- id: records-tuples-what-proposed
+  front: "What did the Records & Tuples proposal (`#{ x: 1 }`, `#[1, 2]`) propose?"
+  back: "Two new primitive types, deeply immutable, holding only primitives and other records and tuples. `typeof` would report `\"record\"` and `\"tuple\"`, and `===` would compare them by content."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: records-tuples-why-stalled
+  front: "Why did Records & Tuples stall at Stage 2?"
+  back: "Per Ashley Claymore's February 2025 summary, any design must not add new primitives, and there was no appetite to overload `===` with content comparison. A committee view was that object-like non-objects would confuse users."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: records-tuples-withdrawn
+  front: "What is the status of Records & Tuples, and what subsumes it?"
+  back: "The committee agreed to withdraw it at the April 2025 plenary. TC39's inactive-proposals list says *Subsumed by Composites*. Its syntax is a SyntaxError in every engine."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: composites-design
+  front: "What is a Composite in the Composites proposal?"
+  back: "An ordinary frozen object that can hold any value, so only shallowly immutable. Equal composites are treated as the same key by `Map` and `Set`. `typeof` stays `\"object\"`."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: composites-status-interning
+  front: "What is Composites' status, and how does the current draft make equal composites the same key?"
+  back: "Stage 2 as of October 2026. The current draft interns, so equal composites are literally the same object. The README warns the design will change."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: frozen-objects-identity-equality
+  front: "Does `Object.freeze` give an object value semantics for `===` or `Set`?"
+  back: "No. A frozen object is still compared by identity, and freezing is shallow. Two frozen objects with equal fields are unequal and stay separate in a `Set`."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: json-stringify-compound-key-fragile
+  front: "Why is `JSON.stringify` a fragile compound `Map` key?"
+  back: "Property order changes the string, `undefined` and functions are dropped, and `BigInt` throws."
+  question: javascript/values-and-types/why-no-records-and-tuples
+- id: typescript-record-unrelated
+  front: "Is TypeScript's `Record<K, V>` related to the Records proposal?"
+  back: "No. It is a compile-time utility type for an object with keys `K` and values `V`. Because of that precedent, the Composites champion told TC39 \"Record\" is the one name it shouldn't use."
+  question: javascript/values-and-types/why-no-records-and-tuples
 
 # 03 Numbers and BigInt
 - id: number-is-binary64
