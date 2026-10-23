@@ -75,4 +75,4 @@ Output was checked with `tsc` on both versions, and `c.js` was run on Node 24.19
 ## Follow-ups
 
 **Q:** Why did `importsNotUsedAsValues` and `preserveValueImports` go away?
-**A:** The TS 5.0 notes call them deprecated in favour of `verbatimModuleSyntax`. On 6.0.3 they report TS5102 "has been removed"; TS 7.0.2 reports them as unknown options (TS5023).
+**A:** The TS 5.0 notes call them deprecated in favour of `verbatimModuleSyntax`. On 6.0.3 they report TS5102 "has been removed", except `importsNotUsedAsValues: "remove"` (the old default), which is accepted silently; TS 7.0.2 reports them as unknown options (TS5023).
