@@ -1266,8 +1266,8 @@
 
 # 06 Modules and declaration files
 - id: import-elision-default
-  front: "What is import elision, and why can a single-file transpiler not do it?"
-  back: "`tsc` drops an import it sees is never used as a value, because it has the whole program. Babel, `ts.transpileModule` and similar tools cannot see the other file, so they cannot tell a type from a class."
+  front: "What is import elision, and what can a single-file transpiler not see?"
+  back: "`tsc` drops an import it sees is never used as a value, because it has the whole program and knows whether `User` is an interface or a class. Babel, `ts.transpileModule` and similar tools cannot see the other file."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: import-type-erased
   front: "What does `import type` (TS 3.8) guarantee, and what error follows from using it as a value?"
@@ -1279,7 +1279,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: isolated-modules-errors-only
   front: "Does `isolatedModules` change emit?"
-  back: "No. It only adds errors for code a one-file-at-a-time transpiler could not compile correctly. Per the docs it does not change checking or emitting behavior, and does not turn off elision."
+  back: "Mostly it adds errors for code a one-file-at-a-time transpiler could not compile. The docs say it does not change emit, yet it implies `preserveConstEnums` and `tsc` stops inlining const enum values. It does not turn off elision."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: isolated-modules-reexport-type
   front: "What does `isolatedModules` report for `export { User }` where `User` is an interface?"
@@ -1291,7 +1291,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-replaces-flags
   front: "Which options does `verbatimModuleSyntax` replace?"
-  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 5.9.3 reports them as removed (TS5102), and TS 7.0.2 reports them as unknown options."
+  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 6.0.3 reports them as removed (TS5102), and TS 7.0.2 reports them as unknown options (TS5023)."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: inline-type-keeps-side-effects
   front: "What does `import { type A } from \"./m\"` emit under `verbatimModuleSyntax`?"
@@ -1299,7 +1299,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-commonjs-forbids-esm
   front: "What happens to ESM syntax in a file that compiles to CommonJS under `verbatimModuleSyntax`?"
-  back: "It is forbidden (TS1287). Use `import x = require()` and `export =` there."
+  back: "It is forbidden (TS1295, or TS1287 for `export const`). Use `import x = require()` and `export =` there."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: import-type-default-and-named
   front: "Why does `import type D, { N } from \"m\"` fail?"
@@ -1307,7 +1307,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-recommended-new
   front: "Why enable `verbatimModuleSyntax` in new projects?"
-  back: "TS 5.9's `tsc --init` template already does, alongside `isolatedModules`, and your emit then matches what Node, Babel or a bundler will do with the source."
+  back: "`tsc --init` on 6.0 and 7.0 already does, alongside `isolatedModules`, and your emit then matches what Node, Babel or a bundler will do with the source."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: module-vs-module-resolution
   front: "What do `module` and `moduleResolution` each control?"
@@ -1347,19 +1347,19 @@
   question: typescript/modules-and-declaration-files/module-resolution
 - id: exports-types-condition-first
   front: "How do you order conditions in a package's `exports` entry for TypeScript?"
-  back: "List `types` before `default`: resolution matches the `types` condition first."
+  back: "List `types` before `default`: conditions are tried in object order, and `tsc` always matches both."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: exports-unlisted-subpath
   front: "What happens when you import a subpath not listed in `exports`?"
   back: "It cannot be resolved, in `tsc` (TS2307) or in Node (`ERR_PACKAGE_PATH_NOT_EXPORTED`)."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: module-resolution-unset-esnext
-  front: "What did leaving `moduleResolution` unset with `module: esnext` do?"
-  back: "On TS 5.9.3 it fell back to `classic` and `import \"dep\"` failed (TS2792). On 7.0.2 the same project compiled; the tsconfig reference does not document the 7.0 default."
+  front: "What does leaving `moduleResolution` unset give on TS 6.0 and 7.0?"
+  back: "`Bundler`, per `--traceResolution` on 6.0.3 and 7.0.2, for `module: esnext` and even `commonjs` (5.x picked `classic` or `node10`), so extensionless imports pass. The tsconfig reference's default table still describes 5.x."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: node10-ignores-exports
   front: "How does `node10` resolution treat a package with `exports`?"
-  back: "It ignores `exports`. On TS 5.9.3 it resolved through the top-level `types` field instead, and an unexported subpath like `dep/internal.js` was accepted."
+  back: "It ignores `exports`. On TS 6.0.3 (TS5107 unless `ignoreDeprecations: \"6.0\"`) it resolved through the top-level `types` field instead, and an unexported subpath like `dep/internal.js` was accepted."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: require-esm-nodenext
   front: "Can a CommonJS file `require()` an ESM-only package under `module: nodenext`?"
@@ -1387,7 +1387,7 @@
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: interop-flags-forced-6
   front: "What happened to setting `esModuleInterop` to `false` in TS 6.0 and 7.0?"
-  back: "TS 6.0 deprecated setting either interop flag to `false`. On TS 7.0.2, `--esModuleInterop false` is error TS5108."
+  back: "TS 6.0 deprecated setting either interop flag to `false` (TS5107 unless `ignoreDeprecations: \"6.0\"`). On TS 7.0.2 either `false` is error TS5108."
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: node-esm-default-import
   front: "What does `import x from \"./c.cjs\"` give in native Node ESM?"
@@ -1399,7 +1399,7 @@
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: import-star-call
   front: "Why should you not write `import * as fn from \"cjs\"` and call `fn()`?"
-  back: "A namespace import is not callable. TS 5.9.3 and 6.0.3 report TS2497; TS 7.0.2 accepts the import, typed `{ default: ... }`, and `fn()` is TS2349. Default-import `export =` modules instead."
+  back: "A namespace import is not callable. TS 6.0.3 reports TS2497; TS 7.0.2 accepts the import, typed `{ default: ... }`, and `fn()` is TS2349. Default-import `export =` modules instead."
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: export-equals-esm-file
   front: "What happens to `export =` in an ESM file under `module: nodenext`?"
@@ -1455,11 +1455,11 @@
   question: typescript/modules-and-declaration-files/declaration-files
 - id: types-package-import-found
   front: "Does `@types/foo` need a `types` entry in tsconfig to be found on `import`?"
-  back: "No. On TS 7.0.2 with `types` unset, `import ms from \"ms\"` found `@types/ms`, while the global `process` from `@types/node` needed `--types node` (TS2591)."
+  back: "No. On TS 6.0.3 and 7.0.2 with `types` unset, `import ms from \"ms\"` found `@types/ms`, while the global `process` from `@types/node` needed `--types node` (TS2591)."
   question: typescript/modules-and-declaration-files/declaration-files
 - id: types-vs-exports-precedence
   front: "A package has both `types` and `exports`. Which does `tsc` use?"
-  back: "Under `nodenext` and `bundler`, `exports` wins, with `types` as the first condition. The top-level `types` field still serves resolvers that ignore `exports`."
+  back: "Under `nodenext` and `bundler`, `exports` wins; list its `types` condition first, since conditions match in order. The top-level `types` field still serves resolvers that ignore `exports`."
   question: typescript/modules-and-declaration-files/declaration-files
 - id: types-deps-for-published-dts
   front: "Where should a package list `@types/*` its `.d.ts` files import?"
@@ -1479,7 +1479,7 @@
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: declare-global-needs-module
   front: "Why does `declare global` fail in a file with no imports or exports?"
-  back: "TS2669: global augmentations can only be directly nested in external modules. Add `export {}` to make the file a module."
+  back: "TS2669: global augmentations can only be directly nested in external modules. Add `export {}` to make the file a module. Under `moduleDetection: force` (implied by `module: nodenext`) every file is a module and the error does not occur."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: augmentation-types-only
   front: "Does an augmentation provide the runtime implementation?"
@@ -1498,8 +1498,8 @@
   back: "`/// <reference types=\"node\" />` pulls in an `@types` package, `path` adds a file, and `lib` adds a built-in lib. Prefer imports or `tsconfig` `include`/`types`."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: triple-slash-not-emitted-55
-  front: "Are triple-slash directives emitted into outputs since TS 5.5?"
-  back: "Not unless marked `preserve=\"true\"`. On TS 5.9.3 and 7.0.2 a `types=\"mocha\" preserve=\"true\"` reference was kept in the `.d.ts`, while `types=\"node\"` was dropped."
+  front: "Are triple-slash directives kept in generated `.d.ts` files since TS 5.5?"
+  back: "Only when marked `preserve=\"true\"`; JavaScript output keeps them as comments. On TS 6.0.3 and 7.0.2 a `types=\"mocha\" preserve=\"true\"` reference was kept in the `.d.ts`, while `types=\"node\"` was dropped."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: triple-slash-position
   front: "Where must `/// <reference path>` appear to count?"
@@ -1507,15 +1507,15 @@
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: global-file-import-breaks
   front: "What happens when you add an `import` to a script `.d.ts` that augments `Window`?"
-  back: "The file becomes a module, so `interface Window { viaModule: number }` stops being global (TS2551). Keep global augmentation in a file your `tsconfig` `include` covers."
+  back: "The file becomes a module, so `interface Window { viaModule: number }` stops being global (TS2339). Keep global augmentation in a file your `tsconfig` `include` covers."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: ts-check-levels
   front: "How do you opt in to checking JavaScript with TypeScript?"
-  back: "Per file with `// @ts-check` on the first line, or per project with `allowJs` plus `checkJs`. `checkJs` is the same as adding `// @ts-check` to every JavaScript file."
+  back: "Per file with `// @ts-check` on the first line, or per project with `checkJs`, which turns on `allowJs`. `checkJs` is the same as adding `// @ts-check` to every JavaScript file."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: checkjs-needs-allowjs
-  front: "Why set `allowJs` with `checkJs`?"
-  back: "`allowJs` includes `.js` files in the program and `checkJs` reports errors in them. The docs describe them as a pair."
+  front: "Do you need to set `allowJs` alongside `checkJs`?"
+  back: "No. `allowJs` alone adds `.js` files to the program but reports nothing in them; `checkJs` reports errors and turns `allowJs` on by itself."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: ts-check-scope
   front: "Does `// @ts-check` in one file check the others?"
@@ -1547,7 +1547,7 @@
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: noimplicitany-js
   front: "Does `noImplicitAny` apply to JavaScript under `checkJs`?"
-  back: "Yes: `function add(a, b)` reported TS7006 under `--strict`. Without `--strict` it was clean on TS 5.9.3 but an error on 7.0.2, because 7.0 turns `strict` on by default."
+  back: "Yes: `function add(a, b)` reported TS7006 under `--strict`. With no `strict` setting it is still an error on 6.0.3 and 7.0.2, because `strict` defaults to `true` since 6.0; `--strict false` made it clean."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: ts7-jsdoc-removed
   front: "Which old JSDoc forms does TS 7.0 no longer recognise?"
