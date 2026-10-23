@@ -35,6 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 
 ## Sources
 
-- **Spec:** [Modules](https://tc39.es/ecma262/#sec-modules)
-- **Node.js:** [Events](https://nodejs.org/api/events.html)
+- **Spec:** [Modules](https://tc39.es/ecma262/#sec-modules) · [HostLoadImportedModule](https://tc39.es/ecma262/#sec-HostLoadImportedModule) · [Private Names](https://tc39.es/ecma262/#sec-private-names)
+- **DOM / HTML:** [Event listeners](https://dom.spec.whatwg.org/#concept-event-listener) · [Module map](https://html.spec.whatwg.org/multipage/webappapis.html#module-map)
+- **Node.js:** [Events](https://nodejs.org/api/events.html) · [Module caching](https://nodejs.org/api/modules.html#caching) · [ES module URLs](https://nodejs.org/api/esm.html#urls)
 - **MDN:** [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) · [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
