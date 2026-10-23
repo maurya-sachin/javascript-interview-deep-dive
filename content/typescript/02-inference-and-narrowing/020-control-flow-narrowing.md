@@ -15,6 +15,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html#unlisted-property-narrowing-with-the-in-operator
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-3.html#switch-true-narrowing
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#preserved-narrowing-in-closures-following-last-assignments
+  - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html#inferred-type-predicates
   - https://github.com/microsoft/TypeScript/blob/v5.9.3/src/compiler/checker.ts
 tldr: >
   Narrowing refines a variable's declared type to something more specific at each point in the
@@ -44,7 +45,7 @@ Narrowing is always relative to the **declared type**: assignments are checked a
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict; runs on Node 24 (type stripping)
+// TypeScript 7.0.2 and 6.0.3, --strict; runs on Node 24 (type stripping)
 function describe(value: string | number | Date | string[] | null): string {
   if (value === null) return "null"; // equality removes null
   if (typeof value === "number") return value.toFixed(1); // typeof
@@ -74,7 +75,7 @@ function retryLater(options: { retries?: number }) {
 ## Follow-ups
 
 **Q:** Why does `"name" in obj` on `obj: object` now let you read `obj.name`?
-**A:** Since 4.9, `in` on a type that doesn't list the property intersects it with `Record<"name", unknown>`. On 7.0.2 and 5.9.3, `object` narrows to `object & Record<"name", unknown>`; you still have to narrow `name` itself.
+**A:** Since 4.9, `in` on a type that doesn't list the property intersects it with `Record<"name", unknown>`. On 7.0.2 and 6.0.3, `object` narrows to `object & Record<"name", unknown>`; you still have to narrow `name` itself.
 
 **Q:** Does narrowing change the runtime?
 **A:** No. Types are erased; narrowing only changes what the checker accepts. A runtime check must exist in the code for the narrowing to be true.
@@ -111,11 +112,11 @@ function run(c: Config) {
 }
 ```
 
-**Loops and joins.** At a loop head the checker unions the type from before the loop with the type at the end of each iteration, so `while (typeof x === "string") x = x.length;` leaves `x` as `number` afterwards (checked on 7.0.2 and 5.9.3).
+**Loops and joins.** At a loop head the checker unions the type from before the loop with the type at the end of each iteration, so `while (typeof x === "string") x = x.length;` leaves `x` as `number` afterwards (checked on 7.0.2 and 6.0.3).
 
 ### Edge cases
 
-Closures and aliased conditions are the cases people trip on. Version notes are from the 4.4 and 5.4 release notes; I re-ran them on 7.0.2, 5.9.3 and 5.3.
+Closures and aliased conditions are the cases people trip on. Version notes are from the 4.4 and 5.4 release notes; I re-ran them on 7.0.2, 6.0.3 and 5.3.3.
 
 ```ts
 function lastAssignment(url: string | URL, names: string[]) {
@@ -140,7 +141,7 @@ function aliased(value: unknown) {
 
 - **Last-assignment rule (5.4).** For parameters and `let` variables, a closure created after the last assignment keeps the narrowing. An assignment anywhere in a nested function, or after the closure is created, disables it. The checker records each variable's last assignment position (`isPastLastAssignment`) for this.
 - **Aliased conditions (4.4).** Narrowing flows through a `const` that holds a guard, a `readonly` property, or an unmodified parameter. The same works for destructured discriminants: `const { kind } = shape; if (kind === "circle")` narrows `shape` per the release notes.
-- **`switch (true)` (5.3).** Each `case` expression acts as a condition. On 5.3, 5.9.3 and 7.0.2 `case typeof x === "string":` narrows `x` to `string`.
+- **`switch (true)` (5.3).** Each `case` expression acts as a condition. On 5.3.3, 6.0.3 and 7.0.2 `case typeof x === "string":` narrows `x` to `string`.
 - **Properties are narrowed too, and are unsound.** Narrowing `options.retries` survives calls such as `reset(options)` because tracking every possible write is infeasible. Property narrowing does not survive an assignment to `options` itself, and it is dropped inside closures.
 
 ### Real-world scenario
@@ -166,8 +167,8 @@ try {
 }
 ```
 
-Verified on 7.0.2 and 5.9.3, output from Node 24. The `in` check relies on 4.9+ behavior, and `input` must first be narrowed to `object` (the `null` check matters: `typeof null === "object"`). When the shape is bigger than a field or two, switch to a type guard or a schema validator; chained narrowing does not scale.
+Verified on 7.0.2 and 6.0.3, output from Node 24. The `in` check relies on 4.9+ behavior, and `input` must first be narrowed to `object` (the `null` check matters: `typeof null === "object"`). When the shape is bigger than a field or two, switch to a type guard or a schema validator; chained narrowing does not scale.
 
 ### Trade-offs
 
-Built-in narrowing costs nothing at runtime and reads like plain JavaScript, which is why it is the default tool. Its limits are static: it can't see mutation through calls, can't cross closures that may run late, and can't narrow on conditions the compiler doesn't recognise (a helper returning `boolean`). For those, copy the value into a `const` first (`const retries = options.retries`), or write a type predicate and accept that it is a promise you must keep.
+Built-in narrowing costs nothing at runtime and reads like plain JavaScript, which is why it is the default tool. Its limits are static: it can't see mutation through calls, can't cross closures that may run late, and can't narrow on conditions the compiler doesn't recognise (a helper declared to return `boolean`; since 5.5, simple unannotated helpers get an inferred type predicate). For those, copy the value into a `const` first (`const retries = options.retries`), or write a type predicate and accept that it is a promise you must keep.
