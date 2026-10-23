@@ -13,6 +13,7 @@ related:
 verified: 2026-10
 sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-8.html
+  - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html
   - https://www.typescriptlang.org/tsconfig/#erasableSyntaxOnly
   - https://github.com/microsoft/TypeScript/pull/61011
   - https://nodejs.org/docs/latest-v24.x/api/typescript.html
@@ -29,7 +30,7 @@ tldr: >
 Almost everything TypeScript adds is **erased**: annotations, interfaces, type aliases, generics, `as`, `satisfies`, `private`/`readonly`/`abstract`/`override`, `declare`. Deleting those leaves valid JavaScript. A few constructs instead **generate** code:
 
 - `enum` and `const enum` (an object, or inlined values)
-- `namespace` / `module` containing values (an IIFE)
+- `namespace` containing values (an IIFE); the legacy `module` keyword form is TS1540 anyway since 6.0
 - constructor **parameter properties** (`constructor(public x: number)`, which add `this.x = x`)
 - `import x = require()`, `import A = B.C`, and `export =`
 - angle-bracket assertions `<T>expr` (`as` is erasable; the angle form is a different syntax)
@@ -45,7 +46,7 @@ Almost everything TypeScript adds is **erased**: annotations, interfaces, type a
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --erasableSyntaxOnly
+// TypeScript 7.0.2 and 6.0.3, --erasableSyntaxOnly
 enum Dir { Up }
 // Error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled.
 class Point { constructor(public x: number) {} }
@@ -83,7 +84,7 @@ The `Fine` class and the rewrites were run alone as a `.ts` file on Node 24.19.0
 ## Follow-ups
 
 **Q:** Which TypeScript version added it?
-**A:** 5.8, per the release notes (PR 61011, merged 2025-01-23). Checked on 5.9.3 and 7.0.2: the same four errors for the example, including the angle-bracket assertion.
+**A:** 5.8, per the release notes (PR 61011, merged 2025-01-23). Checked on 6.0.3 and 7.0.2: the same four errors for the example, including the angle-bracket assertion.
 
 **Q:** What replaces an enum under this flag?
 **A:** An `as const` object plus a derived union type; see the enums-vs-unions question. Parameter properties become explicit fields assigned in the constructor, and value namespaces become module exports.
