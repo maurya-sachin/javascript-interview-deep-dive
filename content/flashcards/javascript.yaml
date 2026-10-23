@@ -107,6 +107,62 @@
   front: "What do target environments (Browserslist, esbuild `target`) control?"
   back: "Which transforms and polyfills are applied: only those the listed engines lack. A wider target means larger, slower output."
   question: javascript/how-javascript-runs/polyfill-vs-transpiler
+- id: hashbang-comment-definition
+  front: "What is a hashbang comment, and where is it allowed?"
+  back: "A line starting with `#!` as the first two code points of a Script or Module, such as `#!/usr/bin/env node`. The engine discards it like a comment. One leading space or blank line makes it a SyntaxError."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: hashbang-two-readers
+  front: "Who reads a hashbang line, and what does each reader do with it?"
+  back: "On Unix-like systems the OS uses the rest of the line as the interpreter command. The engine treats it as a single-line comment with no effect on how the code runs."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: hashbang-why-in-grammar
+  front: "Why did the hashbang move into the ECMAScript grammar (ES2023)?"
+  back: "CLI hosts such as Node.js already accepted the line but each stripped it before handing the text to the engine. The Hashbang Grammar proposal made every engine parse the same text the same way."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: hashbang-eval-vs-function
+  front: "Does `eval` accept a hashbang? Does `new Function`?"
+  back: "`eval` accepts it because it parses a Script. `new Function` parses a function body, so a hashbang there is a SyntaxError."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: hashbang-bom-node24
+  front: "What happens to a hashbang file that starts with a byte order mark in Node.js 24?"
+  back: "The spec treats U+FEFF as white space, so the hashbang is not at the start. Hosts may strip a BOM first: Node.js 24 runs such a file as an ES module but throws a SyntaxError for it as CommonJS."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: hashbang-env-node-reason
+  front: "Why `#!/usr/bin/env node` rather than `#!/usr/local/bin/node`?"
+  back: "`env` looks `node` up on the `PATH`, so the script runs whichever Node.js the user has installed (system, nvm, Homebrew) instead of failing when Node.js lives somewhere else."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: hashbang-chmod-executable
+  front: "What else must be true for the OS to honour a hashbang when you run `./cli.js`?"
+  back: "The file must be executable (`chmod +x`)."
+  question: javascript/how-javascript-runs/hashbang-comments
+- id: annex-b-definition
+  front: "What is Annex B of ECMA-262, and when is it required?"
+  back: "A normative annex of legacy web-compatibility features. It is required when the host is a web browser and optional for other hosts. The spec says to avoid using or assuming it in new code."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
+- id: annex-b-three-parts
+  front: "What are Annex B's three parts?"
+  back: "B.1 additional syntax (HTML-like comments, lenient regex patterns), B.2 additional built-ins (`escape`, `substr`, HTML string methods and others), B.3 other semantics (sloppy block-function rules, `[[IsHTMLDDA]]`, and more)."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
+- id: annex-b-with-octal-not-annex
+  front: "Are `with` and legacy octal literals like `010` part of Annex B?"
+  back: "No. They are specified in the main body and required in every host, but only in sloppy mode."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
+- id: annex-b-proto-moved
+  front: "Where are `__proto__` and `__defineGetter__` specified now versus in ES2019?"
+  back: "In ES2019 they were in Annex B. The current spec has them in the main body, marked *Normative Optional, Legacy*."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
+- id: annex-b-html-comments
+  front: "How do Annex B HTML-like comments behave in scripts versus modules?"
+  back: "In a classic script `<!--` starts a line comment, and `-->` does at the start of a line. In a module they are a SyntaxError."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
+- id: annex-b-ishtmldda
+  front: "What does the `[[IsHTMLDDA]]` slot do to `document.all`?"
+  back: "Such objects are falsy in `ToBoolean`, loosely equal to `null` and `undefined`, and report `\"undefined\"` from `typeof`. The spec says it exists for web compatibility and no other object should have it."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
+- id: annex-b-block-function-var
+  front: "In sloppy code, what extra binding does a function declaration inside a block get under Annex B?"
+  back: "A function-scoped `var` binding, assigned when the block's declaration is evaluated. Strict mode doesn't create it."
+  question: javascript/how-javascript-runs/annex-b-legacy-features
 
 # 02 Values and types
 - id: eight-language-types
