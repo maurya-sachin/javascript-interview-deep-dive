@@ -49,7 +49,7 @@ For a new project I leave `strict` on. For a legacy codebase I enable the flags 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 6.0.3, no "strict" key in tsconfig (5.9.3 needs "strict": true)
+// TypeScript 7.0.2 and 6.0.3, no "strict" key in tsconfig (5.x needs "strict": true)
 const users = [{ name: "Oby", age: 12 }];
 const found = users.find((u) => u.name === "Heera");
 console.log(found.age);
@@ -70,7 +70,7 @@ With `"strict": false`, the same file compiled without errors, and running the e
 
 ## Pitfalls
 
-- Assuming a missing `strict` means "off". On 5.9.3 the file above compiled with no errors, on 6.0.3 and 7.0.2 it printed all four. Pin `"strict": true` or `false` explicitly in shared base configs.
+- Assuming a missing `strict` means "off". Under the 5.x default (`false`, which `--strict false` reproduces) the file above compiles cleanly; on 6.0.3 and 7.0.2 it printed all four. Pin `"strict": true` or `false` explicitly in shared base configs.
 - Expecting `strictFunctionTypes` to cover methods. `{ func(x: string | number): void }` still accepted `(x: string) => void`; the same shape written as a property `func: (x: string | number) => void` was an error (TS2322).
 - Turning on `strictPropertyInitialization` alone. With `strictNullChecks` off, `tsc` reports `TS5052: Option 'strictPropertyInitialization' cannot be specified without specifying option 'strictNullChecks'.`
 - Silencing null errors with `!` everywhere. It restores the unchecked behavior one expression at a time and hides the real "can this be absent?" decision.
@@ -78,10 +78,10 @@ With `"strict": false`, the same file compiled without errors, and running the e
 ## Follow-ups
 
 **Q:** Is `alwaysStrict: false` still allowed?
-**A:** No in 7.0.2: `error TS5108: Option 'alwaysStrict=false' has been removed.` The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode.
+**A:** No in 7.0.2: `error TS5108: Option 'alwaysStrict=false' has been removed.` 6.0.3 reports TS5107 unless `ignoreDeprecations: "6.0"` is set. The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode.
 
 **Q:** Why does `strictBuiltinIteratorReturn` matter?
-**A:** `[1, 2].values().next()` narrowed by `done` has `value: undefined`, so `last.value.toFixed()` was TS18048 under the flag and compiled with it off (7.0.2). It was added in 5.6, which shows why upgrades can add errors under `strict`.
+**A:** `[1, 2].values().next()` narrowed by `done` has `value: undefined`, so `last.value.toFixed()` was TS18048 under the flag and compiled with it off (6.0.3 and 7.0.2). It was added in 5.6, which shows why upgrades can add errors under `strict`.
 
 ## Deep dive
 
@@ -93,13 +93,13 @@ That is why library signatures change meaning. `Array#find` is declared as retur
 
 The other family members are separate checks and each was added later: `strictFunctionTypes` in 2.6, `strictPropertyInitialization` in 2.7, `strictBindCallApply` in 3.2, `useUnknownInCatchVariables` in 4.4 and `strictBuiltinIteratorReturn` in 5.6 (per their release notes). Each is "on when `strict` is on" but can be set independently.
 
-In my run on 7.0.2, a file with seven diagnostics (null check, implicit any, property initialization, catch variable, function types, bind/call, `this`) lost the matching one when its flag alone was set to `false`, and the other six stayed. The flags are independent switches, not layers.
+In my run on 6.0.3 and 7.0.2, a file with seven diagnostics (null check, implicit any, property initialization, catch variable, function types, bind/call, `this`) lost only the matching one when one of six flags alone was set to `false`. The exception is `strictNullChecks: false`: it also silenced property initialization, which depends on it, and turned the catch-variable TS18046 into TS2339. Apart from that dependency, the flags are independent switches.
 
 ### Edge cases
 
 - **Method versus property.** The reference says `strictFunctionTypes` was limited to function syntax because enabling it for methods broke many real class hierarchies, including in the DOM. Method bivariance is deliberate. See the variance question for the underlying rule.
-- **Definite assignment.** `email!: string` (compiled under strict on 7.0.2) tells `strictPropertyInitialization` that something else (a decorator, a framework, an init method) assigns it. That is a promise, not a check.
-- **Default flip.** `tsc --showConfig` prints only what the config sets, not defaults: for a config without `strict` it printed no `strict` key on 7.0.2, so you cannot read the effective value from it. The 6.0 and 7.0 notes list the new default; behavior is what the errors show.
+- **Definite assignment.** `email!: string` (compiled under strict on both versions) tells `strictPropertyInitialization` that something else (a decorator, a framework, an init method) assigns it. That is a promise, not a check.
+- **Default flip.** `tsc --showConfig` prints only what the config sets, not defaults: for a config without `strict` it printed no `strict` key on 6.0.3 or 7.0.2, so you cannot read the effective value from it. The 6.0 and 7.0 notes list the new default; behavior is what the errors show.
 - **Staying non-strict.** On 6.0 or 7.0 write `"strict": false` explicitly. Individual flags can still be turned on from there.
 
 ### Real-world scenario
@@ -140,4 +140,4 @@ function greet(name: string | undefined) {
 
 Which `strict` member reports the error, and what are two fixes that do not use `!`?
 
-**Answer:** `strictNullChecks` (checked on 7.0.2: `TS18048: 'name' is possibly 'undefined'`). Fixes: narrow (`if (!name) return ""`) or default (`(name ?? "").toUpperCase()`).
+**Answer:** `strictNullChecks` (checked on 6.0.3 and 7.0.2: `TS18048: 'name' is possibly 'undefined'`). Fixes: narrow (`if (!name) return ""`) or default (`(name ?? "").toUpperCase()`).
