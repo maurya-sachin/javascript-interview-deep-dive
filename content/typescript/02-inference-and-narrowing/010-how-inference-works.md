@@ -42,7 +42,7 @@ Elsewhere, leave annotations off. Local variables and callbacks read better, and
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 declare function draw(shape: { kind: "circle"; r: number }): void;
 
 const circle = { kind: "circle", r: 1 };
@@ -69,8 +69,8 @@ const miss: string = typed.get("a");
 ## Pitfalls
 
 - Assuming `const x = { kind: "a" }` keeps `"a"`. `const` freezes the binding, not the properties, so `kind` is `string` (see the example). Use `as const`, an annotation, or `satisfies`.
-- Expecting `[new Rhino(), new Elephant()]` to be `Animal[]`. It is the union of the two; the handbook's fix is an explicit `Animal[]`. (The union's member order in messages differs between 5.9.3 and 7.0.2; don't depend on it.)
-- Relying on `new Map()` or `new Set()` with no type arguments. The result is `Map<any, any>`, and everything read from it is unchecked.
+- Expecting `[new Rhino(), new Elephant()]` to be `Animal[]`. It is the union of the two; the handbook's fix is an explicit `Animal[]`. (The union's member order in messages differs between 6.0.3 and 7.0.2; don't depend on it.)
+- Relying on `new Map()` with no type arguments. The result is `Map<any, any>`, and everything read from it is unchecked (`new Set()` gives `Set<unknown>`: safe, but unusable until typed).
 - Letting inferred return types define a public API. A body edit changes the signature for every caller, and the diff doesn't show it.
 
 ## Follow-ups
