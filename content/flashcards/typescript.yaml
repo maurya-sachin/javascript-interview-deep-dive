@@ -695,7 +695,7 @@
   question: typescript/type-level-programming/conditional-types
 - id: detect-any
   front: "How do you detect `any` with a conditional type?"
-  back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, to which `0` is assignable; for other `T` the intersection is `1` or `never`."
+  back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, which accepts `0`; for any other `T` the intersection is `1`, a narrower `1 & …` or `never`, none of which accepts `0`."
   question: typescript/type-level-programming/conditional-types
 - id: distributive-true-branch-constraint
   front: "In the true branch of a distributive conditional, what is `T`, and why does `T extends string ? Uppercase<T> : never` compile?"
@@ -703,7 +703,7 @@
   question: typescript/type-level-programming/conditional-types
 - id: distribution-only-own-naked-parameter
   front: "Does an outer alias distribute a union that sits inside an object, function return or tuple position?"
-  back: "No. A conditional there distributes only when its own check type is a naked parameter at instantiation. For example `Obj<string | number>` printed `{ v: 2 | 1 }`; union order differs by compiler."
+  back: "No. A conditional there distributes only when its own check type is a naked parameter at instantiation. For example `Obj<string | number>` printed `{ v: 1 | 2 }` on 7.0.2 and `{ v: 2 | 1 }` on 6.0.3."
   question: typescript/type-level-programming/conditional-types
 - id: force-distribution-idiom
   front: "What idiom forces distribution when you have no conditional you otherwise need?"
@@ -735,7 +735,7 @@
   question: typescript/type-level-programming/infer-keyword
 - id: infer-overloads
   front: "Which signature does `infer` see on an overloaded function?"
-  back: "The last one. Generic signatures are inferred with their type parameters as `unknown`. So `ReturnType` and `Parameters` see only the last overload."
+  back: "The last one. A generic signature's type parameters are replaced by their constraints (`unknown` when unconstrained). So `ReturnType` and `Parameters` see only the last overload."
   question: typescript/type-level-programming/infer-keyword
 - id: infer-extends-constraint
   front: "What does `infer X extends C` (TS 4.7) do?"
@@ -827,7 +827,7 @@
   question: typescript/type-level-programming/mapped-types
 - id: mapped-index-signatures-survive
   front: "Does a homomorphic identity mapping keep index signatures? (checked)"
-  back: "Yes. `Plain<{ [k: string]: number; a: 1 }>` printed `{ [x: string]: number; a: 1; }`."
+  back: "Yes. `Plain<{ [k: string]: number; a: 1 }>` equals `{ [x: string]: number; a: 1 }`."
   question: typescript/type-level-programming/mapped-types
 - id: mapped-as-over-union-of-objects
   front: "How do you build a handler map keyed by `kind` from a union of objects?"
