@@ -383,7 +383,7 @@
   question: typescript/inference-and-narrowing/satisfies-operator
 - id: as-vs-satisfies-completeness
   front: "Why do `as` and `satisfies` differ on a config object with missing or misspelled keys?"
-  back: "`as T` only requires sufficient overlap, so missing keys and extra keys like `bleu` pass. `satisfies` does an assignability check and rejects both."
+  back: "`as T` only requires sufficient overlap: it accepts missing keys, and extra keys when none is missing; only a typo that drops one key and adds another (`bleu` for `blue`) trips TS2352. `satisfies` rejects all three."
   question: typescript/inference-and-narrowing/satisfies-operator
 - id: satisfies-not-conversion
   front: "Does `satisfies` change a value's type?"
@@ -403,7 +403,7 @@
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: as-overlap-rule
   front: "When does TypeScript allow `value as T`?"
-  back: "When the types sufficiently overlap, meaning one is assignable to the other. `\"hello\" as number` is rejected with TS2352."
+  back: "When the types sufficiently overlap: per the handbook, `T` is a more or less specific version of the value's type. `\"hello\" as number` is rejected with TS2352."
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: double-assertion
   front: "What is a double assertion and what does it cost?"
@@ -423,7 +423,7 @@
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: definite-assignment-emit
   front: "Does `prop!: string` change the emitted JavaScript of a class?"
-  back: "The `!` is erased, but the field declaration is not. With `target: es2022`, TS 7.0.2 emitted `b;`, defining the field as `undefined`. `declare b: string` or `useDefineForClassFields: false` emitted no field."
+  back: "The `!` is erased, but the field declaration is not. With `target: es2022`, TS 7.0.2 and 6.0.3 emitted `b;`, defining the field as `undefined`. `declare b: string` or `useDefineForClassFields: false` emitted no field."
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: assertion-alternatives
   front: "What should you prefer over `as` and `!` when an alternative exists?"
