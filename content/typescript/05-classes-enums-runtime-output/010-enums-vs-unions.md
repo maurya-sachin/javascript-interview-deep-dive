@@ -38,13 +38,13 @@ Tradeoff: an enum gives a nominal-ish, namespaced type and autocompletion on `Ro
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 enum Role { Admin, User }
 enum Color { Red = "RED" }
 const Status = { Active: "active", Banned: "banned" } as const;
 type Status = (typeof Status)[keyof typeof Status]; // "active" | "banned"
 
-function setStatus(s: Status) { console.log(s); }
+function setStatus(s: Status) { return s; }
 setStatus(Status.Active);
 setStatus("banned"); // OK: a plain literal is a valid Status
 setStatus("gone");
@@ -71,7 +71,7 @@ console.log(Object.keys(Role), Object.values(Status));
 ## Follow-ups
 
 **Q:** What does `const enum` emit?
-**A:** No enum object by default: `Level.High` becomes `2 /* Level.High */` (checked). `preserveConstEnums` keeps the object too. With `isolatedModules` on (TS 7.0.2) an own `export const enum` was emitted as a normal object and the use site was not inlined.
+**A:** No enum object by default: `Level.High` becomes `2 /* Level.High */` (checked). `preserveConstEnums` keeps the object too. With `isolatedModules` on (6.0.3 and 7.0.2) every own const enum was emitted as a normal object and no use site was inlined.
 
 **Q:** Why is `keyof typeof Role` a string union?
 **A:** `Role` the value is an object, so `typeof Role` has keys `Admin` and `User`; `keyof Role` (the enum type) is the keys of `number` (checked: `"toFixed"` is accepted). `const bad: keyof typeof Role = 0` errors.
@@ -80,7 +80,7 @@ console.log(Object.keys(Role), Object.values(Status));
 
 ### How it works
 
-A numeric enum compiles to an immediately invoked function that fills an object. Both emitted forms below come from `tsc` 7.0.2 (`--target es2022`):
+A numeric enum compiles to an immediately invoked function that fills an object. Both emitted forms below come from `tsc` 7.0.2 (`--target es2022`); 6.0.3 emits the same:
 
 ```js
 var Role;
@@ -94,14 +94,14 @@ var Color;
 })(Color || (Color = {}));
 ```
 
-The assignment `Role["Admin"] = 0` evaluates to `0`, which is then used as the key for the reverse entry. The `Role || (Role = {})` argument is what lets two declarations of the same enum merge. String members get no reverse entry because two names could share a value.
+The assignment `Role["Admin"] = 0` evaluates to `0`, which is then used as the key for the reverse entry. The `Role || (Role = {})` argument is what lets two declarations of the same enum merge. String members get no reverse entry; the Handbook states the rule without giving a reason.
 
 At the type level, PR 50528 (released in TS 5.0) unified the old numeric and literal enum kinds: an enum is always a union of its member types, members with constant values get literal types, and computed members get a unique type each. It changed only type checking, so emit is unchanged.
 
 ### Edge cases
 
 - **Constant versus computed members.** `1 << 2` is a constant enum expression; `"123".length` is computed. The Handbook lists the allowed operators.
-- **`const enum` emit.** `const lvl = Level.High` emitted `const lvl = 2 /* Level.High */;` and no `Level` object (checked, 7.0.2). `preserveConstEnums` defaults to true under `isolatedModules` (TSConfig reference). That matches what I saw on 7.0.2 and 5.9.3: an own `export const enum Own` was emitted as an object and the use site stayed `Own.B`.
+- **`const enum` emit.** `const lvl = Level.High` emitted `const lvl = 2 /* Level.High */;` and no `Level` object (checked, 6.0.3 and 7.0.2). `preserveConstEnums` defaults to true under `isolatedModules` (TSConfig reference). That matches what I saw on 7.0.2 and 6.0.3: every own const enum, exported or not, was emitted as an object and use sites stayed `Own.B` and `Level.High`.
 - **Ambient const enums with `isolatedModules`.** `declare const enum Ext { A = 1 }` used as `Ext.A` gives `TS2748: Cannot access ambient const enums when 'isolatedModules' is enabled` on both versions.
 - **Exhaustiveness** works for unions and for enums as unions. In my check, `const x: never = s` after a switch that missed `"banned"` printed `Type '"banned"' is not assignable to type 'never'`.
 
