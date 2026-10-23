@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What causes deoptimization?](030-deoptimization.md) | hard | 🟡 draft |
 | 040 | [How does V8 store arrays?](040-elements-kinds.md) | hard | 🟡 draft |
 | 050 | [How does V8 represent numbers?](050-smi-and-heap-numbers.md) | hard | 🟡 draft |
-| 060 | [How do code caching and startup snapshots make JavaScript start faster?](060-code-caching-and-snapshots.md) | hard | 🔴 planned |
+| 060 | [How do code caching and startup snapshots make JavaScript start faster?](060-code-caching-and-snapshots.md) | hard | 🟡 draft |
 | 070 | [How do SpiderMonkey's and JavaScriptCore's tiers compare with V8's?](070-other-engine-tiers.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
 
