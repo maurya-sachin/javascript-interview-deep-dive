@@ -485,7 +485,7 @@
   question: typescript/generics/generics-and-constraints
 - id: union-print-order-unstable
   front: "Can you rely on the printed order of union members in error messages?"
-  back: "No. Unions are unordered. `keyof { id; name }` printed `\"id\" | \"name\"` on TypeScript 7.0.2 and `\"name\" | \"id\"` on 5.9.3 for the same program."
+  back: "No. Unions are unordered. `keyof { id; name }` printed `\"id\" | \"name\"` on TypeScript 7.0.2 and `\"name\" | \"id\"` on 6.0.3 for the same program."
   question: typescript/generics/generics-and-constraints
 - id: generics-fewest-parameters
   front: "What is the guideline for how many type parameters a generic signature should have?"
@@ -504,8 +504,8 @@
   back: "`Dog`. Since TS 2.6, candidates in contravariant positions such as callback parameters resolve to the best common subtype."
   question: typescript/generics/generic-inference
 - id: literal-widening-in-inference
-  front: "How do `same(\"a\", \"b\")` with unconstrained `T` and with `T extends string` differ?"
-  back: "Unconstrained `T` widens to `string`. A constraint such as `T extends string` keeps the literals, giving `\"a\" | \"b\"`."
+  front: "When does generic inference keep literal candidates such as `\"a\"` and `\"b\"` instead of widening them to `string`?"
+  back: "When `T` is the whole return type (`same(\"a\", \"b\")` is `\"a\" | \"b\"`) or its constraint is primitive (`T extends string`). Otherwise they widen: `list(\"a\", \"b\")` returning `T[]` gives `string[]`."
   question: typescript/generics/generic-inference
 - id: no-inference-source
   front: "What does `T` become if no argument mentions it?"
@@ -617,7 +617,7 @@
   question: typescript/generics/keyof-typeof-indexed-access
 - id: keyof-union-print-order
   front: "Is the printed order of a `keyof` union stable across compiler versions?"
-  back: "No. `\"admin\" | \"user\"` printed on 7.0.2 and `\"user\" | \"admin\"` on 5.9.3. Unions are unordered; do not depend on the order."
+  back: "No. `\"admin\" | \"user\"` printed on 7.0.2 and `\"user\" | \"admin\"` on 6.0.3. Unions are unordered; do not depend on the order."
   question: typescript/generics/keyof-typeof-indexed-access
 - id: derive-type-from-value-tradeoff
   front: "What is the trade-off of deriving a type from a value with `typeof`?"
@@ -637,7 +637,7 @@
   question: typescript/generics/const-type-params-noinfer
 - id: const-type-parameter-readonly-constraint
   front: "Why constrain a `const T` array parameter as `readonly string[]` rather than `string[]`?"
-  back: "The readonly tuple candidate fails a mutable constraint. TS 5.0 falls back to `string[]`, while 5.9.3 and 7.0.2 gave the tuple. The `readonly` constraint gives the precise result everywhere."
+  back: "The readonly tuple candidate fails a mutable constraint. Before 5.3 inference fell back to `string[]`; since 5.3 it infers the mutable tuple `[\"a\", \"b\"]`. The `readonly` constraint gives the precise result on every version."
   question: typescript/generics/const-type-params-noinfer
 - id: noinfer-fallback-example
   front: "How does `fallback?: NoInfer<C>` change `light(colors: C[], fallback?: C)`?"
