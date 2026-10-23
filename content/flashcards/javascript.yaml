@@ -1141,6 +1141,54 @@
   front: "Is a `node:vm` context a security boundary?"
   back: "No. It shares the process, and its objects can reach back into yours. Node's docs say not to use it as a sandbox for untrusted code."
   question: javascript/scope-and-execution-contexts/realms
+- id: sloppy-eval-var-lands-in-caller
+  front: "Where do `var` and function declarations from sloppy direct `eval` go?"
+  back: "Into the caller's VariableEnvironment, so `eval('var x = 1')` in a function creates a new local `x` at run time, possibly shadowing an outer `x`. They are created as deletable bindings."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: eval-let-const-never-leak
+  front: "Do `let`, `const` and `class` declared inside `eval` leak into the caller?"
+  back: "No. `PerformEval` gives the eval code a fresh declarative record for them. Only sloppy `var` and function declarations reach the caller."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: strict-eval-var-stays-inside
+  front: "What changes when the caller or the eval code is strict?"
+  back: "The spec step \"If strictEval is true, set variableEnv to lexicalEnv\" applies, so the eval's `var`s stay inside it. Strict direct eval still reads and writes the caller's existing bindings but can't create new ones."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: eval-var-collides-with-let
+  front: "What happens when sloppy `eval('var y = 2')` runs where a `let y` sits between the eval and the function scope?"
+  back: "`EvalDeclarationInstantiation` throws a SyntaxError, because the hoisted `var` would collide with the `let` or `const`."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: eval-var-delete-returns-true
+  front: "What does `delete n` return for a `var n` created by sloppy direct eval, versus an ordinary `var`?"
+  back: "`true` for the eval-created binding, which is deletable. For an ordinary `var`, `delete` returns `false`."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: with-object-environment-record
+  front: "What does `with (obj) stmt` do to name resolution?"
+  back: "It wraps the current scope in an Object Environment Record whose bindings are `obj`'s properties, own and inherited. Each free identifier first asks `HasProperty(obj, name)`; if found and not marked in `obj[Symbol.unscopables]`, reads and writes go to `obj`."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: with-assignment-missing-property
+  front: "Inside `with (cfg)`, where does assigning to a name `cfg` lacks go?"
+  back: "Lookup continues outward, so it assigns to the outer scope or, in sloppy code, creates an implicit global. Functions found on `obj` are called with `obj` as `this`."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: with-strict-mode-syntaxerror
+  front: "Where is `with` a SyntaxError?"
+  back: "In strict code, so it can't appear in modules or classes."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: array-unscopables-hides-methods
+  front: "Why does `Array.prototype` have a `Symbol.unscopables` object?"
+  back: "ES2015 and later added methods such as `values`, `keys` and `includes`. Old code like `with (arr) { values.push(x) }` meant an outer `values`. The null-prototype object lists names `with` must skip, so such code keeps working."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: with-eval-engine-deopt-v8
+  front: "In V8, why are functions using `with` or direct `eval` optimised worse?"
+  back: "Names inside `with` can't be statically resolved, and any variable an inner direct `eval` might reach is forced into a heap context instead of a stack slot and marked as possibly assigned."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: with-proxy-has-trap-spy
+  front: "Why can a Proxy `has` trap observe free names inside `with (proxy)`?"
+  back: "`GetIdentifierReference` calls `HasBinding` on each record outward, and for a `with` record that is `HasProperty`, user-observable through the trap. `Math.max(1, 2)` records only `Math`, since `max` is a property access."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
+- id: with-eval-modern-replacements
+  front: "What replaces `with` and direct `eval` in modern code?"
+  back: "Destructuring replaces `with` for short names. `new Function` with explicit parameters, or an indirect eval, runs generated code without touching local scope. Strict code (modules and classes) removes these effects."
+  question: javascript/scope-and-execution-contexts/with-and-direct-eval-scope
 # 08 Functions
 - id: function-forms-creation-time
   front: "When does the function object exist for a declaration versus an expression?"
