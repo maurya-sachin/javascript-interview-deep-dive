@@ -46,7 +46,7 @@ This is how `Partial`, `Required` and `Readonly` are defined.
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 type Point = { readonly x: number; y?: string; z: boolean };
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
@@ -90,14 +90,14 @@ type Bad = { [K in "a"]: K; extra: 1 };
 
 The mapped type `{ [K in C]: V }` is evaluated by iterating the constituents of `C` (after resolving `keyof T` for the instantiation) and creating a property whose name is each string, number or symbol literal. Non-literal members such as `string` become index signatures (checked: `[K in string | number | symbol]: 1` printed three index signatures). If `C` is `keyof T` for a type parameter, the type is homomorphic: for each key the declared `readonly` and optionality of `T`'s property are carried over, unless the mapping says `+` or `-`.
 
-Because instantiation of a homomorphic type over a union distributes, `Plain<{ a: 1 } | { b: 2 }>` is a union of two mapped results (printed as `Plain<{ a: 1; }> | Plain<{ b: 2; }>`). Primitives map to themselves: `Plain<string>` printed `string`.
+Because instantiation of a homomorphic type over a union distributes, `Plain<{ a: 1 } | { b: 2 }>` is a union of two mapped results (checked: it equals `{ a: 1 } | { b: 2 }`; diagnostics name a member `Plain<{ a: 1; }>`). Primitives map to themselves: `Plain<string>` printed `string`.
 
 ### Edge cases
 
 - Arrays and tuples: `Plain<[a: 1, b?: 2]>` printed `[a: 1, b?: 2 | undefined]`, and `Mutable<readonly string[]>` printed `string[]`.
-- Index signatures survive: `Plain<{ [k: string]: number; a: 1 }>` printed `{ [x: string]: number; a: 1; }`.
+- Index signatures survive: `Plain<{ [k: string]: number; a: 1 }>` equals `{ [x: string]: number; a: 1 }`.
 - `as never` for every key gives `{}`.
-- Mapping over a union of objects with `as`: `{ [E in Ev as E["kind"]]: (e: E) => void }` with `Ev = { kind: "sq"; s: number } | { kind: "ci"; r: number }` printed `{ sq: (e: { kind: "sq"; s: number; }) => void; ci: (e: { kind: "ci"; r: number; }) => void; }`.
+- Mapping over a union of objects with `as`: `{ [E in Ev as E["kind"]]: (e: E) => void }` with `Ev = { kind: "sq"; s: number } | { kind: "ci"; r: number }` printed `{ sq: (e: { kind: "sq"; s: number; }) => void; ci: (e: { kind: "ci"; r: number; }) => void; }` on 6.0.3; 7.0.2 lists `ci` first.
 - `Omit` keeps modifiers (checked: `Omit<Point, "z">` equals `D`) even though it is defined with `Exclude<keyof T, K>`, because it goes through the homomorphic `Pick`.
 
 ### Real-world scenario
