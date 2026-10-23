@@ -69,7 +69,7 @@
   question: typescript/type-system-basics/any-unknown-never
 - id: unknown-any-never-combinations
   front: "What do `unknown | T`, `unknown & T`, `T | never` and `T & never` reduce to?"
-  back: "`unknown`, `T`, `T` and `never`. `any` absorbs both ways: `any | T` and `any & T` are `any`."
+  back: "`unknown`, `T`, `T` and `never`. `any` absorbs both ways: `any | T` and `any & T` are `any`, except `any & never`, which is `never`."
   question: typescript/type-system-basics/any-unknown-never
 - id: never-exhaustiveness-default
   front: "How does a `never` variable in a `switch` default branch help?"
@@ -77,7 +77,7 @@
   question: typescript/type-system-basics/any-unknown-never
 - id: json-parse-returns-any
   front: "What type do `JSON.parse` and `Response.json()` return, and what is the safe habit?"
-  back: "`any`. Assigning it to a typed variable is an unchecked cast. Accept it as `unknown` immediately, then narrow once at the boundary."
+  back: "`any`: `JSON.parse` returns it and `Response.json()` resolves to it. Assigning it to a typed variable is an unchecked cast. Accept it as `unknown` immediately, then narrow once at the boundary."
   question: typescript/type-system-basics/any-unknown-never
 - id: catch-variable-unknown
   front: "Which option makes `catch (e)` give `unknown`, and is it part of `strict`?"
@@ -121,11 +121,11 @@
   question: typescript/type-system-basics/literal-types-as-const
 - id: readonly-tuple-to-mutable-param
   front: "Why does passing an `as const` array to a `string[]` parameter fail, and what is the fix?"
-  back: "A `readonly` tuple cannot be assigned to a mutable array type (`TS4104`). Type the parameter `readonly string[]`."
+  back: "A `readonly` tuple cannot be assigned to a mutable array type (`TS4104` on 7.0; 6.0 reports `TS2345` with that message beneath). Type the parameter `readonly string[]`."
   question: typescript/type-system-basics/literal-types-as-const
 - id: as-const-vs-satisfies
   front: "How do `as const` and `satisfies` differ?"
-  back: "`satisfies T` (TS 4.9) checks the value against `T` and keeps its inferred type, with no `readonly` or narrowing. `as const` changes the inferred type to the narrowest one. They combine as `as const satisfies T`."
+  back: "`satisfies T` (TS 4.9) validates against `T` and keeps the inferred type: no `readonly`, and literals stay only where `T` expects them. `as const` narrows fully. They combine as `as const satisfies T`."
   question: typescript/type-system-basics/literal-types-as-const
 - id: const-type-parameter
   front: "What does a `<const T>` type parameter do?"
@@ -149,7 +149,7 @@
   question: typescript/type-system-basics/excess-property-checks
 - id: excess-check-spread-and-union
   front: "Where does excess property checking not apply?"
-  back: "Spread members are not checked. A union target without a discriminant accepts a literal matching any member. With a discriminant, TypeScript picks the matching member and checks against it."
+  back: "Spread members are not checked. A union target without a discriminant rejects only properties that no member declares. With a discriminant, TypeScript picks the matching member and checks against it."
   question: typescript/type-system-basics/excess-property-checks
 - id: excess-check-fixes
   front: "How should you fix an excess property error on a legitimate extra property?"
