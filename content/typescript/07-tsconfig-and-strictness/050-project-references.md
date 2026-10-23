@@ -41,7 +41,7 @@ Practical layout: a base config for shared options, one `composite` project per 
 ## Example
 
 ```jsonc
-// TypeScript 7.0.2 (5.9.3 printed the same decisions for the first run and the body edit). Layout: packages/core, packages/app
+// TypeScript 7.0.2, excerpts without timestamps (6.0.3 decided the same; its last line names input 'packages/core'). Layout: packages/core, packages/app
 // packages/core/tsconfig.json: { "extends": "../../tsconfig.base.json", "compilerOptions": { "rootDir": "src", "outDir": "dist" }, "include": ["src"] }
 // packages/app/tsconfig.json:  same, plus "references": [{ "path": "../core" }]
 // tsconfig.base.json: { "compilerOptions": { "composite": true, "strict": true, "module": "nodenext", ... } }
@@ -62,15 +62,15 @@ After `tsc -b`, `node packages/app/dist/main.js` printed `3`.
 
 ## Pitfalls
 
-- Running `tsc -p packages/app` before core is built. With the package import above it gave `TS2307: Cannot find module '@demo/core'` on 5.9.3, 6.0.3 and 7.0.2; with a relative import into core, 7.0.2 gave `TS6305: Output file ... has not been built from source file`. Use `tsc -b`.
+- Running `tsc -p packages/app` before core is built. With the package import above it gave `TS2307: Cannot find module '@demo/core'` on 6.0.3 and 7.0.2; with a relative import into core, both gave `TS6305: Output file ... has not been built from source file`. Use `tsc -b`.
 - Importing a sibling by relative path (`../../core/src/index.js`). `tsc` was satisfied through the reference, but the emitted import stayed as written and Node threw `ERR_MODULE_NOT_FOUND` because `core/src/index.js` does not exist.
 - Importing a project's files without listing it in `references`: `TS6307: File ... is not listed within the file list of project`. The same import also tripped `TS6059` (not under `rootDir`).
-- Trusting the Handbook's statement that `-b` acts as `noEmitOnError`. On 5.9.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, as the 5.6 notes describe. Note: the 5.6 notes call the stop flag `--stopOnBuildErrors`, but the CLI flag is `--stopBuildOnErrors` (7.0.2 said `TS5072: Unknown build option '--stopOnBuildErrors'`).
+- Trusting the Handbook's statement that `-b` acts as `noEmitOnError`. On 6.0.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, as the 5.6 notes describe. Note: the 5.6 notes call the stop flag `--stopOnBuildErrors`, but the CLI flag is `--stopBuildOnErrors` (7.0.2 said `TS5072: Unknown build option '--stopOnBuildErrors'`; 6.0.3 said TS5077 and suggested `stopBuildOnErrors`).
 
 ## Follow-ups
 
 **Q:** Do I need `composite` just for faster rebuilds?
-**A:** No. `incremental: true` alone wrote `out/tsconfig.tsbuildinfo`, and a second run with no changes emitted nothing (`--listEmittedFiles`, 7.0.2). `composite` is for being referenced.
+**A:** No. `incremental: true` alone wrote `out/tsconfig.tsbuildinfo`, and a second run with no changes emitted nothing (`--listEmittedFiles`, 6.0.3 and 7.0.2). `composite` is for being referenced.
 
 **Q:** Where does the `.tsbuildinfo` go?
 **A:** Per the reference it depends on `outDir`, `rootDir` and the config name. Here, with `rootDir: src` and `outDir: dist`, it was `packages/core/tsconfig.tsbuildinfo`, beside the config.
