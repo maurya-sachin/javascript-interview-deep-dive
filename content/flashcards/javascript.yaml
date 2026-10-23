@@ -803,6 +803,50 @@
   front: "Does `Object.is` coerce its arguments?"
   back: "No. `Object.is('1', 1)` and `Object.is(1n, 1)` are both `false`. For non-Number types the three equality algorithms agree."
   question: javascript/coercion-and-equality/equality-algorithms
+- id: relational-islessthan-algorithm
+  front: "What single abstract operation do `<`, `>`, `<=` and `>=` share, and what can it return?"
+  back: "IsLessThan(x, y), returning `true`, `false` or undefined (\"not comparable\"). Operands go through `ToPrimitive` with the number hint, so objects try `valueOf` before `toString`."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-two-strings-code-units
+  front: "How are two strings compared with `<`, and why is `'10' < '9'` true?"
+  back: "Code unit by code unit, with a proper prefix counting as less. No conversion to numbers happens when both primitives are strings."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-bigint-string
+  front: "How does IsLessThan compare a BigInt with a string?"
+  back: "It parses the string with `StringToBigInt`; if that fails the result is undefined. So `1n < '2'` is `true` but `1n < '1.5'` is `false`."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-operator-mapping
+  front: "How do the four relational operators map IsLessThan's result?"
+  back: "`x < y` is IsLessThan(x, y) and `x > y` is IsLessThan(y, x), with undefined becoming `false`. `x >= y` is *not* IsLessThan(x, y) and `x <= y` is *not* IsLessThan(y, x), with undefined also becoming `false`."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-nan-undefined-all-false
+  front: "What do `<` and `>=` return when an operand is `NaN` or `undefined`?"
+  back: "Both `false`. `undefined` converts to `NaN`, the result is undefined, and every operator reports it as `false`, so `undefined >= 0` is `false` too."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-leftfirst-order
+  front: "Why does `a > b` still convert `a` before `b`?"
+  back: "`x > y` swaps the operands, so the spec passes a `leftFirst` flag that keeps left-to-right conversion order for side effects."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-chained-comparison
+  front: "What does `3 > 2 > 1` evaluate to, and why?"
+  back: "`false`. It is `(3 > 2) > 1`, which is `true > 1`, which is `1 > 1`."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-objects-compare
+  front: "What does `{} < {}` give, and what about `{} >= {}`?"
+  back: "`false` and `true`. Plain objects become `\"[object Object]\"`, the strings are equal, so \"not less than\" holds. Arrays become their joined string, compared as text."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-date-vs-equality
+  front: "Why do `Date` objects compare correctly with `<` but not with `==`?"
+  back: "`<` uses the number hint, so `valueOf` returns the time value and the numbers are compared. `==` between two objects compares identity."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-symbol-throws
+  front: "What happens when you compare a Symbol with `<`?"
+  back: "The Symbol survives `ToPrimitive`, then `ToNumeric` throws a `TypeError`."
+  question: javascript/coercion-and-equality/relational-comparison
+- id: relational-strings-user-text-sort
+  front: "Why shouldn't you sort user-facing text with `<`?"
+  back: "It compares UTF-16 code units, so `'Z' < 'a'` and accented letters sort after `z`. Use `Intl.Collator` or `localeCompare`."
+  question: javascript/coercion-and-equality/relational-comparison
 # 06 Operators and syntax
 - id: destructuring-default-trigger
   front: "In destructuring, which values trigger a default: `undefined`, `null`, `0`, `''`?"
