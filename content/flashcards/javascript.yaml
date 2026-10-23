@@ -3988,3 +3988,115 @@
   front: "What does V8 pointer compression do, and does Node 24.19 use it?"
   back: "Per V8's post it cut heap size by up to 43% and limits the heap to a 4 GB range. In the Node 24.19 build, `v8_enable_pointer_compression` was `0`."
   question: javascript/inside-the-engine/smi-and-heap-numbers
+- id: code-cache-vs-snapshot
+  front: "What do V8 code caching and startup snapshots each skip, and are they in ECMAScript?"
+  back: "Neither is in ECMAScript; both are V8 and embedder optimizations. Code caching skips *compiling*: V8 deserializes serialized bytecode instead of parsing and compiling. Startup snapshots skip *executing*: a context is built from a pre-initialized heap."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: code-cache-rejection
+  front: "When does V8 reject a code cache and compile normally?"
+  back: "When the cache doesn't pass its check: a different V8 version, different flags or a source mismatch. In Node.js, `vm.Script` reports this as `cachedDataRejected`."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: chrome-code-cache-runs
+  front: "In Chrome, which load of a script creates and which uses a code cache?"
+  back: "The first load just compiles (cold); the second compiles again and stores a cache beside the HTTP cache entry (warm); the third and later loads use it (hot). Scripts under 1 KiB and inline scripts aren't cached, and the cache is keyed by URL, so a changed query string starts over."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: chrome-66-cache-timing
+  front: "What changed about code cache creation in Chrome 66?"
+  back: "The cache is created after the script's top-level code runs, so it includes every function compiled by then, not just those compiled right after parsing. The V8 team measured a 20–40% reduction in parse and compile time on most pages."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: code-cache-lazy-functions
+  front: "Are lazily compiled functions, such as a click handler first called later, in Chrome's code cache?"
+  back: "Only functions compiled by the end of the top-level run are cached, so code first called by a click handler is compiled on each load."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: service-worker-code-cache
+  front: "How does a service worker affect Chrome's code cache?"
+  back: "Scripts a service worker caches during its install event get a full code cache immediately, without waiting for the second and third loads."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: startup-snapshot-context-time
+  front: "What did the V8 team's 2015 post measure for context creation with startup snapshots?"
+  back: "Context creation dropping from 40 ms to under 2 ms on desktop. V8 builds each new context from a heap where built-ins and the global object are already set up. A custom snapshot serializes your app's setup heap too."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: node-code-cache-and-snapshot-apis
+  front: "Which Node.js 24 APIs expose code caches and startup snapshots?"
+  back: "`vm.Script` `cachedData` and `createCachedData()`; the module compile cache (`module.enableCompileCache()` or `NODE_COMPILE_CACHE`), which stores code caches on disk for CommonJS, ESM and TypeScript; `--build-snapshot`/`--snapshot-blob` and `v8.startupSnapshot`; and single executable applications (`useCodeCache`, `useSnapshot`)."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: node-code-cache-source-length
+  front: "In Node.js 24 (V8 13.6), what does V8's code cache acceptance check compare, and what follows?"
+  back: "Source length plus whether the script is a module or a wrapped function, not content. An edited script of the same length gives `cachedDataRejected: false` and runs the stale cached bytecode. Key caches by a content hash. V8's main branch adds an optional SHA-256 source hash behind a flag."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: snapshot-freezes-state
+  front: "What happens to state like `Date.now()`, `Math.random()` or `process.pid` in a startup snapshot?"
+  back: "It is frozen at build time, so recompute it in a deserialize callback. Node.js adds `addSerializeCallback` and `addDeserializeCallback` so applications can close handles before serialization and reopen them on start."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: snapshot-version-binding
+  front: "What does a Node.js snapshot refuse to load?"
+  back: "A blob from a different Node.js version, architecture or platform, or one built with incompatible V8 flags or CPU features. Node.js then exits with status 1, per its `--snapshot-blob` docs."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: node-snapshot-stability
+  front: "How stable are Node.js 24's snapshot, compile cache and single executable features?"
+  back: "`v8.startupSnapshot` became stable in 24.0.0, and `--build-snapshot` stopped being experimental in 24.13.1, though the `--snapshot-blob` entry is still marked experimental. Compile cache APIs are stable since 24.15.0. Single executable applications are Stability 1.1."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: code-cache-no-optimized-code
+  front: "Does code caching make hot code run faster?"
+  back: "No. It removes parse and compile time at load. V8's code serializer stores bytecode and deliberately avoids optimized code, which depends on runtime feedback; Maglev and TurboFan produce it again in each process."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: snapshot-custom-limits
+  front: "What limits did the V8 team's 2015 post give for custom startup snapshots?"
+  back: "They couldn't contain API callbacks or typed arrays with memory outside V8's heap, and values from `Math.random` or `Date.now` are fixed at build time."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: cli-startup-speedup-order
+  front: "In what order does the question suggest speeding up a CLI's startup with Node.js 24 features?"
+  back: "First call `module.enableCompileCache()` at the entry point (later runs reuse on-disk code caches; the first run is slightly slower). If initialization dominates, bundle and build a snapshot with `--build-snapshot`, using `v8.startupSnapshot.setDeserializeMainFunction()`. Build it per platform and Node.js version."
+  question: javascript/inside-the-engine/code-caching-and-snapshots
+- id: engine-tiers-not-ecmascript
+  front: "What shape do V8, SpiderMonkey and JavaScriptCore share in their tiers, and are they in ECMAScript?"
+  back: "Not in ECMAScript. Bytecode runs in an interpreter first, inline caches record the types and shapes each operation sees, and hot code is recompiled by progressively more expensive compilers. Optimized code speculates on that feedback and falls back to a lower tier when a guard fails."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: engine-tier-names
+  front: "Name SpiderMonkey's and JavaScriptCore's tiers against V8's Ignition, Sparkplug, Maglev, TurboFan."
+  back: "SpiderMonkey: C++ interpreter then Baseline Interpreter, Baseline Compiler, WarpMonkey (no middle optimizer). JavaScriptCore: LLInt, Baseline JIT, DFG, FTL."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: spidermonkey-baseline-interpreter
+  front: "What is SpiderMonkey's Baseline Interpreter (Firefox 70) and what does it buy over the C++ interpreter?"
+  back: "It runs the same bytecode but uses the same inline caches and frame layout as the Baseline Compiler, so moving between them is cheap. Mozilla's 2019 post measured Google Docs loading in 901 ms with only the C++ interpreter and 676 ms with it; Speedometer went from 31 to 52."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: warpmonkey-design
+  front: "What is WarpMonkey (Firefox 83) and how does it differ from IonMonkey's old front end?"
+  back: "WarpMonkey builds Ion's MIR from a snapshot of CacheIR inline-cache data, off the main thread, and keeps Ion's back end. It replaced IonMonkey's type-inference front end."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: jsc-ftl-pipeline
+  front: "How does JavaScriptCore's FTL relate to the DFG?"
+  back: "The FTL reuses the DFG's pipeline, taking its IR into SSA form and lowering through B3 IR and Assembly IR (Air) for more optimizations, spending far more compile time for peak throughput. The DFG speculates from the profile with cheap compilation."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: engine-fallback-targets
+  front: "Where does each engine fall back when an optimizer's speculation fails?"
+  back: "V8 deoptimizes to bytecode. SpiderMonkey's Warp bails out to the Baseline Interpreter. JavaScriptCore OSR-exits to Baseline, or to the LLInt if Baseline code was discarded."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: spidermonkey-warmup-thresholds
+  front: "What default warmup counts do SpiderMonkey's in-tree docs give, and what do they count?"
+  back: "10, 100 and 1500, counting function entries plus loop iterations. Thresholds are tuning, not contracts."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: jsc-thresholds
+  front: "What tier-up thresholds did WebKit's 2020 post give for JavaScriptCore, and what does a current jsc list?"
+  back: "Static thresholds of 500, 1000 and 100000 points (a call scores 15, a loop iteration 1), adjusted dynamically. The `jsc` shell on macOS 26.6.2 lists `thresholdForFTLOptimizeAfterWarmUp=64000`, so don't quote thresholds as facts about the engine."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: baseline-compilers-not-optimizing
+  front: "Are Sparkplug and SpiderMonkey's Baseline Compiler optimizing compilers?"
+  back: "No. They translate bytecode to machine code without type speculation; their win is removing interpreter dispatch."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: why-many-tiers
+  front: "Why have more than two compiler tiers? Give WebKit's 2020 speedups."
+  back: "Compile time and code quality trade off. WebKit's measurements put Baseline about 2× faster than LLInt, DFG about 5× faster than Baseline and FTL about 1.5× faster than DFG, each compiler slower to run. A middle tier gets warm code fast without waiting for the top one."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: repeated-failed-speculation
+  front: "What does JavaScriptCore do when an optimized function's speculation keeps failing?"
+  back: "Per WebKit's post, it throws the optimized code away, re-profiles in lower tiers, and counts recompilations to back off from recompiling. V8 and SpiderMonkey also drop back to lower tiers and may recompile once the function warms up again."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: maglev-compile-speed
+  front: "Per the V8 team's 2023 post, how does Maglev's compile speed compare?"
+  back: "Maglev compiles roughly 10× slower than Sparkplug and 10× faster than TurboFan, filling the gap between them. V8 introduced Maglev in Chrome 117, in 2023."
+  question: javascript/inside-the-engine/other-engine-tiers
+- id: engine-tier-memory-cost
+  front: "What is the cost of having more tiers?"
+  back: "Engineering and memory: each compiled version of a function occupies memory, and SpiderMonkey's docs note Baseline machine code needs memory protection changes and cache flushing. Fewer tiers mean longer waits or worse code in the middle."
+  question: javascript/inside-the-engine/other-engine-tiers
