@@ -27,11 +27,11 @@ Built-in checks (`typeof`, `in`, `instanceof`) can't express "this object matche
 An **assertion function** (TS 3.7) narrows by throwing instead of returning false. There are two signatures:
 
 - `asserts value is T`: after the call returns, `value` is `T`.
-- `asserts condition`: after the call returns, the argument expression is truthy (Node's `assert` is typed this way).
+- `asserts condition`: after the call returns, the argument expression is truthy (`@types/node` types Node's `assert` this way).
 
 Rules and traps:
 
-- **The body is not checked.** The handbook says explicit predicates are "no safer than a type assertion". A predicate that returns `true` for the wrong values silently corrupts every call site.
+- **The body is not checked.** The 5.5 release notes say explicit predicates are "no safer than a type assertion". A predicate that returns `true` for the wrong values silently corrupts every call site.
 - **If-and-only-if.** Returning `false` means the value is *not* `T`. `s is string` implemented as `!!s` is wrong: `""` is a string that returns `false`.
 - The predicate type must be assignable to the parameter type: `n: number` with `n is string` is error TS2677.
 - **Assertion calls need an explicit annotation.** The call target must be declared with an explicit type, so a bare `const assertStr = (v: unknown): asserts v is string => {...}` fails at the call site with TS2775. Use a function declaration, or annotate the const.
@@ -42,7 +42,7 @@ For untrusted `unknown` data, write the guard once at the boundary.
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict; runs on Node 24 (type stripping)
+// TypeScript 7.0.2 and 6.0.3, --strict; runs on Node 24 (type stripping)
 interface User { id: number; name: string }
 
 function isUser(value: unknown): value is User {
@@ -73,8 +73,8 @@ console.log(present); // → [ 1, 3 ]
 
 ## Pitfalls
 
-- Writing a predicate that does less than it claims. With `isNonEmpty(s): s is string { return !!s; }`, calling it with `""` returns `false`, so the compiler types the else branch as `undefined` (it accepted `const rest: undefined = s` on 7.0.2 and 5.9.3), yet the value there is `""` and `typeof rest` prints `string`.
-- Using `x => !!x` to filter `(number | undefined)[]`. No predicate is inferred, because `0` returns `false` and is still a `number`; the result stays `(number | undefined)[]` (checked on 7.0.2, 5.9.3). Use `x !== undefined`, which also keeps the zeros.
+- Writing a predicate that does less than it claims. With `isNonEmpty(s): s is string { return !!s; }`, calling it with `""` returns `false`, so the compiler types the else branch as `undefined` (it accepted `const rest: undefined = s` on 7.0.2 and 6.0.3), yet the value there is `""` and `typeof rest` prints `string`.
+- Using `x => !!x` to filter `(number | undefined)[]`. No predicate is inferred, because `0` returns `false` and is still a `number`; the result stays `(number | undefined)[]` (checked on 7.0.2, 6.0.3). Use `x !== undefined`, which also keeps the zeros.
 - Assuming an assertion function "just works" when assigned to an unannotated `const`: TS2775 at each call.
 - Upgrading across 5.5 with `const nums = [1, null].filter(x => x !== null)`. `nums` becomes `number[]`, so `nums.push(null)` now errors; annotate the variable if you meant the wider type (from the 5.5 release notes).
 
