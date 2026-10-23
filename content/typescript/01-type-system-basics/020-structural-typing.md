@@ -8,6 +8,8 @@ tags: [structural-typing, nominal-typing, assignability, branded-types, private-
 related:
   - typescript/type-system-basics/type-vs-interface
 verified: 2026-10
+perishable:
+  - "Nominal types request #202 still open (checked 2026-10)"
 sources:
   - https://www.typescriptlang.org/docs/handbook/type-compatibility.html
   - https://www.typescriptlang.org/docs/handbook/2/everyday-types.html
