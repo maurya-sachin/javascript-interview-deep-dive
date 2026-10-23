@@ -15,6 +15,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/namespaces.html
   - https://www.typescriptlang.org/docs/handbook/namespaces-and-modules.html
   - https://www.typescriptlang.org/tsconfig/#erasableSyntaxOnly
+  - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html
 tldr: >
   Declaration merging combines declarations that share a name into one entity: interfaces merge
   members, namespaces merge exports and can attach members to a function, class, or enum. Type
@@ -38,7 +39,7 @@ A declaration creates a **namespace**, a **type**, a **value**, or a mix (Handbo
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 interface Box { height: number }
 interface Box { width: number }
 const box: Box = { height: 1, width: 2 }; // one merged interface, no emitted code
@@ -75,7 +76,7 @@ console.log(buildLabel("Sam"), Animal.a(), box.width);
 **A:** Module augmentation: `declare module "./observable" { interface Observable<T> { map<U>(f: (x: T) => U): Observable<U> } }`, plus assigning `Observable.prototype.map`. Checked under `module: nodenext` on both versions (`declare global` for `Array.prototype.last` too). Only named exports; no new top-level names.
 
 **Q:** Which namespaces survive `erasableSyntaxOnly`?
-**A:** Checked on both versions: one with values is TS1294; type-only and `declare namespace` pass. 7.0.2 also reports `module Old {}` as TS1540; 5.9.3 did not.
+**A:** Checked on 6.0.3 and 7.0.2: one with values is TS1294; type-only and `declare namespace` pass. Separately, `module Old {}` is TS1540 on both, with or without the flag: 6.0 made the `module` keyword for namespaces a hard deprecation.
 
 ## Deep dive
 
@@ -83,7 +84,7 @@ console.log(buildLabel("Sam"), Animal.a(), box.width);
 
 Each declaration contributes up to three meanings (namespace, type, value), and merging is allowed when the meanings do not clash. A class (type and value) plus a namespace (namespace and value) works because the namespace extends the class value, so it must come second.
 
-A namespace with values compiles to a function that receives the existing object, or `{}` if none. Output from 7.0.2 (`--target es2022`) for the example above:
+A namespace with values compiles to a function that receives the existing object, or `{}` if none. Output from 7.0.2 (`--target es2022`; 6.0.3 emits the same) for the example above:
 
 ```js
 function buildLabel(name) { return buildLabel.prefix + name; }
