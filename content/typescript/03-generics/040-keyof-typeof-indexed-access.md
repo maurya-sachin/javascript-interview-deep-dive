@@ -35,7 +35,7 @@ Remember the namespaces: `typeof` bridges value to type; nothing here runs at ru
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 const roles = ["admin", "user"] as const;
 type Role = (typeof roles)[number]; // "admin" | "user" (order may vary by compiler)
 const bad: Role = "guest";
@@ -70,7 +70,7 @@ type ByValue = Config[key];
 ## Pitfalls
 
 - Indexing with a value. `Config[key]` fails; write `Config[typeof key]` or declare `type Key = "port"`.
-- Assuming `keyof` of a union lists all keys. It lists only the keys common to every member (`keyof ({ kind: "a"; a: 1 } | { kind: "b"; b: 2 })` is `"kind"`); an intersection gives all of them. Checked on 7.0.2 and 5.9.3.
+- Assuming `keyof` of a union lists all keys. It lists only the keys common to every member (`keyof ({ kind: "a"; a: 1 } | { kind: "b"; b: 2 })` is `"kind"`); an intersection gives all of them. Checked on 7.0.2 and 6.0.3.
 - Forgetting `as const`. Without it `typeof roles` is `string[]` and `[number]` gives `string`, not the literals.
 - Treating `keyof` on class values loosely: `keyof C` is the instance keys (`"x"`); the static side needs `keyof typeof C` (`"s" | "prototype"`).
 
@@ -94,8 +94,8 @@ TypeScript keeps values and types in separate namespaces. A type position cannot
 
 - Enums: `keyof typeof E` is `"A" | "B"`; plain `keyof E` on a numeric enum is the keys of `number` (`"toFixed" | "toString" | ...`), not its member names (checked on 7.0.2).
 - `keyof string` includes every `String` method name, plus `number` for index access and a `unique symbol`. It is rarely what you want.
-- `keyof` of a mapped type over `string`, such as `Record<string, 1>`, printed `string` on 5.9.3 rather than `string | number`, unlike an explicit index signature (❓ the cause was not investigated; do not rely on either).
-- Printed order of union members differs between compiler versions (`"admin" | "user"` on 7.0.2, `"user" | "admin"` on 5.9.3). Unions are unordered; do not depend on it.
+- `keyof` of a mapped type over `string`, such as `Record<string, 1>`, printed `string` on 6.0.3 and 7.0.2 rather than `string | number`, unlike an explicit index signature (❓ the cause was not investigated; do not rely on either).
+- Printed order of union members differs between compiler versions (`"admin" | "user"` on 7.0.2, `"user" | "admin"` on 6.0.3). Unions are unordered; do not depend on it.
 
 ### Real-world scenario
 
@@ -114,7 +114,7 @@ The array is both the runtime list for validation and the source of the union, s
 
 ### Trade-offs
 
-Deriving types from values keeps one source of truth but couples the type to the value's literal shape (`as const` is required) and makes error messages mention the derived structure. For public APIs prefer an explicit named type and derive the runtime list from it only if you can tolerate the extra indirection.
+Deriving types from values keeps one source of truth but couples the type to the value's literal shape (`as const` is required) and makes error messages mention the derived structure. For public APIs prefer an explicit named type; a runtime list can't be derived from it, so check the list with `satisfies readonly Permission[]`, which rejects unknown entries but not missing ones.
 
 ## Exercises
 
