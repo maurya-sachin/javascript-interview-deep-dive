@@ -10,6 +10,9 @@ related:
   - typescript/type-level-programming/mapped-types
   - typescript/type-level-programming/utility-types
 verified: 2026-10
+perishable:
+  - "Depth 100, 1000 tail-recursion iterations (PR 45711)"
+  - "Measured limits: 48 characters, 999-element tuple (6.0.3, 7.0.2)"
 sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-1.html
@@ -48,7 +51,7 @@ The first branch keeps functions callable, the second recurses on objects (array
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 interface Cfg { tags: string[]; db: { host: string; port: number }; onChange: (v: string) => void }
 type DeepPartial<T> = T extends (...args: any) => any ? T
   : T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T;
@@ -76,7 +79,7 @@ type TooDeep = TupleOfRec<0, 1000, []>["length"];
 ## Pitfalls
 
 - Recursing blindly into every object. `Date` comes out as a type with every method optional (checked), and functions lose their call signatures unless you add a function branch.
-- Building a result from the recursive call (`Char | GetChars<Rest>`) and hitting TS2589 on inputs of around 50 characters. Measured: 48 characters passed and 49 failed on 5.9.3 and 7.0.2; the accumulator form `GetCharsRec<Rest, Char | Acc>` handled a 104-character string.
+- Building a result from the recursive call (`Char | GetChars<Rest>`) and hitting TS2589 on inputs of around 50 characters. Measured: 48 characters passed and 49 failed on 6.0.3 and 7.0.2, with the type alone in its file (other instantiations nearby shift it); the accumulator form `GetCharsRec<Rest, Char | Acc>` handled a 104-character string.
 - Assuming the limit is a documented constant. PR 45711 describes a depth of 100 and 1000 tail iterations; I measured 999 passing and 1000 failing for the tuple builder above, but those are implementation details that may change.
 - Forgetting that the "recursive" part must sit under a lazy position. Direct self-union (`A = A | string`) errors; `A = string | A[]` does not.
 
