@@ -1605,7 +1605,7 @@
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: strict-flags-independent
   front: "Are the `strict` family flags layered?"
-  back: "No, they are independent switches. Setting one to `false` removes only its diagnostics; the others stay."
+  back: "No. Setting one of six flags to `false` removed only its diagnostic. The exception is `strictNullChecks: false`: it also silenced property initialization, which depends on it, and turned the catch-variable TS18046 into TS2339."
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: strict-null-narrowing-tools
   front: "How is `undefined` removed from a union under `strictNullChecks`?"
@@ -1617,11 +1617,11 @@
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: always-strict-removed
   front: "Is `alwaysStrict: false` still allowed?"
-  back: "No. On TS 7.0.2 it is TS5108 (removed). The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode."
+  back: "No. On TS 7.0.2 it is TS5108 (removed); 6.0.3 reports TS5107 unless `ignoreDeprecations: \"6.0\"` is set. The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode."
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: show-config-defaults
   front: "Does `tsc --showConfig` show the effective value of `strict`?"
-  back: "No. It prints only what the config sets, not defaults. For a config without `strict` it printed no `strict` key on TS 7.0.2."
+  back: "No. It prints only what the config sets, not defaults. For a config without `strict` it printed no `strict` key on TS 6.0.3 or 7.0.2."
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: strict-builtin-iterator-return
   front: "What does `strictBuiltinIteratorReturn` change?"
@@ -1629,7 +1629,7 @@
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: flags-beyond-strict-defaults
   front: "Are the flags beyond `strict`, such as `noUncheckedIndexedAccess`, on by default?"
-  back: "No. None are part of `strict` or on by default; a strict-only config accepted every violation in the example on TS 5.9.3 and 7.0.2."
+  back: "No. None are part of `strict` or compiler defaults; a strict-only config accepted every violation in the example on TS 6.0.3 and 7.0.2. `tsc --init` does write `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` into new configs."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: no-unchecked-indexed-access-effect
   front: "What does `noUncheckedIndexedAccess` (TS 4.1) do to `nums[0]`?"
@@ -1641,7 +1641,7 @@
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: unchecked-index-for-loop
   front: "Is `nums[i]` safe inside `for (let i = 0; i < nums.length; i++)` under `noUncheckedIndexedAccess`?"
-  back: "No, it stays `number | undefined`. Use `for...of`, or read once into a `const` and narrow. Narrowing `nums[i]` works for a `const i` but not a `let j`."
+  back: "No, it stays `number | undefined`. Use `for...of`, or read once into a `const` and narrow. Narrowing `nums[i]` works for a `const i` (or a never-reassigned `let`) but not a reassigned `let` or loop counter."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: exact-optional-property-types-meaning
   front: "What does `exactOptionalPropertyTypes` (TS 4.4) change about `theme?: \"dark\" | \"light\"`?"
@@ -1672,8 +1672,8 @@
   back: "The linter can auto-fix and can be set per rule."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: flags-beyond-strict-versions
-  front: "Do these extra flags behave differently across TS 5.9, 6.0 and 7.0?"
-  back: "Not for the cases in the question: 5.9.3, 6.0.3 and 7.0.2 printed the same diagnostics for the same config."
+  front: "Do these extra flags behave differently across TS 6.0 and 7.0?"
+  back: "Not for the cases in the question: 6.0.3 and 7.0.2 printed the same diagnostics for the same config."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: target-meaning
   front: "What does `target` control?"
@@ -1716,20 +1716,20 @@
   back: "Yes, unless `noEmitOnError` is set. The `??` and `**` rewrites were emitted even though `lib` errors were reported."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: default-lib-file
-  front: "Which default `lib` file did `--listFiles` show by version?"
-  back: "`lib.d.ts` (ES5 plus `dom`) on TS 5.9.3, and `lib.es2025.full.d.ts` on 6.0.3 and 7.0.2. With `--target es2022` on 7.0.2 it was `lib.es2022.full.d.ts`."
+  front: "Which default `lib` file does `tsc` load by version?"
+  back: "Under 5.x's ES5 default, `lib.d.ts` (ES5 plus `dom`). On 6.0.3 and 7.0.2 `--explainFiles` named `lib.es2025.full.d.ts`; with `--target es2022` it was `lib.es2022.full.d.ts`."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: target-class-field-emit
   front: "How does `target` change `class Counter { count = 0 }`?"
-  back: "`es2015` emitted a constructor assignment and `es2022` emitted a `count = 0;` field, following `useDefineForClassFields` (TS 7.0.2)."
+  back: "`es2015` emitted a constructor assignment and `es2022` emitted a `count = 0;` field, following `useDefineForClassFields` (TS 6.0.3 and 7.0.2)."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: module-target-not-coupled
   front: "Do `module` and `target` move together?"
-  back: "No. On TS 7.0.2 and 6.0.3 `--module nodenext` still compiled `using` declarations down; on 5.9.3 it left them as written. The reference still says nodenext implies a floating `target esnext`, which looks out of date for 6.0+."
+  back: "No. On TS 7.0.2 and 6.0.3 `--module nodenext` still compiled `using` declarations down, and `--explainFiles` showed target ES2025. The 5.9 notes and the reference say nodenext implies a floating `target esnext`, which looks out of date for 6.0+."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: upgrade-no-target-module
   front: "What happens upgrading from 5.x with no `target` or `module` in the config?"
-  back: "The same file compiled to CommonJS on TS 5.9.3 and to ES module output on 6.0.3 and 7.0.2."
+  back: "5.x defaulted to CommonJS output for the ES5 target; on 6.0.3 and 7.0.2 the same file compiled to ES module output."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: tsconfig-bases
   front: "Where do community baseline tsconfigs live?"
@@ -1741,7 +1741,7 @@
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: paths-no-rewrite
   front: "Does `paths` rewrite the emitted import?"
-  back: "No. `@lib/util.js` is written to the output as typed, so the bundler or runtime must resolve the alias itself, or Node's `package.json` `\"imports\"`, which the docs recommend. Node threw `ERR_MODULE_NOT_FOUND`."
+  back: "No. `@lib/util.js` is written to the output as typed, so the bundler or runtime must resolve the alias itself, or Node's `package.json` `\"imports\"`, which the docs call a standard replacement for aliases. Node threw `ERR_MODULE_NOT_FOUND`."
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: paths-libraries-node-modules
   front: "Where should you avoid using `paths`?"
@@ -1753,7 +1753,7 @@
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: paths-nodenext-extension
   front: "Why did `@lib/util` fail while `@lib/util.js` resolved under `nodenext`?"
-  back: "The mapped path follows the normal relative-path rules for the `moduleResolution` mode, so extensionless aliases fail with TS2307 (checked on TS 5.9.3)."
+  back: "The mapped path follows the normal relative-path rules for the `moduleResolution` mode, so extensionless aliases fail with TS2307 (checked on TS 6.0.3 and 7.0.2)."
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: extends-semantics
   front: "How does `extends` work?"
@@ -1777,7 +1777,7 @@
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: root-dir-default-6
   front: "What changed for `rootDir` in TS 6.0?"
-  back: "It defaults to the config's directory instead of being inferred. With sources in `src/` and no `rootDir`, 6.0.3 and 7.0.2 reported TS5011; 5.9.3 reported no `rootDir` error."
+  back: "It defaults to the config's directory instead of being inferred. With sources in `src/` and no `rootDir`, 6.0.3 and 7.0.2 reported TS5011; 5.x inferred `src` silently."
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: project-reference-definition
   front: "What is a project reference, and what must the referenced project set?"
@@ -1805,7 +1805,7 @@
   question: typescript/tsconfig-and-strictness/project-references
 - id: build-continues-past-errors-56
   front: "How does `-b` handle errors in upstream projects since TS 5.6?"
-  back: "It continues and writes best-effort output. `--stopBuildOnErrors` stops at the first failing project. The 5.6 notes misname it `--stopOnBuildErrors`, which the CLI rejects (TS5072)."
+  back: "It continues and writes best-effort output. `--stopBuildOnErrors` stops at the first failing project. The 5.6 notes misname it `--stopOnBuildErrors`, which the CLI rejects (TS5072 on 7.0.2, TS5077 on 6.0.3)."
   question: typescript/tsconfig-and-strictness/project-references
 - id: builders-flag-7
   front: "What does TS 7.0's `--builders N` flag do?"
@@ -1825,7 +1825,7 @@
   question: typescript/tsconfig-and-strictness/project-references
 - id: build-not-no-emit-on-error
   front: "Does `-b` act as `noEmitOnError`?"
-  back: "Not per the 5.6 notes. On TS 5.9.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, contrary to the older Handbook statement."
+  back: "Not per the 5.6 notes. On TS 6.0.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, contrary to the older Handbook statement."
   question: typescript/tsconfig-and-strictness/project-references
 - id: tsbuildinfo-location
   front: "Where does the `.tsbuildinfo` file go?"
