@@ -16,6 +16,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-8.html
   - https://github.com/microsoft/TypeScript/pull/40336
   - https://github.com/microsoft/TypeScript/pull/40580
+  - https://github.com/microsoft/TypeScript/pull/47050
 tldr: >
   Template literal types (TS 4.1) use backtick syntax in a type position. With literal or union
   placeholders they build string literal unions by cross-product. With `string` / `number` they
@@ -40,8 +41,8 @@ Typical uses: typed event or route names, parsing route params (`/users/:id`), t
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
-type Key = `${"en" | "ja"}_${"title" | "body"}`; // "en_title" | "en_body" | "ja_title" | "ja_body"
+// TypeScript 7.0.2 and 6.0.3, --strict
+type Key = `${"en" | "ja"}_${"title" | "body"}`; // "en_body" | "en_title" | "ja_body" | "ja_title"
 type Getter = `get${Capitalize<"name" | "age">}`; // "getName" | "getAge"
 
 type Px = `${number}px`;
@@ -70,14 +71,14 @@ const flag: Prefixed = "-flag";
 ## Pitfalls
 
 - Interpolating a type that may be `symbol`. `` `x${symbol}` `` is TS2322; narrow with `string & K`.
-- Generating large cross products. Five ten-member unions (100,000 members) gave TS2590 on both compilers, while four (10,000) compiled.
+- Generating large cross products. Five ten-member unions (100,000 members) gave TS2590 on 6.0.3 and 7.0.2, while four (10,000) compiled.
 - Expecting `infer` to backtrack. The first match wins: `"a-b-c"` splits at the first `-`, giving `"b-c"` as the tail.
 - Assuming a pattern type is checked at runtime. `` `${number}px` `` only checks literals the compiler can see; a `string` variable is not assignable to it without a cast or guard.
 
 ## Follow-ups
 
 **Q:** What does `Uppercase<string>` give?
-**A:** On 5.9.3 it prints as `Uppercase<string>`, and a plain `string` is not assignable to it (TS2322). The PR 40580 description listed `string`, so trust the checked behaviour, not the PR text.
+**A:** It stays `Uppercase<string>`, the strings uppercasing leaves unchanged, so a plain `string` is not assignable (TS2322 on 6.0.3 and 7.0.2). PR 40580 first made it `string`; PR 47050 kept it as its own type from 4.8 (4.7.4 accepted `string`, 4.8.4 gave TS2322).
 
 **Q:** How do you make an `on` method that types its callback from the event name?
 **A:** Take a generic `Key extends string & keyof T`, accept `` `${Key}Changed` `` and type the callback as `(v: T[Key]) => void`; inference recovers `Key` from the pattern (handbook example).
