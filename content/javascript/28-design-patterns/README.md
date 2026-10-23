@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [What is the module pattern, and what did ES modules take over from it?](010-module-pattern.md) | easy | 🟡 draft |
-| 020 | [Implement an event emitter. How does observer differ from publish/subscribe?](020-observer-and-pub-sub.md) | medium | 🔴 planned |
+| 020 | [Implement an event emitter. How does observer differ from publish/subscribe?](020-observer-and-pub-sub.md) | medium | 🟡 draft |
 | 030 | [How do you make a singleton in JavaScript, and when is one a mistake?](030-singleton.md) | medium | 🔴 planned |
 | 040 | [Factory functions vs classes: when do you pick which?](040-factory-functions-vs-classes.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
