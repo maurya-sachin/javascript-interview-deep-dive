@@ -1894,6 +1894,90 @@
   front: "What makes a polyfill acceptable when extending a built-in prototype?"
   back: "It feature-tests first (`if (!Array.prototype.at)`), follows the spec's behaviour, and uses `Object.defineProperty` so the property is non-enumerable like built-ins."
   question: javascript/prototypes/extending-native-prototypes
+- id: prototype-pollution-definition
+  front: "What is prototype pollution, and what makes it exploitable?"
+  back: "Untrusted input adds or changes properties on a shared prototype, almost always `Object.prototype`, so every ordinary object inherits them. Code reading an absent property (`options.isAdmin`) then sees the attacker's value. Impact depends on such \"gadgets\"."
+  question: javascript/prototypes/prototype-pollution
+- id: prototype-pollution-usual-sink
+  front: "What is the usual sink for prototype pollution?"
+  back: "A recursive merge, clone or path setter (`set(obj, 'a.b.c', v)`) that walks keys from input and assigns with `target[key] = value`."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-proto-path
+  front: "How does a `__proto__` key in parsed JSON pollute `Object.prototype` through a merge?"
+  back: "`Object.keys` lists the own `\"__proto__\"` key, so the merge copies it. But reading `target['__proto__']` on a normal object hits the inherited `Object.prototype.__proto__` getter and returns `Object.prototype`, and the merge then writes into it."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-constructor-prototype-path
+  front: "How does the `constructor.prototype` path pollute, and what does that mean for blocking `__proto__`?"
+  back: "`target.constructor` is the inherited `Object` and `Object.prototype` is its prototype. No accessor is involved, so removing `__proto__` doesn't stop this path."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-ordinaryset-accessor
+  front: "Why does `target[key] = value` call a setter instead of creating an own property?"
+  back: "It is a `[[Set]]`. `OrdinarySet` looks for `key` along the prototype chain, and if it finds an accessor it calls the setter. `Object.prototype.__proto__` is such a legacy accessor."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-define-not-assign
+  front: "Why do spread and `Object.fromEntries` avoid the `__proto__` setter, but `Object.assign` doesn't?"
+  back: "Spread and `Object.fromEntries` use `CreateDataProperty`, which defines the own property directly. `Object.assign` uses `[[Set]]`, which hits the setter and replaces only the target's own prototype, not `Object.prototype`."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-prevention-list
+  front: "What are the main defences against prototype pollution, strongest first?"
+  back: "Validate against a schema or key allow-list; never descend into or assign `__proto__`, `constructor`, `prototype` and recurse only into own properties (`Object.hasOwn`); use prototype-less dictionaries (`Map`, `Object.create(null)`); define rather than assign; then hardening."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-null-proto-only-one-level
+  front: "Does a null-prototype top-level target make a recursive merge safe?"
+  back: "No, it only protects that level. A merge that creates nested `{}` objects is vulnerable again one level down: `{\"nested\": {\"__proto__\": {...}}}` hits the nested object's inherited accessor."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-check-own-property
+  front: "How should you check a flag like `isAdmin` on objects built from input?"
+  back: "Use `Object.hasOwn`, or a null-prototype object, so inherited values don't count."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-literal-proto-not-vulnerable
+  front: "Why doesn't `{ __proto__: x }` in source code cause pollution?"
+  back: "A non-computed `__proto__: x` in a literal is special syntax that sets the prototype and creates no own property. Only data arriving as an own key, such as from `JSON.parse`, a computed key or a query-string parser, becomes dangerous."
+  question: javascript/prototypes/prototype-pollution
+- id: freeze-object-prototype-limits
+  front: "Is `Object.freeze(Object.prototype)` a complete fix?"
+  back: "No. Other shared prototypes (`Array.prototype`, `Function.prototype`) stay writable. It also triggers the \"override mistake\": assigning `obj.toString = …` on any object fails, which breaks some libraries."
+  question: javascript/prototypes/prototype-pollution
+- id: disable-proto-node24
+  front: "What do Node.js 24's `--disable-proto=delete` and `=throw` do, and do they stop all pollution?"
+  back: "`delete` removes `Object.prototype.__proto__`; `throw` makes any use of the accessor throw `ERR_PROTO_ACCESS`. Neither stops the `constructor.prototype` payload, and `{ __proto__: null }` literal syntax still works."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-real-cves
+  front: "Which real library bugs were prototype pollution?"
+  back: "jQuery before 3.4.0 copied an enumerable `__proto__` key in `jQuery.extend(true, {}, …)` (CVE-2019-11358). lodash before 4.17.12 let `defaultsDeep` reach `Object.prototype` through `{constructor: {prototype: …}}` (CVE-2019-10744)."
+  question: javascript/prototypes/prototype-pollution
+- id: pollution-denylist-vs-allowlist
+  front: "What is the trade-off between deny-lists and allow-lists against pollution?"
+  back: "Deny-lists are easy to add but fragile: they must cover every write path, including path-string setters like `'a.__proto__.b'`. Allow-lists and schemas are robust but need upkeep as the shape changes."
+  question: javascript/prototypes/prototype-pollution
+- id: delegation-style-oolo
+  front: "What is delegation-style (OLOO) object linking?"
+  back: "Behaviour lives on plain objects, linked with `Object.create(proto)` or `{ __proto__: proto }`, and an ordinary `init` method sets fields and returns `this`: `Object.create(Square).init(3)`. It builds the same `[[Prototype]]` chain a class does."
+  question: javascript/prototypes/delegation-vs-constructors
+- id: delegation-instanceof-throws
+  front: "Why does `x instanceof Square` throw when `Square` is a plain delegation object, and what do you use?"
+  back: "`instanceof` needs a callable right-hand side with a `prototype` (`OrdinaryHasInstance`), so it throws a TypeError. Use `Square.isPrototypeOf(x)`. `x.constructor` is just the inherited `Object`."
+  question: javascript/prototypes/delegation-vs-constructors
+- id: delegation-methods-enumerable
+  front: "How do delegation-style methods differ from class methods in `for…in`?"
+  back: "Object-literal methods are enumerable and show up in `for…in` on every instance; class methods don't. Use `Object.keys` or define methods non-enumerable."
+  question: javascript/prototypes/delegation-vs-constructors
+- id: delegation-class-only-features
+  front: "Which features are available only with classes, not delegation style?"
+  back: "Private `#fields` exist only in `class` bodies, and subclassing built-ins like `Array` or `Error` with their internal slots needs a constructor call (`class … extends` and `new`, or `Reflect.construct`)."
+  question: javascript/prototypes/delegation-vs-constructors
+- id: delegation-private-state
+  front: "How do you get private state with delegation style?"
+  back: "Not with `#fields`. Use a closure in a factory function or a module-level `WeakMap` keyed by the instance."
+  question: javascript/prototypes/delegation-vs-constructors
+- id: object-create-vs-new
+  front: "How does `Object.create(proto)` differ from `new`?"
+  back: "It does the linking step only: a new ordinary object whose `[[Prototype]]` is `proto`. `new` also runs the constructor with `this` bound, handles the return-override rule and, for derived classes, lets the base constructor create the object."
+  question: javascript/prototypes/delegation-vs-constructors
+- id: object-create-class-prototype-skips-constructor
+  front: "What does `Object.create(SomeClass.prototype)` give you?"
+  back: "An object that passes `instanceof SomeClass` without running the constructor, so its fields and private names are never initialised."
+  question: javascript/prototypes/delegation-vs-constructors
 # 13 Classes
 - id: class-not-pure-sugar-call
   front: "Why is `class` not pure sugar over constructor functions?"
