@@ -625,6 +625,74 @@
   front: "What does `compare` guarantee about its return value?"
   back: "Only the sign. Do not assume exactly `-1`, `0` or `1`; engines may return other magnitudes."
   question: javascript/strings-and-unicode/locale-comparison-normalization
+- id: slice-negative-index
+  front: "How does `slice(start, end)` treat negative and out-of-order arguments?"
+  back: "A negative index becomes `length + index`, then clamps to `[0, length]`. If `start ≥ end` the result is `\"\"`. So `'JavaScript'.slice(-6)` is `\"Script\"`."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: substring-clamps-and-swaps
+  front: "How does `substring(start, end)` treat negative, `NaN` and out-of-order arguments?"
+  back: "It clamps each argument to `[0, length]` first, so negatives and `NaN` become `0`, then swaps them if `start > end`. `'JavaScript'.substring(-6)` is the whole string."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: string-at-vs-charat
+  front: "How do `at(index)` and `charAt(index)` differ out of range or with negatives?"
+  back: "`at` (ES2022) counts negatives from the end and returns `undefined` out of range. `charAt` doesn't accept negatives and returns `\"\"` out of range."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: string-bracket-negative-index
+  front: "Why can't `str[-1]` mean the last character, and what was added instead?"
+  back: "Bracket access is property lookup on any object, so `-1` becomes the key `\"-1\"`, which strings don't have. The relative-indexing proposal added `at` to strings, arrays and typed arrays."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: padstart-behaviour
+  front: "How does `padStart(targetLength, padString)` work?"
+  back: "ES2017. It repeats and truncates `padString` (default a space) to reach `targetLength`. A string already that long comes back unchanged. `'7'.padStart(3, '0')` is `\"007\"`."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: replaceall-dollar-patterns
+  front: "Do `$` patterns still apply in a `replaceAll` replacement string?"
+  back: "Yes. `'$1.00'.replaceAll('.', '$&$&')` gives `\"$1..00\"`. Pass a function to insert text literally."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: string-at-last-code-unit
+  front: "Does `at(-1)` return the last character?"
+  back: "No, the last UTF-16 code unit, so a trailing emoji gives a lone surrogate. Use `[...str].at(-1)` for code points or `Intl.Segmenter` for graphemes."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: indexof-negative-position
+  front: "What do `indexOf`, `includes` and `startsWith` do with a negative position?"
+  back: "They accept it but don't count from the end: it is clamped to `0`, so the search starts at the beginning. Only `slice`, `at` and Annex B's `substr` count negatives from the end."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: string-method-index-conversion
+  front: "How do these string methods treat fractional or `NaN` indices?"
+  back: "Through `ToIntegerOrInfinity`: fractions truncate toward zero and `NaN` becomes `0`. So `s.slice(2.9, 5.1)` is `s.slice(2, 5)` and `s.at(NaN)` is the first code unit."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: replaceall-empty-search
+  front: "Why does `'x'.replaceAll('', '-')` return `\"-x-\"`?"
+  back: "An empty search string matches at every position, including both ends. The spec advances by at least one code unit after each match so the loop terminates."
+  question: javascript/strings-and-unicode/everyday-string-methods
+- id: string-concat-spec-vs-cost
+  front: "What does the spec say about the cost of string `+`?"
+  back: "It defines `+` as producing a new String value, the concatenation of the operands' code units, and never modifies a string in place. It says nothing about cost. A naive `s += piece` loop would copy O(n²) characters."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
+- id: v8-consstring-rope
+  front: "In V8, what does `a + b` usually do instead of copying?"
+  back: "It creates a ConsString, a pair of pointers to the two strings, which may themselves be ConsStrings, forming a rope. A `+=` loop costs about one allocation per iteration. Results under 13 characters are copied flat."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
+- id: v8-string-flattening
+  front: "When does V8 copy the characters of a ConsString, and how?"
+  back: "Once, on flattening: it allocates one sequential string with all the characters and turns the original into a degenerate cons whose first part is that flat string. It happens when an operation needs contiguous characters."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
+- id: v8-slicedstring-retention
+  front: "What is a V8 SlicedString and what memory risk does it carry?"
+  back: "For substrings of 13+ characters it stores a pointer to the parent plus offset and length instead of copying. The source notes it can't yet truncate, so a short slice can keep a huge parent alive."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
+- id: concat-in-loop-practical-advice
+  front: "What is the practical advice on `+=` versus `array.join('')` for building strings?"
+  back: "Write the clear version: `+=`, template literals and `join` all perform well in V8, so profile before optimising. Ropes are a V8 detail; SpiderMonkey and JavaScriptCore have their own representations."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
+- id: node24-max-string-length
+  front: "What is Node.js 24's maximum string length, and what happens past it?"
+  back: "`buffer.constants.MAX_STRING_LENGTH` is 536,870,888 code units. Exceeding it throws a `RangeError`."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
+- id: plus-vs-concat-objects
+  front: "How do `+` and `concat` differ when the operand is an object?"
+  back: "`+` calls `ToPrimitive` with no hint (`valueOf` first). `concat` and `${}` call `ToString` (`toString` first). With `{ valueOf: () => 1, toString: () => 'two' }`, `'a' + o` is `\"a1\"` but `'a'.concat(o)` is `\"atwo\"`."
+  question: javascript/strings-and-unicode/string-concatenation-ropes
 
 # 05 Coercion and equality
 - id: loose-equality-null-undefined
