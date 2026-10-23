@@ -11,8 +11,12 @@ related:
   - typescript/classes-enums-runtime-output/erasable-syntax-only
   - typescript/modules-and-declaration-files/import-type-isolated-modules
 verified: 2026-10
+perishable:
+  - "Type stripping stable since v24.12.0; transform-types still experimental"
+  - "module.stripTypeScriptTypes at Stability 1.2 in Node 24"
 sources:
   - https://nodejs.org/docs/latest-v24.x/api/typescript.html
+  - https://nodejs.org/docs/latest-v22.x/api/typescript.html
   - https://nodejs.org/docs/latest-v24.x/api/module.html#modulestriptypescripttypescode-options
   - https://nodejs.org/docs/latest-v24.x/api/cli.html
   - https://github.com/nodejs/amaro
@@ -44,7 +48,7 @@ The Node docs recommend `erasableSyntaxOnly`, `verbatimModuleSyntax`, `rewriteRe
 ## Example
 
 ```ts
-// Node v24.19.0 for the `node` lines; TypeScript 7.0.2 and 5.9.3 for the `tsc` lines (same diagnostics)
+// Node v24.19.0 for the `node` lines; TypeScript 7.0.2 and 6.0.3 for the `tsc` lines (same diagnostics)
 // ok.ts — annotations, interface, generic:        node ok.ts            → runs; prints "hi Adastring"
 // An error thrown on ok.ts line 5 is reported at line 5 (no source map).
 
@@ -52,7 +56,8 @@ The Node docs recommend `erasableSyntaxOnly`, `verbatimModuleSyntax`, `rewriteRe
 // node enum.ts
 // → SyntaxError [ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX]: TypeScript enum is not supported in strip-only mode
 // node --experimental-transform-types enum.ts
-// → ExperimentalWarning: Transform Types is an experimental feature…  then runs, printing 1
+// → (node:…) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+// → 1
 
 // class P { constructor(public x: number) {} }    → TypeScript parameter property is not supported in strip-only mode
 // namespace A { export let x = 1 }                → TypeScript namespace declaration is not supported in strip-only mode
@@ -93,4 +98,4 @@ const items: Item[] = [{ id: 1 }];
 console.log(items.length as string);
 ```
 
-**Answer:** `1`. The `as string` is stripped without any check (the same mechanism that let `typeof bad` print `string` above). `tsc --noEmit` (7.0.2) reports `TS2352: Conversion of type 'number' to type 'string' may be a mistake…` on that cast; Node, run on v24.19.0, did not.
+**Answer:** `1`. The `as string` is stripped without any check (the same mechanism that let `typeof bad` print `string` above). `tsc --noEmit` (6.0.3 and 7.0.2) reports `TS2352: Conversion of type 'number' to type 'string' may be a mistake…` on that cast; Node, run on v24.19.0, did not.
