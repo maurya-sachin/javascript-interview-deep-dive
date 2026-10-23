@@ -4217,3 +4217,168 @@
   front: "Which monad laws does `then` keep for non-thenable values?"
   back: "It settles to the values the laws predict: `p.then(x => x)` settles like `p`, and chains associate. It always returns a new promise, so \"equal\" means equal settled outcome, and settling takes extra microtask ticks when a callback returns a promise."
   question: javascript/functional-programming/functors-and-monads
+# 28 Design patterns
+- id: module-pattern-iife-closure
+  front: "How does the pre-ES2015 module pattern work, and what is the revealing variant?"
+  back: "Wrap the file in an IIFE so state and helpers are locals of that call, and return an object whose methods close over them; dependencies come in as IIFE arguments. The revealing variant writes everything as private locals and ends with `return { add, increment }`."
+  question: javascript/design-patterns/module-pattern
+- id: esm-takes-over-module-pattern
+  front: "Which pieces of the module pattern did ES modules take over?"
+  back: "Scope (a Module Environment Record per module, no global properties), API (`export` replaces the returned object; imports are immutable indirect bindings), run-once evaluation, static `import` instead of IIFE parameters, and always-strict code."
+  question: javascript/design-patterns/module-pattern
+- id: esm-run-once-scope
+  front: "How often does an ES module body run, and what gives a second copy?"
+  back: "Once per Module Record: a host returns the same record for the same request, in practice once per resolved URL per realm. A different resolved URL (even a different query string in Node.js) or a different realm gives a second copy."
+  question: javascript/design-patterns/module-pattern
+- id: iife-survives-where
+  front: "Where does the IIFE module pattern still survive, and what if you need many instances?"
+  back: "Classic `<script>` tags and bundler output (esbuild's `iife` format keeps bundle variables out of the global scope). If you need many instances, use a factory function, not a module."
+  question: javascript/design-patterns/module-pattern
+- id: revealing-module-primitive-copy
+  front: "Why does returning a primitive in a module API object (`return { count }`) go stale?"
+  back: "It copies the value once, so later changes are invisible. Use a getter or function, or an ES module `export`, which stays live."
+  question: javascript/design-patterns/module-pattern
+- id: revealing-module-override
+  front: "Does replacing a public method of a revealing module change internal calls?"
+  back: "No. Internal code calls the private functions, so replacing a public property changes only external callers: after `counter.add = () => 'patched'`, `counter.increment()` still uses the private `add`."
+  question: javascript/design-patterns/module-pattern
+- id: unexported-binding-privacy
+  front: "Is an unexported module variable truly private?"
+  back: "From other modules, yes: no import or reflection API reaches a binding the module didn't export. Code in the same module can use it freely, and debuggers can inspect it, as with closures. It can only be tested through the public API."
+  question: javascript/design-patterns/module-pattern
+- id: iife-args-dependencies
+  front: "Why did the module pattern pass dependencies as IIFE arguments?"
+  back: "To make dependencies explicit and local: the body refers to a parameter instead of a global looked up at call time. Static `import` does the same, but the host loads and links imports before any code runs."
+  question: javascript/design-patterns/module-pattern
+- id: observer-vs-pubsub
+  front: "How does observer differ from publish/subscribe?"
+  back: "Observer: the subject owns its list of observers and calls them directly, so each side holds a reference to the other. Pub/sub: publishers and subscribers know only a broker and a topic name. The list lives in the subject versus in the broker; the same emitter can be either."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-five-requirements
+  front: "What five things does an interview-grade event emitter do?"
+  back: "`on` appends and returns an unsubscribe function; `off` removes and deletes the entry when the list is empty; `once` registers a self-removing wrapper that remembers the original; `emit` calls listeners synchronously in registration order; `emit` iterates a snapshot."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-once-wrapper
+  front: "Why must a `once` wrapper remove itself before calling the listener and remember the original?"
+  back: "Removing first stops a listener that re-emits the same event from re-entering itself. Storing the original (e.g. on `wrapper.listener`) lets `off(event, original)` match; without it the wrapper fires later anyway. Node.js's `once` wrappers keep a `listener` property too."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-snapshot-splice
+  front: "Why is mutating the listener array in place while `emit` loops over it a bug?"
+  back: "Removing the current listener shifts the next one into its slot, and the loop skips it. Iterate a snapshot: copy-on-write in `on`/`off`, or copy the list in `emit`."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-copy-on-write-tradeoff
+  front: "What is the trade-off of copy-on-write listener arrays versus copying in `emit`?"
+  back: "Copy-on-write puts the O(n) cost in each `on`/`off` and lets `emit` allocate nothing. Mutating in place and copying the list (`[...list]`) on every `emit` is cheaper when emits are rare and listeners change often. Behaviour is the same."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emit-sync-vs-async
+  front: "Should `emit` deliver synchronously or asynchronously?"
+  back: "Node.js's `EventEmitter` and DOM `dispatchEvent` are synchronous: `emit` returns after every listener ran, in order, keeping ordering obvious and stack traces useful. A listener can defer its own work; Node.js's docs suggest `setImmediate()` or `process.nextTick()`."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-error-policy
+  front: "How do Node.js's `EventEmitter` and the DOM differ when a listener throws?"
+  back: "In `EventEmitter` the exception propagates out of `emit` and later listeners don't run. The DOM reports the exception and continues, and Node.js's `EventTarget` follows that, treating the error as an uncaught exception on the next tick."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: eventtarget-no-error-special-case
+  front: "Does Node.js's `EventTarget` treat an `'error'` event specially like `EventEmitter`?"
+  back: "No. The `'error'` special case, where `emit('error', err)` with no listener throws `err`, is specific to `EventEmitter`."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: addeventlistener-once-signal-dedupe
+  front: "How does the DOM make unsubscribing easier than a hand-rolled emitter?"
+  back: "`addEventListener` takes `{ once: true }` and `{ signal }`: aborting the `AbortController` removes the listener. It also ignores a second registration with the same type, callback and capture flag, so duplicates can't pile up."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: off-duplicate-registration
+  front: "If the same function is registered twice, what does `off` remove?"
+  back: "It is a design choice. The question's emitter removes every registration; Node.js's `removeListener` removes one, the most recently added; DOM `EventTarget` never stores duplicates."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: remove-during-emit-disagreement
+  front: "If a listener removes another during an emit, does the removed one still run in Node.js `EventEmitter` and in `EventTarget`?"
+  back: "In Node.js's `EventEmitter` it still runs: every listener attached at the moment of emitting is called, and removals take effect from the next emit. `EventTarget` skips it, because the DOM's remove step sets a *removed* flag that the invoke loop checks."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-isolate-with-aggregateerror
+  front: "How can your own emitter isolate throwing listeners?"
+  back: "Call each listener in `try`/`catch`, collect the errors, and after the loop throw them together as an `AggregateError`, so later listeners still run."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: emitter-unsubscribe-leak
+  front: "Why is never unsubscribing from a global bus a leak?"
+  back: "The emitter's list keeps each listener, and everything its closure references, reachable as long as the emitter lives. A component subscribed on mount and not on unmount stays reachable through the bus. Make `on` return an unsubscribe function or use an `AbortSignal`."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: node-max-listeners-warning
+  front: "When does Node.js warn about listeners on one emitter, and is it a hard limit?"
+  back: "By default it warns once (`MaxListenersExceededWarning`) when more than 10 listeners are added for one event on one emitter. Its docs describe this as a hint for finding leaks, not a hard limit; raise it with `setMaxListeners` only when many listeners are legitimate."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: events-tradeoff-decoupling
+  front: "What is the cost of event-based decoupling, and when prefer a direct call?"
+  back: "\"Who reacts to this?\" is no longer answerable from the call site, and pub/sub decouples further, so a typo in a topic name fails silently. Prefer a direct call or a subject-owned observer when there is one known receiver; use a bus when receivers genuinely come and go."
+  question: javascript/design-patterns/observer-and-pub-sub
+- id: singleton-module-export
+  front: "What is the idiomatic JavaScript singleton, and why does a `static` getter class not fully enforce one?"
+  back: "Export an instance from a module (`export const config = createConfig();`); every importer gets the same object because the module body runs once. JavaScript can't make a constructor private, so with a class `new` still makes a second instance."
+  question: javascript/design-patterns/singleton
+- id: singleton-once-means-module-record
+  front: "What does \"once\" mean for a module singleton in Node.js, bundles, and browsers?"
+  back: "Once per module record. Node.js caches CommonJS by resolved filename and ES modules by URL, so two copies of a package or a different query string give two instances, and `require` plus `import` can load a package twice. Two bundles each carry a copy. Each window, iframe and worker has its own module map."
+  question: javascript/design-patterns/singleton
+- id: singleton-symbol-for-globalthis
+  front: "Does storing a singleton under a `Symbol.for` key on `globalThis` solve duplicate copies?"
+  back: "It is a workaround. The global symbol registry belongs to the agent, so copies in the same thread, even across realms, get the same symbol. But `globalThis` is per realm, so an iframe still has its own slot, and a worker is another agent."
+  question: javascript/design-patterns/singleton
+- id: singleton-when-mistake
+  front: "When is a singleton a mistake, and what does the question suggest instead?"
+  back: "A singleton is a global variable with an import statement: any module can change it, tests leak into each other, and fakes need module mocking. A stateless logger or one connection pool per process is reasonable; mutable app state usually isn't. Create the instance once at the entry point and pass it in."
+  question: javascript/design-patterns/singleton
+- id: singleton-constructor-return-subclass
+  front: "What goes wrong when a constructor returns the existing instance and a subclass calls `new`?"
+  back: "`new Subclass()` silently returns the base instance: the implicit `super()` call binds the returned object as `this`, so the result is the base object, never a `Subclass`, and `instanceof Subclass` is `false`."
+  question: javascript/design-patterns/singleton
+- id: singleton-duplicate-detection
+  front: "How do you check whether duplicate copies of a package are your problem, and how do you fix them?"
+  back: "Run `npm ls <package>` to see every path to it in the dependency tree, and look for it twice in bundle analysis. Copies usually come from incompatible version ranges; deduplicating, or making it a peer dependency of your library, fixes that."
+  question: javascript/design-patterns/singleton
+- id: singleton-testing-injection
+  front: "How do you avoid singleton state leaking between tests?"
+  back: "Create the instance in a factory and inject it as a parameter, constructor argument or context, so tests build a fresh one each time. If you keep a module-level instance, export the factory too. A reset method is a test-only API in production code."
+  question: javascript/design-patterns/singleton
+- id: vm-context-symbol-for
+  front: "In a `node:vm` context, is `Symbol.for('x')` the same symbol, and is `Map` the same function?"
+  back: "The symbol is the same and `Map` is a different function. A `node:vm` context is a new realm in the same agent, so it has its own built-ins, but `Symbol.for` reads the agent-wide registry."
+  question: javascript/design-patterns/singleton
+- id: factory-vs-class-where-methods-live
+  front: "Where do methods and state live in a factory function versus a class?"
+  back: "Factory: state is a local variable and methods are closures over the call's environment, so no `this`. Class: methods are defined once on `Class.prototype` and shared by every instance, and state lives in fields read through `this`."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: factory-benefits
+  front: "What does a factory function give you that a class doesn't?"
+  back: "Privacy by scope; methods that survive being passed as callbacks or destructured; and freedom to return a cached object, a different implementation or a composition, with no `new`. The cost: new function objects per call and no `instanceof`."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: class-benefits
+  front: "What does a class give you that a factory doesn't?"
+  back: "Language-enforced `#private` fields (access on an object without the field throws `TypeError`; `#x in obj` is a brand check), plus `instanceof`, `extends`, `super` and `static`. Calling a class without `new` throws, and a detached method loses `this`."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: factory-vs-class-choice
+  front: "How does the question say to choose between a factory and a class?"
+  back: "A judgement call. Many instances, a real is-a hierarchy, `instanceof` checks, or an API built around subclassing (custom elements extend `HTMLElement`): class. A few long-lived objects, callbacks, composition, or hidden construction logic: factory."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: private-class-scoped-not-instance
+  front: "Is `#private` instance-scoped or class-scoped, and how does that compare to closure privacy?"
+  back: "Class-scoped: one instance's methods can read another instance's `#x` (e.g. `other.#x` for equality or merging), which closures can't do. Closure state belongs to one call. Both are unreachable from outside and invisible to reflection and proxies."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: arrow-field-per-instance
+  front: "What happens when you convert class handlers to arrow-function class fields?"
+  back: "A field initializer runs once per instance, so each instance gets its own function as an own property, the factory's memory cost without its other benefits. Bind only the methods you pass around."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: private-fields-proxy-typeerror
+  front: "What happens when you call a method on a class with `#private` fields through a `Proxy`, versus a factory object?"
+  back: "The class method throws `TypeError`: `this` is the proxy, which has no private elements. A factory's arrow function never looks at `this`; it reads state from its closure, so the proxy is irrelevant."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: factory-memory-cost-detail
+  front: "What exactly costs memory in a factory, and what does V8 share between closures?"
+  back: "Each evaluation of a function expression creates a new function object (`OrdinaryFunctionCreate`), so n instances with m methods means n × m functions. In V8, closures from the same source share compiled code through a `SharedFunctionInfo`; each is a `JSFunction` referencing its context. It only matters at scale, so measure."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: factory-instanceof-rebuild-class
+  front: "Can a factory support `instanceof`?"
+  back: "Only if instances inherit from a shared prototype that some function's `prototype` points to, or that function defines `Symbol.hasInstance`. At that point you've rebuilt a class: the `Object.create` delegation style gets shared methods but still no `instanceof` or `#private`."
+  question: javascript/design-patterns/factory-functions-vs-classes
+- id: mixed-factory-this-bug
+  front: "Why is a factory whose methods use `this` a mistake?"
+  back: "You get per-instance functions and lost-`this` bugs together, the costs of both styles."
+  question: javascript/design-patterns/factory-functions-vs-classes
