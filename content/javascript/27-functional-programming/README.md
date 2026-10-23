@@ -32,5 +32,9 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 
 ## Sources
 
-- **Spec:** [Array.prototype.flatMap](https://tc39.es/ecma262/#sec-array.prototype.flatmap) · [Array.prototype.with](https://tc39.es/ecma262/#sec-array.prototype.with) · [Promise.prototype.then](https://tc39.es/ecma262/#sec-promise.prototype.then) · [Object.freeze](https://tc39.es/ecma262/#sec-object.freeze)
+- **Spec:** [Array.prototype.flatMap](https://tc39.es/ecma262/#sec-array.prototype.flatmap) · [Array.prototype.with](https://tc39.es/ecma262/#sec-array.prototype.with) · [Promise resolve functions](https://tc39.es/ecma262/#sec-promise-resolve-functions) · [Object.freeze](https://tc39.es/ecma262/#sec-object.freeze)
+- **HTML:** [structuredClone](https://html.spec.whatwg.org/multipage/structured-data.html#dom-structuredclone)
+- **Proposals:** [Change Array by Copy](https://github.com/tc39/proposal-change-array-by-copy)
+- **Papers and community specs:** Bagwell, [Ideal Hash Trees](https://lampwww.epfl.ch/papers/idealhashtrees.pdf) (2001) · [Fantasy Land](https://github.com/fantasyland/fantasy-land) · [Promises/A+](https://promisesaplus.com/)
+- **Libraries:** [Immutable.js](https://github.com/immutable-js/immutable-js) · [Immer](https://immerjs.github.io/immer/)
 - **MDN:** [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone) · [Object.freeze](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)
