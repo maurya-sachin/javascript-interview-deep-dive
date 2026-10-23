@@ -36,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What are `WeakMap` and `WeakSet` for, and why can't you iterate them?](030-weakmap-weakset.md) | medium | 🟡 draft |
 | 040 | [How do `Object.groupBy` and `Map.groupBy` work?](040-groupby.md) | easy | 🟡 draft |
 | 050 | [What does `Map.prototype.getOrInsert` solve?](050-map-upsert.md) | easy | 🟡 draft |
-| 060 | [Implement an LRU cache with `Map`.](060-lru-cache-with-map.md) | medium | 🔴 planned |
+| 060 | [Implement an LRU cache with `Map`.](060-lru-cache-with-map.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
