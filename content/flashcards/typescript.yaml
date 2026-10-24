@@ -2885,3 +2885,179 @@
   front: "Do the maintainers plan to fix these unsoundness cases?"
   back: "They treat them as design trade-offs. The FAQ lists method bivariance as working as intended, and explains why a strict-methods flag is not tractable."
   question: typescript/the-compiler/type-system-soundness
+- id: single-file-tools-differences
+  front: "What does `isolatedModules` guarantee about esbuild, swc and Babel output versus `tsc`?"
+  back: "Only that `tsc` rejects code they cannot compile at all. Output still differs where it depends on types or settings: namespace scope, field semantics and metadata."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: const-enum-single-file
+  front: "How do esbuild, swc and Babel emit `const enum` compared with `tsc` without `isolatedModules`?"
+  back: "`tsc` inlines every use and emits no object. The tools emit a real enum object and inline only same-file uses (Babel only with `optimizeConstEnums`); an importing file reads the member at runtime."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: esbuild-const-enum-bundling
+  front: "What does esbuild do with const enums when bundling?"
+  back: "It also inlines across files, which can hide differences that return in per-file builds (test runners, dev servers)."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: declare-const-enum-ts2748
+  front: "Why is a `declare const enum` an error under `isolatedModules`?"
+  back: "It has no object anywhere, so there is nothing to read at runtime: TS2748."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: merged-namespace-scope
+  front: "What happens to an unqualified reference to another block's export in a merged namespace under swc and Babel?"
+  back: "Each block is its own scope, so it throws a `ReferenceError` (checked on @swc/core 1.16.20 and Babel 8.0.9). esbuild 0.28.2 and `tsc` resolve it. Babel documents this; `isolatedModules` does not catch it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: class-fields-tool-defaults
+  front: "How do esbuild, swc and Babel 8 decide class-field semantics?"
+  back: "`tsc` derives `useDefineForClassFields` from `target` (on from ES2022). esbuild copies that rule from tsconfig's `target`; swc defined fields even with `target: es2020`; Babel 8 always keeps type-only fields."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: decorator-metadata-tools
+  front: "How do esbuild, swc and Babel handle `emitDecoratorMetadata`?"
+  back: "esbuild does not support it; swc guesses from syntax (`typeof T === \"undefined\" ? Object : T`); Babel's TypeScript preset has no option for it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-rule
+  front: "What does `isolatedDeclarations` (TS 5.5) require, and what does it need enabled?"
+  back: "Every export needs a type a reader of that one file can write down: explicit return types and property annotations, with trivial inferences such as literals or `as` assertions allowed. It requires `declaration` or `composite`."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-benefit
+  front: "What does `isolatedDeclarations` buy, and does it make `tsc` itself faster?"
+  back: "Any tool can emit declarations per file without a checker (`ts.transpileDeclaration`, swc's `jsc.experimental.emitIsolatedDts`), and a monorepo can emit every project's declarations in parallel. Not faster by itself; the speedup comes from tools that exploit it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-codes
+  front: "Which code reports a missing return type under `isolatedDeclarations` on 6.0.3 versus 7.0.2?"
+  back: "6.0.3: TS9007 (on the function: must have an explicit return type annotation). 7.0.2: TS9013 (on the expression: type can't be inferred)."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-adoption
+  front: "When is enabling `isolatedDeclarations` worth it?"
+  back: "The 5.5 notes call adoption case by case: it buys nothing unless per-file or parallel declaration emit uses it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: usedefine-swc-babel-config
+  front: "Why set field semantics explicitly for swc and Babel instead of only in tsconfig?"
+  back: "Babel ignores tsconfig changes and swc takes its own options, so set `jsc.transform.useDefineForClassFields` explicitly."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: erasable-removes-gaps
+  front: "What does `erasableSyntaxOnly` remove from the single-file gaps?"
+  back: "It bans enums, namespaces with values, parameter properties and `import =`, so the const-enum and namespace gaps cannot occur. Class-field semantics and decorator metadata still differ between tools."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: esbuild-tsconfig-fields
+  front: "Which tsconfig fields does esbuild read?"
+  back: "A fixed subset: `target`, `useDefineForClassFields`, `experimentalDecorators`, `verbatimModuleSyntax`, `paths`/`baseUrl`, the `jsx*` options, `strict`/`alwaysStrict` and `extends`, among a few others. Everything else, including `isolatedModules`, is ignored."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: esbuild-target-define-default
+  front: "How does esbuild's tsconfig `target` change a type-only field like `name?: string` in a subclass?"
+  back: "With no `target`, esbuild defines `name` after `super()` returns, resetting it (`undefined`). A `target` below ES2022 makes it default `useDefineForClassFields` to false and drop the type-only field (\"set in init\")."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: checker-relations
+  front: "Which checker relations serve assignments, assertions and `===` overlap checks, and redeclared `var`s?"
+  back: "`assignableRelation`: assignments and arguments. `comparableRelation`: type assertions and `===`/`switch` overlap checks, and is looser. `identityRelation`: redeclared `var`s. Subtype relations serve union reduction."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: comparable-relation-rule
+  front: "What does an assertion `as` need, and when is `as unknown as` required?"
+  back: "Comparability: roughly, either side assignable to the other, so `{ x: 1 } as Point` compiles. Only types with no overlap (TS2352) need `as unknown as`."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: istypereltedto-order
+  front: "In what order does `isTypeRelatedTo` try things?"
+  back: "Cheap paths first: the same object, simple flag rules (anything to `unknown`), then the cache keyed `\"sourceId,targetId\"`. Only then members, signatures and index signatures structurally, storing Succeeded or Failed."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-recursion-maybe
+  front: "How does the checker terminate on recursive types, and what stops runaway expansion?"
+  back: "A pair being compared sits on a \"maybe\" stack; meeting it again returns Maybe. Depth limits stop expanding types (TS2321, excessive stack depth)."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-generic-variance
+  front: "How are two instantiations of one generic compared?"
+  back: "By type arguments according to the generic's variance, measured once per type."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-interning
+  front: "What is interned in the checker, and what follows from it?"
+  back: "One literal type exists per value; unions are deduplicated, sorted by type id and cached by member list; `Array<string>` comes from a per-generic instantiation map. Equal types are often one object and hit the first fast path."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: union-order-6-vs-7
+  front: "How do 6.0.3 and 7.0.2 order union members, and why?"
+  back: "Ids follow creation order, so 6.0 sorts by type id and output can depend on checking order. 7.0, with parallel checkers, sorts by content. 6.0.3 with `--stableTypeOrdering` prints `\"down\" | \"up\"` like 7.0.2."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-inference
+  front: "How does inference collect candidates, and what is deferred?"
+  back: "It walks source and target together, collecting candidates per type parameter with priorities, and defers context-sensitive arguments (unannotated callbacks) to a second pass."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-protocol-6
+  front: "How do editors talk to `tsserver` on 6.0?"
+  back: "VS Code spawns it: JSON requests on stdin (`seq`, `type`, `command`, `arguments`), `Content-Length`-framed responses and events such as `semanticDiag`, with 1-based `line`/`offset`."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: ts7-lsp-server
+  front: "How does TypeScript 7's language server differ?"
+  back: "`tsc --lsp --stdio` speaks the Language Server Protocol: JSON-RPC, an `initialize` capability handshake, `textDocument/hover`, pulled diagnostics, 0-based positions, several threads."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-vs-lsp-coordinates
+  front: "How do tsserver and LSP coordinates differ for the same hover?"
+  back: "`tsserver` takes 1-based `line`/`offset` (`quickinfo` on `point` was line 1, offset 7); LSP takes 0-based `line`/`character` (line 0, character 6)."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-plugin-ts7
+  front: "Can a 6.0 `tsserver` plugin load into TypeScript 7's server?"
+  back: "No. The Go server cannot load third-party code; those tools need the new API."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: cache-keyed-by-ids
+  front: "Why key the relation cache by type ids rather than by structure?"
+  back: "Hashing structure costs about as much as comparing it. Ids are fixed numbers, and interning means the same pair of objects recurs constantly, e.g. every call passing `string[]` where `readonly string[]` is expected."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checkers-own-caches
+  front: "How does `--checkers 4` on 7.0 affect the relation caches and type ids?"
+  back: "In the Go port the relation maps are fields of each `Checker`, so each builds its own caches and ids. Creation order, and so ids, became non-deterministic, which is why 7.0 sorts types by content."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-geterr
+  front: "How does an editor get diagnostics from `tsserver` versus the 7.0.2 LSP server?"
+  back: "Usually `geterr`: 6.0.3 checked in the background and pushed `syntaxDiag`, `semanticDiag` and `suggestionDiag` events, then `requestCompleted`; `semanticDiagnosticsSync` returns them in the response. 7.0.2 advertises `diagnosticProvider` and the client pulls with `textDocument/diagnostic`."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: identity-same-object
+  front: "Which of `string[]` vs `Array<string>`, `\"x\" | \"y\"` vs `\"y\" | \"x\"`, and two `{ n: number }` literals are the same type object?"
+  back: "The first two pairs are one object (one cached instantiation; both unions hit the union cache). Each object literal type is a new anonymous type, so they are related structurally, not by identity."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: ts7-no-stable-api
+  front: "What does the `typescript` entry export on 7.0.2, and where are experiments?"
+  back: "Only `version` and `versionMajorMinor`. Experiments sit under `typescript/unstable/*`. The Go port cannot dynamically link third-party code into the server process (issue #63800)."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts6-api-in-process
+  front: "What did the 6.0 compiler API let tools do that the Go port cannot?"
+  back: "`require(\"typescript\")` loaded the compiler into your process, so tools held `ts.Node` and `ts.Type` objects, patched the language service (tsserver plugins) and passed custom transformers to `emit`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts7-api-keep-ts6-alias
+  front: "How do API tools keep 6.0 while 7.0 serves the CLI?"
+  back: "An npm alias, `\"typescript\": \"npm:@typescript/typescript6\"`, with 7.0 installed under another name for the CLI. The announcement's recipe: `npm:@typescript/typescript6@^6.0.2` plus `\"@typescript/native\": \"npm:typescript@^7.0.2\"`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-api-shape
+  front: "What is the 7.1 API (beta, 20 October 2026)?"
+  back: "A new, different API: `typescript/sync`, `typescript/async`, `typescript/ast`, `typescript/fs`. A JavaScript client spawns the native compiler and calls it over IPC. Much of `Program` and `TypeChecker` is mirrored, but every call is a round trip."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-remote-handles
+  front: "What changes about types and symbols in the 7.1 API?"
+  back: "They are remote handles with lazy methods (`type.getSymbol()`, not `type.symbol`). The API, programs and snapshots are disposable (`using`); objects live in the native process until disposed."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-api-not-final
+  front: "Is the 7.1 API final?"
+  back: "No, it is in beta. The post says the team is working with partner teams to make it ergonomic and fast enough; entry points and method names may change until 7.1.0 ships."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts-eslint-ts7
+  front: "How does typescript-eslint 8.72.0 stand on TypeScript 7?"
+  back: "Its peer range is `typescript <6.1.0`, so it stays on 6.0. A draft PR adds `projectService: { EXPERIMENTAL_backend: 'native' }`, measured up to ~1.5x slower on many files because of synchronous round trips, until bulk APIs land."
+  question: typescript/the-compiler/compiler-api-migration
+- id: bump-ts7-with-typed-linting
+  front: "What happens when you bump `typescript` to 7.x with typed linting on typescript-eslint 8.72.0?"
+  back: "npm fails with `ERESOLVE` on the peer range. With `--force`, requiring `@typescript-eslint/typescript-estree` throws `TypeError: Cannot read properties of undefined (reading 'Cjs')`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: content-mappers
+  front: "What are content mappers, and who uses them?"
+  back: "A package listed in tsconfig's `contentMappers` that gives TypeScript a virtual TypeScript view of, say, `.vue` files, with mappings back. Volar-based tooling (Vue, Astro, Svelte, MDX) moves to them. Editors use it; `tsc` needs `--runExternalCode`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: language-service-plugins-ts7
+  front: "What replaces language-service plugins, and what about custom transformers?"
+  back: "No in-process equivalent: rewrite a plugin as a content mapper or as a separate server that queries TypeScript through the API. Custom transformers: 7.1.0-beta's `emit()` takes none."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-batch-calls
+  front: "Why not port compiler-API code call for call to 7.1?"
+  back: "Each checker call is an IPC round trip. 7.1.0-beta offers `api.batch(...)` with `.gen` request generators, so fetch in bulk where you can."
+  question: typescript/the-compiler/compiler-api-migration
+- id: unstable-api-moved
+  front: "What changed between 7.0's `typescript/unstable/*` and 7.1.0-beta?"
+  back: "`typescript/unstable/sync` became `typescript/sync`, and shapes changed: 7.0.2 had `updateSnapshot`, 7.1.0-beta has `createProgram` and `createSnapshot`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: vue-tsc-future
+  front: "What happens to `vue-tsc`?"
+  back: "In July 2026 the Vue maintainer wrote that a Vue content mapper may let `tsc` check `.vue` files directly, and overlapping tools would then be deprecated. Meanwhile `typescript-native-bridge` runs vue-tsc's checking on tsgo, about 2.7x faster on their repo."
+  question: typescript/the-compiler/compiler-api-migration
