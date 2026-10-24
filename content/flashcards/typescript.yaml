@@ -1291,7 +1291,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-replaces-flags
   front: "Which options does `verbatimModuleSyntax` replace?"
-  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 6.0.3 reports them as removed (TS5102), and TS 7.0.2 reports them as unknown options (TS5023)."
+  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 6.0.3 reports them as removed (TS5102), except `importsNotUsedAsValues: \"remove\"`, the old default; TS 7.0.2 reports them as unknown options (TS5023)."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: inline-type-keeps-side-effects
   front: "What does `import { type A } from \"./m\"` emit under `verbatimModuleSyntax`?"
