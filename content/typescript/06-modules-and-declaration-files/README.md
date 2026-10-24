@@ -43,7 +43,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [How do you augment a module or add a global type?](050-module-augmentation-globals.md) | medium | 🟡 draft |
 | 055 | [How do you type imports of CSS, SVG, and other non-JS files?](055-non-js-module-declarations.md) | medium | 🟡 draft |
 | 060 | [How can you type-check JavaScript with TypeScript?](060-checkjs-jsdoc.md) | easy | 🟡 draft |
-| 070 | [How do you type callbacks, overloads, `this`, and constrained generics in JSDoc?](070-jsdoc-advanced-tags.md) | medium | 🔴 planned |
+| 070 | [How do you type callbacks, overloads, `this`, and constrained generics in JSDoc?](070-jsdoc-advanced-tags.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
