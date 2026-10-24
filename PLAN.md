@@ -4,10 +4,10 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 
 ## Now
 - Branch `dev`; production = `main` (last release `efcb20a`). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
-- JS track complete: 183 q / 1088 cards, all `draft`; unfinished proposals (decorators, ShadowRealm, import defer, stack accessor, legacy RegExp statics) stay `→ —`.
-- Doing: TS audit done (ch 01–08, Opus, every question corrected). Now syncing `content/flashcards/typescript.yaml` to the audited text (questions changed in `33318b6..`), one commit per chapter.
-- Then Phase 5: maintainer reviews drafts → `published` (label Draft → Reviewed). TS 47 q / 544 cards, all `draft`, readable in production.
-- Known limits: ch 18–22 browser claims checked in Chrome 155 only (Firefox/Safari from MDN); ch 26 V8 natives on Node 24.19 only. Open: chapter order for the 26 README-only topics; designer redraws the wordmark.
+- Done and verified: JS 183 q / 1088 cards and TS 47 q / 543 cards, all `draft` and Opus-audited; both decks synced to the audited text. Unfinished JS proposals (decorators, ShadowRealm, import defer, stack accessor, legacy RegExp statics) stay `→ —`.
+- Next: TS gaps, as done for JS: stub every open `→ —` sub-topic (25, all chapters; skip unfinished proposals), then Opus Batch mode in serial groups, then Sonnet flashcards. TS facts are checked on both 7.0.2 (`npx -p typescript@7.0.2`) and 6.0.3 (`app/node_modules`), with the version named where they differ.
+- Awaiting maintainer: release `dev` → `main` (~300 commits since `efcb20a`: audits, 33 new JS questions, cards); Phase 5 reviews (Draft → `published`); chapter order for the 26 README-only topics; designer redraws the wordmark.
+- Known limits: JS ch 18–22 browser claims checked in Chrome 155 only (Firefox/Safari from MDN); ch 26 V8 natives on Node 24.19 only.
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
