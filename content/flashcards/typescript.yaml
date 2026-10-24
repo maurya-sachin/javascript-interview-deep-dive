@@ -1009,6 +1009,122 @@
   front: "Is the recursion depth limit a documented constant?"
   back: "No. PR 45711 describes a depth of 100 and 1000 tail iterations, and measurements here matched about 1000, but these are implementation details that may change."
   question: typescript/type-level-programming/recursive-types
+- id: instancetype-takes-typeof-class
+  front: "Why must you write `InstanceType<typeof Point>` rather than `InstanceType<Point>`?"
+  back: "A class name used as a type means the instance; the class value's type is `typeof C`, which has the construct signature. `InstanceType<Point>` is TS2344: it does not satisfy `abstract new (...args: any) => any`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: constructorparameters-labelled-tuple
+  front: "What do `ConstructorParameters<typeof C>` and `InstanceType<typeof C>` infer for `constructor(x: number, y = 0)`?"
+  back: "`ConstructorParameters` infers the parameters as a labelled tuple, `[x: number, y?: number | undefined]`. `InstanceType` infers what `new` returns."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: class-utilities-accept-abstract
+  front: "Why do `InstanceType` and `ConstructorParameters` accept abstract classes?"
+  back: "Both are constrained to `abstract new (...args: any) => any`, thanks to TS 4.2 abstract construct signatures."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: class-utilities-overloads-generics
+  front: "What do `ConstructorParameters` and `InstanceType` do with overloaded or generic constructors?"
+  back: "They work on one signature and don't keep generics. An overloaded constructor gives the last overload's parameters, and `InstanceType<typeof Box>` for `class Box<T>` is `Box<unknown>`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: generic-factory-infer-directly
+  front: "For a generic factory, why infer `new (...args: A) => T` directly instead of using `InstanceType`?"
+  back: "`T` and `A` are inferred per call, so the class's own generic is kept: `create(Box, \"hi\")` is `Box<string>`, whereas the utility-based factory gives `Box<unknown>`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: private-constructor-instancetype
+  front: "What happens with `InstanceType<typeof Singleton>` when the constructor is private?"
+  back: "TS2344 (\"Cannot assign a 'private' constructor type to a 'public' constructor type\"), because the constraint is a public construct signature."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: thisparametertype-omitthisparameter
+  front: "What do `ThisParameterType<F>` and `OmitThisParameter<F>` return?"
+  back: "`ThisParameterType<F>` extracts the declared `this: X` type (or `unknown` if there is none). `OmitThisParameter<F>` returns `F` without it, rebuilt from the last overload, so generics become `unknown`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: bind-this-utility-types
+  front: "How does `strictBindCallApply` (part of `--strict`) use the `this` utility types for `bind`?"
+  back: "`bind` is declared as `bind<T>(this: T, thisArg: ThisParameterType<T>): OmitThisParameter<T>`. That is the utilities' main client."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: omitthisparameter-no-this-unchanged
+  front: "Why does `OmitThisParameter` return a function without a `this` parameter unchanged?"
+  back: "Its definition starts with `unknown extends ThisParameterType<T> ? T : ...`, and `ThisParameterType` of a function with no declared `this` is `unknown`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: thistype-marker
+  front: "What does `ThisType<T>` do, and what does it require?"
+  back: "It is an empty marker interface. In an object literal whose contextual type includes `ThisType<T>`, methods see `this: T`. It requires `noImplicitThis` (on under `--strict`); without it `this` is just `any`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: thistype-without-noimplicitthis
+  front: "What happens to `this.missing` in a `ThisType` object literal with `noImplicitThis` off versus `--strict`?"
+  back: "Off: the marker is ignored and `this.missing` type-checks silently. Under `--strict`: TS2339."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: any-args-constraint-reason
+  front: "Why do the class utilities constrain to `(...args: any)` rather than `unknown[]`?"
+  back: "Parameters are compared contravariantly, so `typeof Point` (taking `number`) is not assignable to `new (...args: unknown[]) => unknown` (TS2345). `any` or `never[]` accepts every constructor."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: polymorphic-this-vs-thistype
+  front: "How does a `this` return type differ from `ThisType` and the `this` parameter utilities?"
+  back: "`add(p: string): this` is polymorphic: on a subclass it returns the subclass, so fluent chains keep subclass methods. `ThisType` sets `this` inside object literals; the utilities read a function's declared receiver."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: this-parameter-call-site-erased
+  front: "What does calling `toHex(2)` directly do when `toHex` declares `this: number`?"
+  back: "TS2684: the 'this' context of type 'void' is not assignable to method's 'this' of type 'number'. The `this` parameter is checked at every call site and erased from the emitted JavaScript."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: variadic-tuple-spread
+  front: "What does a generic spread `[...T, ...U]` (TS 4.0) do when `T` is a tuple versus an array?"
+  back: "With a tuple the spread flattens (`[...[1, 2], ...[3]]` is `[1, 2, 3]`). With an array it becomes a rest element (`[...T]` for `number[]` is `number[]`). `T` needs `extends readonly unknown[]`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: variadic-tuple-uses
+  front: "What do variadic tuples let function signatures do?"
+  back: "Describe tuple transformations without overload ladders: `concat`, `tail`, `partial(f, ...head)`, `pipe`, `Promise.all`-style mappers."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: variadic-inference-split
+  front: "What does `(...args: [...H, ...R]) => Out` let the checker infer?"
+  back: "It splits the parameter list: `H` is inferred from the arguments supplied, and `R` gets the remaining parameters, keeping their labels."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-hint-spread-t
+  front: "Why write a parameter as `[...T]` instead of `T` when `T extends unknown[]`?"
+  back: "It hints that an array literal should be inferred as a tuple: `[1, \"a\"]` gives `[number, string]` rather than `(string | number)[]`. Without it, positions are lost."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: rest-anywhere-tuples
+  front: "What does TS 4.2 allow for rest elements in tuples, and what errors remain?"
+  back: "A rest element anywhere: `[...string[], number]`, `[boolean, ...string[], boolean]`. Only one rest element per tuple, and no optional element after it (TS1265, TS1266)."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-length-arithmetic
+  front: "Why can tuples do type-level arithmetic, and how do you add and subtract?"
+  back: "A tuple's `\"length\"` is a numeric literal type. Add: `[...Tuple<A>, ...Tuple<B>][\"length\"]`. Subtract: `Tuple<A> extends [...Tuple<B>, ...infer Rest] ? Rest[\"length\"] : never`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-arithmetic-limits
+  front: "What limits tuple-based type arithmetic?"
+  back: "It works only for small non-negative integers. The builder is a recursive conditional type, so it hits the instantiation-depth limit, and negative or fractional inputs never reach their length (TS2589)."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-compare-by-subtraction
+  front: "How do you compare `A` and `B` with tuple arithmetic?"
+  back: "`A` is at least `B` exactly when the subtraction matches. For example `Sub<5, 7>` is `never`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: readonly-tuple-constraint
+  front: "Why does passing an `as const` tuple to `T extends unknown[]` fail, and what is the fix?"
+  back: "A readonly tuple is not assignable to a mutable one: 7.0.2 reports TS4104, 6.0.3 reports TS2345. Constrain to `readonly unknown[]`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: rest-element-needs-array-type
+  front: "What error does `type G<T> = [...T]` give with an unconstrained `T`?"
+  back: "TS2574, \"A rest element type must be an array type\"."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: add-number-non-literal
+  front: "What is `Add<number, 3>` with the tuple-length `Add`, and why?"
+  back: "`3`. `Tuple<number>` stops at `[]` because `0 extends number`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-last-element
+  front: "How do you get the last element of a tuple type?"
+  back: "Use a leading rest in the pattern: `T extends [...unknown[], infer L] ? L : never`. `Last<[1, 2, 3]>` is `3`. A leading rest in a non-generic tuple needs TS 4.2 or later."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-labels-kept-on-spread
+  front: "What happens to tuple labels when tuples are spread?"
+  back: "They are kept, so they reappear as parameter names: `[id: number, ...rest: [name: string, ok?: boolean]]` flattens to `[id: number, name: string, ok?: boolean | undefined]`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: spread-array-in-middle
+  front: "What is `[...[1, 2], ...string[], ...[3]]`, and why is `[...string[], ...number[]]` an error?"
+  back: "The open tuple `[1, 2, ...string[], 3]`. Only one rest may remain, so `[...string[], ...number[]]` is TS1265."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tail-readonly-outer-tuple
+  front: "For `tail<T extends readonly unknown[]>(arr: readonly [unknown, ...T]): T` called with an `as const` tuple, is the result readonly?"
+  back: "No. `readonly` belongs to the parameter's outer tuple; `T` is inferred from the elements after the first, so `t` is `[\"a\", true]`. Rest destructuring is typed `[...T]`, so no cast is needed."
+  question: typescript/type-level-programming/variadic-tuple-types
 
 # 05 Classes, enums, and runtime output
 - id: enum-type-and-object
