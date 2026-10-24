@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [What are literal types, and what does `as const` do?](040-literal-types-as-const.md) | medium | 🟡 draft |
 | 050 | [Why does TypeScript report an error on an object literal but not on a variable with the same shape?](050-excess-property-checks.md) | medium | 🟡 draft |
 | 060 | [How do function types, overloads, and the `void` return type work?](060-function-types-overloads.md) | medium | 🟡 draft |
-| 070 | [How do you type iterators and generators in TypeScript?](070-iterators-and-generators.md) | medium | 🔴 planned |
+| 070 | [How do you type iterators and generators in TypeScript?](070-iterators-and-generators.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
