@@ -2419,6 +2419,166 @@
   front: "What is the default of `noEmitOnError`?"
   back: "`false`, so emit flags do not depend on errors: output is written even when type errors are reported."
   question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: unused-flags-not-in-strict
+  front: "Are `noUnusedLocals`, `noUnusedParameters` and `noFallthroughCasesInSwitch` part of `strict`?"
+  back: "No. None of the three is in `strict`; each is off unless you set it."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: nounusedlocals-scope
+  front: "What does `noUnusedLocals` report, and what counts as use?"
+  back: "A local variable, function, class, type, interface, import or `private` member never *read* (TS6133 / TS6196 / TS6192). Assigning to it doesn't count as use. Exports are never reported."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: nounusedparameters-underscore
+  front: "What does `noUnusedParameters` report, and what does a leading underscore exempt?"
+  back: "Unread parameters, destructured parameter parts and unused type parameters (TS6133). A leading `_` exempts a parameter (documented); in tests it also exempted array-destructuring slots, but not an ordinary local such as `const _x`."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: nofallthrough-rule
+  front: "What does `noFallthroughCasesInSwitch` report, and what ends a case?"
+  back: "A non-empty `case` whose end is reachable (TS7029). Empty cases (`case 1: case 2:`) are allowed. `break`, `return`, `throw`, `continue` or a call to a function returning `never` end a case."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-flags-errors-not-warnings
+  front: "What happens when these flags are on and an unused variable is left in?"
+  back: "They are errors: `tsc` exits non-zero and the type-check script fails. Emit still happens unless `noEmitOnError` is set."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: linter-vs-compiler-unused
+  front: "What can a linter rule do that the compiler flags can't?"
+  back: "It can be a warning, autofixed, and configured (ignore patterns, rest siblings, a `// falls through` comment). ESLint's core `no-fallthrough` accepts such a comment where TS7029 does not."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-checks-one-place
+  front: "What split of unused and fallthrough checks does the answer recommend?"
+  back: "Keep `noFallthroughCasesInSwitch` in `tsconfig`. Put unused-code checks in one place: the linter if there is one (e.g. `@typescript-eslint/no-unused-vars`), otherwise the two compiler flags. Both reports each problem twice."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: falls-through-comment-ts7029
+  front: "Does a `// falls through` comment silence TS7029?"
+  back: "No. `tsc` ignores comments here; restructure the case or turn the flag off."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-type-parameter-code
+  front: "Which code does an unused type parameter `function g<T>()` get on 6.0.3 versus 7.0.2?"
+  back: "6.0.3 printed TS6133 (\"its value is never read\"); 7.0.2 printed TS6196 (\"declared but never used\"). Don't match on codes across versions."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-rest-sibling
+  front: "Why isn't `p` reported in `const { p, ...rest } = obj` when only `rest` is used?"
+  back: "It is the omit-a-property idiom, and in the test on both versions `tsc` didn't report `p`. Writing `p` removes it from `rest`, so it has a purpose even if never read."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-flags-type-stripping-tools
+  front: "Do esbuild-style type-stripping tools fail on these flags?"
+  back: "No. Tools that only strip types never run the checker, so only your type-check step fails. Editors show them as errors from the same `tsc` diagnostics."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: types-vs-imports
+  front: "Do `types` and `typeRoots` affect `import { m } from \"modlib\"`?"
+  back: "No. The import finds `@types/modlib` whatever `types` says. They control packages that add *globals*, like `process` from `@types/node` or `describe` from `@types/jest`."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: types-default-ts6
+  front: "What changed about the `types` default in TS 6.0, and why?"
+  back: "It became `[]`. Before, `tsc` loaded every visible `@types` package, which the release notes call very expensive; many projects built 20–50% faster with `types` set. List what you need, or write `[\"*\"]` for the old behaviour."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: typeroots-default
+  front: "What does `typeRoots` default to, and what happens when you set it?"
+  back: "By default every `node_modules/@types` from the tsconfig folder upward. Set it and only those folders count."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: outdir-unset
+  front: "Where is output written when `outDir` is unset?"
+  back: "Each `.js` is written next to its `.ts`."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: rootdir-default-ts6
+  front: "How did the `rootDir` default change in TS 6.0, and what does it do to `src/index.ts`?"
+  back: "Before, it was inferred as the common folder of all inputs (`dist/index.js`). Since 6.0 it defaults to the folder containing `tsconfig.json` (inferred only without a tsconfig), so the file becomes `dist/src/index.js`."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts5011-common-source-directory
+  front: "What is TS5011, and what is the fix?"
+  back: "With `outDir` set, no `rootDir` and inputs sharing a deeper folder, 6.0.3 and 7.0.2 report it and name the folder to use. Set `\"rootDir\": \"./src\"`. It does not change layout silently."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts6059-rootdir
+  front: "When do you get TS6059?"
+  back: "When an input file is not under `rootDir` (e.g. a stray `scripts/build.ts` matched by the default `include` with `rootDir` set to `src`)."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts7-keeps-ts6-defaults
+  front: "Does 7.0 keep the 6.0 `types` and `rootDir` defaults?"
+  back: "Yes. Results were identical on 6.0.3 and 7.0.2."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts5011-masks-other-errors
+  front: "Why can fixing TS5011 reveal new errors like `Cannot find name 'GLOB'`?"
+  back: "While TS5011 (a config error) was present, neither version printed the `GLOB` error; it appeared only after `rootDir` was set."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: typeroots-types-interaction
+  front: "What happens with `typeRoots: [\"./typings\"]` and `types` at its new default `[]`?"
+  back: "Nothing loads until you name packages in `types` (or use `\"*\"`). And once `typeRoots` is set, `\"types\": [\"globlib\"]` from `node_modules/@types` was TS2688 on both versions."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: types-vs-include
+  front: "Does a `.d.ts` under the project folder need `types`?"
+  back: "No. Files matched by `include` are always in the program; `types` only governs `@types`-style packages."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: rootdir-dot-moves-output
+  front: "What happens if you add `\"rootDir\": \".\"` to silence TS5011?"
+  back: "Output moves to `dist/src/`, which can break a build script that copies `dist/index.js`. Use the folder TS5011 names."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: why-ts6-changed-defaults
+  front: "Why did TS 6.0 change the `types` and `rootDir` defaults, per the release notes?"
+  back: "Speed and predictability: enumerating every `@types` package was expensive, and inferring `rootDir` meant analysing every input path, and a file's project couldn't be known without loading the whole project."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: noemit-rootdir
+  front: "Does `noEmit` care about `rootDir`?"
+  back: "No output, no layout. With `noEmit: true` (even alongside `outDir`) the same project gave no TS5011 on either version."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts7-migrate-via-ts6
+  front: "Why is migrating from TS 6 to 7 mostly a 6.0 cleanup?"
+  back: "7.0 is the native port with 6.0's defaults; 6.0 was the bridge release that deprecated everything 7.0 removes."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ignoredeprecations-ts7
+  front: "What does `ignoreDeprecations: \"6.0\"` do on 6.0.3 versus 7.0.2?"
+  back: "On 6.0.3 it silences the deprecation errors (TS5101/TS5107). 7.0.2 ignores it and reports TS5102/TS5108 (\"has been removed\"), so it only defers the work."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-removed-options
+  front: "Which options does 7.0 remove, and what replaces them?"
+  back: "`target: es5`/`downlevelIteration` → ES2015+; `moduleResolution: node`/`classic` → `nodenext` or `bundler`; `module: amd`/`umd`/`system`/`none` and `outFile` → ESM plus a bundler; `baseUrl` → fold into `paths`."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: baseurl-to-paths
+  front: "What must `paths` entries look like after removing `baseUrl`?"
+  back: "Relative: `\"./src/*\"`, else TS5090 on 6.0.3 and 7.0.2."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-always-on-options
+  front: "What do you do with `esModuleInterop`, `allowSyntheticDefaultImports` and `alwaysStrict: false` for 7.0?"
+  back: "Delete them; they're always on."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-syntax-removals
+  front: "Which two syntax forms must change before 7.0, and which codes report them?"
+  back: "`module Foo {}` → `namespace` (TS1540) and `assert {}` → `with {}` (TS2880). Both were errors on 6.0.3 even with `ignoreDeprecations`."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-explicit-defaults
+  front: "Which defaults should you set explicitly when migrating, because you relied on the old ones?"
+  back: "`types` (now `[]`), `rootDir` (now the tsconfig folder), `strict` (now `true`), and `module`/`target` (now `esnext`/`es2025`)."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: stable-type-ordering
+  front: "What does the 7.0 announcement say about `--stableTypeOrdering` on 6.0, and what is its cost?"
+  back: "Code that compiles cleanly on 6.0 with it, and without `ignoreDeprecations`, should compile identically on 7.0. It's diagnostic only: the 6.0 notes warn of up to 25% slowdown."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: stable-type-ordering-ts7
+  front: "What does `--stableTypeOrdering` do on 7.0?"
+  back: "7.0.2's `tsc --all` lists it as a boolean that defaults to `true`: 7.0 always orders types deterministically, which 6.0 can only imitate with the flag."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: checkers-builders-singlethreaded
+  front: "What do `--checkers`, `--builders` and `--singleThreaded` do?"
+  back: "`--checkers` (default 4) sets type-checking workers per project; `--builders` sets concurrent project-reference builds. More of either costs memory. `--singleThreaded` turns parallelism off for constrained CI."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: keep-ts6-for-api-tools
+  front: "Why keep 6.0 beside 7.0, and how?"
+  back: "7.0 has no stable JavaScript API, so tools built on it (typescript-eslint, language-service plugins) keep 6.0 through the npm alias `\"typescript\": \"npm:@typescript/typescript6\"`."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-api-port-not-switch
+  front: "Can API-consuming tools simply switch back to the 7.1 API, and do `tsserver` plugins work?"
+  back: "No. The 7.1 API is new and different, so they need a port, not a switch back. `tsserver` plugins can't load into the Go server at all."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: checkers-in-tsconfig
+  front: "What happens with `\"checkers\": 2` in a tsconfig that `tsc6` also reads?"
+  back: "7.0.2 accepts it there; 6.0.3 rejects it with TS5025 (`Unknown compiler option 'checkers'`). Pass it on the 7.0 command line instead."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts5to6-codemod
+  front: "Is there a codemod for the 6.0 config changes?"
+  back: "The 6.0 release notes point to an experimental `ts5to6` tool that rewrites `baseUrl` and `rootDir` settings; review its diff like any other config change."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-js-projects-changes
+  front: "What should JavaScript projects check when moving to 7.0?"
+  back: "`tsc/CHANGES.md` in the TypeScript repo: JSDoc support was rewritten and some old forms are gone."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
 
 # 08 The compiler
 - id: erasure-what-is-removed
