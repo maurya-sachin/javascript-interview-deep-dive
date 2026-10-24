@@ -1435,6 +1435,182 @@
   front: "Which TypeScript version added `erasableSyntaxOnly`?"
   back: "TS 5.8 (PR 61011). It is for runtimes that strip types, such as Node, Amaro and ts-blank-space, not a style flag."
   question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: field-define-vs-assign
+  front: "How do standard ES2022 class fields differ from TypeScript's original field emit?"
+  back: "Standard fields use `DefineField` (`CreateDataPropertyOrThrow` on the instance; static fields on the constructor). The original emit assigned (`this.x = 1`), which runs inherited setters and skips fields without initializers."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: field-init-timing
+  front: "When does a class field initialise relative to `super()` and the constructor body?"
+  back: "A derived class defines its fields right after `super()` returns; a base class does so before its constructor body."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: usedefineforclassfields-default
+  front: "What is the default of `useDefineForClassFields`, and what does each value emit?"
+  back: "`true` when `target` is ES2022 or later (the TS 6.0 default `target` is es2025, so on by default on 6.0.3 and 7.0.2). `true` keeps native fields, or `Object.defineProperty` below ES2022; `false` emits assignments."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: type-stripping-always-defines
+  front: "Does Node's type stripping use define or assign semantics for class fields?"
+  back: "It keeps fields as written, so it always defines."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: redeclared-field-wipes-base
+  front: "What does a subclass field redeclaration like `data!: User` do under define semantics, and what reports it?"
+  back: "It defines `data = undefined` after `super()`, wiping what the base constructor stored. TypeScript reports TS2612, only under define."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: field-over-accessor
+  front: "What happens when a subclass field overrides an inherited accessor?"
+  back: "It creates an own data property, so the setter never runs. TS2610 (TS2611 for the reverse) has been reported regardless of the flag since 4.0."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: declare-field-purpose
+  front: "What does a `declare` field (TS 3.7) do, and when do you use it?"
+  back: "`declare data: User` refines a property's type with no emit and no runtime property. Use it to narrow a base property or for a property something else creates (a base constructor, `Object.assign`)."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: declare-field-restrictions
+  front: "What can a `declare` field not have?"
+  back: "An initializer (TS1039, because `declare` emits nothing) or a `#private` name (TS18019, since a `#` name exists only if the class really defines it)."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: declare-runtime-invisible
+  front: "Is a `declare` field visible at runtime, and does Node's type stripping accept it?"
+  back: "No, it is erased like any annotation. It is erasable syntax, so Node's type stripping accepts it (checked on Node 24.19)."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: static-block-semantics
+  front: "When does a `static { ... }` block (ES2022, TS 4.4) run, and what can it access?"
+  back: "Once during class evaluation, in source order with static field initializers, with `this` bound to the class and access to its `#private` names. Below ES2022 it is emitted as an IIFE after the class."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: static-block-vs-initializer
+  front: "When use a static block over a static field initializer?"
+  back: "When initialisation needs statements: loops, `try`/`catch`, several related statics computed together, or giving an outside function access to a `#private` name, since the block runs inside the class's private scope."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: target-flips-define-flag
+  front: "Why is `target` not syntax-only for class fields?"
+  back: "Raising it flips the `useDefineForClassFields` default and changes behaviour. The same file at `--target es2021` ran the setter and `hasOwn` gave `false`, where ES2022 defined an own property."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: definite-assignment-not-declare
+  front: "Does silencing TS2612 with `!` fix the overwrite?"
+  back: "No. Definite assignment only affects checking; under define the field is still emitted. Use `declare`."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: define-false-emit-statics
+  front: "What does `useDefineForClassFields: false` emit for fields at `--target es2022`?"
+  back: "On both versions, instance fields became `this.x = 1` in the constructor and `static y = 2` became `static { this.y = 2; }`, a static block that assigns rather than defines."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: subclass-fields-in-base-constructor
+  front: "What does a base constructor see for a subclass field when it calls an overridden method?"
+  back: "`undefined`, in both define and assign modes, because subclass fields initialise only after `super()` returns."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: mixin-constructor-type
+  front: "What is a mixin constructor type, and what is a mixin class?"
+  back: "The type has one construct signature with a single `...args: any[]` rest parameter and an object return: `new (...args: any[]) => T`. A mixin class `extends` a value whose type is a type parameter constrained to it."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-result-intersection
+  front: "What type does a mixin produce, and why is the base's constructor still checked?"
+  back: "`typeof C & TBase`. Resolving `new` on the intersection drops the mixin's `any[]` signature and merges its instance members into the base's signatures, so base arguments are still checked and statics remain."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: constrained-mixin
+  front: "How do you make a mixin require members from its base?"
+  back: "Constrain it: `TBase extends Constructor<{ x: number; y: number }>`. The body can use `this.x`; applying it to a class without those members fails at the call (TS2345)."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-constructor-rule
+  front: "What must a mixin class's own constructor look like, and what error otherwise?"
+  back: "`constructor(...args: any[])` passing them to `super(...args)`, otherwise TS2545. The constraint must be `any[]`, not `unknown[]` (also TS2545)."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-abstract-constraint
+  front: "What changes when a mixin's constraint is an `abstract new` signature (TS 4.2)?"
+  back: "The mixin class must be declared `abstract`. A plain `class extends Base` is TS2797 on both versions, because the result could otherwise be instantiated."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-declaration-emit
+  front: "What goes wrong with private members in a mixin under `declaration`, and what is the fix?"
+  back: "The returned class is an anonymous class type in the `.d.ts`, so `private`, `protected` and `#private` members are rejected (TS4094). Give an explicit return type: `TBase & Constructor<Disposable>`, with the members described by an interface."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-applymixins-alternative
+  front: "Why is the handbook's interface-merging plus `applyMixins` alternative unchecked?"
+  back: "The interface promises members that the runtime copy of prototype methods might not provide."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-own-constructor-params
+  front: "How do you pass configuration to a mixin, given it can't have its own constructor parameters?"
+  back: "Pass it to the mixin function (`Timestamped(Base, clock)`) or read it from the base."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-instanceof-per-call
+  front: "Why does `WithDispose(Conn) === WithDispose(Conn)` print `false`, and what about `instanceof`?"
+  back: "Each call creates a new class. An instance of one result is not `instanceof` the other, though both extend the same `Conn`. Add a brand or `Symbol.hasInstance` if you need it."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-tooltip-7-vs-6
+  front: "How do tooltips for a chained mixin type differ between 7.0.2 and 6.0.3?"
+  back: "7.0.2 printed `Movable.(Anonymous class) & Timestamped.(Anonymous class) & Point`; 6.0.3 printed the full instantiated chain. Name the type with `InstanceType<typeof Sprite>`."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-unknown-args
+  front: "Why `any[]` rather than `unknown[]` in a mixin constructor type?"
+  back: "The mixin's construct signature is meant to vanish into the base's (the TS 2.2 rule). With `unknown[]` it is no longer a mixin constructor type, so the class body is rejected with TS2545 on 6.0.3 and 7.0.2."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-decorators-typing
+  front: "Do decorators work for typing mixins?"
+  back: "No. The handbook's Constraints section says decorators cannot provide mixins through code-flow analysis: a class decorator that returns a subclass doesn't change the decorated class's type. Use the function form."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-generic-class
+  front: "Can a mixin class be generic (`class Boxed<V> extends Base`)?"
+  back: "No: TS2545 on 6.0.3 and 7.0.2. Move the type parameter to the function: `function Boxed<V, TBase extends Constructor>(Base: TBase) { return class extends Base { value?: V } }`."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: decorator-metadata-object
+  front: "What is `context.metadata` (TS 5.2), and where does it end up?"
+  back: "Every standard decorator on a class and its members receives the same `context.metadata` object. After the class is defined it is stored on `Class[Symbol.metadata]`. It replaces the `reflect-metadata` global registry with plain objects."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-inheritance
+  front: "How does a subclass's `Symbol.metadata` relate to the parent's?"
+  back: "The object's prototype is the parent's metadata, so reads fall back to the parent while writes stay local."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-inherited-mutation
+  front: "Why does `ctx.metadata.list ??= []` in a subclass change the parent's metadata?"
+  back: "It finds the parent's array through the prototype, so `??=` assigns nothing and `push` modifies the parent's list. Copy into an own property before writing."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-stage
+  front: "What stage do decorator metadata and decorators show on the TC39 lists (checked 2026-10)?"
+  back: "The `tc39/proposals` list puts decorator metadata at Stage 2.7 while its README says Stage 3 (fetched 2026-10). Decorators are also listed at Stage 2.7."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: symbol-metadata-node-24
+  front: "What happens on Node 24.19 when decorated code reads `context.metadata`?"
+  back: "Node 24.19 has no `Symbol.metadata`, so TypeScript's helper passes `undefined` and `context.metadata.x` throws a TypeError. Polyfill before any decorated class is evaluated."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-lib-requirement
+  front: "What `lib` is needed for `context.metadata` to be typed, and what happens without it?"
+  back: "`lib` must include `esnext` or `esnext.decorators`. Without it `context.metadata` is typed `DecoratorMetadataObject | undefined` (TS18048)."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-polyfill-ts2540
+  front: "Why does copying the 5.2 release notes' `Symbol.metadata ??= Symbol(...)` polyfill fail?"
+  back: "TS2540 (\"Cannot assign to 'metadata' because it is a read-only property\") under `lib` esnext on both versions. Cast `Symbol` first, as `(Symbol as { metadata?: symbol })`."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: accessor-field-lowering
+  front: "What does `accessor status = \"new\"` (TS 4.9) turn into?"
+  back: "A `get`/`set` pair on the prototype over a private `#status_accessor_storage` field. Node 24.19 cannot parse `accessor` (SyntaxError), so TypeScript lowers it below `--target esnext`."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: accessor-decorator-result
+  front: "What does an accessor decorator receive and return, versus a field decorator?"
+  back: "It gets `{ get, set }` and returns any of `{ get, set, init }`, so it can observe or validate every write. A field decorator only sees the initial value (its `value` is `undefined`)."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: field-decorator-needs-accessor
+  front: "Why do field decorators need `accessor` to intercept writes?"
+  back: "A standard field is a data property defined on the instance (`[[Define]]`), so there is no setter to wrap. `accessor` puts a real getter/setter on the prototype that the decorator replaces."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: accessor-not-in-object-keys
+  front: "Do `accessor` fields show up in `Object.keys` or `JSON.stringify`?"
+  back: "No. The value lives in a private `#…_accessor_storage` field and the getter/setter sit on the prototype, so both skip it."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: emitdecoratormetadata-legacy
+  front: "What does `emitDecoratorMetadata` emit, and what does it need?"
+  back: "With `experimentalDecorators` (TS5052 without it), `tsc` adds `__metadata(\"design:paramtypes\", [...])` to decorated classes, plus `design:type` and `design:returntype` on members. Standard decorators do not support it."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: design-paramtypes-di
+  front: "How do DI containers use `design:paramtypes`, and what do interfaces and unions become?"
+  back: "They are runtime constructor references for erased types, read through `reflect-metadata`, so a container knows which classes to `new`. Interfaces, unions and type aliases become `Object`, so those dependencies need explicit tokens."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: design-paramtypes-example
+  front: "What did 6.0.3 and 7.0.2 emit for `constructor(logger: Logger, clock: Clock, id: string | number, n: number)`?"
+  back: "`__metadata(\"design:paramtypes\", [Logger, Object, Object, Number])` inside `__decorate`. The helper calls `Reflect.metadata` only if a polyfill defined it."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: legacy-flags-ts7
+  front: "Does TypeScript 7.0.2 still accept the legacy decorator flags?"
+  back: "Yes, both, with emit identical to 6.0.3."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: emitdecoratormetadata-isolated-modules
+  front: "Under `isolatedModules` with `emitDecoratorMetadata`, why does `import { Clock }` of an interface give TS1272?"
+  back: "Per-file emit can't tell whether `Clock` is a value it should reference. Use `import type` (or a namespace import)."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
 
 # 06 Modules and declaration files
 - id: import-elision-default
