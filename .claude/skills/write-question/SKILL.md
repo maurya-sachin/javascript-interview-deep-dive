@@ -32,6 +32,8 @@ Opus only (R21), one subagent per 2–3 chapters, serially; the main session ver
 
 Per question: re-run every example in Node 24; every `// →` and `**Answer:**` matches real output exactly, with no notes inside `// →` lines (print `error.name`, not engine messages). Check every claim against a source actually fetched: ECMA-262/402 algorithm steps for language behaviour (with a `#sec-…` anchor in `sources` that really exists), TC39's finished-proposals list for stage and edition year, nodejs.org / v8.dev / HTML for host and engine behaviour, which the text must label as such ("In V8…", "Node.js 24 prints…"). MDN for compat only. Soften unconfirmable claims; when primary sources disagree, say so; add `perishable` for stale-prone facts; fix internal slips (step numbers, follow-ups contradicting the Answer). Minimal edits, word limits respected, one question per commit.
 
+A question needing no change gets no commit (no empty commits). After a topic's audit, sync its flashcards: an Opus agent reads each changed question's diff since the audit began and fixes or deletes the cards that contradict it, one commit per chapter. Cards copy pre-audit errors.
+
 Errors past audits caught, so look for them: stale process documents trusted over the published record, wrong proposal stages, overstated attributions, spec algorithms misread (`??`, primitive writes, `==` rules, for-in order), and source anchors that don't exist.
 
 ## Never
