@@ -39,7 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 035 | [How do you type a mixin in TypeScript?](035-mixins.md) | hard | 🟡 draft |
 | 040 | [What is declaration merging, and are namespaces still used?](040-declaration-merging-namespaces.md) | medium | 🟡 draft |
 | 050 | [How do decorators work in TypeScript?](050-decorators.md) | hard | 🟡 draft |
-| 055 | [How do decorator metadata and `accessor` fields work, and what did `emitDecoratorMetadata` give DI frameworks?](055-decorator-metadata.md) | hard | 🔴 planned |
+| 055 | [How do decorator metadata and `accessor` fields work, and what did `emitDecoratorMetadata` give DI frameworks?](055-decorator-metadata.md) | hard | 🟡 draft |
 | 060 | [Which TypeScript syntax has runtime output, and why does `erasableSyntaxOnly` exist?](060-erasable-syntax-only.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
