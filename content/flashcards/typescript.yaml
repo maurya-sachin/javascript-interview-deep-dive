@@ -199,6 +199,62 @@
   front: "What do the three parameters of `Generator<T, TReturn, TNext>` type?"
   back: "`T` is what the generator yields, `TReturn` is what it returns, and `TNext` is what `next()` accepts."
   question: typescript/type-system-basics/function-types-overloads
+- id: iterable-vs-iterator-type
+  front: "Which type do `for...of`, spread, destructuring and `Array.from` accept: `Iterable<T>` or `Iterator<T>`?"
+  back: "`Iterable<T>`, which has `[Symbol.iterator]()`. Use it for parameters. `Iterator<T>` alone cannot be used in `for...of` (TS2488)."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterator-result-union
+  front: "What does `Iterator<T, TReturn, TNext>`'s `next()` return, and what must you check before trusting `value`?"
+  back: "`IteratorResult<T, TReturn>`, a discriminated union: `{ done?: false; value: T } | { done: true; value: TReturn }`. Check `done` first."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterator-object-type
+  front: "What is `IteratorObject<T, TReturn, TNext>` (TS 5.6)?"
+  back: "An iterator that is also iterable and models the built-in iterator prototype. Built-ins return subtypes such as `ArrayIterator`, `SetIterator` and `MapIterator`. With `lib` es2025 it carries the iterator helpers."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: generator-tnext-yield-value
+  front: "In `Generator<T, TReturn, TNext>`, what is `TNext` besides the type of the argument to `next(x)`?"
+  back: "The value of the `yield` expression. `T` is each yielded value and `TReturn` is the `return` value."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: async-generator-types
+  front: "Which types are the async versions of `Iterable`, `Iterator` and `Generator`, and what consumes them?"
+  back: "`AsyncIterable`, `AsyncIterator` and `AsyncGenerator`, consumed by `for await`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: generator-inference
+  front: "How is `function* g() { yield 1; return \"done\"; }` typed, and where does an inferred `TNext` come from?"
+  back: "`Generator<number, string, unknown>`. `TNext` comes from how `yield` results are used (`const x: string = yield` gives `string`), else `unknown`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: generator-vs-iterable-annotation
+  front: "When should you annotate `Generator<…>` versus `Iterable<T>`?"
+  back: "Choose by what callers may do. `Generator<…>` when they drive it with `next`; `Iterable<T>` when they should only iterate."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: tnext-undefined-for-of
+  front: "Why is iterating a generator whose `TNext` excludes `undefined` an error, and which codes report it?"
+  back: "`for...of`, spread and destructuring call `next()` with no argument. The errors are TS2763, TS2764 and TS2765, identically on 6.0.3 and 7.0.2."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: builtin-iterator-return-undefined
+  front: "What does `strictBuiltinIteratorReturn` (part of `--strict` since 5.6) change?"
+  back: "It sets the intrinsic `BuiltinIteratorReturn` to `undefined` instead of `any`, so `set.values().next().value` is `T | undefined`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterator-helpers-need-iteratorobject
+  front: "Why does a hand-written `{ next }` object typed `Iterator<number>` have no `.map`, and what is the fix?"
+  back: "Helpers are declared on `IteratorObject`, not `Iterator`: TS2339. Wrap it with `Iterator.from(...)`. Generators have helpers too, but only with `lib` es2025 or later."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: yield-star-typing
+  front: "How does `yield*` type?"
+  back: "The delegate's yielded type joins the outer `T`, and the `yield*` expression evaluates to the delegate's `TReturn`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: async-generator-for-await-tnext
+  front: "What does `async function* ag() { yield 1; }` infer as, and does the `TNext` rule apply to `for await`?"
+  back: "`AsyncGenerator<number, void, unknown>`, whose `next()` returns `Promise<IteratorResult<…>>`. Yes: a `string` `TNext` gave TS2763 under `for await`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: downlevel-iteration-removed
+  front: "Do you still need `downlevelIteration`, and what do 6.0.3 and 7.0.2 report for it and `target=ES5`?"
+  back: "No; it only mattered when emitting ES5. 6.0.3 reports both as deprecated (TS5107, TS5101); 7.0.2 rejects both as removed (TS5108, TS5102)."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterable-class-generator-method
+  front: "How do you make a class iterable?"
+  back: "Give it a generator method, `*[Symbol.iterator]() { … yield i; }`, optionally with `implements Iterable<number>`. Spread and `for...of` then infer `number` elements."
+  question: typescript/type-system-basics/iterators-and-generators
 
 # 02 Inference and narrowing
 - id: inference-bottom-up-top-down
