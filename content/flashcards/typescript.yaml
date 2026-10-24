@@ -2953,7 +2953,7 @@
   front: "What does an assertion `as` need, and when is `as unknown as` required?"
   back: "Comparability: roughly, either side assignable to the other, so `{ x: 1 } as Point` compiles. Only types with no overlap (TS2352) need `as unknown as`."
   question: typescript/the-compiler/checker-and-tsserver
-- id: istypereltedto-order
+- id: istyperelatedto-order
   front: "In what order does `isTypeRelatedTo` try things?"
   back: "Cheap paths first: the same object, simple flag rules (anything to `unknown`), then the cache keyed `\"sourceId,targetId\"`. Only then members, signatures and index signatures structurally, storing Succeeded or Failed."
   question: typescript/the-compiler/checker-and-tsserver
