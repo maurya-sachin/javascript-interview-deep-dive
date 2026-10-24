@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 |---|---|---|---|
 | 010 | [What does TypeScript erase at compile time, and what does that mean for runtime checks?](010-type-erasure.md) | medium | 🟡 draft |
 | 020 | [What is the difference between type checking and transpiling, and why do bundlers skip checking?](020-checking-vs-emitting.md) | medium | 🟡 draft |
-| 025 | [Which TypeScript features break under single-file transpilers, and what does `isolatedDeclarations` add?](025-single-file-transpiler-gaps.md) | hard | 🔴 planned |
+| 025 | [Which TypeScript features break under single-file transpilers, and what does `isolatedDeclarations` add?](025-single-file-transpiler-gaps.md) | hard | 🟡 draft |
 | 030 | [How does Node.js run TypeScript files directly?](030-node-type-stripping.md) | medium | 🟡 draft |
 | 040 | [What are the stages of the TypeScript compiler?](040-compiler-pipeline.md) | hard | 🟡 draft |
 | 045 | [How does the checker relate and cache types, and how do editors talk to `tsserver`?](045-checker-and-tsserver.md) | hard | 🔴 planned |
