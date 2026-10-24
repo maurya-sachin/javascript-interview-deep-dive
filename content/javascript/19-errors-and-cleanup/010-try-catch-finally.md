@@ -98,7 +98,7 @@ The spec models every statement result as a **Completion Record** with a type (`
 2. If it is a `throw` completion and there is a `catch`, evaluate the catch clause with the thrown value. Its completion becomes `catchResult`. Otherwise `catchResult` is `blockResult`.
 3. If there is a `finally`, evaluate it to get `finallyResult`. **If `finallyResult` is normal, use `catchResult`; otherwise use `finallyResult`.**
 
-That third rule is the whole story of "finally overrides return". A `return` statement does not leave the function immediately. It produces a `return` completion that travels outward, and `finally` runs in the middle of that trip. Because the operand of `return` is evaluated when the completion is created, `readsBeforeFinally` returns `1`.
+That third rule is the whole story of "finally overrides return". A `return` statement does not leave the function immediately. It produces a `return` completion that travels outward, and `finally` runs in the middle of that trip. Because the operand of `return` is evaluated when the completion is created, `primitiveReturn` returns `1`.
 
 The `catch` clause creates a new declarative environment for its parameter. A thrown value of any type is bound there, so `catch (e)` works for strings and numbers, and a destructuring pattern such as `catch ({ code })` is allowed.
 

@@ -12,6 +12,8 @@ related:
   - javascript/this/call-apply-bind
   - javascript/this/lost-this-callbacks
 verified: 2026-10
+perishable:
+  - CommonJS top-level `this` is `module.exports` (Node.js behaviour, undocumented)
 sources:
   - https://tc39.es/ecma262/#sec-evaluatecall
   - https://tc39.es/ecma262/#sec-ordinarycallbindthis
@@ -20,6 +22,7 @@ sources:
   - https://tc39.es/ecma262/#sec-ecmascript-function-objects-call-thisargument-argumentslist
   - https://tc39.es/ecma262/#sec-ecmascript-function-objects-construct-argumentslist-newtarget
   - https://tc39.es/ecma262/#sec-module-environment-records-getthisbinding
+  - https://nodejs.org/api/modules.html#the-module-wrapper
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
 tldr: >
   For a non-arrow function, `this` is set by how it is called, not where it is defined.
@@ -42,7 +45,7 @@ Three more rules:
 
 - **Arrow functions** have no `this` of their own. They read the one from the enclosing function or scope, at the point where the arrow was created, so none of the rules above can change it.
 - **Strict mode is a property of the function** being called, not of the caller. Class bodies and modules are always strict.
-- **Top level:** in a module `this` is `undefined`. In a classic script it is `globalThis`. In a Node CommonJS file it is `module.exports`.
+- **Top level:** in a module `this` is `undefined`. In a classic script it is `globalThis`. In a CommonJS file, Node.js 24 sets it to `module.exports`.
 
 What matters is the *call expression*, not the function. The same function gives different results depending on how it is called, and extracting a method (`const f = obj.method; f()`) removes the `obj.` that supplied `this`.
 
@@ -56,15 +59,18 @@ function whoAmI() {
 const user = { name: 'Ada', whoAmI };
 const other = { name: 'Grace' };
 
-console.log(user.whoAmI() === user); // → true   implicit
-console.log(whoAmI()); // → undefined   default (strict)
-console.log(whoAmI.call(other) === other); // → true   explicit
+// Implicit, default (strict), explicit:
+console.log(user.whoAmI() === user); // → true
+console.log(whoAmI()); // → undefined
+console.log(whoAmI.call(other) === other); // → true
+// Detaching drops the `user.`; the comma operator applies GetValue:
 const detached = user.whoAmI;
-console.log(detached()); // → undefined   the `user.` is gone
-console.log((0, user.whoAmI)()); // → undefined   comma applies GetValue
-console.log(new whoAmI() instanceof whoAmI); // → true   `new`
-console.log(whoAmI.bind(user).call(other) === user); // → true   bound beats call
-console.log(new (whoAmI.bind(user))() === user); // → false   `new` beats bound
+console.log(detached()); // → undefined
+console.log((0, user.whoAmI)()); // → undefined
+// `new`; bound beats call; `new` beats bound:
+console.log(new whoAmI() instanceof whoAmI); // → true
+console.log(whoAmI.bind(user).call(other) === user); // → true
+console.log(new (whoAmI.bind(user))() === user); // → false
 ```
 
 ## Pitfalls
@@ -116,7 +122,7 @@ console.log(typeof strict.call(5)); // → number
 console.log(this === module.exports); // → true
 ```
 
-`sloppy.call(5)` boxes the primitive; `strict.call(5)` leaves it alone. Node wraps a CommonJS file in a function, so top-level `this` is `module.exports`, not `globalThis`. An ES module's top level is `undefined`.
+`sloppy.call(5)` boxes the primitive; `strict.call(5)` leaves it alone. Node.js documents that it wraps a CommonJS file in a function; Node.js 24 calls that wrapper with `module.exports` as `this` (observed, not stated in its docs), not `globalThis`. An ES module's top level is `undefined`.
 
 Classes are always strict, so extracting a method gives `undefined`. A derived constructor's binding starts uninitialised:
 
@@ -155,7 +161,7 @@ const counter = {
 };
 const child = Object.create(counter);
 console.log(child.next); // → 1
-console.log(Object.hasOwn(child, 'count')); // → true   written on `child`
+console.log(Object.hasOwn(child, 'count')); // → true
 console.log(counter.count); // → 0
 ```
 

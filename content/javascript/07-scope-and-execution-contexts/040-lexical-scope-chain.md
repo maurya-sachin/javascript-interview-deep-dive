@@ -16,6 +16,7 @@ sources:
   - https://tc39.es/ecma262/#sec-getidentifierreference
   - https://tc39.es/ecma262/#sec-newfunctionenvironment
   - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
+  - https://tc39.es/ecma262/#sec-runtime-semantics-instantiateordinaryfunctionexpression
   - https://developer.mozilla.org/en-US/docs/Glossary/Scope
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions#function_scope
   - https://chromium.googlesource.com/v8/v8.git/+/main/docs/runtime/scopes-and-scope-infos.md
@@ -39,9 +40,9 @@ The mechanism, in spec terms:
 
 That chain is the **scope chain**. A nearer binding hides a farther one of the same name; this is **shadowing**. The kinds of scope are the global scope, module scope, function scope, block scope (including `catch` and `for` loop heads), and class static blocks.
 
-Contrast this with **dynamic scope**, where a function sees the caller's variables. JavaScript doesn't do that for identifiers. The one thing that is chosen by the call site is `this`.
+Contrast this with **dynamic scope**, where a function sees the caller's variables. JavaScript doesn't do that for identifiers. The main thing chosen by the call site is `this`.
 
-Because the chain is known from the source, engines resolve most names at compile time. V8, for instance, resolves each reference to a stack slot or a context slot when it compiles the function, rather than searching by name at run time.
+Because the chain is known from the source, engines resolve most names at compile time. V8, for instance, resolves most references to a stack slot or a context slot when it compiles the function, rather than searching by name at run time.
 
 ## Example
 
@@ -51,7 +52,7 @@ const label = 'global';
 function makeReader() {
   const label = 'makeReader';
   return function read() {
-    return label; // found one link out, in makeReader's record
+    return label; // found in makeReader's record, past read's name scope
   };
 }
 
@@ -86,7 +87,7 @@ console.log(makeReader().name); // → read
 
 ### How it works
 
-Take the example above. When `makeReader()` is called, a Function Environment Record `R1` is created with `label = 'makeReader'`, and `R1.[[OuterEnv]]` is the module record. The inner `read` function object is created while `R1` is the running `LexicalEnvironment`, so `read.[[Environment]]` is `R1`. Calling `read()` creates `R2` with `R2.[[OuterEnv]] = R1`. Resolving `label` checks `R2` (empty), then `R1` (hit). `runFromElsewhere`'s record is never visited.
+Take the example above. When `makeReader()` is called, a Function Environment Record `R1` is created with `label = 'makeReader'`, and `R1.[[OuterEnv]]` is the module record. The inner `read` function object is created while `R1` is the running `LexicalEnvironment`. Because `read` is a named function expression, the spec first wraps `R1` in a record `N` holding only the name `read`, so `read.[[Environment]]` is `N`. Calling `read()` creates `R2` with `R2.[[OuterEnv]] = N`. Resolving `label` checks `R2` (empty), then `N` (only `read`), then `R1` (hit). `runFromElsewhere`'s record is never visited.
 
 This is also what a closure is: a function plus its `[[Environment]]`. The chain keeps `R1` reachable as long as `read` is.
 
@@ -123,7 +124,7 @@ console.log(pick()); // → outer
 
 ### Trade-offs
 
-Static scope costs flexibility (you can't inject variables into a function from outside) but buys predictability and speed: reading a local is a slot access rather than a name lookup. The deeper the chain, the more records a lookup crosses, but engines only keep a record on the heap when a closure actually needs it, so shallow, closure-free code pays almost nothing.
+Static scope costs flexibility (you can't inject variables into a function from outside) but buys predictability and speed: in V8, reading a local is a slot access rather than a name lookup. The deeper the chain, the more records a lookup crosses, but V8 only puts a variable in a heap `Context` when a closure needs it, so shallow, closure-free code pays almost nothing.
 
 ## Exercises
 

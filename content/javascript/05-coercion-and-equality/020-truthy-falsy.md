@@ -12,6 +12,7 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-toboolean
   - https://tc39.es/ecma262/#sec-IsHTMLDDA-internal-slot
+  - https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#the-htmlallcollection-interface
   - https://developer.mozilla.org/en-US/docs/Glossary/Falsy
   - https://developer.mozilla.org/en-US/docs/Glossary/Truthy
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing

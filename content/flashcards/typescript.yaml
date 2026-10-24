@@ -69,7 +69,7 @@
   question: typescript/type-system-basics/any-unknown-never
 - id: unknown-any-never-combinations
   front: "What do `unknown | T`, `unknown & T`, `T | never` and `T & never` reduce to?"
-  back: "`unknown`, `T`, `T` and `never`. `any` absorbs both ways: `any | T` and `any & T` are `any`."
+  back: "`unknown`, `T`, `T` and `never`. `any` absorbs both ways: `any | T` and `any & T` are `any`, except `any & never`, which is `never`."
   question: typescript/type-system-basics/any-unknown-never
 - id: never-exhaustiveness-default
   front: "How does a `never` variable in a `switch` default branch help?"
@@ -77,7 +77,7 @@
   question: typescript/type-system-basics/any-unknown-never
 - id: json-parse-returns-any
   front: "What type do `JSON.parse` and `Response.json()` return, and what is the safe habit?"
-  back: "`any`. Assigning it to a typed variable is an unchecked cast. Accept it as `unknown` immediately, then narrow once at the boundary."
+  back: "`any`: `JSON.parse` returns it and `Response.json()` resolves to it. Assigning it to a typed variable is an unchecked cast. Accept it as `unknown` immediately, then narrow once at the boundary."
   question: typescript/type-system-basics/any-unknown-never
 - id: catch-variable-unknown
   front: "Which option makes `catch (e)` give `unknown`, and is it part of `strict`?"
@@ -121,11 +121,11 @@
   question: typescript/type-system-basics/literal-types-as-const
 - id: readonly-tuple-to-mutable-param
   front: "Why does passing an `as const` array to a `string[]` parameter fail, and what is the fix?"
-  back: "A `readonly` tuple cannot be assigned to a mutable array type (`TS4104`). Type the parameter `readonly string[]`."
+  back: "A `readonly` tuple cannot be assigned to a mutable array type (`TS4104` on 7.0; 6.0 reports `TS2345` with that message beneath). Type the parameter `readonly string[]`."
   question: typescript/type-system-basics/literal-types-as-const
 - id: as-const-vs-satisfies
   front: "How do `as const` and `satisfies` differ?"
-  back: "`satisfies T` (TS 4.9) checks the value against `T` and keeps its inferred type, with no `readonly` or narrowing. `as const` changes the inferred type to the narrowest one. They combine as `as const satisfies T`."
+  back: "`satisfies T` (TS 4.9) validates against `T` and keeps the inferred type: no `readonly`, and literals stay only where `T` expects them. `as const` narrows fully. They combine as `as const satisfies T`."
   question: typescript/type-system-basics/literal-types-as-const
 - id: const-type-parameter
   front: "What does a `<const T>` type parameter do?"
@@ -149,7 +149,7 @@
   question: typescript/type-system-basics/excess-property-checks
 - id: excess-check-spread-and-union
   front: "Where does excess property checking not apply?"
-  back: "Spread members are not checked. A union target without a discriminant accepts a literal matching any member. With a discriminant, TypeScript picks the matching member and checks against it."
+  back: "Spread members are not checked. A union target without a discriminant rejects only properties that no member declares. With a discriminant, TypeScript picks the matching member and checks against it."
   question: typescript/type-system-basics/excess-property-checks
 - id: excess-check-fixes
   front: "How should you fix an excess property error on a legitimate extra property?"
@@ -199,6 +199,62 @@
   front: "What do the three parameters of `Generator<T, TReturn, TNext>` type?"
   back: "`T` is what the generator yields, `TReturn` is what it returns, and `TNext` is what `next()` accepts."
   question: typescript/type-system-basics/function-types-overloads
+- id: iterable-vs-iterator-type
+  front: "Which type do `for...of`, spread, destructuring and `Array.from` accept: `Iterable<T>` or `Iterator<T>`?"
+  back: "`Iterable<T>`, which has `[Symbol.iterator]()`. Use it for parameters. `Iterator<T>` alone cannot be used in `for...of` (TS2488)."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterator-result-union
+  front: "What does `Iterator<T, TReturn, TNext>`'s `next()` return, and what must you check before trusting `value`?"
+  back: "`IteratorResult<T, TReturn>`, a discriminated union: `{ done?: false; value: T } | { done: true; value: TReturn }`. Check `done` first."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterator-object-type
+  front: "What is `IteratorObject<T, TReturn, TNext>` (TS 5.6)?"
+  back: "An iterator that is also iterable and models the built-in iterator prototype. Built-ins return subtypes such as `ArrayIterator`, `SetIterator` and `MapIterator`. With `lib` es2025 it carries the iterator helpers."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: generator-tnext-yield-value
+  front: "In `Generator<T, TReturn, TNext>`, what is `TNext` besides the type of the argument to `next(x)`?"
+  back: "The value of the `yield` expression. `T` is each yielded value and `TReturn` is the `return` value."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: async-generator-types
+  front: "Which types are the async versions of `Iterable`, `Iterator` and `Generator`, and what consumes them?"
+  back: "`AsyncIterable`, `AsyncIterator` and `AsyncGenerator`, consumed by `for await`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: generator-inference
+  front: "How is `function* g() { yield 1; return \"done\"; }` typed, and where does an inferred `TNext` come from?"
+  back: "`Generator<number, string, unknown>`. `TNext` comes from how `yield` results are used (`const x: string = yield` gives `string`), else `unknown`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: generator-vs-iterable-annotation
+  front: "When should you annotate `Generator<…>` versus `Iterable<T>`?"
+  back: "Choose by what callers may do. `Generator<…>` when they drive it with `next`; `Iterable<T>` when they should only iterate."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: tnext-undefined-for-of
+  front: "Why is iterating a generator whose `TNext` excludes `undefined` an error, and which codes report it?"
+  back: "`for...of`, spread and destructuring call `next()` with no argument. The errors are TS2763, TS2764 and TS2765, identically on 6.0.3 and 7.0.2."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: builtin-iterator-return-undefined
+  front: "What does `strictBuiltinIteratorReturn` (part of `--strict` since 5.6) change?"
+  back: "It sets the intrinsic `BuiltinIteratorReturn` to `undefined` instead of `any`, so `set.values().next().value` is `T | undefined`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterator-helpers-need-iteratorobject
+  front: "Why does a hand-written `{ next }` object typed `Iterator<number>` have no `.map`, and what is the fix?"
+  back: "Helpers are declared on `IteratorObject`, not `Iterator`: TS2339. Wrap it with `Iterator.from(...)`. Generators have helpers too, but only with `lib` es2025 or later."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: yield-star-typing
+  front: "How does `yield*` type?"
+  back: "The delegate's yielded type joins the outer `T`, and the `yield*` expression evaluates to the delegate's `TReturn`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: async-generator-for-await-tnext
+  front: "What does `async function* ag() { yield 1; }` infer as, and does the `TNext` rule apply to `for await`?"
+  back: "`AsyncGenerator<number, void, unknown>`, whose `next()` returns `Promise<IteratorResult<…>>`. Yes: a `string` `TNext` gave TS2763 under `for await`."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: downlevel-iteration-removed
+  front: "Do you still need `downlevelIteration`, and what do 6.0.3 and 7.0.2 report for it and `target=ES5`?"
+  back: "No; it only mattered when emitting ES5. 6.0.3 reports both as deprecated (TS5107, TS5101); 7.0.2 rejects both as removed (TS5108, TS5102)."
+  question: typescript/type-system-basics/iterators-and-generators
+- id: iterable-class-generator-method
+  front: "How do you make a class iterable?"
+  back: "Give it a generator method, `*[Symbol.iterator]() { … yield i; }`, optionally with `implements Iterable<number>`. Spread and `for...of` then infer `number` elements."
+  question: typescript/type-system-basics/iterators-and-generators
 
 # 02 Inference and narrowing
 - id: inference-bottom-up-top-down
@@ -383,7 +439,7 @@
   question: typescript/inference-and-narrowing/satisfies-operator
 - id: as-vs-satisfies-completeness
   front: "Why do `as` and `satisfies` differ on a config object with missing or misspelled keys?"
-  back: "`as T` only requires sufficient overlap, so missing keys and extra keys like `bleu` pass. `satisfies` does an assignability check and rejects both."
+  back: "`as T` only requires sufficient overlap: it accepts missing keys, and extra keys when none is missing; only a typo that drops one key and adds another (`bleu` for `blue`) trips TS2352. `satisfies` rejects all three."
   question: typescript/inference-and-narrowing/satisfies-operator
 - id: satisfies-not-conversion
   front: "Does `satisfies` change a value's type?"
@@ -403,7 +459,7 @@
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: as-overlap-rule
   front: "When does TypeScript allow `value as T`?"
-  back: "When the types sufficiently overlap, meaning one is assignable to the other. `\"hello\" as number` is rejected with TS2352."
+  back: "When the types sufficiently overlap: per the handbook, `T` is a more or less specific version of the value's type. `\"hello\" as number` is rejected with TS2352."
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: double-assertion
   front: "What is a double assertion and what does it cost?"
@@ -423,7 +479,7 @@
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: definite-assignment-emit
   front: "Does `prop!: string` change the emitted JavaScript of a class?"
-  back: "The `!` is erased, but the field declaration is not. With `target: es2022`, TS 7.0.2 emitted `b;`, defining the field as `undefined`. `declare b: string` or `useDefineForClassFields: false` emitted no field."
+  back: "The `!` is erased, but the field declaration is not. With `target: es2022`, TS 7.0.2 and 6.0.3 emitted `b;`, defining the field as `undefined`. `declare b: string` or `useDefineForClassFields: false` emitted no field."
   question: typescript/inference-and-narrowing/assertions-and-non-null
 - id: assertion-alternatives
   front: "What should you prefer over `as` and `!` when an alternative exists?"
@@ -485,7 +541,7 @@
   question: typescript/generics/generics-and-constraints
 - id: union-print-order-unstable
   front: "Can you rely on the printed order of union members in error messages?"
-  back: "No. Unions are unordered. `keyof { id; name }` printed `\"id\" | \"name\"` on TypeScript 7.0.2 and `\"name\" | \"id\"` on 5.9.3 for the same program."
+  back: "No. Unions are unordered. `keyof { id; name }` printed `\"id\" | \"name\"` on TypeScript 7.0.2 and `\"name\" | \"id\"` on 6.0.3 for the same program."
   question: typescript/generics/generics-and-constraints
 - id: generics-fewest-parameters
   front: "What is the guideline for how many type parameters a generic signature should have?"
@@ -504,8 +560,8 @@
   back: "`Dog`. Since TS 2.6, candidates in contravariant positions such as callback parameters resolve to the best common subtype."
   question: typescript/generics/generic-inference
 - id: literal-widening-in-inference
-  front: "How do `same(\"a\", \"b\")` with unconstrained `T` and with `T extends string` differ?"
-  back: "Unconstrained `T` widens to `string`. A constraint such as `T extends string` keeps the literals, giving `\"a\" | \"b\"`."
+  front: "When does generic inference keep literal candidates such as `\"a\"` and `\"b\"` instead of widening them to `string`?"
+  back: "When `T` is the whole return type (`same(\"a\", \"b\")` is `\"a\" | \"b\"`) or its constraint is primitive (`T extends string`). Otherwise they widen: `list(\"a\", \"b\")` returning `T[]` gives `string[]`."
   question: typescript/generics/generic-inference
 - id: no-inference-source
   front: "What does `T` become if no argument mentions it?"
@@ -617,7 +673,7 @@
   question: typescript/generics/keyof-typeof-indexed-access
 - id: keyof-union-print-order
   front: "Is the printed order of a `keyof` union stable across compiler versions?"
-  back: "No. `\"admin\" | \"user\"` printed on 7.0.2 and `\"user\" | \"admin\"` on 5.9.3. Unions are unordered; do not depend on the order."
+  back: "No. `\"admin\" | \"user\"` printed on 7.0.2 and `\"user\" | \"admin\"` on 6.0.3. Unions are unordered; do not depend on the order."
   question: typescript/generics/keyof-typeof-indexed-access
 - id: derive-type-from-value-tradeoff
   front: "What is the trade-off of deriving a type from a value with `typeof`?"
@@ -637,7 +693,7 @@
   question: typescript/generics/const-type-params-noinfer
 - id: const-type-parameter-readonly-constraint
   front: "Why constrain a `const T` array parameter as `readonly string[]` rather than `string[]`?"
-  back: "The readonly tuple candidate fails a mutable constraint. TS 5.0 falls back to `string[]`, while 5.9.3 and 7.0.2 gave the tuple. The `readonly` constraint gives the precise result everywhere."
+  back: "The readonly tuple candidate fails a mutable constraint. Before 5.3 inference fell back to `string[]`; since 5.3 it infers the mutable tuple `[\"a\", \"b\"]`. The `readonly` constraint gives the precise result on every version."
   question: typescript/generics/const-type-params-noinfer
 - id: noinfer-fallback-example
   front: "How does `fallback?: NoInfer<C>` change `light(colors: C[], fallback?: C)`?"
@@ -695,7 +751,7 @@
   question: typescript/type-level-programming/conditional-types
 - id: detect-any
   front: "How do you detect `any` with a conditional type?"
-  back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, to which `0` is assignable; for other `T` the intersection is `1` or `never`."
+  back: "`0 extends 1 & T ? true : false`. `1 & any` is `any`, which accepts `0`; for any other `T` the intersection is `1`, a narrower `1 & …` or `never`, none of which accepts `0`."
   question: typescript/type-level-programming/conditional-types
 - id: distributive-true-branch-constraint
   front: "In the true branch of a distributive conditional, what is `T`, and why does `T extends string ? Uppercase<T> : never` compile?"
@@ -703,7 +759,7 @@
   question: typescript/type-level-programming/conditional-types
 - id: distribution-only-own-naked-parameter
   front: "Does an outer alias distribute a union that sits inside an object, function return or tuple position?"
-  back: "No. A conditional there distributes only when its own check type is a naked parameter at instantiation. For example `Obj<string | number>` printed `{ v: 2 | 1 }`; union order differs by compiler."
+  back: "No. A conditional there distributes only when its own check type is a naked parameter at instantiation. For example `Obj<string | number>` printed `{ v: 1 | 2 }` on 7.0.2 and `{ v: 2 | 1 }` on 6.0.3."
   question: typescript/type-level-programming/conditional-types
 - id: force-distribution-idiom
   front: "What idiom forces distribution when you have no conditional you otherwise need?"
@@ -735,7 +791,7 @@
   question: typescript/type-level-programming/infer-keyword
 - id: infer-overloads
   front: "Which signature does `infer` see on an overloaded function?"
-  back: "The last one. Generic signatures are inferred with their type parameters as `unknown`. So `ReturnType` and `Parameters` see only the last overload."
+  back: "The last one. A generic signature's type parameters are replaced by their constraints (`unknown` when unconstrained). So `ReturnType` and `Parameters` see only the last overload."
   question: typescript/type-level-programming/infer-keyword
 - id: infer-extends-constraint
   front: "What does `infer X extends C` (TS 4.7) do?"
@@ -827,7 +883,7 @@
   question: typescript/type-level-programming/mapped-types
 - id: mapped-index-signatures-survive
   front: "Does a homomorphic identity mapping keep index signatures? (checked)"
-  back: "Yes. `Plain<{ [k: string]: number; a: 1 }>` printed `{ [x: string]: number; a: 1; }`."
+  back: "Yes. `Plain<{ [k: string]: number; a: 1 }>` equals `{ [x: string]: number; a: 1 }`."
   question: typescript/type-level-programming/mapped-types
 - id: mapped-as-over-union-of-objects
   front: "How do you build a handler map keyed by `kind` from a union of objects?"
@@ -953,6 +1009,122 @@
   front: "Is the recursion depth limit a documented constant?"
   back: "No. PR 45711 describes a depth of 100 and 1000 tail iterations, and measurements here matched about 1000, but these are implementation details that may change."
   question: typescript/type-level-programming/recursive-types
+- id: instancetype-takes-typeof-class
+  front: "Why must you write `InstanceType<typeof Point>` rather than `InstanceType<Point>`?"
+  back: "A class name used as a type means the instance; the class value's type is `typeof C`, which has the construct signature. `InstanceType<Point>` is TS2344: it does not satisfy `abstract new (...args: any) => any`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: constructorparameters-labelled-tuple
+  front: "What do `ConstructorParameters<typeof C>` and `InstanceType<typeof C>` infer for `constructor(x: number, y = 0)`?"
+  back: "`ConstructorParameters` infers the parameters as a labelled tuple, `[x: number, y?: number | undefined]`. `InstanceType` infers what `new` returns."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: class-utilities-accept-abstract
+  front: "Why do `InstanceType` and `ConstructorParameters` accept abstract classes?"
+  back: "Both are constrained to `abstract new (...args: any) => any`, thanks to TS 4.2 abstract construct signatures."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: class-utilities-overloads-generics
+  front: "What do `ConstructorParameters` and `InstanceType` do with overloaded or generic constructors?"
+  back: "They work on one signature and don't keep generics. An overloaded constructor gives the last overload's parameters, and `InstanceType<typeof Box>` for `class Box<T>` is `Box<unknown>`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: generic-factory-infer-directly
+  front: "For a generic factory, why infer `new (...args: A) => T` directly instead of using `InstanceType`?"
+  back: "`T` and `A` are inferred per call, so the class's own generic is kept: `create(Box, \"hi\")` is `Box<string>`, whereas the utility-based factory gives `Box<unknown>`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: private-constructor-instancetype
+  front: "What happens with `InstanceType<typeof Singleton>` when the constructor is private?"
+  back: "TS2344 (\"Cannot assign a 'private' constructor type to a 'public' constructor type\"), because the constraint is a public construct signature."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: thisparametertype-omitthisparameter
+  front: "What do `ThisParameterType<F>` and `OmitThisParameter<F>` return?"
+  back: "`ThisParameterType<F>` extracts the declared `this: X` type (or `unknown` if there is none). `OmitThisParameter<F>` returns `F` without it, rebuilt from the last overload, so generics become `unknown`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: bind-this-utility-types
+  front: "How does `strictBindCallApply` (part of `--strict`) use the `this` utility types for `bind`?"
+  back: "`bind` is declared as `bind<T>(this: T, thisArg: ThisParameterType<T>): OmitThisParameter<T>`. That is the utilities' main client."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: omitthisparameter-no-this-unchanged
+  front: "Why does `OmitThisParameter` return a function without a `this` parameter unchanged?"
+  back: "Its definition starts with `unknown extends ThisParameterType<T> ? T : ...`, and `ThisParameterType` of a function with no declared `this` is `unknown`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: thistype-marker
+  front: "What does `ThisType<T>` do, and what does it require?"
+  back: "It is an empty marker interface. In an object literal whose contextual type includes `ThisType<T>`, methods see `this: T`. It requires `noImplicitThis` (on under `--strict`); without it `this` is just `any`."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: thistype-without-noimplicitthis
+  front: "What happens to `this.missing` in a `ThisType` object literal with `noImplicitThis` off versus `--strict`?"
+  back: "Off: the marker is ignored and `this.missing` type-checks silently. Under `--strict`: TS2339."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: any-args-constraint-reason
+  front: "Why do the class utilities constrain to `(...args: any)` rather than `unknown[]`?"
+  back: "Parameters are compared contravariantly, so `typeof Point` (taking `number`) is not assignable to `new (...args: unknown[]) => unknown` (TS2345). `any` or `never[]` accepts every constructor."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: polymorphic-this-vs-thistype
+  front: "How does a `this` return type differ from `ThisType` and the `this` parameter utilities?"
+  back: "`add(p: string): this` is polymorphic: on a subclass it returns the subclass, so fluent chains keep subclass methods. `ThisType` sets `this` inside object literals; the utilities read a function's declared receiver."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: this-parameter-call-site-erased
+  front: "What does calling `toHex(2)` directly do when `toHex` declares `this: number`?"
+  back: "TS2684: the 'this' context of type 'void' is not assignable to method's 'this' of type 'number'. The `this` parameter is checked at every call site and erased from the emitted JavaScript."
+  question: typescript/type-level-programming/class-and-this-utility-types
+- id: variadic-tuple-spread
+  front: "What does a generic spread `[...T, ...U]` (TS 4.0) do when `T` is a tuple versus an array?"
+  back: "With a tuple the spread flattens (`[...[1, 2], ...[3]]` is `[1, 2, 3]`). With an array it becomes a rest element (`[...T]` for `number[]` is `number[]`). `T` needs `extends readonly unknown[]`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: variadic-tuple-uses
+  front: "What do variadic tuples let function signatures do?"
+  back: "Describe tuple transformations without overload ladders: `concat`, `tail`, `partial(f, ...head)`, `pipe`, `Promise.all`-style mappers."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: variadic-inference-split
+  front: "What does `(...args: [...H, ...R]) => Out` let the checker infer?"
+  back: "It splits the parameter list: `H` is inferred from the arguments supplied, and `R` gets the remaining parameters, keeping their labels."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-hint-spread-t
+  front: "Why write a parameter as `[...T]` instead of `T` when `T extends unknown[]`?"
+  back: "It hints that an array literal should be inferred as a tuple: `[1, \"a\"]` gives `[number, string]` rather than `(string | number)[]`. Without it, positions are lost."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: rest-anywhere-tuples
+  front: "What does TS 4.2 allow for rest elements in tuples, and what errors remain?"
+  back: "A rest element anywhere: `[...string[], number]`, `[boolean, ...string[], boolean]`. Only one rest element per tuple, and no optional element after it (TS1265, TS1266)."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-length-arithmetic
+  front: "Why can tuples do type-level arithmetic, and how do you add and subtract?"
+  back: "A tuple's `\"length\"` is a numeric literal type. Add: `[...Tuple<A>, ...Tuple<B>][\"length\"]`. Subtract: `Tuple<A> extends [...Tuple<B>, ...infer Rest] ? Rest[\"length\"] : never`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-arithmetic-limits
+  front: "What limits tuple-based type arithmetic?"
+  back: "It works only for small non-negative integers. The builder is a recursive conditional type, so it hits the instantiation-depth limit, and negative or fractional inputs never reach their length (TS2589)."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-compare-by-subtraction
+  front: "How do you compare `A` and `B` with tuple arithmetic?"
+  back: "`A` is at least `B` exactly when the subtraction matches. For example `Sub<5, 7>` is `never`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: readonly-tuple-constraint
+  front: "Why does passing an `as const` tuple to `T extends unknown[]` fail, and what is the fix?"
+  back: "A readonly tuple is not assignable to a mutable one: 7.0.2 reports TS4104, 6.0.3 reports TS2345. Constrain to `readonly unknown[]`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: rest-element-needs-array-type
+  front: "What error does `type G<T> = [...T]` give with an unconstrained `T`?"
+  back: "TS2574, \"A rest element type must be an array type\"."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: add-number-non-literal
+  front: "What is `Add<number, 3>` with the tuple-length `Add`, and why?"
+  back: "`3`. `Tuple<number>` stops at `[]` because `0 extends number`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-last-element
+  front: "How do you get the last element of a tuple type?"
+  back: "Use a leading rest in the pattern: `T extends [...unknown[], infer L] ? L : never`. `Last<[1, 2, 3]>` is `3`. A leading rest in a non-generic tuple needs TS 4.2 or later."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tuple-labels-kept-on-spread
+  front: "What happens to tuple labels when tuples are spread?"
+  back: "They are kept, so they reappear as parameter names: `[id: number, ...rest: [name: string, ok?: boolean]]` flattens to `[id: number, name: string, ok?: boolean | undefined]`."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: spread-array-in-middle
+  front: "What is `[...[1, 2], ...string[], ...[3]]`, and why is `[...string[], ...number[]]` an error?"
+  back: "The open tuple `[1, 2, ...string[], 3]`. Only one rest may remain, so `[...string[], ...number[]]` is TS1265."
+  question: typescript/type-level-programming/variadic-tuple-types
+- id: tail-readonly-outer-tuple
+  front: "For `tail<T extends readonly unknown[]>(arr: readonly [unknown, ...T]): T` called with an `as const` tuple, is the result readonly?"
+  back: "No. `readonly` belongs to the parameter's outer tuple; `T` is inferred from the elements after the first, so `t` is `[\"a\", true]`. Rest destructuring is typed `[...T]`, so no cast is needed."
+  question: typescript/type-level-programming/variadic-tuple-types
 
 # 05 Classes, enums, and runtime output
 - id: enum-type-and-object
@@ -965,7 +1137,7 @@
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: string-enum-no-reverse-mapping
   front: "Does a string enum get a reverse mapping?"
-  back: "No, only the forward map is emitted, because two names could share a value. `as const` objects have no reverse entries either."
+  back: "No, only the forward map is emitted. `as const` objects have no reverse entries either."
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: string-enum-rejects-literal
   front: "Why does `const c: Color = \"RED\"` fail for `enum Color { Red = \"RED\" }`?"
@@ -989,7 +1161,7 @@
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: const-enum-isolated-modules-emit
   front: "What happens to an own `export const enum` under `isolatedModules`?"
-  back: "It was emitted as a normal object and the use site was not inlined, on TS 7.0.2 and 5.9.3. `preserveConstEnums` defaults to true under `isolatedModules`."
+  back: "It was emitted as a normal object and the use site was not inlined, on TS 7.0.2 and 6.0.3. `preserveConstEnums` defaults to true under `isolatedModules`."
   question: typescript/classes-enums-runtime-output/enums-vs-unions
 - id: union-of-literals-no-emit
   front: "What does a union of literals like `\"active\" | \"banned\"` give you over an enum?"
@@ -1060,8 +1232,8 @@
   back: "`useDefineForClassFields` is true from ES2022, so fields initialise before the constructor body assigns the parameter property. It errors as TS2729; `new A(2).y` printed `NaN` for ES2022 but `4` for ES2021."
   question: typescript/classes-enums-runtime-output/class-members-access
 - id: mixin-pattern
-  front: "What is the TypeScript mixin pattern, and what can mixins not declare?"
-  back: "A function that takes a constructor type and returns a class expression extending it, such as `Timestamped(User)`. Per the Handbook, mixins cannot declare `private` or `protected` members; use `#` fields."
+  front: "What is the TypeScript mixin pattern, and why does the Handbook advise `#` fields in it?"
+  back: "A function that takes a constructor type and returns a class expression extending it, such as `Timestamped(User)`. With `declaration` on, an exported mixin's class cannot have `private` or `protected` members (TS4094)."
   question: typescript/classes-enums-runtime-output/class-members-access
 - id: implements-compile-time-only
   front: "What does `implements Interface` actually do?"
@@ -1097,7 +1269,7 @@
   question: typescript/classes-enums-runtime-output/abstract-classes-implements
 - id: abstract-not-runtime-enforced
   front: "Is `abstract` enforced at runtime?"
-  back: "No. After a cast, `new` works and calling an abstract member gave `this.area is not a function`. Anything arriving through `any`, a cast or plain JavaScript is unchecked."
+  back: "No. After a cast, `new` works and calling an abstract member gave a `TypeError` (`this.area is not a function` in Node.js 24). Anything arriving through `any`, a cast or plain JavaScript is unchecked."
   question: typescript/classes-enums-runtime-output/abstract-classes-implements
 - id: abstract-implements-interface
   front: "How can an abstract class implement an interface without defining its members?"
@@ -1157,7 +1329,7 @@
   question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
 - id: namespace-erasable-flag
   front: "Which namespaces survive `erasableSyntaxOnly`?"
-  back: "Type-only and `declare` namespaces. One with values is TS1294. TS 7.0.2 also reports `module Old {}` as TS1540; 5.9.3 did not."
+  back: "Type-only and `declare` namespaces. One with values is TS1294. Separately, `module Old {}` is TS1540 on 6.0.3 and 7.0.2 with or without the flag: 6.0 made the `module` keyword for namespaces a hard deprecation."
   question: typescript/classes-enums-runtime-output/declaration-merging-namespaces
 - id: declare-namespace-emits-nothing
   front: "What does an ambient `declare namespace` emit, and where is it used?"
@@ -1197,7 +1369,7 @@
   question: typescript/classes-enums-runtime-output/decorators
 - id: decorator-runtime-support
   front: "Can native Node 24 run `@dec` syntax, and how does TypeScript emit it?"
-  back: "No, it is a SyntaxError, so you need TypeScript, Babel or a bundler. TS downlevels with `__esDecorate` and `__runInitializers` for `--target es2022`; `--target esnext` kept the `@` syntax (7.0.2)."
+  back: "No, it is a SyntaxError, so you need TypeScript, Babel or a bundler. TS downlevels with `__esDecorate` and `__runInitializers` for `--target es2022`; `--target esnext` kept the `@` syntax (6.0.3 and 7.0.2)."
   question: typescript/classes-enums-runtime-output/decorators
 - id: decorator-mixing-errors
   front: "What errors appear when a legacy-style decorator is used without `experimentalDecorators`?"
@@ -1263,11 +1435,187 @@
   front: "Which TypeScript version added `erasableSyntaxOnly`?"
   back: "TS 5.8 (PR 61011). It is for runtimes that strip types, such as Node, Amaro and ts-blank-space, not a style flag."
   question: typescript/classes-enums-runtime-output/erasable-syntax-only
+- id: field-define-vs-assign
+  front: "How do standard ES2022 class fields differ from TypeScript's original field emit?"
+  back: "Standard fields use `DefineField` (`CreateDataPropertyOrThrow` on the instance; static fields on the constructor). The original emit assigned (`this.x = 1`), which runs inherited setters and skips fields without initializers."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: field-init-timing
+  front: "When does a class field initialise relative to `super()` and the constructor body?"
+  back: "A derived class defines its fields right after `super()` returns; a base class does so before its constructor body."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: usedefineforclassfields-default
+  front: "What is the default of `useDefineForClassFields`, and what does each value emit?"
+  back: "`true` when `target` is ES2022 or later (the TS 6.0 default `target` is es2025, so on by default on 6.0.3 and 7.0.2). `true` keeps native fields, or `Object.defineProperty` below ES2022; `false` emits assignments."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: type-stripping-always-defines
+  front: "Does Node's type stripping use define or assign semantics for class fields?"
+  back: "It keeps fields as written, so it always defines."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: redeclared-field-wipes-base
+  front: "What does a subclass field redeclaration like `data!: User` do under define semantics, and what reports it?"
+  back: "It defines `data = undefined` after `super()`, wiping what the base constructor stored. TypeScript reports TS2612, only under define."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: field-over-accessor
+  front: "What happens when a subclass field overrides an inherited accessor?"
+  back: "It creates an own data property, so the setter never runs. TS2610 (TS2611 for the reverse) has been reported regardless of the flag since 4.0."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: declare-field-purpose
+  front: "What does a `declare` field (TS 3.7) do, and when do you use it?"
+  back: "`declare data: User` refines a property's type with no emit and no runtime property. Use it to narrow a base property or for a property something else creates (a base constructor, `Object.assign`)."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: declare-field-restrictions
+  front: "What can a `declare` field not have?"
+  back: "An initializer (TS1039, because `declare` emits nothing) or a `#private` name (TS18019, since a `#` name exists only if the class really defines it)."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: declare-runtime-invisible
+  front: "Is a `declare` field visible at runtime, and does Node's type stripping accept it?"
+  back: "No, it is erased like any annotation. It is erasable syntax, so Node's type stripping accepts it (checked on Node 24.19)."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: static-block-semantics
+  front: "When does a `static { ... }` block (ES2022, TS 4.4) run, and what can it access?"
+  back: "Once during class evaluation, in source order with static field initializers, with `this` bound to the class and access to its `#private` names. Below ES2022 it is emitted as an IIFE after the class."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: static-block-vs-initializer
+  front: "When use a static block over a static field initializer?"
+  back: "When initialisation needs statements: loops, `try`/`catch`, several related statics computed together, or giving an outside function access to a `#private` name, since the block runs inside the class's private scope."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: target-flips-define-flag
+  front: "Why is `target` not syntax-only for class fields?"
+  back: "Raising it flips the `useDefineForClassFields` default and changes behaviour. The same file at `--target es2021` ran the setter and `hasOwn` gave `false`, where ES2022 defined an own property."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: definite-assignment-not-declare
+  front: "Does silencing TS2612 with `!` fix the overwrite?"
+  back: "No. Definite assignment only affects checking; under define the field is still emitted. Use `declare`."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: define-false-emit-statics
+  front: "What does `useDefineForClassFields: false` emit for fields at `--target es2022`?"
+  back: "On both versions, instance fields became `this.x = 1` in the constructor and `static y = 2` became `static { this.y = 2; }`, a static block that assigns rather than defines."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: subclass-fields-in-base-constructor
+  front: "What does a base constructor see for a subclass field when it calls an overridden method?"
+  back: "`undefined`, in both define and assign modes, because subclass fields initialise only after `super()` returns."
+  question: typescript/classes-enums-runtime-output/class-field-semantics
+- id: mixin-constructor-type
+  front: "What is a mixin constructor type, and what is a mixin class?"
+  back: "The type has one construct signature with a single `...args: any[]` rest parameter and an object return: `new (...args: any[]) => T`. A mixin class `extends` a value whose type is a type parameter constrained to it."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-result-intersection
+  front: "What type does a mixin produce, and why is the base's constructor still checked?"
+  back: "`typeof C & TBase`. Resolving `new` on the intersection drops the mixin's `any[]` signature and merges its instance members into the base's signatures, so base arguments are still checked and statics remain."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: constrained-mixin
+  front: "How do you make a mixin require members from its base?"
+  back: "Constrain it: `TBase extends Constructor<{ x: number; y: number }>`. The body can use `this.x`; applying it to a class without those members fails at the call (TS2345)."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-constructor-rule
+  front: "What must a mixin class's own constructor look like, and what error otherwise?"
+  back: "`constructor(...args: any[])` passing them to `super(...args)`, otherwise TS2545. The constraint must be `any[]`, not `unknown[]` (also TS2545)."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-abstract-constraint
+  front: "What changes when a mixin's constraint is an `abstract new` signature (TS 4.2)?"
+  back: "The mixin class must be declared `abstract`. A plain `class extends Base` is TS2797 on both versions, because the result could otherwise be instantiated."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-declaration-emit
+  front: "What goes wrong with private members in a mixin under `declaration`, and what is the fix?"
+  back: "The returned class is an anonymous class type in the `.d.ts`, so `private`, `protected` and `#private` members are rejected (TS4094). Give an explicit return type: `TBase & Constructor<Disposable>`, with the members described by an interface."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-applymixins-alternative
+  front: "Why is the handbook's interface-merging plus `applyMixins` alternative unchecked?"
+  back: "The interface promises members that the runtime copy of prototype methods might not provide."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-own-constructor-params
+  front: "How do you pass configuration to a mixin, given it can't have its own constructor parameters?"
+  back: "Pass it to the mixin function (`Timestamped(Base, clock)`) or read it from the base."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-instanceof-per-call
+  front: "Why does `WithDispose(Conn) === WithDispose(Conn)` print `false`, and what about `instanceof`?"
+  back: "Each call creates a new class. An instance of one result is not `instanceof` the other, though both extend the same `Conn`. Add a brand or `Symbol.hasInstance` if you need it."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-tooltip-7-vs-6
+  front: "How do tooltips for a chained mixin type differ between 7.0.2 and 6.0.3?"
+  back: "7.0.2 printed `Movable.(Anonymous class) & Timestamped.(Anonymous class) & Point`; 6.0.3 printed the full instantiated chain. Name the type with `InstanceType<typeof Sprite>`."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-unknown-args
+  front: "Why `any[]` rather than `unknown[]` in a mixin constructor type?"
+  back: "The mixin's construct signature is meant to vanish into the base's (the TS 2.2 rule). With `unknown[]` it is no longer a mixin constructor type, so the class body is rejected with TS2545 on 6.0.3 and 7.0.2."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-decorators-typing
+  front: "Do decorators work for typing mixins?"
+  back: "No. The handbook's Constraints section says decorators cannot provide mixins through code-flow analysis: a class decorator that returns a subclass doesn't change the decorated class's type. Use the function form."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: mixin-generic-class
+  front: "Can a mixin class be generic (`class Boxed<V> extends Base`)?"
+  back: "No: TS2545 on 6.0.3 and 7.0.2. Move the type parameter to the function: `function Boxed<V, TBase extends Constructor>(Base: TBase) { return class extends Base { value?: V } }`."
+  question: typescript/classes-enums-runtime-output/mixins
+- id: decorator-metadata-object
+  front: "What is `context.metadata` (TS 5.2), and where does it end up?"
+  back: "Every standard decorator on a class and its members receives the same `context.metadata` object. After the class is defined it is stored on `Class[Symbol.metadata]`. It replaces the `reflect-metadata` global registry with plain objects."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-inheritance
+  front: "How does a subclass's `Symbol.metadata` relate to the parent's?"
+  back: "The object's prototype is the parent's metadata, so reads fall back to the parent while writes stay local."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-inherited-mutation
+  front: "Why does `ctx.metadata.list ??= []` in a subclass change the parent's metadata?"
+  back: "It finds the parent's array through the prototype, so `??=` assigns nothing and `push` modifies the parent's list. Copy into an own property before writing."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-stage
+  front: "What stage do decorator metadata and decorators show on the TC39 lists (checked 2026-10)?"
+  back: "The `tc39/proposals` list puts decorator metadata at Stage 2.7 while its README says Stage 3 (fetched 2026-10). Decorators are also listed at Stage 2.7."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: symbol-metadata-node-24
+  front: "What happens on Node 24.19 when decorated code reads `context.metadata`?"
+  back: "Node 24.19 has no `Symbol.metadata`, so TypeScript's helper passes `undefined` and `context.metadata.x` throws a TypeError. Polyfill before any decorated class is evaluated."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-lib-requirement
+  front: "What `lib` is needed for `context.metadata` to be typed, and what happens without it?"
+  back: "`lib` must include `esnext` or `esnext.decorators`. Without it `context.metadata` is typed `DecoratorMetadataObject | undefined` (TS18048)."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: metadata-polyfill-ts2540
+  front: "Why does copying the 5.2 release notes' `Symbol.metadata ??= Symbol(...)` polyfill fail?"
+  back: "TS2540 (\"Cannot assign to 'metadata' because it is a read-only property\") under `lib` esnext on both versions. Cast `Symbol` first, as `(Symbol as { metadata?: symbol })`."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: accessor-field-lowering
+  front: "What does `accessor status = \"new\"` (TS 4.9) turn into?"
+  back: "A `get`/`set` pair on the prototype over a private `#status_accessor_storage` field. Node 24.19 cannot parse `accessor` (SyntaxError), so TypeScript lowers it below `--target esnext`."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: accessor-decorator-result
+  front: "What does an accessor decorator receive and return, versus a field decorator?"
+  back: "It gets `{ get, set }` and returns any of `{ get, set, init }`, so it can observe or validate every write. A field decorator only sees the initial value (its `value` is `undefined`)."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: field-decorator-needs-accessor
+  front: "Why do field decorators need `accessor` to intercept writes?"
+  back: "A standard field is a data property defined on the instance (`[[Define]]`), so there is no setter to wrap. `accessor` puts a real getter/setter on the prototype that the decorator replaces."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: accessor-not-in-object-keys
+  front: "Do `accessor` fields show up in `Object.keys` or `JSON.stringify`?"
+  back: "No. The value lives in a private `#…_accessor_storage` field and the getter/setter sit on the prototype, so both skip it."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: emitdecoratormetadata-legacy
+  front: "What does `emitDecoratorMetadata` emit, and what does it need?"
+  back: "With `experimentalDecorators` (TS5052 without it), `tsc` adds `__metadata(\"design:paramtypes\", [...])` to decorated classes, plus `design:type` and `design:returntype` on members. Standard decorators do not support it."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: design-paramtypes-di
+  front: "How do DI containers use `design:paramtypes`, and what do interfaces and unions become?"
+  back: "They are runtime constructor references for erased types, read through `reflect-metadata`, so a container knows which classes to `new`. Interfaces, unions and type aliases become `Object`, so those dependencies need explicit tokens."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: design-paramtypes-example
+  front: "What did 6.0.3 and 7.0.2 emit for `constructor(logger: Logger, clock: Clock, id: string | number, n: number)`?"
+  back: "`__metadata(\"design:paramtypes\", [Logger, Object, Object, Number])` inside `__decorate`. The helper calls `Reflect.metadata` only if a polyfill defined it."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: legacy-flags-ts7
+  front: "Does TypeScript 7.0.2 still accept the legacy decorator flags?"
+  back: "Yes, both, with emit identical to 6.0.3."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
+- id: emitdecoratormetadata-isolated-modules
+  front: "Under `isolatedModules` with `emitDecoratorMetadata`, why does `import { Clock }` of an interface give TS1272?"
+  back: "Per-file emit can't tell whether `Clock` is a value it should reference. Use `import type` (or a namespace import)."
+  question: typescript/classes-enums-runtime-output/decorator-metadata
 
 # 06 Modules and declaration files
 - id: import-elision-default
-  front: "What is import elision, and why can a single-file transpiler not do it?"
-  back: "`tsc` drops an import it sees is never used as a value, because it has the whole program. Babel, `ts.transpileModule` and similar tools cannot see the other file, so they cannot tell a type from a class."
+  front: "What is import elision, and what can a single-file transpiler not see?"
+  back: "`tsc` drops an import it sees is never used as a value, because it has the whole program and knows whether `User` is an interface or a class. Babel, `ts.transpileModule` and similar tools cannot see the other file."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: import-type-erased
   front: "What does `import type` (TS 3.8) guarantee, and what error follows from using it as a value?"
@@ -1279,7 +1627,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: isolated-modules-errors-only
   front: "Does `isolatedModules` change emit?"
-  back: "No. It only adds errors for code a one-file-at-a-time transpiler could not compile correctly. Per the docs it does not change checking or emitting behavior, and does not turn off elision."
+  back: "Mostly it adds errors for code a one-file-at-a-time transpiler could not compile. The docs say it does not change emit, yet it implies `preserveConstEnums` and `tsc` stops inlining const enum values. It does not turn off elision."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: isolated-modules-reexport-type
   front: "What does `isolatedModules` report for `export { User }` where `User` is an interface?"
@@ -1291,7 +1639,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-replaces-flags
   front: "Which options does `verbatimModuleSyntax` replace?"
-  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 5.9.3 reports them as removed (TS5102), and TS 7.0.2 reports them as unknown options."
+  back: "`importsNotUsedAsValues` and `preserveValueImports`. TS 6.0.3 reports them as removed (TS5102), except `importsNotUsedAsValues: \"remove\"`, the old default; TS 7.0.2 reports them as unknown options (TS5023)."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: inline-type-keeps-side-effects
   front: "What does `import { type A } from \"./m\"` emit under `verbatimModuleSyntax`?"
@@ -1299,7 +1647,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-commonjs-forbids-esm
   front: "What happens to ESM syntax in a file that compiles to CommonJS under `verbatimModuleSyntax`?"
-  back: "It is forbidden (TS1287). Use `import x = require()` and `export =` there."
+  back: "It is forbidden (TS1295, or TS1287 for `export const`). Use `import x = require()` and `export =` there."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: import-type-default-and-named
   front: "Why does `import type D, { N } from \"m\"` fail?"
@@ -1307,7 +1655,7 @@
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: verbatim-recommended-new
   front: "Why enable `verbatimModuleSyntax` in new projects?"
-  back: "TS 5.9's `tsc --init` template already does, alongside `isolatedModules`, and your emit then matches what Node, Babel or a bundler will do with the source."
+  back: "`tsc --init` on 6.0 and 7.0 already does, alongside `isolatedModules`, and your emit then matches what Node, Babel or a bundler will do with the source."
   question: typescript/modules-and-declaration-files/import-type-isolated-modules
 - id: module-vs-module-resolution
   front: "What do `module` and `moduleResolution` each control?"
@@ -1347,19 +1695,19 @@
   question: typescript/modules-and-declaration-files/module-resolution
 - id: exports-types-condition-first
   front: "How do you order conditions in a package's `exports` entry for TypeScript?"
-  back: "List `types` before `default`: resolution matches the `types` condition first."
+  back: "List `types` before `default`: conditions are tried in object order, and `tsc` always matches both."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: exports-unlisted-subpath
   front: "What happens when you import a subpath not listed in `exports`?"
   back: "It cannot be resolved, in `tsc` (TS2307) or in Node (`ERR_PACKAGE_PATH_NOT_EXPORTED`)."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: module-resolution-unset-esnext
-  front: "What did leaving `moduleResolution` unset with `module: esnext` do?"
-  back: "On TS 5.9.3 it fell back to `classic` and `import \"dep\"` failed (TS2792). On 7.0.2 the same project compiled; the tsconfig reference does not document the 7.0 default."
+  front: "What does leaving `moduleResolution` unset give on TS 6.0 and 7.0?"
+  back: "`Bundler`, per `--traceResolution` on 6.0.3 and 7.0.2, for `module: esnext` and even `commonjs` (5.x picked `classic` or `node10`), so extensionless imports pass. The tsconfig reference's default table still describes 5.x."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: node10-ignores-exports
   front: "How does `node10` resolution treat a package with `exports`?"
-  back: "It ignores `exports`. On TS 5.9.3 it resolved through the top-level `types` field instead, and an unexported subpath like `dep/internal.js` was accepted."
+  back: "It ignores `exports`. On TS 6.0.3 (TS5107 unless `ignoreDeprecations: \"6.0\"`) it resolved through the top-level `types` field instead, and an unexported subpath like `dep/internal.js` was accepted."
   question: typescript/modules-and-declaration-files/module-resolution
 - id: require-esm-nodenext
   front: "Can a CommonJS file `require()` an ESM-only package under `module: nodenext`?"
@@ -1387,7 +1735,7 @@
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: interop-flags-forced-6
   front: "What happened to setting `esModuleInterop` to `false` in TS 6.0 and 7.0?"
-  back: "TS 6.0 deprecated setting either interop flag to `false`. On TS 7.0.2, `--esModuleInterop false` is error TS5108."
+  back: "TS 6.0 deprecated setting either interop flag to `false` (TS5107 unless `ignoreDeprecations: \"6.0\"`). On TS 7.0.2 either `false` is error TS5108."
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: node-esm-default-import
   front: "What does `import x from \"./c.cjs\"` give in native Node ESM?"
@@ -1399,7 +1747,7 @@
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: import-star-call
   front: "Why should you not write `import * as fn from \"cjs\"` and call `fn()`?"
-  back: "A namespace import is not callable. TS 5.9.3 and 6.0.3 report TS2497; TS 7.0.2 accepts the import, typed `{ default: ... }`, and `fn()` is TS2349. Default-import `export =` modules instead."
+  back: "A namespace import is not callable. TS 6.0.3 reports TS2497; TS 7.0.2 accepts the import, typed `{ default: ... }`, and `fn()` is TS2349. Default-import `export =` modules instead."
   question: typescript/modules-and-declaration-files/esm-cjs-interop
 - id: export-equals-esm-file
   front: "What happens to `export =` in an ESM file under `module: nodenext`?"
@@ -1455,11 +1803,11 @@
   question: typescript/modules-and-declaration-files/declaration-files
 - id: types-package-import-found
   front: "Does `@types/foo` need a `types` entry in tsconfig to be found on `import`?"
-  back: "No. On TS 7.0.2 with `types` unset, `import ms from \"ms\"` found `@types/ms`, while the global `process` from `@types/node` needed `--types node` (TS2591)."
+  back: "No. On TS 6.0.3 and 7.0.2 with `types` unset, `import ms from \"ms\"` found `@types/ms`, while the global `process` from `@types/node` needed `--types node` (TS2591)."
   question: typescript/modules-and-declaration-files/declaration-files
 - id: types-vs-exports-precedence
   front: "A package has both `types` and `exports`. Which does `tsc` use?"
-  back: "Under `nodenext` and `bundler`, `exports` wins, with `types` as the first condition. The top-level `types` field still serves resolvers that ignore `exports`."
+  back: "Under `nodenext` and `bundler`, `exports` wins; list its `types` condition first, since conditions match in order. The top-level `types` field still serves resolvers that ignore `exports`."
   question: typescript/modules-and-declaration-files/declaration-files
 - id: types-deps-for-published-dts
   front: "Where should a package list `@types/*` its `.d.ts` files import?"
@@ -1479,7 +1827,7 @@
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: declare-global-needs-module
   front: "Why does `declare global` fail in a file with no imports or exports?"
-  back: "TS2669: global augmentations can only be directly nested in external modules. Add `export {}` to make the file a module."
+  back: "TS2669: global augmentations can only be directly nested in external modules. Add `export {}` to make the file a module. Under `moduleDetection: force` (implied by `module: nodenext`) every file is a module and the error does not occur."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: augmentation-types-only
   front: "Does an augmentation provide the runtime implementation?"
@@ -1498,8 +1846,8 @@
   back: "`/// <reference types=\"node\" />` pulls in an `@types` package, `path` adds a file, and `lib` adds a built-in lib. Prefer imports or `tsconfig` `include`/`types`."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: triple-slash-not-emitted-55
-  front: "Are triple-slash directives emitted into outputs since TS 5.5?"
-  back: "Not unless marked `preserve=\"true\"`. On TS 5.9.3 and 7.0.2 a `types=\"mocha\" preserve=\"true\"` reference was kept in the `.d.ts`, while `types=\"node\"` was dropped."
+  front: "Are triple-slash directives kept in generated `.d.ts` files since TS 5.5?"
+  back: "Only when marked `preserve=\"true\"`; JavaScript output keeps them as comments. On TS 6.0.3 and 7.0.2 a `types=\"mocha\" preserve=\"true\"` reference was kept in the `.d.ts`, while `types=\"node\"` was dropped."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: triple-slash-position
   front: "Where must `/// <reference path>` appear to count?"
@@ -1507,15 +1855,15 @@
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: global-file-import-breaks
   front: "What happens when you add an `import` to a script `.d.ts` that augments `Window`?"
-  back: "The file becomes a module, so `interface Window { viaModule: number }` stops being global (TS2551). Keep global augmentation in a file your `tsconfig` `include` covers."
+  back: "The file becomes a module, so `interface Window { viaModule: number }` stops being global (TS2339). Keep global augmentation in a file your `tsconfig` `include` covers."
   question: typescript/modules-and-declaration-files/module-augmentation-globals
 - id: ts-check-levels
   front: "How do you opt in to checking JavaScript with TypeScript?"
-  back: "Per file with `// @ts-check` on the first line, or per project with `allowJs` plus `checkJs`. `checkJs` is the same as adding `// @ts-check` to every JavaScript file."
+  back: "Per file with `// @ts-check` on the first line, or per project with `checkJs`, which turns on `allowJs`. `checkJs` is the same as adding `// @ts-check` to every JavaScript file."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: checkjs-needs-allowjs
-  front: "Why set `allowJs` with `checkJs`?"
-  back: "`allowJs` includes `.js` files in the program and `checkJs` reports errors in them. The docs describe them as a pair."
+  front: "Do you need to set `allowJs` alongside `checkJs`?"
+  back: "No. `allowJs` alone adds `.js` files to the program but reports nothing in them; `checkJs` reports errors and turns `allowJs` on by itself."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: ts-check-scope
   front: "Does `// @ts-check` in one file check the others?"
@@ -1547,7 +1895,7 @@
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: noimplicitany-js
   front: "Does `noImplicitAny` apply to JavaScript under `checkJs`?"
-  back: "Yes: `function add(a, b)` reported TS7006 under `--strict`. Without `--strict` it was clean on TS 5.9.3 but an error on 7.0.2, because 7.0 turns `strict` on by default."
+  back: "Yes: `function add(a, b)` reported TS7006 under `--strict`. With no `strict` setting it is still an error on 6.0.3 and 7.0.2, because `strict` defaults to `true` since 6.0; `--strict false` made it clean."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
 - id: ts7-jsdoc-removed
   front: "Which old JSDoc forms does TS 7.0 no longer recognise?"
@@ -1557,6 +1905,198 @@
   front: "What does `maxNodeModuleJsDepth` do?"
   back: "It makes `tsc` infer types from JavaScript inside `node_modules`. The docs advise leaving it at `0`."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: dual-one-declaration-per-js-file
+  front: "What is the handbook's rule for declaration files in a dual package, and how does `tsc` pick a declaration file's format?"
+  back: "Every declaration file represents exactly one JavaScript file, and its format must match it. `.d.mts` is ESM, `.d.cts` is CommonJS, and `.d.ts` follows the nearest `package.json` `\"type\"`."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-per-condition-types
+  front: "How do you wire types per condition in a dual package's `exports`?"
+  back: "Nest `types` inside each branch: `\"import\": { \"types\": \"./index.d.mts\", \"default\": \"./index.mjs\" }`, and the same for `require` with `.d.cts`. Put `types` first, since conditions match in key order."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-extension-substitution
+  front: "How can a dual package skip the `types` key entirely?"
+  back: "Extension substitution: for a target `./index.mjs`, `tsc` looks for `index.mts`, then `index.d.mts`. The same works with two `dist/` folders whose own `package.json` sets `\"type\"`."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-single-dts-bug
+  front: "What goes wrong when one `.d.ts` serves both the ESM and CJS builds?"
+  back: "Without `\"type\": \"module\"` it is read as CommonJS, so an ESM consumer's default import gets `module.exports` and the types claim the function sits on `.default` (masquerading as CJS). With `\"type\": \"module\"`, `require` users are misled (masquerading as ESM)."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-emit-twice
+  front: "Why must a dual package compile twice, and what does the handbook warn about dual emit?"
+  back: "A single `tsc` run emits one format per file. The handbook warns that any dual-emit setup checks only one output, so test both builds before publishing."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: arethetypeswrong
+  front: "What does arethetypeswrong (`npx @arethetypeswrong/cli`) do?"
+  back: "It reports type-resolution mismatches, such as masquerading, per resolution mode."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: require-esm-esm-only
+  front: "Why is shipping ESM only often the simpler answer for a package?"
+  back: "`require()` can load synchronous ES modules (unflagged in Node 22.12 and 20.19)."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-broken-error-ts2349
+  front: "What error does an ESM consumer see for a masquerading-as-CJS package's default import, and why is it false?"
+  back: "TS2349, not callable: the type has no call signatures. Node loads `index.mjs`, whose default export is the function. The \"fix\" `broken.default(...)` type-checks but throws a TypeError on Node 24.19.0."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-copy-dts-naming
+  front: "Why isn't copying one `.d.ts` to both formats enough?"
+  back: "The format comes from the extension or `\"type\"`, not the contents, so the copy must be named `.d.mts`/`.d.cts` or sit under the right `package.json`."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-types-last
+  front: "Why put `types` first in a conditional `exports` object?"
+  back: "Node's docs say it should always be included first. In a 6.0.3 trace, with `types` last `tsc` matched `import`, found no `index.d.mts`, then fell through to the later `types` key and used the CommonJS-format `.d.ts`, which works only by accident."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-masquerading-esm-node16
+  front: "Why test a dual package beyond `module: nodenext`?"
+  back: "A masquerading-as-ESM package type-checks there (6.0.3 and 7.0.2 allow `require` of ESM), but under `node16` the same `.cts` import is error TS1479."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-package-hazard
+  front: "What is the dual package hazard that Node's docs warn about?"
+  back: "Both builds can load in one process. On Node 24.19.0, `import` and `require` of `greet-fixed` gave two different functions (`===` was `false`), so `instanceof` and singletons can break."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-require-esm-return
+  front: "What does `require()` of an ESM package return in Node 24?"
+  back: "The module namespace object; a default export appears as `.default` with `__esModule: true`. An ESM file can export a binding named `\"module.exports\"` to make `require()` return it directly."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: declaration-shape-follows-loading
+  front: "What determines the shape of a declaration file for a library?"
+  back: "How the JavaScript is loaded, so read the library's code first. The handbook maps kinds to templates: `global.d.ts`, `module.d.ts`, `module-function.d.ts`, `module-class.d.ts`, plus plugin variants."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: global-library-dts
+  front: "How do you write the `.d.ts` for a global library, and what should you check first?"
+  back: "A script: no top-level `import`/`export`, just `declare function`, `declare namespace` and interfaces, which become global. The handbook warns most \"global\" libraries are really UMD, so check for `define`/`module.exports` first."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: export-equals-namespace-merge
+  front: "How do you declare a module whose export is one function (`module.exports = fn`) and also export types?"
+  back: "Write `export = fn` and declare a `namespace` with the same name. It merges with the function, so `fn.Options` is a type and `fn.version` a property."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: export-equals-consumers
+  front: "How do consumers import an `export =` module?"
+  back: "A default import (with `esModuleInterop`; 6.0.3 and 7.0.2 emitted `__importDefault` without the flag) or `import fn = require(...)`."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: umd-export-as-namespace
+  front: "How do you declare a UMD library, and what happens in a module file that uses the global?"
+  back: "Write the module form and add `export as namespace myLib;`. Script files can use `myLib` directly; module files must import it, or `tsc` reports TS2686 unless `allowUmdGlobalAccess` is on."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: es-style-module-dts
+  front: "How do you declare a plain ES-style module?"
+  back: "Named `export declare` statements (the `module.d.ts` template)."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: typesversions-first-match
+  front: "How does `typesVersions` in `package.json` work?"
+  back: "It maps a semver range of the TypeScript version to other files; first match wins, falling back to `types`."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: typesversions-ignored-with-exports
+  front: "What replaces `typesVersions` when `exports` is read?"
+  back: "The modules reference says `typesVersions` is ignored then; use versioned conditions such as `\"types@>=5.2\"`. In a test, `\"types@>=7.0\"` picked the new file on 7.0.2 and the plain `types` file on 6.0.3."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: import-star-merged-namespace
+  front: "Why does `import * as slug from \"slugify-lite\"; slug()` fail for an `export =` function with a merged namespace?"
+  back: "Both 6.0.3 and 7.0.2 report TS2349 (`Type 'typeof slugify' has no call signatures`). The template comment says \"WRONG! DO NOT DO THIS!\"."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: nodenext-module-detection-global-script
+  front: "Why does a global script file get TS2686 when tested under `module: nodenext`?"
+  back: "In 6.0.3's source, `moduleDetection` then defaults to `force`, so every file is a module. With `--moduleDetection auto` it passed. The tsconfig reference documents only `auto`."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: export-default-for-module-exports
+  front: "Why not write `export default` for a library that sets `module.exports = fn`?"
+  back: "It claims an `exports.default` property the runtime never sets."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: plugin-templates
+  front: "Which templates describe a module that adds methods to another library or to globals?"
+  back: "The plugin templates: `module-plugin.d.ts` augments another module with `declare module \"x\"`, and `global-modifying-module.d.ts` uses `declare global` inside a module."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: module-class-template
+  front: "How do you describe a module whose export is a class?"
+  back: "The `module-class.d.ts` template: `export = MyClass` with `declare class MyClass`, plus a same-named namespace for its option and result types, exactly like the function case."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: non-js-imports-bundler
+  front: "Why does importing `./logo.svg` give TS2307, and what changed in TS 6.0 for `import \"./global.css\"`?"
+  back: "A bundler turns the file into JavaScript, which `tsc` can't see, so a value import of an unknown file is TS2307. Since TS 6.0 `noUncheckedSideEffectImports` is on by default, so even a side-effect CSS import fails with TS2882."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-ambient-module
+  front: "How do you type all `.svg` imports, and what does the declaration file need to be?"
+  back: "`declare module \"*.svg\" { const url: string; export default url; }` (one `*` wildcard) in a `.d.ts` the project includes, which must be a script file, not a module."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: css-side-effect-declaration
+  front: "What is enough to type side-effect CSS imports?"
+  back: "`declare module \"*.css\" {}`. Add it to a global declaration file rather than turning `noUncheckedSideEffectImports` off, which still catches typos in package side-effect imports."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: per-file-css-declarations
+  front: "How do per-file declarations for `button.module.css` work (TS 5.0+)?"
+  back: "`tsc` looks for `button.module.d.css.ts`, the pattern `{basename}.d.{extension}.ts`. It can list the real class names, so typos fail. It needs `allowArbitraryExtensions`; without it 6.0.3 and 7.0.2 report TS6263."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-vs-per-file-tradeoff
+  front: "What is the trade-off between wildcard and per-file declarations?"
+  back: "A wildcard is one line and covers everything, but its types are generic (`{ readonly [className: string]: string }` accepts any class name). Per-file declarations are exact but must be generated and kept in sync."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: declarations-are-claims
+  front: "Do wildcard or per-file module declarations check that the file exists or what the bundler returns?"
+  back: "No, both are claims. If the bundler is configured differently (an SVG as a React component, say), the types lie. Match the declaration to the loader's real output."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-needs-no-file
+  front: "Does `import missing from \"./nope.svg\"` error with a `*.svg` wildcard declaration?"
+  back: "No. No file is needed for a wildcard match."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-order-longest-prefix
+  front: "What goes wrong with `\"*.css\"` declared before `\"*.module.css\"`?"
+  back: "Both have an empty prefix before `*`; 6.0.3's source picks the longest prefix and keeps the first on a tie. With `\"*.css\" {}` first, `styles.btn` was TS2339 on both versions."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: assets-dts-no-top-level-import
+  front: "What happens if the asset declarations file has a top-level `import` or `export`?"
+  back: "The modules reference says the same syntax is then a module augmentation. Adding `export {}` to `assets.d.ts` made the SVG import TS2307 on both versions."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: d-css-ts-naming-nodenext
+  front: "Why use `app.d.css.ts` rather than the older `app.css.d.ts` naming?"
+  back: "The tsconfig reference says the `.d.css.ts` form is what works with `node16`/`nodenext`, where relative imports keep their real extension."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: css-index-signature-unchecked
+  front: "How do you stop index-signature CSS class maps from hiding missing keys?"
+  back: "Turn on `noUncheckedIndexedAccess`, so `styles.btn` becomes `string | undefined`, or generate per-file declarations."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: json-import-typing
+  front: "Does a JSON import need a declaration, and what does `nodenext` add?"
+  back: "No. With `moduleResolution: bundler` or `nodenext`, 6.0.3 and 7.0.2 typed `import d from \"./d.json\"` from the file's contents. Under `nodenext` an ES module must add `with { type: \"json\" }`, or it is error TS1543."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: jsdoc-callback
+  front: "What does JSDoc `@callback Name` do, and where must `@template` go?"
+  back: "It declares a named function type, described by its own `@param` and `@returns` lines. Use with `@type {Name}` on an arrow function to infer parameters. `@template` must come before `@callback`; after it, TS8039."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-overload
+  front: "How does JSDoc `@overload` (TS 5.0) work, and what types the implementation?"
+  back: "Each JSDoc comment containing `@overload` becomes one overload signature of the function declaration that follows. The last, untagged comment types the implementation, which callers can't see."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-this
+  front: "What does JSDoc `@this {Type}` check?"
+  back: "Both ways: inside the function `this.prefix` is typed; at call sites, calling it detached from a matching object is TS2684."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-template-constraint
+  front: "How do you constrain a JSDoc `@template`, and what is the `@template {string} K, V` caveat?"
+  back: "Put a constraint in braces before the name: `@template {keyof T} K` is `K extends keyof T`. In `@template {string} K, V` only `K` is constrained; `V` is unconstrained."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-template-default
+  front: "How do you give a JSDoc `@template` a default?"
+  back: "`@template [T=string]`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-closure-function-ts7
+  front: "What happens to Closure-style `{function(string): void}` in JSDoc on 6.0.3 versus 7.0.2?"
+  back: "6.0.3 accepts it; 7.0.2 fails to parse it (TS1005), since TS 7.0's JavaScript support was rewritten. Use `{(s: string) => void}` or a `@callback`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-overload-arrow-ts7
+  front: "What does TS 7.0 do with `@overload` on an arrow function or function expression?"
+  back: "Ignores it, because TypeScript has no overloads for those. On 6.0.3 two overloads made `twice(2)` a `number`; on 7.0.2 it was `string | number`. Overload a `function` declaration, or put an overloaded type in `@type`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-template-after-typedef
+  front: "What happens if `@template` follows `@typedef`, `@callback` or `@overload`?"
+  back: "TS8039 (\"A JSDoc '@template' tag may not follow a '@typedef', '@callback', or '@overload' tag\"), and every use of the type parameter then fails with TS2304."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-overload-error-ts2769
+  front: "How do overload errors read in JavaScript files on 6.0.3 versus 7.0.2?"
+  back: "TS2769 \"No overload matches this call\". 6.0.3 lists each overload's failure; 7.0.2 printed only \"The last overload gave the following error.\" for the same call."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-typedef-vs-callback
+  front: "When use `@typedef` with a function type instead of `@callback`?"
+  back: "`@typedef {(s: string) => boolean} Pred` is fine for short signatures. `@callback` reads better when parameters need names, descriptions or optional markers like `[index]`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
 
 # 07 tsconfig and strictness
 - id: strict-members
@@ -1605,7 +2145,7 @@
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: strict-flags-independent
   front: "Are the `strict` family flags layered?"
-  back: "No, they are independent switches. Setting one to `false` removes only its diagnostics; the others stay."
+  back: "No. Setting one of six flags to `false` removed only its diagnostic. The exception is `strictNullChecks: false`: it also silenced property initialization, which depends on it, and turned the catch-variable TS18046 into TS2339."
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: strict-null-narrowing-tools
   front: "How is `undefined` removed from a union under `strictNullChecks`?"
@@ -1617,11 +2157,11 @@
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: always-strict-removed
   front: "Is `alwaysStrict: false` still allowed?"
-  back: "No. On TS 7.0.2 it is TS5108 (removed). The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode."
+  back: "No. On TS 7.0.2 it is TS5108 (removed); 6.0.3 reports TS5107 unless `ignoreDeprecations: \"6.0\"` is set. The TS 6.0 notes deprecate it and say all code is assumed to be in strict mode."
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: show-config-defaults
   front: "Does `tsc --showConfig` show the effective value of `strict`?"
-  back: "No. It prints only what the config sets, not defaults. For a config without `strict` it printed no `strict` key on TS 7.0.2."
+  back: "No. It prints only what the config sets, not defaults. For a config without `strict` it printed no `strict` key on TS 6.0.3 or 7.0.2."
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: strict-builtin-iterator-return
   front: "What does `strictBuiltinIteratorReturn` change?"
@@ -1629,7 +2169,7 @@
   question: typescript/tsconfig-and-strictness/strict-mode-flags
 - id: flags-beyond-strict-defaults
   front: "Are the flags beyond `strict`, such as `noUncheckedIndexedAccess`, on by default?"
-  back: "No. None are part of `strict` or on by default; a strict-only config accepted every violation in the example on TS 5.9.3 and 7.0.2."
+  back: "No. None are part of `strict` or compiler defaults; a strict-only config accepted every violation in the example on TS 6.0.3 and 7.0.2. `tsc --init` does write `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` into new configs."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: no-unchecked-indexed-access-effect
   front: "What does `noUncheckedIndexedAccess` (TS 4.1) do to `nums[0]`?"
@@ -1641,7 +2181,7 @@
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: unchecked-index-for-loop
   front: "Is `nums[i]` safe inside `for (let i = 0; i < nums.length; i++)` under `noUncheckedIndexedAccess`?"
-  back: "No, it stays `number | undefined`. Use `for...of`, or read once into a `const` and narrow. Narrowing `nums[i]` works for a `const i` but not a `let j`."
+  back: "No, it stays `number | undefined`. Use `for...of`, or read once into a `const` and narrow. Narrowing `nums[i]` works for a `const i` (or a never-reassigned `let`) but not a reassigned `let` or loop counter."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: exact-optional-property-types-meaning
   front: "What does `exactOptionalPropertyTypes` (TS 4.4) change about `theme?: \"dark\" | \"light\"`?"
@@ -1672,8 +2212,8 @@
   back: "The linter can auto-fix and can be set per rule."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: flags-beyond-strict-versions
-  front: "Do these extra flags behave differently across TS 5.9, 6.0 and 7.0?"
-  back: "Not for the cases in the question: 5.9.3, 6.0.3 and 7.0.2 printed the same diagnostics for the same config."
+  front: "Do these extra flags behave differently across TS 6.0 and 7.0?"
+  back: "Not for the cases in the question: 6.0.3 and 7.0.2 printed the same diagnostics for the same config."
   question: typescript/tsconfig-and-strictness/flags-beyond-strict
 - id: target-meaning
   front: "What does `target` control?"
@@ -1716,20 +2256,20 @@
   back: "Yes, unless `noEmitOnError` is set. The `??` and `**` rewrites were emitted even though `lib` errors were reported."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: default-lib-file
-  front: "Which default `lib` file did `--listFiles` show by version?"
-  back: "`lib.d.ts` (ES5 plus `dom`) on TS 5.9.3, and `lib.es2025.full.d.ts` on 6.0.3 and 7.0.2. With `--target es2022` on 7.0.2 it was `lib.es2022.full.d.ts`."
+  front: "Which default `lib` file does `tsc` load by version?"
+  back: "Under 5.x's ES5 default, `lib.d.ts` (ES5 plus `dom`). On 6.0.3 and 7.0.2 `--explainFiles` named `lib.es2025.full.d.ts`; with `--target es2022` it was `lib.es2022.full.d.ts`."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: target-class-field-emit
   front: "How does `target` change `class Counter { count = 0 }`?"
-  back: "`es2015` emitted a constructor assignment and `es2022` emitted a `count = 0;` field, following `useDefineForClassFields` (TS 7.0.2)."
+  back: "`es2015` emitted a constructor assignment and `es2022` emitted a `count = 0;` field, following `useDefineForClassFields` (TS 6.0.3 and 7.0.2)."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: module-target-not-coupled
   front: "Do `module` and `target` move together?"
-  back: "No. On TS 7.0.2 and 6.0.3 `--module nodenext` still compiled `using` declarations down; on 5.9.3 it left them as written. The reference still says nodenext implies a floating `target esnext`, which looks out of date for 6.0+."
+  back: "No. On TS 7.0.2 and 6.0.3 `--module nodenext` still compiled `using` declarations down, and `--explainFiles` showed target ES2025. The 5.9 notes and the reference say nodenext implies a floating `target esnext`, which looks out of date for 6.0+."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: upgrade-no-target-module
   front: "What happens upgrading from 5.x with no `target` or `module` in the config?"
-  back: "The same file compiled to CommonJS on TS 5.9.3 and to ES module output on 6.0.3 and 7.0.2."
+  back: "5.x defaulted to CommonJS output for the ES5 target; on 6.0.3 and 7.0.2 the same file compiled to ES module output."
   question: typescript/tsconfig-and-strictness/target-lib-module
 - id: tsconfig-bases
   front: "Where do community baseline tsconfigs live?"
@@ -1741,7 +2281,7 @@
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: paths-no-rewrite
   front: "Does `paths` rewrite the emitted import?"
-  back: "No. `@lib/util.js` is written to the output as typed, so the bundler or runtime must resolve the alias itself, or Node's `package.json` `\"imports\"`, which the docs recommend. Node threw `ERR_MODULE_NOT_FOUND`."
+  back: "No. `@lib/util.js` is written to the output as typed, so the bundler or runtime must resolve the alias itself, or Node's `package.json` `\"imports\"`, which the docs call a standard replacement for aliases. Node threw `ERR_MODULE_NOT_FOUND`."
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: paths-libraries-node-modules
   front: "Where should you avoid using `paths`?"
@@ -1753,7 +2293,7 @@
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: paths-nodenext-extension
   front: "Why did `@lib/util` fail while `@lib/util.js` resolved under `nodenext`?"
-  back: "The mapped path follows the normal relative-path rules for the `moduleResolution` mode, so extensionless aliases fail with TS2307 (checked on TS 5.9.3)."
+  back: "The mapped path follows the normal relative-path rules for the `moduleResolution` mode, so extensionless aliases fail with TS2307 (checked on TS 6.0.3 and 7.0.2)."
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: extends-semantics
   front: "How does `extends` work?"
@@ -1777,7 +2317,7 @@
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: root-dir-default-6
   front: "What changed for `rootDir` in TS 6.0?"
-  back: "It defaults to the config's directory instead of being inferred. With sources in `src/` and no `rootDir`, 6.0.3 and 7.0.2 reported TS5011; 5.9.3 reported no `rootDir` error."
+  back: "It defaults to the config's directory instead of being inferred. With sources in `src/` and no `rootDir`, 6.0.3 and 7.0.2 reported TS5011; 5.x inferred `src` silently."
   question: typescript/tsconfig-and-strictness/paths-and-extends
 - id: project-reference-definition
   front: "What is a project reference, and what must the referenced project set?"
@@ -1805,7 +2345,7 @@
   question: typescript/tsconfig-and-strictness/project-references
 - id: build-continues-past-errors-56
   front: "How does `-b` handle errors in upstream projects since TS 5.6?"
-  back: "It continues and writes best-effort output. `--stopBuildOnErrors` stops at the first failing project. The 5.6 notes misname it `--stopOnBuildErrors`, which the CLI rejects (TS5072)."
+  back: "It continues and writes best-effort output. `--stopBuildOnErrors` stops at the first failing project. The 5.6 notes misname it `--stopOnBuildErrors`, which the CLI rejects (TS5072 on 7.0.2, TS5077 on 6.0.3)."
   question: typescript/tsconfig-and-strictness/project-references
 - id: builders-flag-7
   front: "What does TS 7.0's `--builders N` flag do?"
@@ -1825,7 +2365,7 @@
   question: typescript/tsconfig-and-strictness/project-references
 - id: build-not-no-emit-on-error
   front: "Does `-b` act as `noEmitOnError`?"
-  back: "Not per the 5.6 notes. On TS 5.9.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, contrary to the older Handbook statement."
+  back: "Not per the 5.6 notes. On TS 6.0.3 and 7.0.2 a type error in core still wrote `core/dist` and built `app/dist`, contrary to the older Handbook statement."
   question: typescript/tsconfig-and-strictness/project-references
 - id: tsbuildinfo-location
   front: "Where does the `.tsbuildinfo` file go?"
@@ -1879,6 +2419,166 @@
   front: "What is the default of `noEmitOnError`?"
   back: "`false`, so emit flags do not depend on errors: output is written even when type errors are reported."
   question: typescript/tsconfig-and-strictness/skiplibcheck-declaration-sourcemaps
+- id: unused-flags-not-in-strict
+  front: "Are `noUnusedLocals`, `noUnusedParameters` and `noFallthroughCasesInSwitch` part of `strict`?"
+  back: "No. None of the three is in `strict`; each is off unless you set it."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: nounusedlocals-scope
+  front: "What does `noUnusedLocals` report, and what counts as use?"
+  back: "A local variable, function, class, type, interface, import or `private` member never *read* (TS6133 / TS6196 / TS6192). Assigning to it doesn't count as use. Exports are never reported."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: nounusedparameters-underscore
+  front: "What does `noUnusedParameters` report, and what does a leading underscore exempt?"
+  back: "Unread parameters, destructured parameter parts and unused type parameters (TS6133). A leading `_` exempts a parameter (documented); in tests it also exempted array-destructuring slots, but not an ordinary local such as `const _x`."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: nofallthrough-rule
+  front: "What does `noFallthroughCasesInSwitch` report, and what ends a case?"
+  back: "A non-empty `case` whose end is reachable (TS7029). Empty cases (`case 1: case 2:`) are allowed. `break`, `return`, `throw`, `continue` or a call to a function returning `never` end a case."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-flags-errors-not-warnings
+  front: "What happens when these flags are on and an unused variable is left in?"
+  back: "They are errors: `tsc` exits non-zero and the type-check script fails. Emit still happens unless `noEmitOnError` is set."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: linter-vs-compiler-unused
+  front: "What can a linter rule do that the compiler flags can't?"
+  back: "It can be a warning, autofixed, and configured (ignore patterns, rest siblings, a `// falls through` comment). ESLint's core `no-fallthrough` accepts such a comment where TS7029 does not."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-checks-one-place
+  front: "What split of unused and fallthrough checks does the answer recommend?"
+  back: "Keep `noFallthroughCasesInSwitch` in `tsconfig`. Put unused-code checks in one place: the linter if there is one (e.g. `@typescript-eslint/no-unused-vars`), otherwise the two compiler flags. Both reports each problem twice."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: falls-through-comment-ts7029
+  front: "Does a `// falls through` comment silence TS7029?"
+  back: "No. `tsc` ignores comments here; restructure the case or turn the flag off."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-type-parameter-code
+  front: "Which code does an unused type parameter `function g<T>()` get on 6.0.3 versus 7.0.2?"
+  back: "6.0.3 printed TS6133 (\"its value is never read\"); 7.0.2 printed TS6196 (\"declared but never used\"). Don't match on codes across versions."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-rest-sibling
+  front: "Why isn't `p` reported in `const { p, ...rest } = obj` when only `rest` is used?"
+  back: "It is the omit-a-property idiom, and in the test on both versions `tsc` didn't report `p`. Writing `p` removes it from `rest`, so it has a purpose even if never read."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: unused-flags-type-stripping-tools
+  front: "Do esbuild-style type-stripping tools fail on these flags?"
+  back: "No. Tools that only strip types never run the checker, so only your type-check step fails. Editors show them as errors from the same `tsc` diagnostics."
+  question: typescript/tsconfig-and-strictness/unused-and-fallthrough-checks
+- id: types-vs-imports
+  front: "Do `types` and `typeRoots` affect `import { m } from \"modlib\"`?"
+  back: "No. The import finds `@types/modlib` whatever `types` says. They control packages that add *globals*, like `process` from `@types/node` or `describe` from `@types/jest`."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: types-default-ts6
+  front: "What changed about the `types` default in TS 6.0, and why?"
+  back: "It became `[]`. Before, `tsc` loaded every visible `@types` package, which the release notes call very expensive; many projects built 20–50% faster with `types` set. List what you need, or write `[\"*\"]` for the old behaviour."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: typeroots-default
+  front: "What does `typeRoots` default to, and what happens when you set it?"
+  back: "By default every `node_modules/@types` from the tsconfig folder upward. Set it and only those folders count."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: outdir-unset
+  front: "Where is output written when `outDir` is unset?"
+  back: "Each `.js` is written next to its `.ts`."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: rootdir-default-ts6
+  front: "How did the `rootDir` default change in TS 6.0, and what does it do to `src/index.ts`?"
+  back: "Before, it was inferred as the common folder of all inputs (`dist/index.js`). Since 6.0 it defaults to the folder containing `tsconfig.json` (inferred only without a tsconfig), so the file becomes `dist/src/index.js`."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts5011-common-source-directory
+  front: "What is TS5011, and what is the fix?"
+  back: "With `outDir` set, no `rootDir` and inputs sharing a deeper folder, 6.0.3 and 7.0.2 report it and name the folder to use. Set `\"rootDir\": \"./src\"`. It does not change layout silently."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts6059-rootdir
+  front: "When do you get TS6059?"
+  back: "When an input file is not under `rootDir` (e.g. a stray `scripts/build.ts` matched by the default `include` with `rootDir` set to `src`)."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts7-keeps-ts6-defaults
+  front: "Does 7.0 keep the 6.0 `types` and `rootDir` defaults?"
+  back: "Yes. Results were identical on 6.0.3 and 7.0.2."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts5011-masks-other-errors
+  front: "Why can fixing TS5011 reveal new errors like `Cannot find name 'GLOB'`?"
+  back: "While TS5011 (a config error) was present, neither version printed the `GLOB` error; it appeared only after `rootDir` was set."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: typeroots-types-interaction
+  front: "What happens with `typeRoots: [\"./typings\"]` and `types` at its new default `[]`?"
+  back: "Nothing loads until you name packages in `types` (or use `\"*\"`). And once `typeRoots` is set, `\"types\": [\"globlib\"]` from `node_modules/@types` was TS2688 on both versions."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: types-vs-include
+  front: "Does a `.d.ts` under the project folder need `types`?"
+  back: "No. Files matched by `include` are always in the program; `types` only governs `@types`-style packages."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: rootdir-dot-moves-output
+  front: "What happens if you add `\"rootDir\": \".\"` to silence TS5011?"
+  back: "Output moves to `dist/src/`, which can break a build script that copies `dist/index.js`. Use the folder TS5011 names."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: why-ts6-changed-defaults
+  front: "Why did TS 6.0 change the `types` and `rootDir` defaults, per the release notes?"
+  back: "Speed and predictability: enumerating every `@types` package was expensive, and inferring `rootDir` meant analysing every input path, and a file's project couldn't be known without loading the whole project."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: noemit-rootdir
+  front: "Does `noEmit` care about `rootDir`?"
+  back: "No output, no layout. With `noEmit: true` (even alongside `outDir`) the same project gave no TS5011 on either version."
+  question: typescript/tsconfig-and-strictness/types-and-output-directories
+- id: ts7-migrate-via-ts6
+  front: "Why is migrating from TS 6 to 7 mostly a 6.0 cleanup?"
+  back: "7.0 is the native port with 6.0's defaults; 6.0 was the bridge release that deprecated everything 7.0 removes."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ignoredeprecations-ts7
+  front: "What does `ignoreDeprecations: \"6.0\"` do on 6.0.3 versus 7.0.2?"
+  back: "On 6.0.3 it silences the deprecation errors (TS5101/TS5107). 7.0.2 ignores it and reports TS5102/TS5108 (\"has been removed\"), so it only defers the work."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-removed-options
+  front: "Which options does 7.0 remove, and what replaces them?"
+  back: "`target: es5`/`downlevelIteration` → ES2015+; `moduleResolution: node`/`classic` → `nodenext` or `bundler`; `module: amd`/`umd`/`system`/`none` and `outFile` → ESM plus a bundler; `baseUrl` → fold into `paths`."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: baseurl-to-paths
+  front: "What must `paths` entries look like after removing `baseUrl`?"
+  back: "Relative: `\"./src/*\"`, else TS5090 on 6.0.3 and 7.0.2."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-always-on-options
+  front: "What do you do with `esModuleInterop`, `allowSyntheticDefaultImports` and `alwaysStrict: false` for 7.0?"
+  back: "Delete them; they're always on."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-syntax-removals
+  front: "Which two syntax forms must change before 7.0, and which codes report them?"
+  back: "`module Foo {}` → `namespace` (TS1540) and `assert {}` → `with {}` (TS2880). Both were errors on 6.0.3 even with `ignoreDeprecations`."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-explicit-defaults
+  front: "Which defaults should you set explicitly when migrating, because you relied on the old ones?"
+  back: "`types` (now `[]`), `rootDir` (now the tsconfig folder), `strict` (now `true`), and `module`/`target` (now `esnext`/`es2025`)."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: stable-type-ordering
+  front: "What does the 7.0 announcement say about `--stableTypeOrdering` on 6.0, and what is its cost?"
+  back: "Code that compiles cleanly on 6.0 with it, and without `ignoreDeprecations`, should compile identically on 7.0. It's diagnostic only: the 6.0 notes warn of up to 25% slowdown."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: stable-type-ordering-ts7
+  front: "What does `--stableTypeOrdering` do on 7.0?"
+  back: "7.0.2's `tsc --all` lists it as a boolean that defaults to `true`: 7.0 always orders types deterministically, which 6.0 can only imitate with the flag."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: checkers-builders-singlethreaded
+  front: "What do `--checkers`, `--builders` and `--singleThreaded` do?"
+  back: "`--checkers` (default 4) sets type-checking workers per project; `--builders` sets concurrent project-reference builds. More of either costs memory. `--singleThreaded` turns parallelism off for constrained CI."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: keep-ts6-for-api-tools
+  front: "Why keep 6.0 beside 7.0, and how?"
+  back: "7.0 has no stable JavaScript API, so tools built on it (typescript-eslint, language-service plugins) keep 6.0 through the npm alias `\"typescript\": \"npm:@typescript/typescript6\"`."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-api-port-not-switch
+  front: "Can API-consuming tools simply switch back to the 7.1 API, and do `tsserver` plugins work?"
+  back: "No. The 7.1 API is new and different, so they need a port, not a switch back. `tsserver` plugins can't load into the Go server at all."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: checkers-in-tsconfig
+  front: "What happens with `\"checkers\": 2` in a tsconfig that `tsc6` also reads?"
+  back: "7.0.2 accepts it there; 6.0.3 rejects it with TS5025 (`Unknown compiler option 'checkers'`). Pass it on the 7.0 command line instead."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts5to6-codemod
+  front: "Is there a codemod for the 6.0 config changes?"
+  back: "The 6.0 release notes point to an experimental `ts5to6` tool that rewrites `baseUrl` and `rootDir` settings; review its diff like any other config change."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
+- id: ts7-js-projects-changes
+  front: "What should JavaScript projects check when moving to 7.0?"
+  back: "`tsc/CHANGES.md` in the TypeScript repo: JSDoc support was rewritten and some old forms are gone."
+  question: typescript/tsconfig-and-strictness/migrating-to-typescript-7
 
 # 08 The compiler
 - id: erasure-what-is-removed
@@ -1919,11 +2619,11 @@
   question: typescript/the-compiler/type-erasure
 - id: erasure-enums-exception
   front: "Why are enums an exception to erasure?"
-  back: "An enum is also a runtime object, so the compiler must generate code for it. Node's type stripping rejects it for that reason."
+  back: "An enum is also a runtime object, so the compiler must generate code for it. Node.js 24's type stripping rejects it for that reason."
   question: typescript/the-compiler/type-erasure
 - id: erasure-type-import-elision
   front: "Why do `verbatimModuleSyntax` and `isolatedModules` exist, given type erasure?"
-  back: "A plain `import { Buffer }` used only as a type was removed from the 7.0.2 output, but a per-file tool cannot tell which imports are types."
+  back: "A plain `import { Buffer }` used only as a type was removed from the 6.0.3 and 7.0.2 output, but a per-file tool cannot tell which imports are types."
   question: typescript/the-compiler/type-erasure
 - id: narrowing-uses-real-values
   front: "Which narrowing checks survive into the JavaScript?"
@@ -1971,7 +2671,7 @@
   question: typescript/the-compiler/checking-vs-emitting
 - id: no-emit-exit-codes
   front: "Is the exit code of `tsc --noEmit` with a type error stable across versions?"
-  back: "No. It was 2 on TS 5.9.3 and 6.0.3 but 1 on 7.0.2. Treat any non-zero as failure."
+  back: "No. It was 2 on TS 6.0.3 but 1 on 7.0.2. Treat any non-zero as failure."
   question: typescript/the-compiler/checking-vs-emitting
 - id: esbuild-per-file-reason
   front: "Why can't esbuild just ask TypeScript for types?"
@@ -1979,7 +2679,7 @@
   question: typescript/the-compiler/checking-vs-emitting
 - id: isolated-modules-no-emit-change
   front: "Does `isolatedModules` change what `tsc` emits?"
-  back: "No. A file using only `import type`/`export type` emitted byte-identical output with and without it on TS 5.9.3, 6.0.3 and 7.0.2; the flag only adds diagnostics."
+  back: "Almost never: a file using only `import type`/`export type` emitted byte-identical output with and without it on TS 6.0.3 and 7.0.2. The exception is const enums: the flag implies `preserveConstEnums`, and `tsc` then emits `E.A` instead of inlining the value."
   question: typescript/the-compiler/checking-vs-emitting
 - id: node-strip-whitespace
   front: "How does `node file.ts` handle TypeScript syntax?"
@@ -2071,11 +2771,11 @@
   question: typescript/the-compiler/compiler-pipeline
 - id: extended-diagnostics
   front: "Which flag shows where compile time goes?"
-  back: "`--extendedDiagnostics`, printing Parse, Bind, Check and Emit time. In Microsoft's native-previews post, 5.8 spent 63.26s of 72.81s checking the Sentry codebase."
+  back: "`--extendedDiagnostics`, printing Parse, Bind, Check and Emit time. In Microsoft's native-previews post (May 2025), 5.8 spent 63.26s of 72.81s checking the Sentry codebase."
   question: typescript/the-compiler/compiler-pipeline
 - id: module-resolution-in-program
   front: "When does module resolution happen in the pipeline?"
-  back: "While building the Program, before binding: it follows imports and `/// <reference>` directives to find every file to parse. `--extendedDiagnostics` reports `ResolveModule time` separately."
+  back: "While building the Program, before binding: it follows imports and `/// <reference>` directives to find every file to parse. `--extendedDiagnostics` reports `ResolveModule time` separately on 6.0.3; 7.0.2 prints only parse, bind, check, emit and total times."
   question: typescript/the-compiler/compiler-pipeline
 - id: checker-single-file
   front: "Why is the checker one huge file, according to the compiler notes?"
@@ -2083,7 +2783,7 @@
   question: typescript/the-compiler/compiler-pipeline
 - id: ts7-no-compiler-api
   front: "Can you call `require(\"typescript\").createProgram` on TS 7.0?"
-  back: "No. On 7.0.2 it returned only `version` and `versionMajorMinor`; the announcement says 7.0 ships without a JavaScript API and expects one in 7.1."
+  back: "No. On 7.0.2 it returned only `version` and `versionMajorMinor`. 7.0 has no stable API, only experimental `typescript/unstable/*` entry points; the announcement expects a new, different one in 7.1."
   question: typescript/the-compiler/compiler-pipeline
 - id: native-port-what
   front: "What is the native port of TypeScript?"
@@ -2100,10 +2800,6 @@
 - id: native-speedup
   front: "Where do the native port's speed gains come from, and how large are they?"
   back: "Native code plus parallelism: 7.0 parses, type-checks and emits in parallel. The announcement reports 8x to 12x faster full builds on large projects (vscode 125.7s to 10.6s)."
-  question: typescript/the-compiler/native-compiler-port
-- id: native-speedup-small-app
-  front: "Did a small app get the announced 10x speedup?"
-  back: "No. On a 38-file app, `tsc --noEmit` went from about 1.1s to 0.16s, about 6x; the announced numbers are for large codebases and several cores."
   question: typescript/the-compiler/native-compiler-port
 - id: native-cli-flags
   front: "What new CLI flags does TS 7.0 add?"
@@ -2189,3 +2885,179 @@
   front: "Do the maintainers plan to fix these unsoundness cases?"
   back: "They treat them as design trade-offs. The FAQ lists method bivariance as working as intended, and explains why a strict-methods flag is not tractable."
   question: typescript/the-compiler/type-system-soundness
+- id: single-file-tools-differences
+  front: "What does `isolatedModules` guarantee about esbuild, swc and Babel output versus `tsc`?"
+  back: "Only that `tsc` rejects code they cannot compile at all. Output still differs where it depends on types or settings: namespace scope, field semantics and metadata."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: const-enum-single-file
+  front: "How do esbuild, swc and Babel emit `const enum` compared with `tsc` without `isolatedModules`?"
+  back: "`tsc` inlines every use and emits no object. The tools emit a real enum object and inline only same-file uses (Babel only with `optimizeConstEnums`); an importing file reads the member at runtime."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: esbuild-const-enum-bundling
+  front: "What does esbuild do with const enums when bundling?"
+  back: "It also inlines across files, which can hide differences that return in per-file builds (test runners, dev servers)."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: declare-const-enum-ts2748
+  front: "Why is a `declare const enum` an error under `isolatedModules`?"
+  back: "It has no object anywhere, so there is nothing to read at runtime: TS2748."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: merged-namespace-scope
+  front: "What happens to an unqualified reference to another block's export in a merged namespace under swc and Babel?"
+  back: "Each block is its own scope, so it throws a `ReferenceError` (checked on @swc/core 1.16.20 and Babel 8.0.9). esbuild 0.28.2 and `tsc` resolve it. Babel documents this; `isolatedModules` does not catch it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: class-fields-tool-defaults
+  front: "How do esbuild, swc and Babel 8 decide class-field semantics?"
+  back: "`tsc` derives `useDefineForClassFields` from `target` (on from ES2022). esbuild copies that rule from tsconfig's `target`; swc defined fields even with `target: es2020`; Babel 8 always keeps type-only fields."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: decorator-metadata-tools
+  front: "How do esbuild, swc and Babel handle `emitDecoratorMetadata`?"
+  back: "esbuild does not support it; swc guesses from syntax (`typeof T === \"undefined\" ? Object : T`); Babel's TypeScript preset has no option for it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-rule
+  front: "What does `isolatedDeclarations` (TS 5.5) require, and what does it need enabled?"
+  back: "Every export needs a type a reader of that one file can write down: explicit return types and property annotations, with trivial inferences such as literals or `as` assertions allowed. It requires `declaration` or `composite`."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-benefit
+  front: "What does `isolatedDeclarations` buy, and does it make `tsc` itself faster?"
+  back: "Any tool can emit declarations per file without a checker (`ts.transpileDeclaration`, swc's `jsc.experimental.emitIsolatedDts`), and a monorepo can emit every project's declarations in parallel. Not faster by itself; the speedup comes from tools that exploit it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-codes
+  front: "Which code reports a missing return type under `isolatedDeclarations` on 6.0.3 versus 7.0.2?"
+  back: "6.0.3: TS9007 (on the function: must have an explicit return type annotation). 7.0.2: TS9013 (on the expression: type can't be inferred)."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: isolated-declarations-adoption
+  front: "When is enabling `isolatedDeclarations` worth it?"
+  back: "The 5.5 notes call adoption case by case: it buys nothing unless per-file or parallel declaration emit uses it."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: usedefine-swc-babel-config
+  front: "Why set field semantics explicitly for swc and Babel instead of only in tsconfig?"
+  back: "Babel ignores tsconfig changes and swc takes its own options, so set `jsc.transform.useDefineForClassFields` explicitly."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: erasable-removes-gaps
+  front: "What does `erasableSyntaxOnly` remove from the single-file gaps?"
+  back: "It bans enums, namespaces with values, parameter properties and `import =`, so the const-enum and namespace gaps cannot occur. Class-field semantics and decorator metadata still differ between tools."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: esbuild-tsconfig-fields
+  front: "Which tsconfig fields does esbuild read?"
+  back: "A fixed subset: `target`, `useDefineForClassFields`, `experimentalDecorators`, `verbatimModuleSyntax`, `paths`/`baseUrl`, the `jsx*` options, `strict`/`alwaysStrict` and `extends`, among a few others. Everything else, including `isolatedModules`, is ignored."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: esbuild-target-define-default
+  front: "How does esbuild's tsconfig `target` change a type-only field like `name?: string` in a subclass?"
+  back: "With no `target`, esbuild defines `name` after `super()` returns, resetting it (`undefined`). A `target` below ES2022 makes it default `useDefineForClassFields` to false and drop the type-only field (\"set in init\")."
+  question: typescript/the-compiler/single-file-transpiler-gaps
+- id: checker-relations
+  front: "Which checker relations serve assignments, assertions and `===` overlap checks, and redeclared `var`s?"
+  back: "`assignableRelation`: assignments and arguments. `comparableRelation`: type assertions and `===`/`switch` overlap checks, and is looser. `identityRelation`: redeclared `var`s. Subtype relations serve union reduction."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: comparable-relation-rule
+  front: "What does an assertion `as` need, and when is `as unknown as` required?"
+  back: "Comparability: roughly, either side assignable to the other, so `{ x: 1 } as Point` compiles. Only types with no overlap (TS2352) need `as unknown as`."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: istyperelatedto-order
+  front: "In what order does `isTypeRelatedTo` try things?"
+  back: "Cheap paths first: the same object, simple flag rules (anything to `unknown`), then the cache keyed `\"sourceId,targetId\"`. Only then members, signatures and index signatures structurally, storing Succeeded or Failed."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-recursion-maybe
+  front: "How does the checker terminate on recursive types, and what stops runaway expansion?"
+  back: "A pair being compared sits on a \"maybe\" stack; meeting it again returns Maybe. Depth limits stop expanding types (TS2321, excessive stack depth)."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-generic-variance
+  front: "How are two instantiations of one generic compared?"
+  back: "By type arguments according to the generic's variance, measured once per type."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-interning
+  front: "What is interned in the checker, and what follows from it?"
+  back: "One literal type exists per value; unions are deduplicated, sorted by type id and cached by member list; `Array<string>` comes from a per-generic instantiation map. Equal types are often one object and hit the first fast path."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: union-order-6-vs-7
+  front: "How do 6.0.3 and 7.0.2 order union members, and why?"
+  back: "Ids follow creation order, so 6.0 sorts by type id and output can depend on checking order. 7.0, with parallel checkers, sorts by content. 6.0.3 with `--stableTypeOrdering` prints `\"down\" | \"up\"` like 7.0.2."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checker-inference
+  front: "How does inference collect candidates, and what is deferred?"
+  back: "It walks source and target together, collecting candidates per type parameter with priorities, and defers context-sensitive arguments (unannotated callbacks) to a second pass."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-protocol-6
+  front: "How do editors talk to `tsserver` on 6.0?"
+  back: "VS Code spawns it: JSON requests on stdin (`seq`, `type`, `command`, `arguments`), `Content-Length`-framed responses and events such as `semanticDiag`, with 1-based `line`/`offset`."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: ts7-lsp-server
+  front: "How does TypeScript 7's language server differ?"
+  back: "`tsc --lsp --stdio` speaks the Language Server Protocol: JSON-RPC, an `initialize` capability handshake, `textDocument/hover`, pulled diagnostics, 0-based positions, several threads."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-vs-lsp-coordinates
+  front: "How do tsserver and LSP coordinates differ for the same hover?"
+  back: "`tsserver` takes 1-based `line`/`offset` (`quickinfo` on `point` was line 1, offset 7); LSP takes 0-based `line`/`character` (line 0, character 6)."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-plugin-ts7
+  front: "Can a 6.0 `tsserver` plugin load into TypeScript 7's server?"
+  back: "No. The Go server cannot load third-party code; those tools need the new API."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: cache-keyed-by-ids
+  front: "Why key the relation cache by type ids rather than by structure?"
+  back: "Hashing structure costs about as much as comparing it. Ids are fixed numbers, and interning means the same pair of objects recurs constantly, e.g. every call passing `string[]` where `readonly string[]` is expected."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: checkers-own-caches
+  front: "How does `--checkers 4` on 7.0 affect the relation caches and type ids?"
+  back: "In the Go port the relation maps are fields of each `Checker`, so each builds its own caches and ids. Creation order, and so ids, became non-deterministic, which is why 7.0 sorts types by content."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: tsserver-geterr
+  front: "How does an editor get diagnostics from `tsserver` versus the 7.0.2 LSP server?"
+  back: "Usually `geterr`: 6.0.3 checked in the background and pushed `syntaxDiag`, `semanticDiag` and `suggestionDiag` events, then `requestCompleted`; `semanticDiagnosticsSync` returns them in the response. 7.0.2 advertises `diagnosticProvider` and the client pulls with `textDocument/diagnostic`."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: identity-same-object
+  front: "Which of `string[]` vs `Array<string>`, `\"x\" | \"y\"` vs `\"y\" | \"x\"`, and two `{ n: number }` literals are the same type object?"
+  back: "The first two pairs are one object (one cached instantiation; both unions hit the union cache). Each object literal type is a new anonymous type, so they are related structurally, not by identity."
+  question: typescript/the-compiler/checker-and-tsserver
+- id: ts7-no-stable-api
+  front: "What does the `typescript` entry export on 7.0.2, and where are experiments?"
+  back: "Only `version` and `versionMajorMinor`. Experiments sit under `typescript/unstable/*`. The Go port cannot dynamically link third-party code into the server process (issue #63800)."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts6-api-in-process
+  front: "What did the 6.0 compiler API let tools do that the Go port cannot?"
+  back: "`require(\"typescript\")` loaded the compiler into your process, so tools held `ts.Node` and `ts.Type` objects, patched the language service (tsserver plugins) and passed custom transformers to `emit`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts7-api-keep-ts6-alias
+  front: "How do API tools keep 6.0 while 7.0 serves the CLI?"
+  back: "An npm alias, `\"typescript\": \"npm:@typescript/typescript6\"`, with 7.0 installed under another name for the CLI. The announcement's recipe: `npm:@typescript/typescript6@^6.0.2` plus `\"@typescript/native\": \"npm:typescript@^7.0.2\"`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-api-shape
+  front: "What is the 7.1 API (beta, 20 October 2026)?"
+  back: "A new, different API: `typescript/sync`, `typescript/async`, `typescript/ast`, `typescript/fs`. A JavaScript client spawns the native compiler and calls it over IPC. Much of `Program` and `TypeChecker` is mirrored, but every call is a round trip."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-remote-handles
+  front: "What changes about types and symbols in the 7.1 API?"
+  back: "They are remote handles with lazy methods (`type.getSymbol()`, not `type.symbol`). The API, programs and snapshots are disposable (`using`); objects live in the native process until disposed."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-api-not-final
+  front: "Is the 7.1 API final?"
+  back: "No, it is in beta. The post says the team is working with partner teams to make it ergonomic and fast enough; entry points and method names may change until 7.1.0 ships."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts-eslint-ts7
+  front: "How does typescript-eslint 8.72.0 stand on TypeScript 7?"
+  back: "Its peer range is `typescript <6.1.0`, so it stays on 6.0. A draft PR adds `projectService: { EXPERIMENTAL_backend: 'native' }`, measured up to ~1.5x slower on many files because of synchronous round trips, until bulk APIs land."
+  question: typescript/the-compiler/compiler-api-migration
+- id: bump-ts7-with-typed-linting
+  front: "What happens when you bump `typescript` to 7.x with typed linting on typescript-eslint 8.72.0?"
+  back: "npm fails with `ERESOLVE` on the peer range. With `--force`, requiring `@typescript-eslint/typescript-estree` throws `TypeError: Cannot read properties of undefined (reading 'Cjs')`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: content-mappers
+  front: "What are content mappers, and who uses them?"
+  back: "A package listed in tsconfig's `contentMappers` that gives TypeScript a virtual TypeScript view of, say, `.vue` files, with mappings back. Volar-based tooling (Vue, Astro, Svelte, MDX) moves to them. Editors use it; `tsc` needs `--runExternalCode`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: language-service-plugins-ts7
+  front: "What replaces language-service plugins, and what about custom transformers?"
+  back: "No in-process equivalent: rewrite a plugin as a content mapper or as a separate server that queries TypeScript through the API. Custom transformers: 7.1.0-beta's `emit()` takes none."
+  question: typescript/the-compiler/compiler-api-migration
+- id: ts71-batch-calls
+  front: "Why not port compiler-API code call for call to 7.1?"
+  back: "Each checker call is an IPC round trip. 7.1.0-beta offers `api.batch(...)` with `.gen` request generators, so fetch in bulk where you can."
+  question: typescript/the-compiler/compiler-api-migration
+- id: unstable-api-moved
+  front: "What changed between 7.0's `typescript/unstable/*` and 7.1.0-beta?"
+  back: "`typescript/unstable/sync` became `typescript/sync`, and shapes changed: 7.0.2 had `updateSnapshot`, 7.1.0-beta has `createProgram` and `createSnapshot`."
+  question: typescript/the-compiler/compiler-api-migration
+- id: vue-tsc-future
+  front: "What happens to `vue-tsc`?"
+  back: "In July 2026 the Vue maintainer wrote that a Vue content mapper may let `tsc` check `.vue` files directly, and overlapping tools would then be deprecated. Meanwhile `typescript-native-bridge` runs vue-tsc's checking on tsgo, about 2.7x faster on their repo."
+  question: typescript/the-compiler/compiler-api-migration

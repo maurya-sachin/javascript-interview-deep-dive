@@ -15,13 +15,15 @@ sources:
   - https://tc39.es/ecma262/#sec-boundfunctioncreate
   - https://tc39.es/ecma262/#sec-bound-function-exotic-objects-call-thisargument-argumentslist
   - https://tc39.es/ecma262/#sec-bound-function-exotic-objects-construct-argumentslist-newtarget
+  - https://tc39.es/ecma262/#sec-function.prototype.tostring
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new.target
 tldr: >
   Return a function that calls the target with the saved `this` and the saved arguments
   followed by the new ones. Behave differently under `new`: ignore the saved `this`, and
   build the object with `Reflect.construct`. A userland version can't match a real bound
-  function's `prototype`, `instanceof`, `length`/`name` and brand.
+  function's missing `prototype`, `instanceof` delegation or brand, and needs extra code
+  to copy `length`/`name`.
 ---
 
 ## Answer
@@ -39,7 +41,7 @@ Use the rest parameter and spread for argument merging; the old `Array.prototype
 
 - The result is a normal function. It has an own `prototype` (non-configurable, so you can't delete it), so `new bound() instanceof bound` is `false`, where for a native bound function `instanceof` is delegated to the target.
 - `name` and `length` are those of the inner function unless you define them (`bound <name>`, target length minus bound arguments); they can be copied with `Object.defineProperties`.
-- Its `[[Prototype]]` is `Function.prototype`, not the target's, and `toString` shows your source, not `function () { [native code] }`.
+- Its `[[Prototype]]` is `Function.prototype`, not the target's, and `toString` shows your source instead of the spec's `NativeFunction` form (V8 prints `function () { [native code] }`).
 - It isn't a real exotic object, so engines can't treat it specially and tools can't see the target.
 
 State these limits out loud in an interview; they show you know it is an approximation.

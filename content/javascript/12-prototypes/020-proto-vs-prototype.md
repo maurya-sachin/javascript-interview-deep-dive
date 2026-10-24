@@ -17,6 +17,8 @@ sources:
   - https://tc39.es/ecma262/#sec-makeconstructor
   - https://tc39.es/ecma262/#sec-ordinarysetprototypeof
   - https://tc39.es/ecma262/#sec-runtime-semantics-propertydefinitionevaluation
+  - https://tc39.es/ecma262/#sec-bound-function-exotic-objects-construct-argumentslist-newtarget
+  - https://v8.dev/blog/fast-properties
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/prototype
@@ -49,7 +51,7 @@ Each ordinary function gets a fresh `prototype` object whose only property is a 
 
 An object literal can set the prototype with `{ __proto__: proto }`. That literal form is different from the accessor: it is specified syntax for non-computed `__proto__` keys, and it doesn't trigger the setter.
 
-Changing `[[Prototype]]` after creation is slow in every engine (MDN says so), so set it at creation.
+Changing `[[Prototype]]` after creation can be slow: in V8, an object's hidden class records its prototype, and inline caches key on hidden classes. Set it at creation.
 
 ## Example
 
@@ -78,7 +80,7 @@ console.log(dict.__proto__); // → undefined
 - Believing `obj.prototype` exists on instances. Only functions that can be constructors have it, and instances read their prototype through `Object.getPrototypeOf`.
 - Reassigning `F.prototype` after creating instances. Existing instances keep the old prototype, while later `new F()` calls get the new one.
 - Overwriting `Constructor.prototype = {...}` and forgetting that `constructor` goes with it. Code that reads `obj.constructor` then gets `Object`.
-- Using `__proto__` as a key on data from users: on an ordinary object, `obj['__proto__'] = value` runs the setter and changes the prototype instead of adding a key.
+- Using `__proto__` as a key on data from users: on an ordinary object, `obj['__proto__'] = value` runs the setter instead of adding a key: an object or `null` becomes the prototype, any other value is ignored.
 
 ## Follow-ups
 
@@ -86,7 +88,7 @@ console.log(dict.__proto__); // → undefined
 **A:** Browsers already shipped it and sites depended on it, so the spec documented it as a legacy accessor for compatibility. It is marked legacy and normative-optional: non-browser hosts may omit it. `getPrototypeOf`/`setPrototypeOf` are the standard API.
 
 **Q:** Which functions have no `prototype` property?
-**A:** Arrow functions, methods defined with shorthand syntax, async functions, and bound functions can't be constructors and have none. Classes and ordinary `function` declarations do, and generator functions have one too (used for the generator objects they return, not for `new`).
+**A:** Arrow functions, shorthand methods, accessors and async functions aren't constructors and have none. Bound functions have none either, yet `new` works on one whose target is a constructor. Classes and ordinary `function`s have one; so do generator functions, sync and async (for the objects they return, not for `new`).
 
 **Q:** What happens if you try to change `Object.prototype`'s prototype?
 **A:** It throws a `TypeError`. `Object.prototype` is an immutable prototype exotic object, so its `[[Prototype]]` stays `null`.

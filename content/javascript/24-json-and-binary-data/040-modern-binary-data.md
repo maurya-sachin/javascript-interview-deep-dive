@@ -12,8 +12,9 @@ verified: 2026-10
 sources:
   - https://github.com/tc39/proposals/blob/main/finished-proposals.md
   - https://tc39.es/ecma262/#sec-arraybuffer.prototype.resize
+  - https://github.com/tc39/proposal-resizablearraybuffer
   - https://tc39.es/ecma262/#sec-arraybuffer.prototype.transfer
-  - https://tc39.es/ecma262/#sec-uint8array.fromBase64
+  - https://tc39.es/ecma262/#sec-uint8array.frombase64
   - https://tc39.es/ecma262/#sec-math.f16round
   - https://github.com/mdn/browser-compat-data/tree/main/javascript/builtins
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer/resize
@@ -23,7 +24,7 @@ sources:
 tldr: >
   Binary data gained five things. Resizable `ArrayBuffer` and `transfer()` (with `detached`) are in ES2024 and Node 22+.
   Copying typed array methods (`toSorted`, `with`) are ES2023. `Float16Array` and `Math.f16round` are ES2025 and need
-  Node 24. `Uint8Array` base64 and hex are stage 4 but only in Node 26+, so feature-detect.
+  Node 24. `Uint8Array` base64 and hex are stage 4 but missing from Node 22 and 24, so feature-detect.
 ---
 
 ## Answer
@@ -74,12 +75,12 @@ console.log(moved.byteLength, moved.resizable, new Uint8Array(moved)[0]);
 - Shipping base64 or hex methods unguarded. They are missing in Node 22 and 24, and in browsers older than Chrome 140, Firefox 133, or Safari 18.2 (per MDN). Check `typeof Uint8Array.fromBase64 === 'function'` and keep a `btoa` or `Buffer` fallback.
 - Using a detached buffer. After `transfer()` or a transferable `postMessage`, `slice` and `new Uint8Array(oldBuffer)` throw `TypeError`, and old views silently read `0` length. Check `buffer.detached` when ownership is unclear.
 - Caching `view.length` across a resize. A length-tracking view changes length when the buffer is resized, and a fixed view can go out of bounds. Re-read `length`, don't store it.
-- Expecting `Float16Array` precision. Half floats hold about 3 decimal digits: `Math.f16round(0.1)` is `0.0999755859375`, and values above 65504 round to `Infinity`.
+- Expecting `Float16Array` precision. Half floats hold about 3 decimal digits: `Math.f16round(0.1)` is `0.0999755859375`, and values from 65520 up round to `Infinity`.
 
 ## Follow-ups
 
 **Q:** Why did `transfer()` get added when `slice()` exists?
-**A:** `slice` copies, which costs time and memory for large buffers. `transfer` moves ownership without keeping two copies alive, and `resize` on a resizable buffer avoids reallocation. Both exist so large binary data can be handed off safely.
+**A:** `slice` copies, which costs time and memory for large buffers. `transfer` moves ownership without keeping two copies alive, and `resize` lets an engine grow a buffer in place instead of copying it. Both exist so large binary data can be handed off safely.
 
 **Q:** Is a transferred buffer the same object?
 **A:** No. The original object stays alive but detached (`detached === true`), and a new `ArrayBuffer` holds the bytes. Any reference to the old one must be updated.

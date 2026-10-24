@@ -28,7 +28,7 @@ Topics are grouped into four tracks. Each has a README with its scope, chapters 
 | Infrastructure and delivery | [Git](content/git/) · [CI/CD](content/ci-cd/) · [Containers and Kubernetes](content/containers-and-kubernetes/) · [Cloud and IaC](content/cloud-and-iac/) · [Networking](content/networking/) · [Observability](content/observability/) |
 | Engineering practice | [Testing](content/testing/) · [Web performance](content/web-performance/) · [Web security](content/web-security/) · [Tooling](content/tooling/) · [System design](content/system-design/) · [Data structures and algorithms](content/data-structures-and-algorithms/) |
 
-**Status:** JavaScript (26 chapters) and TypeScript (8 chapters) are fully drafted and under review; the other topics are scoped and waiting for chapters.
+**Status:** JavaScript (28 chapters) and TypeScript (8 chapters) are fully drafted and under review; the other topics are scoped and waiting for chapters.
 Nothing is marked `published` until a maintainer has reviewed it.
 
 ## Run it locally

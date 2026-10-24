@@ -37,7 +37,7 @@ Every object has **essential internal methods** (`[[Get]]`, `[[Set]]`, `[[GetOwn
 |---|---|
 | Array | `[[DefineOwnProperty]]` keeps `length` in sync: writing index `i >= length` sets `length` to `i + 1`, and lowering `length` deletes elements |
 | Arguments (mapped) | In sloppy functions with simple parameters, indices alias the parameter bindings |
-| String object | Read-only virtual properties for each UTF-16 code unit and `length` |
+| String object | Read-only virtual index properties, one per UTF-16 code unit (`length` is an ordinary own property) |
 | TypedArray | Canonical numeric keys are element accesses; out-of-range indices are never stored, and the prototype chain isn't consulted |
 | Module namespace | Live, non-extensible, `null`-prototype view of a module's exports; writes fail |
 | Bound function | `[[Call]]`/`[[Construct]]` forward to the target with a fixed `this` and leading arguments |
@@ -75,7 +75,7 @@ console.log(Object.getOwnPropertyDescriptor(str, '1'));
 ## Pitfalls
 
 - Treating `length` as a normal property. Setting a non-integer or negative `length` throws `RangeError`, and a non-writable `length` makes `push` throw.
-- Expecting a TypedArray write out of range to fail loudly. `bytes[5] = 1` is silently ignored, and `Reflect.set` reports `true`. Only integer-valued canonical numeric keys are special: `bytes.name` is an ordinary property.
+- Expecting a TypedArray write out of range to fail loudly. `bytes[5] = 1` is silently ignored, and `Reflect.set` reports `true`. Only canonical numeric keys (`'5'`, but also `'1.5'` and `'-0'`) are special: `bytes.name` is an ordinary property.
 - Relying on `arguments` aliasing. It exists only in sloppy-mode functions with simple parameters, so adding a default value or `'use strict'` removes it.
 - Assigning to a namespace import (`ns.count = 5`) and expecting a silent no-op. Module code is strict, so it throws `TypeError`.
 
@@ -98,7 +98,7 @@ The spec defines a default for each internal method (`OrdinaryGet`, `OrdinaryDef
 
 **Array.** `[[DefineOwnProperty]]` special-cases the key `"length"` (via `ArraySetLength`, which converts with `ToUint32` and throws `RangeError` if the number isn't a valid length) and array indices (canonical integer strings below 2^32 − 1). Defining index `i` at or past `length` also defines `length` as `i + 1`, and fails if `length` is non-writable. Shrinking `length` deletes elements from the end, stopping at a non-configurable one. Only those keys are special, which is why `arr['02']` and `arr['-1']` don't change `length`.
 
-**String objects** (not primitives) get `[[GetOwnProperty]]`, `[[DefineOwnProperty]]` and `[[OwnPropertyKeys]]` overrides: index keys below the string length and `"length"` appear as own, read-only, enumerable (for indices) properties. In strict code `str[0] = 'H'` throws `TypeError`. For primitive strings, `'hey'[0]` works through `ToObject` and the same exotic behaviour.
+**String objects** (not primitives) get `[[GetOwnProperty]]`, `[[DefineOwnProperty]]` and `[[OwnPropertyKeys]]` overrides: index keys below the string length appear as own, read-only, enumerable properties. `"length"` is not virtual: `StringCreate` defines it as an ordinary non-writable own property. In strict code `str[0] = 'H'` throws `TypeError`. For primitive strings, `'hey'[0]` works through `ToObject` and the same exotic behaviour.
 
 **TypedArray.** Eight internal methods are overridden. A key that is a *canonical numeric string* (the result of `ToString` of a Number, including `"-0"` and `"1.5"`) is never looked up as an ordinary property: if it isn't a valid in-bounds integer index, `[[Get]]` returns `undefined`, `[[HasProperty]]` returns `false`, `[[Set]]` does nothing, and the prototype chain is skipped. After `Object.prototype[7] = 'proto'`, `new Uint8Array(2)[7]` is `undefined` but `[][7]` is `'proto'` in Node.js 24. `Object.freeze` on a non-empty typed array throws `TypeError`, because the elements are always writable.
 

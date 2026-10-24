@@ -123,7 +123,7 @@ console.log(Object.getOwnPropertyDescriptor(ns, 'count'));
 
 The `value: 1` is the state after the example's single `inc()` call. Writes fail even though the descriptor says `writable: true`; the descriptor is a reflection of the live value, not a promise that `[[Set]]` works.
 
-`export * from` skips `default`, and a name provided by two star exports is ambiguous. `import * as hub` just omits it, but `import { x }` is a link-time `SyntaxError` ("contains conflicting star exports"). An explicit local export wins over a star export.
+`export * from` skips `default`, and a name provided by two star exports is ambiguous. `import * as hub` just omits it, but `import { x }` is a link-time `SyntaxError` (Node.js 24 reports "contains conflicting star exports"). An explicit local export wins over a star export.
 
 ### Real-world scenario
 

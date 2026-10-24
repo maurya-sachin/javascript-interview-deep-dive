@@ -60,9 +60,9 @@ setTimeout(() => controller.abort(), 20);
 try {
   await sleep(1000, { signal: controller.signal });
 } catch (error) {
-  console.log(error.name, '|', error.message, '|', controller.signal.aborted);
+  console.log(error.name, controller.signal.aborted);
 }
-// → AbortError | This operation was aborted | true
+// → AbortError true
 ```
 
 ## Pitfalls

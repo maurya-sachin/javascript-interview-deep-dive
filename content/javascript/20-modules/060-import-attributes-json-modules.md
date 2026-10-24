@@ -10,6 +10,8 @@ related:
   - javascript/modules/dynamic-import
   - javascript/modules/esm-vs-commonjs
 verified: 2026-10
+perishable:
+  - HTML allowed module types are javascript-or-wasm, json, css, text
 sources:
   - https://tc39.es/ecma262/#sec-HostLoadImportedModule
   - https://tc39.es/ecma262/#sec-import-calls
@@ -74,7 +76,7 @@ console.log(Object.keys(dynamic), dynamic.default === data);
 **A:** On the web the media type, not the extension, decides how a response is handled. The attribute lets the author assert the expected type, so a response that turns into JavaScript fails instead of running as code.
 
 **Q:** What other types exist?
-**A:** The HTML spec's allowed module types are JavaScript, `json`, `css`, and `text`. ECMAScript itself mandates only `json`; support for the others depends on the host.
+**A:** The HTML spec's allowed module types are JavaScript or Wasm (no `type` attribute), `json`, `css`, and `text`. ECMAScript itself mandates only `json`; support for the others depends on the host.
 
 **Q:** Does Node.js let CommonJS `require` a JSON file?
 **A:** Yes, without attributes. Node.js shares one cache entry between `require` and a JSON `import` of the same path.

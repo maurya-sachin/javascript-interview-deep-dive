@@ -44,7 +44,7 @@ The current ECMA-262 draft contains `concat`, `zip`, `zipKeyed` and `join`. It d
 Key behaviour:
 
 - `concat` takes iterables only. Strings and bare iterators throw a `TypeError`; wrap an iterator with `Iterator.from`.
-- `zip` takes an iterable of iterables and an options bag with `mode`: `"shortest"` (default), `"longest"` (with optional `padding`) or `"strict"` (throws if lengths differ). It closes the other inputs when it stops, so infinite inputs are fine.
+- `zip` takes an iterable of iterables and an options bag with `mode`: `"shortest"` (default), `"longest"` (with optional `padding`) or `"strict"` (throws if lengths differ). In `"shortest"` mode it closes the other inputs when one ends, so an infinite input is fine there; `"longest"` never ends with one.
 - `chunks` yields a shorter final group. `windows` yields only full windows unless you pass `"allow-partial"`.
 
 Still unfinished: `Iterator.range` and async iterator helpers are Stage 2.

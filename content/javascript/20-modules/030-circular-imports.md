@@ -31,7 +31,7 @@ Neither system rejects a cycle. What differs is what a module sees from a partne
 When a module's body reads a binding that comes from a module that hasn't run yet:
 
 - `export function` declarations already work, because functions are initialized at link time.
-- `export const`, `let`, and `class` are in their Temporal Dead Zone: a `ReferenceError`, "Cannot access 'a' before initialization".
+- `export const`, `let`, and `class` are in their Temporal Dead Zone: reading one throws a `ReferenceError`.
 - `export var` reads `undefined`.
 
 Reading the binding later, for example inside a function called after startup, works because the binding is live.
@@ -59,11 +59,11 @@ console.log('hello() ->', hello());
 try {
   console.log(a);
 } catch (error) {
-  console.log(error.name, error.message);
+  console.log(error.name);
 }
 export const b = 'b';
 // → hello() -> hello from a
-// → ReferenceError Cannot access 'a' before initialization
+// → ReferenceError
 // → a sees b = b
 ```
 
@@ -125,4 +125,4 @@ What happens when the program starts from the other file?
 //   node b.mjs
 ```
 
-**Answer:** It throws `ReferenceError: Cannot access 'b' before initialization` from `a.mjs`, and prints nothing from `b.mjs` (run in Node.js 24). From `b.mjs`, the cycle is entered at `b`, so `a.mjs` runs first and reads `b` before `b.mjs` has executed `export const b`.
+**Answer:** It throws a `ReferenceError` for `b` from `a.mjs`, and prints nothing from `b.mjs` (run in Node.js 24). From `b.mjs`, the cycle is entered at `b`, so `a.mjs` runs first and reads `b` before `b.mjs` has executed `export const b`.

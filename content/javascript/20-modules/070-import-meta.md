@@ -10,6 +10,8 @@ related:
   - javascript/modules/esm-vs-commonjs
   - javascript/modules/dynamic-import
 verified: 2026-10
+perishable:
+  - import.meta.main at Stability 1.0, early development, in Node.js 24
 sources:
   - https://tc39.es/ecma262/#sec-meta-properties
   - https://tc39.es/ecma262/#sec-hostgetimportmetaproperties
@@ -24,7 +26,7 @@ tldr: >
 
 ## Answer
 
-`import.meta` is a meta property: syntax, not a variable lookup, and it is a `SyntaxError` outside a module (in CommonJS you get `Cannot use 'import.meta' outside a module`). Each module has its own object: the engine creates a null-prototype object the first time the module reads it, asks the host to fill in properties, caches it, and returns the same object on every later read. It is extensible, so you can add properties.
+`import.meta` is a meta property: syntax, not a variable lookup, and it is a `SyntaxError` outside a module (in a `.cjs` file, Node.js 24 reports `Cannot use 'import.meta' outside a module`). Each module has its own object: the engine creates a null-prototype object the first time the module reads it, asks the host to fill in properties, caches it, and returns the same object on every later read. It is extensible, so you can add properties.
 
 The language specifies no properties. By convention, hosts provide:
 

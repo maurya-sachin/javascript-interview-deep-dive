@@ -56,7 +56,7 @@ console.log(word.toUpperCase(), word); // → ABC abc
 try {
   word[0] = 'X'; // modules are strict, so the failed write throws
 } catch (error) {
-  console.log(error.message); // → (V8 wording) Cannot assign to read only property '0' of string 'abc'
+  console.log(error.name); // → TypeError
 }
 
 console.log('x' === 'x', {} === {}); // → true false

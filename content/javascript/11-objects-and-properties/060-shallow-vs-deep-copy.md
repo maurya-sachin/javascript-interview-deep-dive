@@ -18,7 +18,7 @@ sources:
   - https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializeinternal
   - https://html.spec.whatwg.org/multipage/structured-data.html#dom-structuredclone
   - https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone
-  - https://nodejs.org/docs/latest-v24.x/api/worker_threads.html
+  - https://nodejs.org/docs/latest-v24.x/api/worker_threads.html#considerations-when-cloning-objects-with-prototypes-classes-and-accessors
   - https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -109,7 +109,7 @@ try {
 
 ### How it works
 
-`structuredClone(value)` is `StructuredSerializeInternal` followed by `StructuredDeserialize`, two separate passes. Serialization turns the graph into an intermediate Record tree, with a *memory* map from each source object to its Record. A second visit to the same object returns the existing Record, which is how cycles and shared references survive. Deserialization then builds new objects from those Records.
+`structuredClone(value)` runs `StructuredSerializeWithTransfer` (built on `StructuredSerializeInternal`), then `StructuredDeserializeWithTransfer`: two separate passes. Serialization turns the graph into an intermediate Record tree, with a *memory* map from each source object to its Record. A second visit to the same object returns the existing Record, which is how cycles and shared references survive. Deserialization then builds new objects from those Records.
 
 For an ordinary object, the serialize step does, per the HTML spec:
 
@@ -117,7 +117,7 @@ For an ordinary object, the serialize step does, per the HTML spec:
 2. For each key it checks `HasOwnProperty`, then reads `value.[[Get]](key, value)`. Reading through `[[Get]]` is what runs a getter and stores its result, and why the clone has data properties.
 3. It never reads `[[Prototype]]`, so deserialization creates a plain `Object`.
 
-`Error` objects take their own branch: the serialized `name` is kept only if it is one of the seven built-in error names (otherwise it becomes `"Error"`), and `message` is kept only when it is an own data property. Custom fields are not part of the specified record.
+`Error` objects take their own branch: the serialized `name` is kept only if it is one of the seven built-in error names (otherwise it becomes `"Error"`), and `message` is kept only when it is an own data property. The record holds only `name`, `message` and an implementation-defined stack; custom fields are not part of it.
 
 ```js
 let reads = 0;

@@ -32,7 +32,7 @@ What a `Map` gives you that an object does not:
 - **No inherited keys.** `{}` already "has" `toString` and `constructor`, and a user-supplied key like `__proto__` is a hazard. A `Map` only contains what you `set`.
 - **Insertion order only.** An object lists integer-like keys first in ascending order, then strings in creation order. A `Map` iterates strictly in insertion order.
 - **A direct `size`**, and it is directly iterable (`for (const [k, v] of map)`), with no `Object.keys` step.
-- **Add/remove performance.** The spec only requires sublinear average access for both; MDN states that `Map` is optimised for frequent additions and removals. Measure before treating that as a reason on its own.
+- **Add/remove performance.** The spec requires only that `Map` access be sublinear on average, and sets no bound for objects; MDN states that `Map` is optimised for frequent additions and removals. Measure before treating that as a reason on its own.
 
 What an object gives you: literal syntax, dot access, destructuring, native `JSON.stringify`/`parse`, and spread. `JSON.stringify(map)` gives `{}`, so convert with `[...map]` or `Object.fromEntries`.
 

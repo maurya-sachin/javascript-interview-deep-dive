@@ -10,6 +10,9 @@ related:
   - javascript/iterators-and-generators/generators
   - javascript/arrays/implement-map-filter-reduce
 verified: 2026-10
+perishable:
+  - Async iterator helpers at Stage 2
+  - Baseline newly available (March 2025), not yet widely available
 sources:
   - https://tc39.es/ecma262/#sec-iterator-objects
   - https://tc39.es/ecma262/#sec-iterator.from
@@ -92,7 +95,7 @@ console.log(evenSquares.toArray());
 **A:** It is the same idea packaged in the standard library. The helpers also validate arguments up front (a non-function throws a `TypeError` when you call `map`, not when you pull) and close the source on errors.
 
 **Q:** What does `Iterator.from` accept?
-**A:** Any iterable (including strings) or any object with `next()`. It returns existing iterators that inherit from `Iterator.prototype` as they are, and wraps the rest so they get the helper methods. Other values throw a `TypeError`.
+**A:** Any iterable (including strings) or any object with `next()`. It returns existing iterators that inherit from `Iterator.prototype` as they are, and wraps the rest so they get the helper methods. Other primitives throw a `TypeError`; any other object is wrapped unchecked and fails only when pulled.
 
 ## Exercises
 

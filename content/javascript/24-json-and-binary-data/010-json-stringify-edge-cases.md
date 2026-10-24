@@ -85,7 +85,7 @@ console.log(calls.join(' '));
 
 - Round-tripping through `JSON.parse(JSON.stringify(x))` to deep-clone. It drops `undefined`, functions, and symbols, turns `Date` into strings, `Map` and `Set` into `{}`, `NaN` into `null`, and throws on BigInt and cycles. Use `structuredClone` when you need a real copy.
 - Expecting a string back. `JSON.stringify(undefined)`, a function, or a symbol returns `undefined`, so `JSON.parse(JSON.stringify(x))` can throw on a value that looked harmless.
-- Stringifying BigInt without a plan. There is no default because JSON numbers are read as doubles by most consumers. Choose a format: send a string, or define `BigInt.prototype.toJSON` (a global change) or a replacer.
+- Stringifying BigInt without a plan. The spec defines no default, and many consumers read JSON numbers as doubles, so a bare large number could lose precision. Choose a format: send a string, or define `BigInt.prototype.toJSON` (a global change) or a replacer.
 - Using a `WeakSet` replacer to "fix" cycles. It also hides shared, non-cyclic references (the second occurrence becomes `[Circular]`), because it records every object ever seen, not just the current path.
 
 ## Follow-ups

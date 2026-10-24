@@ -155,7 +155,7 @@ Even though `c` is the fastest, the order is fixed by the chain. A plain `for…
 
 ### Trade-offs
 
-Each `then` allocates a promise, two reaction records and a job, even when you ignore the result. `async`/`await` avoids the visible nesting but uses the same machinery underneath. Chains are good when each step is a short pure transformation; once the steps need shared variables or loops, `await` reads better. Chains also keep errors in one place: a single `.catch` at the end covers every step before it.
+In the spec's model, each `then` creates a promise, two reaction records and a job, even when you ignore the result; engines may optimise the details. `async`/`await` avoids the visible nesting but uses the same machinery underneath. Chains are good when each step is a short pure transformation; once the steps need shared variables or loops, `await` reads better. Chains also keep errors in one place: a single `.catch` at the end covers every step before it.
 
 ## Exercises
 

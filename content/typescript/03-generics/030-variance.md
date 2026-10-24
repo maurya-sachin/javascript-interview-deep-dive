@@ -40,7 +40,7 @@ An annotation overrides the method exemption: `Box<in out T>` with method-syntax
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 interface Animal { name: string }
 interface Dog extends Animal { bark(): void }
 declare let dogs: Dog[];
@@ -75,7 +75,7 @@ interface Wrong<out T> { get: () => T; set: (v: T) => void }
 
 - Believing `Dog[]` to `Animal[]` is checked soundly. Array methods are method syntax, so it is covariant and unsound for writes. `readonly Dog[]` to `readonly Animal[]` is the sound covariant case.
 - Treating `strictFunctionTypes` as covering everything. `handle(x: Dog)` (method) remains bivariant; `handle: (x: Dog) => void` (property) does not. Choose the syntax deliberately.
-- Annotating `out T` on a type that takes `T` in a method parameter and assuming it is checked. It passed on 7.0.2 and 5.9.3; only function-typed properties trip TS2636.
+- Annotating `out T` on a type that takes `T` in a method parameter and assuming it is checked. It passed on 7.0.2 and 6.0.3; only function-typed properties trip TS2636.
 - Adding annotations only for speed. The 4.7 notes describe a type-checking speedup for complex or recursive types; ❓ the gain was not measured here, so add them for the checked contract first.
 
 ## Follow-ups

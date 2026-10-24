@@ -11,11 +11,15 @@ related:
   - javascript/objects-and-properties/shallow-vs-deep-copy
   - javascript/iterators-and-generators/iteration-protocols
 verified: 2026-10
+perishable:
+  - V8 spread-argument limit in Node 24
 sources:
   - https://tc39.es/ecma262/#sec-copydataproperties
   - https://tc39.es/ecma262/#sec-runtime-semantics-argumentlistevaluation
   - https://tc39.es/ecma262/#sec-destructuring-binding-patterns-runtime-semantics-restbindinginitialization
+  - https://tc39.es/ecma262/#sec-function-definitions-static-semantics-expectedargumentcount
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
+  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
 tldr: >
   Same `...` token, opposite jobs. Spread expands a value into elements: iterables in calls
@@ -47,8 +51,8 @@ A rest element must be last and appear once (`SyntaxError` otherwise), and it ta
 
 ```js
 const sum = (...nums) => nums.reduce((a, b) => a + b, 0); // rest: collect
-const args = [1, 2, 3];
-console.log(sum(...args, 4)); // spread: expand → 10
+const args = [1, 2, 3]; // spread: expanded into the call below
+console.log(sum(...args, 4)); // → 10
 console.log([...'hi', ...new Set([1, 1, 2])]); // → [ 'h', 'i', 1, 2 ]
 
 const base = { a: 1, b: 2 };
@@ -71,7 +75,7 @@ console.log(nested.inner.n); // → 2
 - Treating spread as a deep copy. Only the top level is new; nested objects and arrays are shared.
 - Spreading a plain object into an array or a call: `[...{ a: 1 }]` throws `TypeError` because objects aren't iterable. Only the object-literal form accepts any object.
 - Expecting class instances to survive: `{ ...new A() }` is a plain object holding the own enumerable fields — no prototype, no methods, and accessors become their current values.
-- Spreading a huge array into a call (`Math.max(...big)`). Each element becomes an argument, and engines cap that. In Node 24 (V8), 200,000 elements already throws `RangeError`; use a loop or `reduce`.
+- Spreading a huge array into a call (`Math.max(...big)`). Each element becomes an argument, and the spec sets no limit, so engines cap it differently (MDN's `apply` page says the result is unspecified). In Node 24 (V8) the cap follows stack size: 120,000 elements worked and 125,000 threw `RangeError` here. Use a loop or `reduce`.
 
 ## Follow-ups
 

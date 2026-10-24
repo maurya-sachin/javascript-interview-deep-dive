@@ -24,7 +24,7 @@ tldr: >
   `moduleResolution` tells `tsc` how an import specifier maps to a file, and it must copy the real
   resolver. Use `nodenext` when Node runs your output: extensions are required and package
   `exports` is enforced. Use `bundler` (with `module: preserve`) when a bundler handles the files.
-  `node10` and `classic` were removed in TS 7.
+  `node10` and `classic` are deprecated in TS 6.0 and removed in 7.0.
 ---
 
 ## Answer
@@ -37,12 +37,12 @@ Two options work as a pair. `module` says what import syntax your output uses. `
 
 Choose by who consumes the emitted JavaScript: Node directly gives `nodenext`; a bundler or runtime that reads TypeScript gives `bundler`. For libraries, the TypeScript docs advise `nodenext`-style settings: `bundler` accepts extensionless relative exports that then break in Node.
 
-Resolution through `"exports"` matches the `types` condition first, so list `types` before `default`. A subpath not listed in `"exports"` cannot be imported, in `tsc` or in Node.
+Conditions in `"exports"` are tried in object order, and `tsc` always matches `types` and `default`, so list `types` before `default`. A subpath not listed in `"exports"` cannot be imported, in `tsc` or in Node.
 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3. package.json: { "type": "module" }; tsconfig: "module": "nodenext"
+// TypeScript 7.0.2 and 6.0.3. package.json: { "type": "module" }; tsconfig: "module": "nodenext"
 // node_modules/dep/package.json "exports": {
 //   ".":         { "types": "./index.d.ts",   "default": "./index.js" },
 //   "./feature": { "types": "./feature.d.ts", "default": "./feature.js" } }
@@ -63,13 +63,13 @@ With `--module preserve` (which selects `bundler`) the first error disappears an
 
 - Using `bundler` for code you publish or run in Node. It never requires extensions, so `tsc` passes code that Node rejects with `ERR_MODULE_NOT_FOUND`.
 - Writing `./util.ts` or `./util` instead of `./util.js` under `nodenext`. Write the extension of the file that will exist after the build.
-- Leaving `moduleResolution` unset with `module: esnext`. On 5.9.3 it fell back to `classic` and `import "dep"` failed (TS2792). On 7.0.2 the same project compiled, and `--traceResolution` showed `import`/`types` conditions; the tsconfig reference still lists `Classic otherwise`, so ❓ the 7.0 default is not documented there.
-- Expecting `node10` to follow `"exports"`. On 5.9.3 it resolved `dep` through `"types": "./legacy.d.ts"` instead, and `dep/internal.js` was accepted. On 7.0.2 the option is an error (TS5108).
+- Leaving `moduleResolution` unset and expecting Node's rules. On 6.0.3 and 7.0.2, `--traceResolution` reports `using 'Bundler'` for `module: esnext` and even `commonjs` (5.x picked `classic` or `node10`), so extensionless imports pass; the tsconfig reference's default table still describes 5.x.
+- Expecting `node10` to follow `"exports"`. On 6.0.3 (TS5107 unless `ignoreDeprecations: "6.0"`) it resolved `dep` through `"types": "./legacy.d.ts"` instead, and `dep/internal.js` was accepted. On 7.0.2 the option is an error (TS5108).
 
 ## Follow-ups
 
 **Q:** Can a CommonJS file `require()` an ESM-only package?
-**A:** Under `module: nodenext` since TS 5.8, per its release notes (Node 22+). `node18` still disallows it. A `.cts` file importing the ESM-only `dep` compiled to `require("dep")` on 5.9.3 and 7.0.2.
+**A:** Under `module: nodenext` since TS 5.8, per its release notes (Node 22+), and under `node20`. `node18` still disallows it (TS1479). A `.cts` file importing the ESM-only `dep` compiled to `require("dep")` on 6.0.3 and 7.0.2.
 
 **Q:** How do I see why a specifier resolved where it did?
-**A:** `tsc --traceResolution`. For `dep/feature` it printed the conditions tried (`import`, `types`, `node`), `Matched 'exports' condition 'types'`, and the final `.d.ts` path (7.0.2).
+**A:** `tsc --traceResolution`. For `dep/feature` it printed the conditions tried (`import`, `types`, `node`), `Matched 'exports' condition 'types'`, and the final `.d.ts` path (6.0.3 and 7.0.2).

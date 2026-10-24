@@ -10,9 +10,11 @@ related:
   - javascript/functions/function-forms
 verified: 2026-10
 sources:
+  - https://tc39.es/ecma262/#sec-let-and-const-declarations
   - https://tc39.es/ecma262/#sec-automatic-semicolon-insertion
   - https://tc39.es/ecma262/#sec-rules-of-automatic-semicolon-insertion
   - https://tc39.es/ecma262/#sec-interesting-cases-of-automatic-semicolon-insertion
+  - https://tc39.es/ecma262/#sec-comments
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#automatic_semicolon_insertion
 tldr: >
   The parser inserts a semicolon only where the next token is illegal and follows a newline,
@@ -27,7 +29,7 @@ ASI is a parser repair rule, not "newlines end statements". The spec defines thr
 
 1. **Offending token.** The parser reads left to right. If it meets a token the grammar doesn't allow there, it inserts a `;` before that token if (a) there's a line terminator between it and the previous token, (b) the token is `}`, or (c) the previous token is `)` and the `;` would end a `do…while`.
 2. **End of input.** If the token stream ends and the program isn't complete, a `;` is added.
-3. **Restricted productions.** After a few keywords, `[no LineTerminator here]` forbids a newline: `return`, `throw`, `break`, `continue`, `yield`, postfix `++`/`--`, and the `=>` of an arrow function (and `async` before `function`). A line break there makes the parser insert a `;` even though the next token would have been legal.
+3. **Restricted productions.** After a few keywords, `[no LineTerminator here]` forbids a newline: `return`, `throw`, `break`, `continue`, `yield`, postfix `++`/`--`, and the `=>` of an arrow function (and `async` before `function`). ES2027 adds `using` and `await using`: `using⏎x = r` reads `using` as an identifier. A line break there makes the parser insert a `;` even though the next token would have been legal.
 
 Two overriding limits: a `;` is never inserted if it would become an empty statement, or one of the two semicolons in a `for(;;)` header.
 

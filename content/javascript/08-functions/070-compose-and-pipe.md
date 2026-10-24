@@ -11,6 +11,8 @@ related:
   - javascript/arrays/implement-map-filter-reduce
 verified: 2026-10
 sources:
+  - https://tc39.es/ecma262/#sec-array.prototype.reduce
+  - https://tc39.es/ecma262/#sec-array.prototype.reduceright
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
@@ -30,7 +32,7 @@ tldr: >
 
 Implementation: the returned function takes the input and folds the list of functions over it. `pipe` uses `reduce`, `compose` uses `reduceRight`; the accumulator is the value flowing through the chain, and the initial value is the input. Passing the input as the initial value also makes the empty case the identity function, with no special code.
 
-Contract: every function except the first should take one argument and return one value. For anything else, adapt with currying or partial application (`add(1)` instead of `add`). Only the input value is forwarded: a second argument to the composed function is dropped.
+Contract: every function should take one argument and return one value (the variant below relaxes this for the first). For anything else, adapt with currying or partial application (`add(1)` instead of `add`). Only the input value is forwarded: a second argument to the composed function is dropped.
 
 Variants: if the first function must accept several arguments, take `(...args)` and call `first(...args)` before reducing (that fails for an empty list, so decide how to handle it). For async steps, chain with promises, as `pipeAsync` below.
 

@@ -10,6 +10,9 @@ related:
   - javascript/memory-and-gc/memory-leaks
   - javascript/inside-the-engine/smi-and-heap-numbers
 verified: 2026-10
+perishable:
+  - GC counts, space sizes and flags from Node 24.19 (V8 13.6)
+  - Node 24 build ships with pointer compression off
 sources:
   - https://v8.dev/blog/trash-talk
   - https://v8.dev/blog/orinoco-parallel-scavenger
@@ -71,15 +74,15 @@ for (let i = 0; i < 20_000_000; i++) {
 await new Promise((resolve) => setTimeout(resolve, 50)); // let entries arrive
 const space = (name) => v8.getHeapSpaceStatistics().find((s) => s.space_name === name);
 console.log(counts, Math.round(space('old_space').space_used_size / 2 ** 20), 'MB old');
-// → { scavenge: 78, 'incremental step': 2, 'mark-compact': 2 } 97 MB old (varies)
+// → { scavenge: 78, 'incremental step': 2, 'mark-compact': 2 } 97 MB old
 ```
 
-The script allocates 20 million short-lived objects and keeps 1 in 20. The output is from one machine (Node 24.19, V8 13.6, macOS). The scavenge count ranged from 78 to 80 across runs; read the pattern, not the digits: many scavenges, a few mark-compacts, and the survivors ending up in old space.
+The script allocates 20 million short-lived objects and keeps 1 in 20. The output is from one machine (Node 24.19, V8 `13.6.233.17-node.51`, macOS). The scavenge count ranged from 78 to 80 across runs; read the pattern, not the digits: many scavenges, a few mark-compacts, and the survivors ending up in old space.
 
 ## Pitfalls
 
-- Presenting "two scavenges then promote" as a rule of JavaScript. It is V8's policy as its blog describes it, and V8 has other collectors: Node 24's `node --v8-options` lists a young-generation mark-sweep behind `--minor-ms`, off by default (I did not verify its details). Say "in V8".
-- Treating the young generation as a fixed size. It grows. In my allocation-heavy run `new_space` (both semi-spaces) peaked at 128 MB; `--v8-options` lists `--scavenger-max-new-space-capacity-mb=32`, doubled when pointer compression is off (my reading of how the two numbers relate; not verified). Defaults are version- and build-dependent.
+- Presenting "two scavenges then promote" as a rule of JavaScript. It is V8's policy as its blog describes it, and V8 has other collectors: Node 24's `node --v8-options` lists a young-generation mark-sweep behind `--minor-ms` ("perform young generation mark sweep GCs"), off by default. Say "in V8".
+- Treating the young generation as a fixed size. It grows. In an allocation-heavy Node 24.19 run `new_space` (both semi-spaces) peaked at 128 MB. `--v8-options` lists `--scavenger-max-new-space-capacity-mb=32` and says twice the capacity is used when pointer compression is disabled, as in this build. Defaults are version- and build-dependent.
 - Quoting a default heap limit. It depends on the V8 version, build, platform and available memory. On this machine `heap_size_limit` was 4288 MB; do not assume it elsewhere.
 - Assuming pointer compression applies to Node. V8's blog says it limits the heap to 4 GB. In this Node 24 build `process.config.variables.v8_enable_pointer_compression` was `0`.
 

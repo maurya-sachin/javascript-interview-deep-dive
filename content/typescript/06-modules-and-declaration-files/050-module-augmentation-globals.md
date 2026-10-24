@@ -19,8 +19,8 @@ sources:
 tldr: >
   Inside a file that is a module, `declare module "x" { interface ... }` merges new members into an
   existing module's types, and `declare global { ... }` adds to the global scope. Both are type-only;
-  you still supply the runtime code. A file without `import`/`export` is a script, whose top-level
-  declarations are already global.
+  you still supply the runtime code. A file without `import`/`export` is a script (unless
+  `moduleDetection: force`), whose top-level declarations are already global.
 ---
 
 ## Answer
@@ -33,12 +33,12 @@ TypeScript lets you add to types you do not own with **declaration merging**. Th
 
 **Augmentations only change types.** You must still write the implementation (`Observable.prototype.map = ...`), and the augmenting file has to be part of the program. If no file in the compilation includes it, the types do not exist.
 
-**Triple-slash directives** are comments at the top of a file: `/// <reference types="node" />` pulls in an `@types` package, `/// <reference path="./x.d.ts" />` adds a file, `/// <reference lib="es2015" />` adds a built-in lib. Prefer imports or `tsconfig` `include`/`types`. Since TS 5.5 they are not emitted into outputs unless marked `preserve="true"`.
+**Triple-slash directives** are comments at the top of a file: `/// <reference types="node" />` pulls in an `@types` package, `/// <reference path="./x.d.ts" />` adds a file, `/// <reference lib="es2015" />` adds a built-in lib. Prefer imports or `tsconfig` `include`/`types`. Since TS 5.5, generated `.d.ts` files keep them only when marked `preserve="true"` (JavaScript output keeps them as comments).
 
 ## Example
 
 ```ts
-// src/map.ts  (TypeScript 7.0.2 and 5.9.3, strict, --module esnext)
+// src/map.ts  (TypeScript 7.0.2 and 6.0.3, strict, --module esnext)
 import { Observable } from "./observable";
 declare module "./observable" {
   interface Observable<T> { map<U>(f: (x: T) => U): Observable<U>; }
@@ -48,6 +48,7 @@ Observable.prototype.map = function (f) { return new Observable(f(this.value)); 
 // src/use.ts, compiled WITHOUT map.ts in the program:
 const s = new Observable(1).map((x) => x.toFixed(1));
 // Error TS2339: Property 'map' does not exist on type 'Observable<number>'.
+// (plus TS7006: parameter 'x' implicitly has an 'any' type)
 // With map.ts included (for example `import "./map"` in use.ts) it compiles.
 
 // src/env.ts: a module (export {}), so declare global is allowed
@@ -56,11 +57,11 @@ export {};
 // Without export {}: Error TS2669: Augmentations for the global scope can only be directly nested in external modules or ambient module declarations.
 ```
 
-The `TS2669` line was checked with `--module esnext` on both versions; the other results are from the same two versions.
+The `TS2669` line was checked with `--module esnext` on both versions; under `module: nodenext` (which `--showConfig` shows implies `moduleDetection: force`) or `tsc --init`'s `moduleDetection: force`, every file is a module and the error does not occur.
 
 ## Pitfalls
 
-- Forgetting that the augmenting file is a module only if it has `import`/`export`. Put `export {}` at the end, or `declare global` fails with TS2669.
+- Forgetting that the augmenting file is a module only if it has `import`/`export`. Put `export {}` at the end, or `declare global` fails with TS2669 (unless `moduleDetection: force` makes every file a module).
 - Typing a runtime value that does not exist. `declare module "./observable" { export const extra: number }` type-checked on both versions, and importing `extra` then threw `SyntaxError: ... does not provide an export named 'extra'` on Node 24.19.0. The Handbook lists "no new top-level declarations" as a limitation, but I did not see `tsc` enforce it.
 - Misspelling the module name. An unresolvable specifier is TS2664 ("Invalid module name in augmentation, module './does-not-exist' cannot be found"), and an untyped package reports TS2665.
 - Using `/// <reference path>` in new code. It couples files by path; it only counts at the top of the file, after comments.
@@ -68,7 +69,7 @@ The `TS2669` line was checked with `--module esnext` on both versions; the other
 ## Follow-ups
 
 **Q:** Where should a global augmentation file live?
-**A:** In a file your `tsconfig` `include` covers, so it is always part of the program. A script `.d.ts` also works, but adding an `import` turns it into a module: `interface Window { viaModule: number }` then stopped being global (TS2551 on both versions).
+**A:** In a file your `tsconfig` `include` covers, so it is always part of the program. A script `.d.ts` also works, but adding an `import` turns it into a module: `interface Window { viaModule: number }` then stopped being global (TS2339 on both versions).
 
 **Q:** Does `preserve="true"` matter for apps?
-**A:** Rarely. It affects declaration output for libraries: on 5.9.3 and 7.0.2 a `/// <reference types="mocha" preserve="true" />` was kept in the generated `.d.ts`, while `/// <reference types="node" />` was dropped.
+**A:** Rarely. It affects declaration output for libraries: on 6.0.3 and 7.0.2 a `/// <reference types="mocha" preserve="true" />` was kept in the generated `.d.ts`, while `/// <reference types="node" />` was dropped.

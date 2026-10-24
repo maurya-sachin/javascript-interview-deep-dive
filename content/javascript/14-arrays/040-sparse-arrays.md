@@ -14,7 +14,7 @@ sources:
   - https://tc39.es/ecma262/#sec-array-exotic-objects
   - https://tc39.es/ecma262/#sec-array-exotic-objects-defineownproperty-p-desc
   - https://tc39.es/ecma262/#sec-arraysetlength
-  - https://tc39.es/ecma262/#sec-array-index
+  - https://tc39.es/ecma262/#array-index
   - https://tc39.es/ecma262/#sec-array.prototype.foreach
   - https://tc39.es/ecma262/#sec-array.prototype.includes
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Indexed_collections#sparse_arrays

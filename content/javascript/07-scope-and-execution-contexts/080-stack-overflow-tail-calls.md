@@ -11,12 +11,17 @@ related:
   - javascript/functions/higher-order-functions
   - javascript/async-and-the-event-loop/event-loop
 verified: 2026-10
+perishable:
+  - Only JavaScriptCore ships proper tail calls (2026-10)
+  - About 10,000 trivial frames in Node.js 24 by default
 sources:
   - https://tc39.es/ecma262/#sec-tail-position-calls
   - https://tc39.es/ecma262/#sec-preparefortailcall
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Too_much_recursion
   - https://webkit.org/blog/6240/ecmascript-6-proper-tail-calls-in-webkit/
   - https://github.com/tc39/proposal-ptc-syntax
+  - https://github.com/tc39/proposals/blob/HEAD/inactive-proposals.md
+  - https://bugzilla.mozilla.org/show_bug.cgi?id=723959
   - https://github.com/v8/v8/blob/main/src/flags/flag-definitions.h
 tldr: >
   Each call pushes an execution context, and the host gives the stack a fixed size. Recursion with
@@ -27,11 +32,11 @@ tldr: >
 
 ## Answer
 
-Every function call pushes an execution context onto the call stack, and the stack is a fixed-size region of memory chosen by the host. If calls nest deeper than it allows (endless recursion, or legitimate recursion over a big input), the engine throws: `RangeError: Maximum call stack size exceeded` in V8 and JavaScriptCore, `InternalError: too much recursion` in Firefox. The depth is engine-, platform-, and frame-size-dependent; the spec defines neither the limit nor the error type. A trivial function reaches about ten thousand frames in Node 24, and it can be changed with `--stack-size`, which is a workaround rather than a fix.
+Every function call pushes an execution context onto the call stack, and the stack is a fixed-size region of memory set by the engine or host. If calls nest deeper than it allows (endless recursion, or legitimate recursion over a big input), the engine throws: `RangeError: Maximum call stack size exceeded` in V8 and JavaScriptCore, `InternalError: too much recursion` in Firefox. The depth is engine-, platform-, and frame-size-dependent; the spec defines neither the limit nor the error type. A trivial function reaches about ten thousand frames in Node 24, and V8's `--stack-size` flag changes it, which is a workaround rather than a fix.
 
 **Proper tail calls.** ES2015 specifies that a call in *tail position* (a `return f(x)` whose result is returned as is) in strict code must not grow the stack: `PrepareForTailCall` discards the current execution context before the call. That would make deep tail recursion run in constant stack space.
 
-**But in practice, no.** Only JavaScriptCore (Safari) implements it. V8 doesn't (a tail-recursive loop overflows in Node, and V8's flag list has no tail-call option), and no other major engine ships it either. The TC39 follow-up that would make it an explicit opt-in (`return continue f(x)`, "syntactic tail calls") has been inactive since 2016. So you can't rely on tail-call elimination in portable JavaScript, and code that needs deep recursion should avoid depending on it.
+**But in practice, no.** Only JavaScriptCore (Safari) implements it. V8 doesn't (a tail-recursive loop overflows in Node, and V8's flag list has no tail-call option), and SpiderMonkey's implementation bug is still open. The TC39 follow-up that would make it an explicit opt-in (`return continue f(x)`, "syntactic tail calls") is listed as abandoned, last discussed in 2016. So you can't rely on tail-call elimination in portable JavaScript, and code that needs deep recursion should avoid depending on it.
 
 What to do instead:
 
@@ -63,16 +68,16 @@ console.log(sumToLoop(1_000_000)); // → 500000500000
 
 - Assuming the accumulator version (`sum(n - 1, acc + n)`) is safe. It is in tail position and would be flat on Safari, but it overflows in Node and Chrome.
 - Treating the limit as a fixed number. It depends on frame size, engine, and flags, so "about N frames" is never portable.
-- Catching the `RangeError` and continuing. State may be half-updated, and handling the error needs stack space the program no longer has.
+- Catching the `RangeError` and continuing. State may be half-updated, and a handler deep in the recursion has almost no stack left to run in.
 - Writing the "tail call" wrong. `return 1 + f(n - 1)`, `return await f()`, and a call inside `try` aren't in tail position; the caller still has work to do after the call returns.
 
 ## Follow-ups
 
 **Q:** Where exactly is tail position?
-**A:** In strict code, the call is the value of a `return`, a concise arrow body, a branch of `?:`, or the right operand of `&&`, `||`, or `??`. It can't be in a `try` block, a generator, or an async function, and nothing may remain to do with the result.
+**A:** In strict code: the whole value of a `return` or concise arrow body, also through a `?:` branch or the right operand of `&&`, `||`, `??`, or `,`. Not in a `try` block (`catch`/`finally` are fine), after a `using` declaration in the block, or in a generator or async function.
 
 **Q:** Why didn't other engines follow?
-**A:** The syntactic-tail-calls proposal records that many implementers were skeptical (debugging, since frames vanish from traces, and performance) and that the feature was standardized in ES2015 without implementer buy-in. Its explicit opt-in redesign has not advanced.
+**A:** The syntactic-tail-calls proposal records that many implementers were skeptical (debugging, since frames vanish from traces, and performance) and that the feature was standardized in ES2015 without implementer buy-in. Its explicit opt-in redesign was abandoned.
 
 **Q:** Does async recursion overflow the stack?
 **A:** Not by depth alone. After each `await` the continuation runs from the job queue on an almost empty stack. Synchronous recursion inside each step still counts.

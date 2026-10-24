@@ -9,6 +9,8 @@ related:
   - javascript/arrays/sparse-arrays
   - javascript/arrays/implement-map-filter-reduce
 verified: 2026-10
+perishable:
+  - Node 24 flat(Infinity) RangeError on 20,000-deep nesting
 sources:
   - https://tc39.es/ecma262/#sec-array.prototype.flat
   - https://tc39.es/ecma262/#sec-array.prototype.flatmap
@@ -83,7 +85,7 @@ console.log(flatten([1, , [2]]));        // → [ 1, 2 ]
 **A:** `flatMap` does both in one pass and one allocation, but `map(...).filter(Boolean)` is often clearer. Pick by readability unless profiling says otherwise.
 
 **Q:** Is there a nesting limit?
-**A:** The spec has none beyond the 2⁵³−1 element limit, but implementations recurse. In Node 24, `flat(Infinity)` on a 20,000-deep nest threw a `RangeError` (observed, not spec behaviour). An explicit stack avoids that.
+**A:** The spec has none beyond the 2⁵³−1 element limit, but its `FlattenIntoArray` is recursive. In Node 24 (V8), `flat(Infinity)` on a 20,000-deep nest threw a `RangeError` (observed, not spec behaviour). An explicit stack avoids that.
 
 **Q:** What did people use before `flat`?
 **A:** `[].concat(...arrays)` for one level, and recursion with `reduce` for deeper nests.

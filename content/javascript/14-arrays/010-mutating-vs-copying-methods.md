@@ -15,6 +15,8 @@ sources:
   - https://tc39.es/ecma262/#sec-array.prototype.tospliced
   - https://tc39.es/ecma262/#sec-array.prototype.with
   - https://tc39.es/ecma262/#sec-arraycreate
+  - https://github.com/tc39/proposals/blob/main/finished-proposals.md
+  - https://react.dev/reference/react/useState
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
 tldr: >
   `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `fill` and `copyWithin` change the

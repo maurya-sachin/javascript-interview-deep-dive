@@ -128,7 +128,7 @@ console.log(exitCode(`process.on('unhandledRejection', () => {}); Promise.reject
 ### Edge cases
 
 - Rejections with a non-error reason (`Promise.reject('text')`) still crash by default, but give you no stack. Reject with `Error` objects.
-- Errors thrown during the ES module static loading phase of the entry point are always raised as uncaught exceptions, whatever the rejection mode.
+- In Node.js, a rejection during the entry point's ES module static loading phase is always raised as an uncaught exception, whatever the rejection mode.
 - An uncaught error in a dedicated worker is also fired as an `error` event at the `Worker` object in its owner.
 - Node.js passes `origin` (`'uncaughtException'` or `'unhandledRejection'`) to `uncaughtException` listeners, so a logger can tell a thrown error from a rejection that was promoted to one.
 
@@ -154,7 +154,7 @@ const code = `
 console.log(spawnSync(process.execPath, ['-e', code]).status);
 ```
 
-**Answer:** Prints `0` (the child prints `seen lost`). A listener replaces the default crash in the `throw` mode, and nothing sets `process.exitCode`. A real handler should set it, or exit.
+**Answer:** Prints `0` (the child's `seen lost` goes to its captured stdout, which this script does not print). A listener replaces the default crash in the `throw` mode, and nothing sets `process.exitCode`. A real handler should set it, or exit.
 
 ### Which event
 

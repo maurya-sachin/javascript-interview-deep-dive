@@ -17,8 +17,12 @@ sources:
   - https://tc39.es/ecma262/#sec-well-known-symbols
   - https://tc39.es/ecma262/#sec-isarray
   - https://tc39.es/ecma262/#sec-getprototypefromconstructor
+  - https://tc39.es/ecma262/#sec-error.iserror
+  - https://tc39.es/ecma262/#sec-object.prototype.tostring
+  - https://tc39.es/ecma262/#sec-arrayspeciescreate
   - https://html.spec.whatwg.org/multipage/webappapis.html
   - https://nodejs.org/api/vm.html
+  - https://chromium.googlesource.com/v8/v8.git/+/main/docs/runtime/scopes-and-scope-infos.md
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError
 tldr: >
@@ -35,7 +39,7 @@ A **realm** (a Realm Record in the spec) bundles a set of **intrinsic objects**,
 Where realms come from:
 
 - A **same-origin `<iframe>`** (or a popup) gets its own realm, so `iframe.contentWindow.Array` is a different function from your `Array`.
-- Node's **`vm` contexts** create realms as well.
+- Node's **`vm` contexts** are separate V8 contexts, and each V8 native context is its own realm.
 - Workers and the main thread have separate realms, but they can't share objects directly anyway.
 
 Why `instanceof` breaks: `x instanceof Array` checks whether `Array.prototype` is in `x`'s prototype chain. An array made in another realm inherits from *that* realm's `Array.prototype`, which is a different object. So `foreignArray instanceof Array` is `false`, even though it is a real array. The same applies to `Object`, `Function`, `Error`, `Date`, `Map`, and the rest.
@@ -44,7 +48,7 @@ Robust checks that don't depend on identity:
 
 - **`Array.isArray(x)`** looks at the object's exotic internal kind (`IsArray`), so it works across realms.
 - **`Error.isError(x)`** does the same for errors (a newer API; check support).
-- **`Object.prototype.toString.call(x)`** reads `Symbol.toStringTag`, which is mostly reliable but spoofable.
+- **`Object.prototype.toString.call(x)`** derives built-in tags from internal slots, but `Symbol.toStringTag` overrides them, so it is spoofable.
 - **Duck typing** (`typeof x.then === 'function'`) for promises and iterables.
 
 Some things are shared across realms. Well-known symbols (`Symbol.iterator`) and registered symbols (`Symbol.for('k')`) are the same in every realm, and primitives have no realm at all.
@@ -57,11 +61,11 @@ import vm from 'node:vm';
 // A vm context is a separate realm with its own Array, Object, Error, ...
 const foreign = vm.runInNewContext('[1, 2]');
 
-console.log(foreign instanceof Array); // → false (different Array.prototype)
-console.log(Array.isArray(foreign)); // → true (checks the internal kind)
+console.log(foreign instanceof Array); // → false
+console.log(Array.isArray(foreign)); // → true
 console.log(Object.prototype.toString.call(foreign)); // → [object Array]
 console.log(foreign.constructor === Array); // → false
-console.log(vm.runInNewContext('Symbol.iterator') === Symbol.iterator); // → true (shared)
+console.log(vm.runInNewContext('Symbol.iterator') === Symbol.iterator); // → true
 ```
 
 ## Pitfalls

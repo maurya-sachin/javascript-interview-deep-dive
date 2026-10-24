@@ -10,6 +10,9 @@ related:
   - typescript/classes-enums-runtime-output/erasable-syntax-only
   - typescript/the-compiler/type-erasure
 verified: 2026-10
+perishable:
+  - "Decorators and decorator metadata listed at Stage 2.7 (checked 2026-10)"
+  - "Node 24 has no native decorators or Symbol.metadata"
 sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html
@@ -18,6 +21,7 @@ sources:
   - https://github.com/microsoft/TypeScript/pull/50820
   - https://github.com/tc39/proposal-decorators
   - https://github.com/tc39/proposals
+  - https://github.com/tc39/proposal-decorator-metadata
 tldr: >
   A decorator is a function called at class definition with the decorated value and a context
   object; it may return a replacement. Since TS 5.0 plain `@dec` implements the TC39 decorators
@@ -35,12 +39,12 @@ A decorator is a function applied to a class or class element when the class is 
 
 **Status.** The proposal repository README says Stage 2.7, and the tc39/proposals page lists it under Stage 2.7 (fetched 2026-10). TS 5.0 implemented the then-Stage-3 version (PR 50820). ❓ I did not diff today's proposal text against TypeScript's implementation.
 
-**Runtime.** Native Node 24 cannot parse `@dec` (SyntaxError, checked), so the code needs TypeScript, Babel, or a bundler. TS downlevels with `__esDecorate`/`__runInitializers` helpers for `--target es2022`, while `--target esnext` kept the `@` syntax in the output (7.0.2).
+**Runtime.** Native Node 24 cannot parse `@dec` (SyntaxError, checked), so the code needs TypeScript, Babel, or a bundler. TS downlevels with `__esDecorate`/`__runInitializers` helpers for `--target es2022`, while `--target esnext` kept the `@` syntax in the output (6.0.3 and 7.0.2).
 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict --target es2022 (standard decorators)
+// TypeScript 7.0.2 and 6.0.3, --strict --target es2022 (standard decorators)
 function logged<This, Args extends unknown[], R>(
   method: (this: This, ...args: Args) => R,
   context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => R>,
@@ -64,7 +68,7 @@ console.log(new Counter().inc(2));
 // → 2
 
 @logged class Wrong {}
-// Error TS1238: Unable to resolve signature of class decorator when called as an expression.
+// Error TS1238 and TS1270: `logged` expects a method, not a class.
 ```
 
 ## Pitfalls
@@ -77,7 +81,7 @@ console.log(new Counter().inc(2));
 ## Follow-ups
 
 **Q:** In what order do they run?
-**A:** Checked on 7.0.2: for `@d("A") @d("B") m() {}` the output was `eval A`, `eval B`, `apply B`, `apply A`. Decorator expressions evaluate top to bottom; application is bottom to top, matching the 5.0 notes.
+**A:** Checked on 6.0.3 and 7.0.2: for `@d("A") @d("B") m() {}` the output was `eval A`, `eval B`, `apply B`, `apply A`. Decorator expressions evaluate top to bottom; application is bottom to top, matching the 5.0 notes.
 
 **Q:** What is `context.metadata`?
-**A:** TS 5.2's decorator metadata: a shared object per class, readable afterwards via `Class[Symbol.metadata]`. Node 24 printed `Symbol.metadata` as `undefined`, so I polyfilled it; with that, two `@tag` field decorators produced `[ 'name:req', 'age:opt' ]`.
+**A:** TS 5.2's decorator metadata (tc39/proposals lists it at Stage 2.7, its README says 3): a shared object per class, readable afterwards via `Class[Symbol.metadata]`. Node 24 printed `Symbol.metadata` as `undefined`, so I polyfilled it; with that, two `@tag` field decorators produced `[ 'name:req', 'age:opt' ]`.

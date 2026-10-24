@@ -10,9 +10,12 @@ related:
   - javascript/inside-the-engine/deoptimization
   - javascript/inside-the-engine/elements-kinds
 verified: 2026-10
+perishable:
+  - Map, IC state and delete behaviour observed on V8 13.6
 sources:
   - https://v8.dev/blog/fast-properties
   - https://v8.dev/docs/hidden-classes
+  - https://v8.dev/blog/slack-tracking
   - https://v8.dev/blog/system-analyzer
   - https://v8.dev/blog/wasm-speculative-optimizations
   - https://nodejs.org/docs/latest/api/cli.html
@@ -25,7 +28,7 @@ tldr: >
 
 ## Answer
 
-Everything here is **V8 behaviour**, not part of the language. Other engines have the same idea under other names ("shapes", "structures"). Observed on Node 24.19 (V8 13.6).
+Everything here is **V8 behaviour**, not part of the language. Other engines have the same idea under other names ("shapes", "structures"). Observed on Node 24.19 (V8 `13.6.233.17-node.51`).
 
 **Hidden class (Map).** Per V8's blog, objects with the same structure, meaning the same properties in the same order, have the same hidden class. The Map records property names and where each lives, so the object itself stores only values. Every named property you add moves the object to another Map, and V8 links these Maps in a **transition tree**. Two objects built through the same sequence of additions end up sharing a Map.
 
@@ -33,7 +36,7 @@ Everything here is **V8 behaviour**, not part of the language. Other engines hav
 
 **Inline cache (IC).** Each property access site (`o.x`) has a slot in the function's feedback vector. The IC remembers which Maps it has seen there and, for each, where `x` lives. The next access checks the object's Map against the cached one and loads from a known offset, skipping a general lookup. Optimizing tiers read the same feedback and compile that check straight into machine code.
 
-**States.** An IC starts uninitialised. One Map seen is **monomorphic**, a few are **polymorphic** (extra checks), and too many are **megamorphic**. The Wasm speculative-optimization post puts the limit at four targets for call feedback. For property loads I observed the same cut-off below.
+**States.** An IC starts uninitialised. One Map seen is **monomorphic**, a few are **polymorphic** (extra checks), and too many are **megamorphic**. The Wasm speculative-optimization post puts the limit at four targets for WebAssembly call feedback. JavaScript property loads showed the same cut-off on V8 13.6 (below).
 
 **What to do.** Initialise all properties in the constructor, in the same order, and avoid `delete`.
 
@@ -106,7 +109,7 @@ Trimmed output on Node 24.19:
  - instance descriptors (own) #2: 0x… <DescriptorArray[2]>
 ```
 
-Read it as the blog describes: the Map has a **back pointer** to the Map before the last transition, which is how the transition chain `{}` to `{x}` to `{x, y}` is linked. Its descriptor array holds two entries, `x` and `y`. `[FastProperties]` means not dictionary mode. The object has room for four in-object properties and uses two (`unused property fields: 2`). I did not read V8's source for the slack-sizing policy.
+Read it as the blog describes: the Map has a **back pointer** to the Map before the last transition, which is how the transition chain `{}` to `{x}` to `{x, y}` is linked. Its descriptor array holds two entries, `x` and `y`. `[FastProperties]` means not dictionary mode. The object has room for four in-object properties and uses two (`unused property fields: 2`). The slack-tracking post explains the spare room: V8 cannot see in advance how many properties an object will get.
 
 Two takeaways. The Map, not the object, holds the names. And a different route to the same keys can land on a different Map.
 
@@ -127,9 +130,9 @@ console.log(%HaveSameMap(built, built2)); // → true
 console.log(%HaveSameMap(literal, built)); // → false
 ```
 
-`%DebugPrint` showed why in this build: the literal's Map had `instance size: 40` with `inobject properties: 2`, while the incrementally built object's Map had `instance size: 56` with `inobject properties: 4`. I conclude the difference comes from how many in-object slots were allocated for each creation route. V8's blog does not describe this. Treat it as a sign that "the same keys" is a weaker promise than "the same construction code".
+`%DebugPrint` showed why in this build: the literal's Map had `instance size: 40` with `inobject properties: 2`, while the incrementally built object's Map had `instance size: 56` with `inobject properties: 4`. That fits the slack-tracking post (V8 over-allocates in-object space when it cannot see the final property count), though the post covers constructors, not literals, so this is an inference. Treat it as a sign that "the same keys" is a weaker promise than "the same construction code".
 
-Other transitions out of the fast path: `delete` of a property other than the most recently added one switched to dictionary mode in my run (`properties` became a `NameDictionary`, with no in-object properties). The blog's explanation is the cost of keeping descriptor arrays and Maps up to date for objects that get many additions and deletions.
+Other transitions out of the fast path: `delete` switched to dictionary mode in every case tried on V8 13.6, even deleting the most recently added property (`properties` became a `NameDictionary`, with no in-object properties). The blog's explanation is the cost of keeping descriptor arrays and Maps up to date for objects that get many additions and deletions.
 
 ### Real-world scenario
 
@@ -150,7 +153,7 @@ function readX(v) {
 console.log(%HaveSameMap(new Vec(1, 2), new Vec(-1, 2))); // → false
 readX(new Vec(1, 2));
 readX(new Vec(-1, 2));
-%DebugPrint(readX); // → slot #0 LoadProperty POLYMORPHIC
+%DebugPrint(readX); // includes "slot #0 LoadProperty POLYMORPHIC"
 ```
 
 Replacing the `if` with `this.isNegative = x < 0;` made `%HaveSameMap` return `true` in my run. Any code reading `v.x` now sees one Map instead of two.

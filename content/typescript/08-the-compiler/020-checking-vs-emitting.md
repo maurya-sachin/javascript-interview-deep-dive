@@ -48,11 +48,11 @@ Gap to remember: if only the bundler runs on deploy, type errors ship.
 
 ```ts
 // src/bad.ts            const n: number = "oops"; console.log(n.toFixed(1));
-// TypeScript 7.0.2, esbuild 0.28.2, @swc/core 1.16.18, @babel/core 8.0.7 + preset-typescript
+// TypeScript 7.0.2 and 6.0.3, esbuild 0.28.2, @swc/core 1.16.18, @babel/core 8.0.7 + preset-typescript
 
 // tsc -p .            → error TS2322: Type 'string' is not assignable to type 'number'.
 //                       exit 2, but out/bad.js was still written
-// tsc -p . --noEmit   → the same error, exit 1 (5.9.3 and 6.0.3 exit 2), no files
+// tsc -p . --noEmit   → the same error, exit 1 (6.0.3 exits 2), no files
 // tsc -p . --noCheck  → exit 0, out/bad.js written
 
 // esbuild, swc, Babel → no error; each printed:
@@ -70,7 +70,7 @@ Gap to remember: if only the bundler runs on deploy, type errors ship.
 
 - Treating a green bundler build as type safety. All three transpilers emitted the file above without complaint, and the program then crashed at runtime.
 - Assuming `tsc` stops on errors. With errors it exited non-zero but still wrote `out/bad.js`. Set `noEmitOnError` if a failed check must block output, or use `--noEmit` and let another tool emit.
-- Relying on an exact exit code. `--noEmit` with a type error exited 2 on 5.9.3 and 6.0.3 but 1 on 7.0.2; treat any non-zero as failure.
+- Relying on an exact exit code. `--noEmit` with a type error exited 2 on 6.0.3 but 1 on 7.0.2; treat any non-zero as failure.
 - Skipping `isolatedModules` when another tool emits. Without it, `tsc` (which can see across files) elides the type re-export and compiles cleanly, so the break only shows when the per-file tool or Node runs the code.
 
 ## Follow-ups
@@ -79,7 +79,7 @@ Gap to remember: if only the bundler runs on deploy, type errors ship.
 **A:** Its design compiles each file independently for speed and parallelism; the esbuild docs list this as a TypeScript caveat. Full checking would need the whole program graph.
 
 **Q:** Does `isolatedModules` change what `tsc` emits?
-**A:** No. On 5.9.3, 6.0.3 and 7.0.2, a file using only `import type`/`export type` emitted byte-identical output with and without `--isolatedModules`; the flag added diagnostics, such as TS1205 for the re-export above.
+**A:** Almost never. On 6.0.3 and 7.0.2, a file using only `import type`/`export type` emitted byte-identical output with and without `--isolatedModules`. The exception is const enums: the flag implies `preserveConstEnums`, and `tsc` then emits `E.A` instead of inlining the value.
 
 ## Exercises
 
@@ -91,4 +91,4 @@ export const retries: number = "3";
 
 Which of `tsc --noEmit`, esbuild, swc and Babel reports an error, and what do the others emit?
 
-**Answer:** Only `tsc --noEmit` (`TS2322: Type 'string' is not assignable to type 'number'.`, checked on 7.0.2). esbuild, swc and Babel each emitted `export const retries = "3";`.
+**Answer:** Only `tsc --noEmit` (`TS2322: Type 'string' is not assignable to type 'number'.`, checked on 6.0.3 and 7.0.2). esbuild, swc and Babel each emitted `export const retries = "3";`.

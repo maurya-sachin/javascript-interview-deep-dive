@@ -13,6 +13,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/2/functions.html#unknown
   - https://www.typescriptlang.org/docs/handbook/2/narrowing.html#the-never-type
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html
+  - https://github.com/microsoft/TypeScript/pull/32695
   - https://www.typescriptlang.org/tsconfig/#noImplicitAny
   - https://www.typescriptlang.org/tsconfig/#useUnknownInCatchVariables
 tldr: >
@@ -34,7 +35,7 @@ How they combine:
 
 - `unknown | T` is `unknown`; `unknown & T` is `T`.
 - `T | never` is `T`; `T & never` is `never`.
-- `any` absorbs: `any | T` and `any & T` are `any`.
+- `any` absorbs: `any | T` and `any & T` are `any` (except `any & never`, which is `never`).
 
 **Rules of thumb:** prefer `unknown` over `any` for untrusted input and narrow at the boundary; use `never` in a `default` branch to make adding a union member a compile error; treat every `any` as a hole where compiler help ends. `noImplicitAny` stops silent `any`s; `useUnknownInCatchVariables` (part of `strict`) makes `catch (e)` give `unknown`.
 
@@ -74,7 +75,7 @@ function area(shape: Shape): number {
 
 ## Pitfalls
 
-- Using `any` "just for now." It disables checking for everything it touches, including values derived from it, and nothing flags it later. `JSON.parse` and `Response.json()` return `any`; assigning that to a typed variable is an unchecked cast.
+- Using `any` "just for now." It disables checking for everything it touches, including values derived from it, and nothing flags it later. `JSON.parse` returns `any` and `Response.json()` resolves to `any`; assigning that to a typed variable is an unchecked cast.
 - Assuming a null check makes `unknown` usable. Both `x !== null && x !== undefined` and `if (x)` narrow it only to `{}`, which still isn't assignable to `number`; you need `typeof` or a guard.
 - Reaching for `as T` on an `unknown` instead of narrowing. It compiles and carries no runtime guarantee.
 - Believing a function that throws is always `never`. Only an arrow/function *expression* with no return paths infers `never`; a function *declaration* that throws is inferred `void` (checked on 7.0.2). Annotate `: never` when it matters.
@@ -98,7 +99,7 @@ Narrowing is how `unknown` becomes useful. `typeof x === "string"` narrows to `s
 ### Edge cases
 
 - **Absorption.** `type T1 = unknown | string` is `unknown`; `type T3 = unknown & string` is `string`, so `const t: T3 = 1` fails with `Type 'number' is not assignable to type 'string'`; `any & string` is `any`, so `1` is accepted. All verified on 7.0.2.
-- **Inferred return type.** `export function declared() { throw ... }` is emitted as `(): void`, but `export const expr = () => { throw ... }` as `() => never`. A call to a function with an explicit `: never` return type ends control flow, so `function g(n: number): number { if (n > 0) return n; fail("neg"); }` compiles. The same with an unannotated `const fail = () => { throw ... }` fails with `TS2366: Function lacks ending return statement and return type does not include 'undefined'`.
+- **Inferred return type.** `export function declared() { throw ... }` is emitted as `(): void`, but `export const expr = () => { throw ... }` as `() => never`. A call ends control flow only when the callee name has an explicit type and an explicit `: never` return annotation (PR #32695), so with `function fail(msg: string): never` declared, `function g(n: number): number { if (n > 0) return n; fail("neg"); }` compiles. With `const fail = () => { throw ... }`, or even `const fail = (msg: string): never => ...` (the variable itself is unannotated), it fails with TS2366.
 - **`catch`.** Under `strict`, `catch (e)` gives `unknown`: `e.message` fails with `'e' is of type 'unknown'`. Turn the flag off and it's `any`.
 - **Implicit `any`.** An unannotated parameter with no contextual type is `any` unless `noImplicitAny` reports it (`Parameter 's' implicitly has an 'any' type`, per the TSConfig reference).
 

@@ -11,12 +11,15 @@ related:
   - javascript/this/lost-this-callbacks
   - javascript/functions/function-forms
 verified: 2026-10
+perishable:
+  - CommonJS top-level `this` is `module.exports` (Node.js behaviour, undocumented)
 sources:
   - https://tc39.es/ecma262/#sec-ordinaryfunctioncreate
   - https://tc39.es/ecma262/#sec-newfunctionenvironment
   - https://tc39.es/ecma262/#sec-getthisenvironment
   - https://tc39.es/ecma262/#sec-function-environment-records-hasthisbinding
   - https://tc39.es/ecma262/#sec-ordinarycallbindthis
+  - https://nodejs.org/api/modules.html#the-module-wrapper
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
 tldr: >
   An arrow function is created with `[[ThisMode]]` set to lexical, so calling it never
@@ -73,7 +76,7 @@ try { new arrow(); } catch (error) { console.log(error.name); } // → TypeError
 ## Follow-ups
 
 **Q:** What is `this` in an arrow at the top of a Node CommonJS file?
-**A:** `module.exports`, because the file is wrapped in a function whose `this` is `module.exports`. In an ES module it is `undefined`; in a browser classic script it is `window`.
+**A:** `module.exports`: Node.js 24 runs the file inside a function wrapper and calls it with `module.exports` as `this` (observed; Node's docs show only the wrapper). In an ES module it is `undefined`; in a browser classic script it is `window`.
 
 **Q:** Is an arrow's `this` a copy or a live reference?
 **A:** The arrow doesn't store `this`; it resolves it through the enclosing Function Environment Record. A `this` binding can't be reassigned, so copy and lookup look alike, except in a derived constructor: an arrow created before `super()` throws a `ReferenceError` if called early and sees the instance if called after.

@@ -11,6 +11,9 @@ related:
   - javascript/values-and-types/symbols
   - javascript/scope-and-execution-contexts/var-let-const
 verified: 2026-10
+perishable:
+  - Expected in ES2027 (TC39 finished proposals)
+  - Safari support listed as preview only in MDN compat data
 sources:
   - https://github.com/tc39/proposal-explicit-resource-management
   - https://github.com/tc39/proposals/blob/main/finished-proposals.md
@@ -21,7 +24,7 @@ sources:
   - https://tc39.es/ecma262/#sec-suppressederror-objects
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Resource_management
-  - https://github.com/mdn/browser-compat-data/blob/main/javascript/statements/using.json
+  - https://github.com/mdn/browser-compat-data/blob/main/javascript/statements.json
   - https://nodejs.org/docs/latest-v24.x/api/fs.html#filehandlesymbolasyncdispose
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry
 tldr: >

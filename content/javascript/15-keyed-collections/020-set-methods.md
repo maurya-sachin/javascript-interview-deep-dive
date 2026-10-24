@@ -8,6 +8,8 @@ tags: [set, set-methods, union, intersection, difference, set-like, es2025]
 related:
   - javascript/keyed-collections/map-vs-object
 verified: 2026-10
+perishable:
+  - Baseline newly available since June 2024; widely available not yet
 sources:
   - https://tc39.es/ecma262/#sec-set-objects
   - https://tc39.es/ecma262/#sec-getsetrecord
@@ -46,7 +48,7 @@ Properties worth stating in an interview:
 - **Validation.** `size` must convert to a number that is not `NaN` (else `TypeError`) and not negative (else `RangeError`); `has` and `keys` must be callable.
 - **Ordering.** `union` puts `a`'s members first, then `b`'s new ones. `intersection` iterates whichever side is smaller (compared by `size`), so the result follows `b`'s order when `b` is smaller than `a`.
 
-Support: Baseline since June 2024 per MDN, and available in Node 24 (run below).
+Support: Baseline newly available since June 2024 per MDN (not yet widely available), and available in Node 24 (run below).
 
 ## Example
 

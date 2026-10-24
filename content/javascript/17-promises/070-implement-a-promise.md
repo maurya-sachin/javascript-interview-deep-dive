@@ -84,7 +84,7 @@ new MiniPromise((resolve) => setTimeout(resolve, 10, 1)).then((n) => n + 1).then
 ## Follow-ups
 
 **Q:** Why `queueMicrotask` and not `setTimeout`?
-**A:** `setTimeout` makes handlers macrotasks, so they run after rendering and timers that should come later. Native promises use the microtask queue, so `queueMicrotask` matches their ordering relative to other work.
+**A:** `setTimeout` makes handlers macrotasks, so they can run after a rendering update and after timers queued earlier. Native promises use the microtask queue, so `queueMicrotask` matches their ordering relative to other work.
 
 **Q:** Why does `then` need a new promise?
 **A:** Each `then` creates an independent step. Its handler can fail or return a promise without affecting the original, and chaining is just calling `then` on the new promise.

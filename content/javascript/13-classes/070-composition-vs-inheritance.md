@@ -16,6 +16,8 @@ sources:
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
   - https://tc39.es/ecma262/#sec-super-keyword-runtime-semantics-evaluation
   - https://tc39.es/ecma262/#sec-makemethod
+  - https://tc39.es/ecma262/#sec-ordinaryhasinstance
+  - https://tc39.es/ecma262/#sec-object.assign
 tldr: >
   Default to composition: hold collaborators and expose only the API you want. Use `extends` only
   for a true is-a relationship with a base designed for it. Use a mixin, a function that takes a
@@ -35,7 +37,7 @@ My recommendation:
 
 JavaScript has single inheritance, so sharing behaviour across hierarchies is what mixins are for. The pattern that works with classes is the **subclass factory**: `const M = (Base) => class extends Base { ... }`. It keeps the prototype chain linear, `super` works, and fields and private names behave normally. Apply it as `class User extends Serializable(Entity)`.
 
-Costs to know: each application creates a **new class**, so `instanceof Serializable` is unreliable. Names collide silently (the outermost wins) and mixins stack in an order that matters. They also depend on host members, which TypeScript or documentation must spell out. A stack of three or four mixins is a design smell: switch to composition.
+Costs to know: each application creates a **new class**, so there is no single class to test with `instanceof` (`user instanceof Serializable` even throws a `TypeError`: the arrow-function factory has no `prototype`). Names collide silently (the outermost wins) and mixins stack in an order that matters. They also depend on host members, which TypeScript or documentation must spell out. A stack of three or four mixins is a design smell: switch to composition.
 
 ## Example
 

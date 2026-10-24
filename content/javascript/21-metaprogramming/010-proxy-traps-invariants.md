@@ -48,7 +48,7 @@ One syntax can trigger several traps: `Object.keys(proxy)` calls `ownKeys`, then
 - `ownKeys` must include every non-configurable key, and for a non-extensible target must list exactly the target's keys, with no duplicates.
 - `construct` must return an object.
 
-A frozen target is the one state a trap cannot override.
+Even a frozen target pins down only its own data properties, keys and prototype: `get` and `has` can still invent keys it lacks.
 
 **`Proxy.revocable(target, handler)`** returns `{ proxy, revoke }`. After `revoke()` every operation on the proxy throws `TypeError`, so you can hand out access and take it back.
 

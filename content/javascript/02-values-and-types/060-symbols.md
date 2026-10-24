@@ -73,7 +73,7 @@ console.log(String(new Temperature())); // → [object Temperature]
 try {
   `${id}`;
 } catch (error) {
-  console.log(error.message); // → (V8 wording) Cannot convert a Symbol value to a string
+  console.log(error.name); // → TypeError
 }
 ```
 

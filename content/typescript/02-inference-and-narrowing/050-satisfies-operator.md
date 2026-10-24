@@ -39,7 +39,7 @@ When not to: when you want the variable to be the wider type (use an annotation,
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 type Colors = "red" | "green" | "blue";
 type RGB = [red: number, green: number, blue: number];
 
@@ -65,14 +65,14 @@ const asserted = { red: [255, 0, 0] } as Record<Colors, string | RGB>;
 // OK: `as` accepts the missing keys. It checks overlap, not completeness.
 const wrong = { red: 1 } as Record<Colors, string | RGB>;
 // Error TS2352: Conversion of type '{ red: number; }' to type 'Record<Colors, string | RGB>' may be a mistake
-// because neither type sufficiently overlaps with the other.
+// because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
 ```
 
 ## Pitfalls
 
-- Reading `satisfies` as a conversion. It never changes the type: `const xs = [] satisfies string[]` is `never[]`, not `string[]` (checked on 7.0.2 and 5.9.3). Annotate when you need the declared type.
+- Reading `satisfies` as a conversion. It never changes the type: `const xs = [] satisfies string[]` is `never[]`, not `string[]` (checked on 7.0.2 and 6.0.3). Annotate when you need the declared type.
 - Expecting literals to be preserved always. They are kept when `T` has a literal type at that position (`{ kind: "a" } satisfies { kind: "a" | "b" }` gives `kind: "a"`), but against `Record<string, string>` the property is `string` (both checked).
-- Using `as` for config objects. It accepts missing keys and extra keys (`bleu`) that `satisfies` rejects, so typos reach production.
+- Using `as` for config objects. It accepts missing keys, and extra keys when none is missing; only a typo that drops one key and adds another (`bleu` for `blue`) trips TS2352. `satisfies` rejects all three.
 - Treating it as validation. It is compile-time only; external data still needs a runtime check.
 
 ## Follow-ups

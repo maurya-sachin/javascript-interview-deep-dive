@@ -23,7 +23,7 @@ tldr: >
 
 ## Answer
 
-**Function types.** A function type expression, `(a: string) => number`, describes any function with that signature; the parameter name is required (`(string) => void` is a parameter *named* `string` of type `any`). When a function also has properties, use a **call signature** in an object type: `{ description: string; (n: number): boolean }`, with `:` before the return type. A `new` in front makes a construct signature.
+**Function types.** A function type expression, `(a: string) => number`, describes any function with that signature; the parameter name is required (`(string) => void` is a parameter *named* `string` of type `any`, which `noImplicitAny` rejects with TS7051). When a function also has properties, use a **call signature** in an object type: `{ description: string; (n: number): boolean }`, with `:` before the return type. A `new` in front makes a construct signature.
 
 **Overloads.** Write two or more signatures, then one implementation compatible with all of them. Callers only see the overload signatures, not the implementation signature. TypeScript picks the first overload that matches, so put specific signatures before general ones (a general `unknown` overload listed first makes `g("a")` return the general type, checked on 7.0.2). The handbook says to prefer a union-typed parameter when the same return type works for all cases: overloads can't accept a union argument that no single overload covers.
 
@@ -48,6 +48,7 @@ len(either);
 //   The last overload gave the following error.
 //     Argument of type 'string | unknown[]' is not assignable to parameter of type 'unknown[]'.
 //       Type 'string' is not assignable to type 'unknown[]'.
+// (TS 6.0 lists the error for each overload instead.)
 const len2 = (x: string | unknown[]) => x.length; // a union parameter accepts both
 
 type VoidFn = () => void;
@@ -71,7 +72,7 @@ who.call({ name: "Ada" }); // OK
 ## Follow-ups
 
 **Q:** Why does `strictFunctionTypes` not flag method parameters?
-**A:** The TSConfig reference cites the many inherently unsafe class hierarchies in JavaScript, including the DOM. A method `handle(d: Dog): void` is assignable to `{ handle(a: Animal): void }`; as a property `handle: (d: Dog) => void` it fails: `Type 'Animal' is not assignable to type 'Dog'.`
+**A:** The TSConfig reference cites the many inherently unsafe class hierarchies in JavaScript, including the DOM. A method `handle(d: Dog): void` is assignable to `{ handle(a: Animal): void }`; as a property `handle: (d: Dog) => void` it fails with TS2322.
 
 **Q:** How do you type a generator that receives values?
-**A:** With the third parameter: `function* count(): Generator<number, string, boolean>`. On Node 24.19, `it.next()` gives `{ value: 1, done: false }` and `it.next(true)` gives `{ value: 'stopped', done: true }`. `it.next("no")` is a type error.
+**A:** With the third parameter: `function* g(): Generator<number, string, boolean> { if (yield 1) return "stopped"; return "done"; }`. On Node 24.19, `it.next()` gives `{ value: 1, done: false }`, then `it.next(true)` gives `{ value: 'stopped', done: true }`. `it.next("no")` is a type error.

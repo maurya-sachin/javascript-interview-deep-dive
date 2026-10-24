@@ -40,14 +40,14 @@ type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;   // simplifi
 
 - **Positions work anywhere a type can be matched:** return slot, parameter list (`infer P` yields a tuple), tuple head/tail (`[infer H, ...infer T]`), array element, object property, template literal segments.
 - **Several candidates.** Same `infer U` in covariant positions (properties, returns) gives a *union*; in contravariant positions (function parameters) gives an *intersection*.
-- **Overloads.** Inference uses the *last* signature. Generic signatures are inferred with their parameters as `unknown`.
+- **Overloads.** Inference uses the *last* signature. A generic signature's type parameters are replaced by their constraints (`unknown` when unconstrained).
 - **`infer X extends C`** (TS 4.7) constrains the inferred variable and falls to the false branch if it does not fit, replacing a nested conditional. From 4.8, in template literals it also parses literals: `"42"` infers `42`.
 - **Distribution** still applies to a naked checked type, so `infer` over a union maps member by member.
 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 type MyReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : never;
 type MyAwaited<T> = T extends PromiseLike<infer U> ? MyAwaited<U> : T;
 
@@ -79,8 +79,8 @@ type K = MyReturnType<string>;
 
 - Reading `infer` as a runtime operation. It only works as pattern matching inside a conditional type; if the pattern does not match, nothing is inferred and you get the false branch.
 - Matching `T[]` and expecting readonly arrays or tuples to fit. `Elem<readonly string[]>` is `never`; write `readonly (infer E)[]` to accept both (checked: gives `string` for a readonly array and the element union for a tuple).
-- Relying on `ReturnType` for overloaded functions. Only the last signature is seen, and a generic function's type parameters come out as `unknown`.
-- Hand-rolling `Awaited` with `PromiseLike<infer U>` and assuming equivalence: for a thenable like `{ then(cb: (v: number) => void): void }`, the simple version returns the object unchanged while the lib `Awaited` gives `number` (checked on 5.9.3).
+- Relying on `ReturnType` for overloaded functions. Only the last signature is seen, and a generic function's type parameters come out as their constraints, usually `unknown`.
+- Hand-rolling `Awaited` with `PromiseLike<infer U>` and assuming equivalence: for a thenable like `{ then(cb: (v: number) => void): void }`, the simple version returns the object unchanged while the lib `Awaited` gives `number` (checked on 6.0.3 and 7.0.2).
 
 ## Follow-ups
 
@@ -88,7 +88,7 @@ type K = MyReturnType<string>;
 **A:** Parameters are contravariant: `(x: string) => void` is not assignable to `(...args: unknown[]) => unknown` (checked) but is to the `any` and `never[]` forms. The handbook version uses `never[]`.
 
 **Q:** What did `infer X extends C` replace?
-**A:** A nested conditional (`T extends [infer U] ? U extends C ? ... : never : never`), per PR 48112, which also noted the helper-alias workaround breaks when the same variable is inferred in two places.
+**A:** A nested conditional (`T extends [infer U] ? U extends C ? ... : never : never`), per PR 48112, which also noted the helper-alias workaround is unreliable when the same variable is inferred in two places.
 
 ## Deep dive
 
@@ -100,9 +100,9 @@ Without `extends C`, the compiler may derive an implicit constraint from where t
 
 ### Edge cases
 
-- `MyReturnType<typeof gen>` for `function gen<T>(x: T): T` printed `unknown` (checked).
+- `MyReturnType<typeof gen>` for `function gen<T>(x: T): T` printed `unknown`; with `<T extends string>` it printed `string`, the constraint (checked).
 - `Pa<(a: string, ...r: number[]) => void>` infers `[a: string, ...r: number[]]`, keeping labels and rest elements.
-- `Parameters<(...a: string[]) => void>` is `string[]`; the simple `Awaited` can be wrapped as `Promise<Awaited<ReturnType<F>>>` and still compiles (checked, with `Retry<typeof g>` printing `(a: string) => Promise<number>`).
+- `Parameters<(...a: string[]) => void>` is `string[]`; the simple `Awaited` can be wrapped as `Promise<Awaited<ReturnType<F>>>` and still compiles (checked: `retry(g)` is typed `(a: string) => Promise<number>`).
 - Reusing one `infer` name in a pattern is legal; it is how `Both` collects two candidates.
 
 ### Real-world scenario

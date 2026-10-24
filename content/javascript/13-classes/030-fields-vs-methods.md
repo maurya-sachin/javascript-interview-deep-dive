@@ -29,7 +29,7 @@ tldr: >
 
 **Methods** (`name() {}`) are created once, when the class is evaluated, and stored on `Class.prototype` as writable, configurable, non-enumerable properties. Every instance reaches the same function object through the chain.
 
-**Fields** (`name = value;`, or `name;`) are not on the prototype. Each field becomes an initializer function, stored in the constructor's `[[Fields]]` list. On every construction `InitializeInstanceElements` runs them with `this` set to the new instance and calls `CreateDataPropertyOrThrow(this, name, value)`. So each instance gets an own, enumerable, writable, configurable data property, and a field without an initializer is created as `undefined`.
+**Fields** (`name = value;`, or `name;`) are not on the prototype. Each field is recorded in the constructor's `[[Fields]]` list, with an initializer function if it has `= value`. On every construction `InitializeInstanceElements` runs the initializers with `this` set to the new instance and calls `CreateDataPropertyOrThrow(this, name, value)`. So each instance gets an own, enumerable, writable, configurable data property, and a field without an initializer is created as `undefined`.
 
 Consequences:
 
@@ -82,7 +82,7 @@ new WithAssign(); // → setter 1
 **A:** No. The declaration defines an own property `x` with value `undefined`, so `'x' in obj` is `true`, and it appears in `Object.keys`.
 
 **Q:** Where does `this` point inside a field initializer?
-**A:** At the instance being created. Initializers are methods of a synthetic function whose home object is the prototype, so `super.method()` is allowed there too.
+**A:** At the instance being created. Each initializer is a synthetic method whose `[[HomeObject]]` is the prototype (the constructor for static fields), so `super.method()` is allowed there too.
 
 ## Exercises
 

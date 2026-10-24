@@ -11,6 +11,8 @@ related:
   - javascript/errors-and-cleanup/custom-errors
   - javascript/metaprogramming/well-known-symbols
 verified: 2026-10
+perishable:
+  - Restricting built-in subclassing is a Stage 1 proposal
 sources:
   - https://tc39.es/ecma262/#sec-array-constructor
   - https://tc39.es/ecma262/#sec-error-message
@@ -19,6 +21,8 @@ sources:
   - https://tc39.es/ecma262/#sec-arrayspeciescreate
   - https://tc39.es/ecma262/#sec-speciesconstructor
   - https://tc39.es/ecma262/#sec-get-array-%symbol.species%
+  - https://github.com/tc39/proposal-rm-builtin-subclassing
+  - https://github.com/tc39/proposals/blob/main/stage-1-proposals.md
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/extends
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/species
 tldr: >
@@ -40,7 +44,7 @@ Built-in constructors such as `Array`, `Error`, `Map`, and `Promise` allocate th
 
 **`Error`.** The most common legitimate subclass. Call `super(message, options)` (so `cause` works), set `name` yourself (it defaults to `"Error"`), and add fields. `instanceof` works.
 
-Recommendation: subclass `Error`; subclass `Array`/`Map`/`Promise` only when instances must pass `Array.isArray`/be accepted as the built-in and your constructor accepts the built-in's arguments. Otherwise wrap the built-in in a class and expose only the methods you need. MDN notes that the standards committee considers the built-in subclassing mechanism over-engineered, with performance and security costs.
+Recommendation: subclass `Error`; subclass `Array`/`Map`/`Promise` only when instances must pass `Array.isArray`/be accepted as the built-in and your constructor accepts the built-in's arguments. Otherwise wrap the built-in in a class and expose only the methods you need. A Stage 1 TC39 proposal to restrict built-in subclassing records that many implementers consider species a mistake, citing complexity, performance cliffs and security bugs; the spec is unchanged.
 
 ## Example
 
@@ -50,14 +54,14 @@ class Stack extends Array {
 }
 const s = Stack.of(1, 2, 3);
 console.log(s instanceof Stack, Array.isArray(s), s.peek()); // → true true 3
-console.log(s.filter((n) => n > 1) instanceof Stack); // → true: species builds a Stack
+console.log(s.filter((n) => n > 1) instanceof Stack); // → true
 
 class Names extends Array {
   constructor(label) { super(); this.label = label; }
 }
 const names = new Names('users');
-names.push('ada', 'grace');
-console.log(names.map((n) => n.toUpperCase()).label); // → 2: map called new Names(2)
+names.push('ada', 'grace'); // map below calls new Names(2)
+console.log(names.map((n) => n.toUpperCase()).label); // → 2
 
 class Safe extends Array {
   static get [Symbol.species]() { return Array; }

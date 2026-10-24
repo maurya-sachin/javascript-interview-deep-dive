@@ -14,6 +14,7 @@ sources:
   - https://nodejs.org/docs/latest-v24.x/api/util.html#utilpromisifyoriginal
   - https://nodejs.org/docs/latest-v24.x/api/util.html#custom-promisified-functions
   - https://nodejs.org/docs/latest-v24.x/api/util.html#utilcallbackifyoriginal
+  - https://nodejs.org/docs/latest-v24.x/api/deprecations.html#dep0174-calling-promisify-on-a-function-that-returns-a-promise
   - https://nodejs.org/docs/latest-v24.x/api/fs.html#promises-api
   - https://nodejs.org/docs/latest-v24.x/api/timers.html#timers-promises-api
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises
@@ -76,7 +77,7 @@ await divideAsync(1, 0).catch((error) => console.log(error.message)); // → div
 - Promisifying a function that is not error-first. `util.promisify` still passes it an error-first callback, so a success callback called with `'value'` is treated as an error and rejects.
 - Promisifying a method without its receiver: `promisify(obj.method)` calls it with `this` as `undefined`. Use `promisify(obj.method.bind(obj))` or `.call(obj)`.
 - Expecting more than one result. The wrapper resolves with the first value after `error` and drops the rest, unless Node special-cases the function, as with `dns.lookup`, which resolves with `{ address, family }`.
-- Wrapping a function that already returns a promise. Node's docs mark calling `util.promisify` on a function that already returns a promise as deprecated (since v20.8.0). Use the function directly.
+- Wrapping a function that already returns a promise. Node deprecates calling `util.promisify` on a function that already returns a promise (DEP0174: documentation-only in v20.8.0, a runtime warning since v21.0.0). Use the function directly.
 
 ## Follow-ups
 

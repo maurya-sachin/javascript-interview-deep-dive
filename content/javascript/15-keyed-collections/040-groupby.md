@@ -47,7 +47,7 @@ The null prototype means `'toString' in result` is `false`, so a group named `co
 
 The arrays hold the original element references, not copies. The methods do not mutate the input, and they are for synchronous iterables only.
 
-Support: `Object.groupBy` is Baseline widely available (since March 2024, MDN); the examples below ran in Node 24.
+Support: `Object.groupBy` and `Map.groupBy` are Baseline widely available since September 2026 (newly available since March 2024), per MDN; the examples below ran in Node 24.
 
 ## Example
 
@@ -61,7 +61,7 @@ const items = [
 const byType = Object.groupBy(items, (item) => item.type);
 console.log(Object.getPrototypeOf(byType)); // → null
 console.log(Object.keys(byType));           // → [ 'veg', 'fruit' ]
-console.log(byType.fruit[0] === items[1]);  // → true (same reference)
+console.log(byType.fruit[0] === items[1]);  // → true
 
 const byStock = Map.groupBy(items, (item) => (item.qty > 5 ? 'ok' : 'restock'));
 console.log([...byStock.keys()]);           // → [ 'restock', 'ok' ]

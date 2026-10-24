@@ -38,7 +38,7 @@ Consequences for real code:
 
 - `typeof value === 'object'` is `true` for `null`, arrays, dates and plain objects alike. To test for "a non-null object", write `value !== null && typeof value === 'object'`.
 - To test for `null` itself, use `value === null`. Don't use `typeof`.
-- `null` as the end of the prototype chain is the one place the language itself produces it: `Object.getPrototypeOf(Object.prototype)` is `null`.
+- `null` as the end of the prototype chain is one place the language itself produces it: `Object.getPrototypeOf(Object.prototype)` is `null`.
 
 ## Example
 
@@ -74,4 +74,4 @@ console.log(Object.getPrototypeOf(Object.prototype)); // → null
 **A:** The opt-in fix that would have made `typeof null` return `"null"` was proposed and rejected (per MDN), so the spec states the `"object"` result explicitly.
 
 **Q:** Is there any other value with a surprising `typeof`?
-**A:** `document.all` in browsers: `typeof document.all` is `"undefined"` even though it's an object. MDN calls this a willful violation of the standard for web compatibility; the spec allows it through the `[[IsHTMLDDA]]` internal slot.
+**A:** `document.all` in browsers: `typeof document.all` is `"undefined"` even though it's an object. MDN notes the web standards called this a "willful violation" of the original ECMAScript standard; the spec now allows it through the `[[IsHTMLDDA]]` internal slot.

@@ -12,7 +12,7 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-overview
   - https://tc39.es/ecma262/#sec-hosts-and-implementations
-  - https://tc39.es/ecma262/#sec-host-defined
+  - https://tc39.es/ecma262/#sec-terms-and-definitions-host-defined
   - https://tc39.es/ecma262/#sec-hostenqueuepromisejob
   - https://tc39.es/ecma262/#sec-hostensurecancompilestrings
   - https://tc39.es/ecma262/#sec-HostLoadImportedModule
@@ -46,7 +46,7 @@ An **engine** is a program that implements the spec: it parses source, executes 
 
 A **host** (host environment) embeds an engine and supplies everything the spec deliberately does not define: timers, `console`, the DOM, `fetch`, file access, `process`, and the event loop that decides when queued work runs. Browsers, Node.js, Deno and Bun are hosts.
 
-So who decides what? If the behaviour is in ECMA-262, it must be the same everywhere. If it is host-defined, it can differ, and the spec says so with *host hooks* such as `HostEnqueuePromiseJob`. `setTimeout`, `document` and `require` are not JavaScript; they are host APIs reached through the global object.
+So who decides what? If ECMA-262 fully specifies a behaviour, it must be the same everywhere. If it is host-defined, it can differ, and the spec says so with *host hooks* such as `HostEnqueuePromiseJob`. `setTimeout`, `document` and `require` are not JavaScript; they are host APIs reached through the global object.
 
 A useful test: if you could run the code in a bare engine shell with no host, would the feature exist? `Array.prototype.map` would; `setTimeout` would not.
 
@@ -94,8 +94,8 @@ The spec describes an abstract machine. It never says how to parse fast or lay o
 The spec is deliberately incomplete at the edges. It marks those places as *host-defined* and defines a *host hook*: an abstract operation whose behaviour the host supplies. Examples are `HostEnqueuePromiseJob` (how a promise reaction becomes a queued Job), `HostEnsureCanCompileStrings` (lets a host forbid `eval`, which is how Content-Security-Policy hooks in), and `HostLoadImportedModule` (how `import` specifiers are resolved and fetched). The engine implements the language; the host implements the hooks and adds *host objects* to the global object.
 
 ```js
-// Three promise callbacks, one timer. The spec fixes the order of the
-// promise jobs; where the timer lands relative to I/O is up to the host.
+// One promise job, one queueMicrotask callback, one timer. Only the
+// promise job is ECMAScript; queueMicrotask and the timer are host APIs.
 setTimeout(() => console.log('timer'), 0);
 Promise.resolve().then(() => console.log('job 1'));
 queueMicrotask(() => console.log('job 2'));

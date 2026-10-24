@@ -34,8 +34,8 @@ tldr: >
 2. Look up `Target[Symbol.hasInstance]`. If it exists, call it with `value` and convert the result to a boolean. Every function inherits a default one from `Function.prototype`, so this step normally lands there.
 3. Otherwise (no `Symbol.hasInstance`), `Target` must be callable, else `TypeError`.
 4. Run `OrdinaryHasInstance(Target, value)`:
+   - If `Target` is a bound function, rerun `value instanceof` its target function (so the target's own `Symbol.hasInstance` applies).
    - If `value` isn't an object, return `false`.
-   - If `Target` is a bound function, test against its target function instead.
    - Read `P = Target.prototype`. If `P` isn't an object, throw `TypeError`.
    - Walk `value`'s chain with `[[GetPrototypeOf]]`: return `true` on the first link that is `P`, and `false` when the chain reaches `null`.
 
@@ -89,7 +89,7 @@ console.log(rex instanceof Animal); // → false
 **A:** Define `static [Symbol.hasInstance](value)` on the class and test the shape there, such as `'then' in value`. Use it sparingly: it makes `instanceof` mean something different from the inheritance relationship.
 
 **Q:** Why does `x instanceof BoundFn` work?
-**A:** Bound functions have no `prototype`, so `OrdinaryHasInstance` forwards the check to the bound target function.
+**A:** Bound functions have no `prototype` of their own. `OrdinaryHasInstance` sees the `[[BoundTargetFunction]]` slot first and reruns `instanceof` against the target, so the target's `prototype`, or its own `Symbol.hasInstance`, decides.
 
 ## Exercises
 

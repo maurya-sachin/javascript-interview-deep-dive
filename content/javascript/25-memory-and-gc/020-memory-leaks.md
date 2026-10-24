@@ -10,6 +10,9 @@ related:
   - javascript/closures/closure-memory
   - javascript/keyed-collections/weakmap-weakset
 verified: 2026-10
+perishable:
+  - Example heap MB figures measured on Node 24.19 / V8 13.6
+  - heap_size_limit and default semi-space size in Node 24.19
 sources:
   - https://developer.chrome.com/docs/devtools/memory-problems
   - https://developer.chrome.com/docs/devtools/memory-problems/heap-snapshots
@@ -31,7 +34,7 @@ tldr: >
 A garbage-collected language cannot leak memory that is unreachable. A **leak** in JavaScript is data you will never use again that is still **reachable**, so the collector must keep it. The usual retainers:
 
 - **Unbounded caches and collections.** A `Map`, array or object that only ever grows (per-request, per-user, per-id).
-- **Event listeners never removed.** An emitter or DOM node holds the handler, the handler's closure holds its data. Anonymous handlers cannot be removed later (MDN).
+- **Event listeners never removed.** An emitter or DOM node holds the handler, the handler's closure holds its data. An anonymous handler whose reference you didn't keep can't be passed to `removeEventListener` (MDN).
 - **Timers.** A live `setInterval` callback keeps its closure reachable until `clearInterval`.
 - **Closures** that capture more than they use (see the closure-memory question).
 - **Detached DOM nodes.** An element removed from the page but still referenced from JavaScript, along with its subtree (Chrome's definition).
@@ -77,15 +80,15 @@ for (const fixed of [false, true]) {
   bus.removeAllListeners('tick');
 }
 // → leaking 80 156 233 MB
-// → fixed   11 11 11 MB
+// → fixed   12 12 12 MB
 ```
 
-Run it with `node --expose-gc leak.mjs`. The numbers are from one machine (Node 24.19, macOS), within 1 MB across runs; yours will differ. What matters is the slope: linear growth after a forced collection is the signature of a leak, a flat line is the fix.
+Run it with `node --expose-gc leak.mjs`. The numbers are from one machine (Node 24.19, V8 `13.6.233.17-node.51`, macOS), identical across 3 runs; yours will differ. What matters is the slope: linear growth after a forced collection is the signature of a leak, a flat line is the fix.
 
 ## Pitfalls
 
 - Judging by `heapUsed` or the DevTools graph without forcing a collection. The sawtooth of normal allocation and collection looks like growth. Only a rising floor after collection is a leak.
-- Fixing the symptom with `--max-old-space-size`. A bigger heap only delays the crash. Also, `v8.getHeapStatistics().heap_size_limit` reports more than the flag value: in my run `--max-old-space-size=100` reported `292` MB and `2048` reported `2240` MB (a 192 MB difference; I did not verify the cause).
+- Fixing the symptom with `--max-old-space-size`. A bigger heap only delays the crash. Also, `v8.getHeapStatistics().heap_size_limit` reports more than the flag value: in Node 24.19 `--max-old-space-size=100` reported `292` MB and `2048` reported `2240` MB. The extra 192 MB is the young generation, which Node's docs put at three times the semi-space size (`--max-semi-space-size=16` made it 48 MB).
 - Using a `Map` keyed by objects as a cache. The `Map` holds the keys forever. Use a `WeakMap` when the data should live exactly as long as the object, or a size-bounded cache when keys are not objects.
 - Expecting `removeEventListener` to work with a fresh arrow function. It needs the same function reference; pass `{ signal }` from an `AbortController` to remove listeners in bulk (MDN).
 

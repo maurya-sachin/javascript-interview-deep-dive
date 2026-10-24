@@ -15,6 +15,7 @@ verified: 2026-10
 sources:
   - https://tc39.es/ecma262/#sec-function.prototype.bind
   - https://tc39.es/ecma262/#sec-static-semantics-expectedargumentcount
+  - https://tc39.es/ecma262/#sec-math.max
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/length
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
@@ -73,7 +74,7 @@ console.log(curry((...nums) => nums.length)(1, 2, 3)); // → 3
 
 - Trusting `fn.length`. Defaults and rest parameters are not counted, and wrappers (a decorator written with `...args`) report `0`. Pass the arity explicitly where it matters.
 - Mixing up the two terms. `bind(null, a)` is partial application; calling a curried function with fewer arguments returns another function that waits for more.
-- Currying variadic functions such as `Math.max`. There is no fixed arity to wait for.
+- Currying variadic functions such as `Math.max`. There is no fixed arity to wait for, and `Math.max.length` is `2`, so `curry` fires after two arguments.
 - Forgetting `this`. The wrapper above forwards `this` with `apply`; a bare `(...args) => fn(...args)` loses the receiver for methods.
 
 ## Follow-ups

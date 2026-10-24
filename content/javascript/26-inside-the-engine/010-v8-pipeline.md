@@ -10,8 +10,12 @@ related:
   - javascript/inside-the-engine/deoptimization
   - javascript/inside-the-engine/hidden-classes-inline-caches
 verified: 2026-10
+perishable:
+  - Tiers, flags and trace output checked on Node 24.19 (V8 13.6)
+  - TurboFan's move from Sea of Nodes to Turboshaft is ongoing
 sources:
   - https://v8.dev/docs/ignition
+  - https://docs.google.com/document/d/11T2CRex9hXxoJwbYqVQ32yIPMh0uouUZLdyrtmMoL44
   - https://v8.dev/blog/launching-ignition-and-turbofan
   - https://v8.dev/blog/sparkplug
   - https://v8.dev/blog/maglev
@@ -28,9 +32,9 @@ tldr: >
 
 ## Answer
 
-Everything here is **V8 behaviour** (Chrome, Node, Deno), taken from V8's own blog and docs and checked on Node 24.19 (V8 13.6). Tier names, thresholds and flags change between versions. The first-pass overview (parse, bytecode, JIT, deopt) is in [Is JavaScript compiled or interpreted?](../01-how-javascript-runs/030-compiled-or-interpreted.md); this question is about the mechanism.
+Everything here is **V8 behaviour** (Chrome, Node, Deno), taken from V8's own blog and docs and checked on Node 24.19 (V8 `13.6.233.17-node.51`). Tier names, thresholds and flags change between versions. The first-pass overview (parse, bytecode, JIT, deopt) is in [Is JavaScript compiled or interpreted?](../01-how-javascript-runs/030-compiled-or-interpreted.md); this question is about the mechanism.
 
-1. **Lazy parse and compile.** The top-level code is parsed fully. For inner functions the **preparser** does "the bare minimum needed to otherwise skip over" them, and V8 compiles a function only when it is first called. Parenthesised function expressions, which are probably invoked straight away, are compiled eagerly.
+1. **Lazy parse and compile.** The top-level code is parsed fully. For inner functions the **preparser** does "the bare minimum needed to be able to otherwise skip over" them, and V8 compiles a function only when it is first called. Parenthesised function expressions, which are probably invoked straight away, are compiled eagerly.
 2. **Ignition.** On first call, the function is compiled to **bytecode** for a register machine with an accumulator, and Ignition interprets it. Compared with the older Full-codegen, V8's blog reports a ninefold smaller baseline-code footprint on ARM64 Android.
 3. **Feedback.** While interpreting, V8 records what it sees at each operation (number kinds, object shapes, call targets) in a **feedback vector**. Every later tier reads it.
 4. **Tiers.** Hot functions are recompiled from bytecode: **Sparkplug** (one linear pass, no intermediate representation), **Maglev** (a fast optimizing compiler, an SSA control-flow graph) and **TurboFan** (the top tier, slowest to compile, fastest code).
@@ -43,17 +47,17 @@ Everything here is **V8 behaviour** (Chrome, Node, Deno), taken from V8's own bl
 // feedback.mjs, V8-specific. Run (Node 24.19, V8 13.6):
 //   node --allow-natives-syntax --no-lazy-feedback-allocation feedback.mjs
 // %DebugPrint is a debug-only native, not a public API; it prints much more
-// than the one line shown in each comment.
+// than the line quoted in each comment.
 function add(a, b) {
   return a + b;
 }
 
 add(1, 2);
-%DebugPrint(add); // → slot #0 BinaryOp BinaryOp:SignedSmall
+%DebugPrint(add); // includes "slot #0 BinaryOp BinaryOp:SignedSmall"
 add(1.5, 2);
-%DebugPrint(add); // → slot #0 BinaryOp BinaryOp:Number
+%DebugPrint(add); // includes "slot #0 BinaryOp BinaryOp:Number"
 add('a', 'b');
-%DebugPrint(add); // → slot #0 BinaryOp BinaryOp:Any
+%DebugPrint(add); // includes "slot #0 BinaryOp BinaryOp:Any"
 ```
 
 The `+` in `add` has one feedback slot. It widens as the operands do (small integers, then any number, then anything) and never narrows again.
@@ -80,7 +84,7 @@ The `+` in `add` has one feedback slot. It widens as the operands do (small inte
 
 ### How it works
 
-Print the bytecode of a two-line function with `node --print-bytecode --print-bytecode-filter=add add.mjs`. On Node 24.19 / V8 13.6 (arm64, one machine), `add(a, b) { return a + b; }` produced:
+Print the bytecode of a two-line function with `node --print-bytecode --print-bytecode-filter=add add.mjs`. On Node 24.19 / V8 13.6 (arm64, one machine), `add(a, b) { return a + b; }` produced (abridged):
 
 ```text
 Parameter count 3
@@ -90,7 +94,7 @@ Register count 0
    Return
 ```
 
-Ignition is a register machine with an implicit **accumulator**. `Ldar a1` loads argument register `a1` (`b`) into the accumulator. `Add a0, [0]` adds `a0` to the accumulator, so the result is `a + b`, and leaves the result in the accumulator. `Return` returns it. The dump shows no local registers (`Register count 0`), because the accumulator is enough. The trailing `[0]` is a feedback slot index, and the `slot #0 BinaryOp` line in the example above is the same slot (my reading of the two outputs, not stated in the docs). "Parameter count 3" is two parameters plus the receiver (my reading; not verified in a source).
+Ignition is a register machine with an implicit **accumulator**. `Ldar a1` loads argument register `a1` (`b`) into the accumulator. `Add a0, [0]` adds `a0` to the accumulator, so the result is `a + b`, and leaves the result in the accumulator. `Return` returns it. The dump shows no local registers (`Register count 0`), because the accumulator is enough. The trailing `[0]` is a feedback-slot operand (the Ignition design document shows IC bytecodes taking one), matching the `slot #0 BinaryOp` line in the example above. "Parameter count 3" fits two parameters plus the implicit receiver, which that document says is passed like the arguments.
 
 The feedback vector is allocated lazily. Node's default left `add` with only a "closure feedback cell array" after two calls, which is why the example passes `--no-lazy-feedback-allocation`; the flag exists in `node --v8-options` and is a debugging convenience, not something to ship.
 
@@ -112,7 +116,7 @@ console.log('before inner call');
 fn();
 // → outer runs
 // → before inner call
-// → [generated bytecode for function: inner (0x… <SharedFunctionInfo inner>)]
+// then the dump starts: [generated bytecode for function: inner (0x… <SharedFunctionInfo inner>)]
 ```
 
 `inner` was preparsed when `outer` was compiled, but it got bytecode only at `fn()`. The V8 preparser post adds why this is hard: inner functions can reference and outlive outer variables, so the preparser must track variable declarations and references to decide what lives on the stack and what in a heap context.

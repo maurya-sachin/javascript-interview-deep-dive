@@ -10,6 +10,9 @@ related:
   - javascript/promises/promise-combinators
   - javascript/classes/classes-vs-prototypes
 verified: 2026-10
+perishable:
+  - Error Stack Accessor proposal at Stage 3
+  - Error.captureStackTrace proposal at Stage 2
 sources:
   - https://tc39.es/ecma262/#sec-error-objects
   - https://tc39.es/ecma262/#sec-error-constructor

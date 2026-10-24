@@ -49,7 +49,7 @@ A few constructs are *not* erased because they need generated code (enums, names
 ## Example
 
 ```ts
-// TypeScript 7.0.2 (5.9.3 emitted the same JS), Node 24.19.0, zod 4.6.7
+// TypeScript 7.0.2 (6.0.3 emitted the same JS), Node 24.19.0, zod 4.6.7
 import { z } from "zod";
 
 interface User {
@@ -61,7 +61,7 @@ const UserSchema = z.object({ id: z.number(), name: z.string() });
 const input: unknown = JSON.parse('{"id":"7","name":"Ada"}');
 
 const cast = input as User; // compiles; the assertion is erased
-console.log(typeof cast.id); // → string, not number
+console.log(typeof cast.id); // → string
 
 console.log(UserSchema.safeParse(input).success); // → false
 
@@ -85,13 +85,13 @@ if (input instanceof User) {
 **A:** Not from `tsc` itself; the Design Goals list it as a non-goal. You define a runtime value (a schema) and derive the type from it with `z.infer`, so the two cannot drift apart.
 
 **Q:** Why are enums an exception to erasure?
-**A:** An enum is also a runtime object, so the compiler must generate code for it. Node's type stripping rejects it for that reason; see the `erasableSyntaxOnly` question.
+**A:** An enum is also a runtime object, so the compiler must generate code for it. Node.js 24's type stripping rejects it for that reason; see the `erasableSyntaxOnly` question.
 
 ## Deep dive
 
 ### How it works
 
-The pipeline checks first and emits second (see the compiler-pipeline question). The emit step works on the syntax tree and drops every node that belongs to the type layer. I compared `tsc` 5.9.3 and 7.0.2 on a file containing a type alias, a generic interface, an abstract class with a `private` field, overloads, a `declare const`, `satisfies`, a non-null `!` and `export type`. Both printed identical JavaScript:
+The pipeline checks first and emits second (see the compiler-pipeline question). The emit step works on the syntax tree and drops every node that belongs to the type layer. I compared `tsc` 6.0.3 and 7.0.2 on a file containing a type alias, a generic interface, an abstract class with a `private` field, overloads, a `declare const`, `satisfies`, a non-null `!` and `export type`. Both printed identical JavaScript:
 
 ```js
 class Shape {
@@ -110,7 +110,7 @@ Erasure is also why Node can run `.ts` files by stripping: if deleting the type 
 
 ### Edge cases
 
-- **Type-only imports.** `import type { Buffer }` is always removed. A plain `import { Buffer }` used only as a type was removed from the 7.0.2 output too, which is why `verbatimModuleSyntax` and `isolatedModules` exist: a per-file tool cannot tell which imports are types. See the import-type question.
+- **Type-only imports.** `import type { Buffer }` is always removed. A plain `import { Buffer }` used only as a type was removed from the 6.0.3 and 7.0.2 output too, which is why `verbatimModuleSyntax` and `isolatedModules` exist: a per-file tool cannot tell which imports are types. See the import-type question.
 - **Narrowing uses real values.** `typeof x === "string"`, `instanceof Date`, `"id" in x` and `Array.isArray(x)` are real JavaScript that survives; TypeScript merely reads them as evidence. The Handbook's narrowing page calls these *type guards*. Narrowing by a checked fact is safe; narrowing by an unchecked claim (`as`, a guard that returns `true`) is not.
 - **Classes are values and types.** `class User {}` creates a runtime constructor, so `instanceof User` is legal. That checks the prototype chain, not the shape, so a plain `{ id: 1 }` object fails it.
 - **Overloads.** Only the implementation signature is emitted, so branching must be done with ordinary runtime checks inside it.
@@ -152,4 +152,4 @@ const p = raw as Point;
 console.log(p.x + 1);
 ```
 
-**Answer:** `11`. The assertion is erased, so `p.x` is still the string `"1"` and `+` concatenates. Compiled with 7.0.2 and run on Node 24.19.0, it printed `11`.
+**Answer:** `11`. The assertion is erased, so `p.x` is still the string `"1"` and `+` concatenates. Compiled with 6.0.3 and 7.0.2 and run on Node 24.19.0, it printed `11`.

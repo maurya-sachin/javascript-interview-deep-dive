@@ -11,6 +11,8 @@ related:
   - javascript/scope-and-execution-contexts/global-object-globalthis
   - javascript/scope-and-execution-contexts/realms
 verified: 2026-10
+perishable:
+  - ShadowRealm at Stage 2.7, flag-only in Node.js 24
 sources:
   - https://tc39.es/ecma262/#sec-eval-x
   - https://tc39.es/ecma262/#sec-performeval
@@ -143,7 +145,7 @@ A calculator that evaluates a user-typed formula should parse it with a small ex
 
 ### Trade-offs
 
-Direct eval is the only way to run a string in your own scope, and almost nothing needs that. `new Function` or indirect eval give a smaller, predictable scope, but still need trusted input and a CSP that allows them. A parser or a lookup table beats any of them for untrusted input. For isolation from your own globals, a separate realm is a different tool: `node:vm` contexts and iframes exist today (see the realms question), while ShadowRealm is a TC39 proposal at Stage 2.7 and was not available in Node.js 24 (`typeof ShadowRealm` is `'undefined'`).
+Direct eval is the only way to run a string in your own scope, and almost nothing needs that. `new Function` or indirect eval give a smaller, predictable scope, but still need trusted input and a CSP that allows them. A parser or a lookup table beats any of them for untrusted input. For isolation from your own globals, a separate realm is a different tool: `node:vm` contexts and iframes exist today (see the realms question), while ShadowRealm is a TC39 proposal at Stage 2.7 and is not exposed by default in Node.js 24 (`typeof ShadowRealm` is `'undefined'` unless you pass V8's experimental `--harmony-shadow-realm` flag).
 
 ## Exercises
 

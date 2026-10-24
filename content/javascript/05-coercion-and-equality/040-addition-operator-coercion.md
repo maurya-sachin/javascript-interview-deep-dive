@@ -14,6 +14,7 @@ sources:
   - https://tc39.es/ecma262/#sec-applystringornumericbinaryoperator
   - https://tc39.es/ecma262/#sec-toprimitive
   - https://tc39.es/ecma262/#sec-tonumeric
+  - https://tc39.es/ecma262/#sec-expression-statement
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Addition
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/block
 tldr: >
@@ -35,9 +36,9 @@ For `[] + {}`: `[]` calls `valueOf` (returns the array itself, not a primitive),
 
 The rule explains the common cases: `1 + "2"` is `"12"`, `1 + 2 + "3"` is `"33"` (left to right), `"3" + 1 + 2` is `"312"`, `true + 1` is `2`, `null + 1` is `1`, and `undefined + 1` is `NaN`.
 
-Only `+` concatenates. `-`, `*`, `/` and the others always convert to numbers, so `"5" - 2` is `3`. The unary `+x` is also numeric: it is the idiomatic short form of `Number(x)`.
+Only `+` concatenates. `-`, `*`, `/` and the others always convert with `ToNumeric`, so `"5" - 2` is `3`. The unary `+x` is also numeric: it applies `ToNumber`, like `Number(x)`, except that `+1n` throws a `TypeError` where `Number(1n)` is `1`.
 
-`{} + []` printed in a console often shows `0`. That is a parsing artifact: at the start of a statement, `{}` is parsed as an empty block, leaving the expression `+[]`, which is `0`. In expression position (such as an argument, `console.log({} + [])`) it is `"[object Object]"` again.
+`{} + []` can evaluate to `0`. That is a parsing artifact: an expression statement cannot start with `{`, so at the start of a statement `{}` is an empty block, leaving the expression `+[]`, which is `0`. `eval("{} + []")` returns `0`, though the Node.js 24 REPL prints `'[object Object]'` for the same input. In expression position (such as an argument, `console.log({} + [])`) it is `"[object Object]"` again.
 
 ## Example
 
@@ -61,7 +62,7 @@ console.log(1n + "1", `${1n}` + 1n); // → 11 11
 
 ## Pitfalls
 
-- Reading `{} + []` as `0` from a console. That is a block statement followed by `+[]`; as an expression it is `"[object Object]"`.
+- Reading `{} + []` as always `0`. That happens only when it is parsed as a block statement followed by `+[]`; as an expression it is `"[object Object]"`.
 - Summing user input without parsing. `"10" + 5` is `"105"`; `Number(input) + 5` or `+input + 5` is numeric.
 - Assuming evaluation groups strings first. `+` is left associative: `1 + 2 + "3"` adds before concatenating.
 - Mixing BigInt and Number. `1n + 1` throws; convert explicitly with `BigInt(1)` or `Number(1n)`.

@@ -58,7 +58,7 @@ function scopes() {
     let fromLet = 'let';
   }
   console.log(fromVar); // → var
-  console.log(typeof fromLet); // → undefined (out of scope)
+  console.log(typeof fromLet); // → undefined
 }
 scopes();
 
@@ -75,7 +75,7 @@ try {
 try {
   new Function('let x; let x;');
 } catch (error) {
-  console.log(error.name); // → SyntaxError (redeclaration is an early error)
+  console.log(error.name); // → SyntaxError
 }
 ```
 
@@ -119,7 +119,7 @@ console.log(vm.runInContext('fromLet + fromConst', context)); // → 5
 try {
   vm.runInContext('var fromLet = 9;', context);
 } catch (error) {
-  console.log(error.name, error.message); // → SyntaxError Identifier 'fromLet' has already been declared
+  console.log(error.name); // → SyntaxError
 }
 vm.runInContext('var fromVar = 10;', context); // var may be redeclared
 console.log(context.fromVar); // → 10
@@ -179,7 +179,7 @@ vm.runInContext('const config = { source: "snippet" };', page);
 try {
   vm.runInContext('var startedApp = true; const config = { source: "app" };', page);
 } catch (error) {
-  console.log(error.name, error.message); // → SyntaxError Identifier 'config' has already been declared
+  console.log(error.name); // → SyntaxError
 }
 console.log(page.startedApp, vm.runInContext('config.source', page)); // → undefined snippet
 ```

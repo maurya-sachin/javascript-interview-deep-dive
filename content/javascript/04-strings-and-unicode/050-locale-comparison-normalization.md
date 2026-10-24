@@ -9,9 +9,15 @@ related:
   - javascript/strings-and-unicode/graphemes-and-code-points
   - javascript/strings-and-unicode/utf16-string-length
 verified: 2026-10
+perishable:
+  - Example sort orders come from Node 24.19, ICU 78.3 locale data.
 sources:
   - https://tc39.es/ecma402/#sec-intl.collator.prototype.compare
   - https://tc39.es/ecma402/#sec-collator-comparestrings
+  - https://tc39.es/ecma402/#sec-intl-collator-constructor
+  - https://tc39.es/ecma262/#sec-sortcompare
+  - https://tc39.es/ecma262/#sec-islessthan
+  - https://nodejs.org/docs/latest-v24.x/api/intl.html
   - https://tc39.es/ecma262/#sec-string.prototype.normalize
   - https://tc39.es/ecma262/#sec-string.prototype.localecompare
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
@@ -30,7 +36,7 @@ Two separate problems hide behind "comparing strings".
 
 **Order.** `<`, `===` and `Array.prototype.sort()` without a comparator compare code units numerically. That puts every uppercase ASCII letter before every lowercase one and accented letters after `z`, which is wrong for people. Language-aware order comes from `Intl.Collator` (ECMA-402). `a.localeCompare(b, locale, options)` is the one-off form. Pass the collator's `compare` straight to `sort`, because ECMA-402 defines it as a getter returning a function already bound to the collator.
 
-Locale changes the answer: German sorts `ä` with `a`, Swedish sorts it after `z`. Options tune what counts as different:
+Locale changes the answer: with ICU's locale data (V8, Node.js), German sorts `ä` with `a` and Swedish sorts it after `z`. Options tune what counts as different:
 
 - `sensitivity`: `"base"` (only base letters differ), `"accent"`, `"case"`, `"variant"` (all differences matter).
 - `numeric: true`: compares digit runs as numbers, so `file2` comes before `file10`.
@@ -42,7 +48,7 @@ Create the collator once and reuse it. MDN recommends this over `localeCompare` 
 
 `Intl.Collator` is required to treat canonically equivalent strings as equal, so it also handles the `é` case without manual normalization.
 
-Results depend on the engine's locale data (ICU in V8 and Node), so don't hard-code sort order assumptions beyond what the locale defines.
+ECMA-402 only recommends following the Unicode Collation Algorithm with locale tailorings, so results depend on the engine's locale data (ICU in V8 and Node.js). Don't hard-code sort order assumptions beyond what the locale defines.
 
 ## Example
 

@@ -1,6 +1,6 @@
 # 01 — How JavaScript runs
 
-> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/8 · **Last verified:** —
 
 What JavaScript is made of — the specification, engines, and hosts — how features get added, and the two kinds of source code it runs.
 
@@ -27,8 +27,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Strict mode rules and implicit strictness (modules, classes) → 050
 - Sloppy-mode-only behaviour (`with`, legacy octals, `arguments` aliasing) → 050
 - Polyfills, transpilers (Babel, SWC, esbuild), and target browsers → 060
-- Hashbang comments → —
-- Annex B: legacy features kept for web compatibility → —
+- Hashbang comments → 070
+- Annex B: legacy features kept for web compatibility → 080
 
 ## Questions
 
@@ -41,6 +41,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [What's the difference between a script and a module?](040-scripts-vs-modules.md) | medium | 🟡 draft |
 | 050 | [What does strict mode change, and when is code strict automatically?](050-strict-mode.md) | medium | 🟡 draft |
 | 060 | [What's the difference between a polyfill and a transpiler?](060-polyfill-vs-transpiler.md) | easy | 🟡 draft |
+| 070 | [What is a hashbang comment, and why is it in the grammar?](070-hashbang-comments.md) | easy | 🟡 draft |
+| 080 | [What is Annex B, and which legacy behaviours does it keep alive?](080-annex-b-legacy-features.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources

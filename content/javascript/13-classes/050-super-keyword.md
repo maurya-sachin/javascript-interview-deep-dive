@@ -33,7 +33,7 @@ tldr: >
 
 **`super(...args)`** is valid only in a derived constructor. It:
 
-1. takes the active constructor's `[[GetPrototypeOf]]()` as the parent (so it follows `extends` even if you later change it),
+1. takes the active constructor's current `[[GetPrototypeOf]]()` as the parent (so `Object.setPrototypeOf(Child, Other)` after `extends` redirects it),
 2. calls `Construct(parent, args, newTarget)`, which passes the *original* `new.target` down so the object ends up with the right prototype,
 3. binds the result as `this` (`BindThisValue`), and
 4. initialises this class's private methods and fields.
@@ -70,8 +70,8 @@ console.log(child.greet()); // → hi from base, this.id=7
 
 const { greet } = child;     // extracting the method keeps its HomeObject
 console.log(greet.call({ id: 9 })); // → hi from base, this.id=9
-Object.setPrototypeOf(child, { greet() { return 'swapped'; } });
-console.log(child.greet()); // → swapped (super base is looked up at call time)
+Object.setPrototypeOf(child, { greet() { return 'swapped'; } }); // super's base is read at call time
+console.log(child.greet()); // → swapped
 ```
 
 ## Pitfalls

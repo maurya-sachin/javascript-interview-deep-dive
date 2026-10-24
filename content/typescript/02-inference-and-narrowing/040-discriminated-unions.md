@@ -42,7 +42,7 @@ Typical uses are Redux actions, async state (`idle | loading | success | error`)
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 type Shape =
   | { kind: "circle"; radius: number }
   | { kind: "square"; side: number }
@@ -76,7 +76,7 @@ function area(shape: Shape): number {
 ## Follow-ups
 
 **Q:** Does destructuring the tag break narrowing?
-**A:** Not since 4.6: `const { kind } = shape; if (kind === "circle")` narrows `shape` (checked on 7.0.2 and 5.9.3). It works for `const` destructuring and parameters never assigned to. A `...rest` object does not narrow in the same way.
+**A:** Not since 4.6: `const { kind } = shape; if (kind === "circle")` narrows `shape` (checked on 7.0.2 and 6.0.3). It works for `const` destructuring and parameters never assigned to. A `...rest` object does not narrow in the same way.
 
 **Q:** Can `in` replace a tag?
 **A:** Yes when a property exists on only one member: `"radius" in shape` narrowed to the circle member (7.0.2). It breaks once two members share the key, and a tag is clearer.
@@ -91,7 +91,7 @@ Exhaustiveness is the same filtering run to completion. After `"circle"` and `"s
 
 ### Edge cases
 
-Three exhaustiveness spellings, and one case where the tag does not discriminate. Each error below was seen on 7.0.2 and 5.9.3.
+Three exhaustiveness spellings, and one case where the tag does not discriminate. Each error below was seen on 7.0.2 and 6.0.3.
 
 ```ts
 type Shape =
@@ -178,7 +178,7 @@ state = reducer(state, { type: "resolve", items: ["a", "b"] });
 console.log(label(state)); // → 2 items
 ```
 
-Verified on 7.0.2 and 5.9.3 and run on Node 24. `label` has no `default`: its annotated `string` return type enforces completeness through TS2366.
+Verified on 7.0.2 and 6.0.3 and run on Node 24. `label` has no `default`: its annotated `string` return type enforces completeness through TS2366.
 
 ### Trade-offs
 

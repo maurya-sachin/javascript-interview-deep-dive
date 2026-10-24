@@ -14,6 +14,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html
   - https://github.com/microsoft/TypeScript/pull/51865
+  - https://github.com/microsoft/TypeScript/pull/55229
   - https://github.com/microsoft/TypeScript/pull/56794
 tldr: >
   `<const T>` (TS 5.0) makes literals written in a call infer as if `as const` was applied, so
@@ -32,7 +33,7 @@ Rules from the PR and release notes:
 
 - Allowed on type parameters of functions, methods and classes; an error on interfaces and type aliases (TS1277).
 - It only affects literals written directly in the call. A variable argument is untouched: `names(list)` stays `string[]`.
-- If the constraint is a **mutable** array type (`T extends string[]`), the readonly tuple candidate fails the constraint. The 5.0 notes say inference falls back to `string[]`, so write `readonly string[]`. Version note: in my runs 5.0.4 gave `string[]` for that mutable case but 5.9.3 and 7.0.2 gave `["a", "b"]`, so behaviour changed after 5.0; the `readonly` constraint gives the same precise result everywhere and is the portable form.
+- If the constraint is a **mutable** array type (`T extends string[]`), the readonly tuple candidate fails the constraint. The 5.0 notes say inference falls back to `string[]`. Since 5.3 (PR #55229) it infers the mutable tuple `["a", "b"]` instead (5.2.2 gave `string[]`; 5.3.3, 6.0.3 and 7.0.2 give the tuple). A `readonly string[]` constraint gives the precise result on every version and is the portable form.
 
 **`NoInfer<T>` (TS 5.4).** Wrapping a type in `NoInfer` blocks inference *to* that position; it is otherwise identical to `T` (the PR says the two are the same type outside inference). In `light<C extends string>(colors: C[], fallback?: C)` a stray `"blue"` becomes another candidate and widens `C`, so the call is accepted. With `fallback?: NoInfer<C>`, only `colors` supplies candidates and `"blue"` is checked against them and rejected.
 
@@ -41,7 +42,7 @@ The alternative before 5.4 was a second type parameter `D extends C`, which the 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict (messages from 7.0.2; 6.0.3 orders unions differently)
 declare function plain<T>(x: T): T;
 declare function konst<const T>(x: T): T;
 declare function names<const T extends readonly string[]>(xs: T): T;
@@ -67,7 +68,7 @@ pair("a", "b");
 
 ## Pitfalls
 
-- A mutable array constraint with `const T`. `T extends string[]` loses the precision on older compilers (5.0.4 gave `string[]`); use `readonly string[]`.
+- A mutable array constraint with `const T`. `T extends string[]` loses the precision before 5.3 (5.2.2 gave `string[]`); use `readonly string[]`.
 - Expecting `const` to freeze existing variables. `const list = ["a", "b"]; names(list)` is `string[]`.
 - Putting `NoInfer` on the position you want to infer from. It blocks candidates there; mark only the dependent positions.
 - Using `NoInfer` below 5.4: on 5.3.3 it is `Cannot find name 'NoInfer'` (TS2304).

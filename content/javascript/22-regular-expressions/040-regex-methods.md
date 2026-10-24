@@ -83,7 +83,7 @@ console.log(RegExp.escape('a.b'));
 - Using `match` with `g` when you need positions or groups. It returns only the matched strings; use `matchAll`.
 - Escaping for the wrong method. `'a.b.c'.replaceAll(RegExp.escape('.'), '/')` changes nothing, because `replaceAll` with a string searches for the literal text `\.`. Escape only when you build a `RegExp`, or when a string goes to `match`, `matchAll` or `search`. Also, `RegExp.escape` output is for matching: a leading digit or letter becomes `\x31`, `\x61` and spaces become `\x20`. That is valid, not a bug.
 - Writing a manual `exec` loop for a pattern that can match the empty string, such as `/x*/g`. `exec` does not advance `lastIndex` on an empty match, so the loop never ends. `matchAll`, `match` and `replace` advance for you.
-- Interpolating user data into a replacement string. `'x'.replace('x', userText)` expands `$&` and `$1` inside `userText`. Pass a function (`() => userText`) to use the text verbatim.
+- Interpolating user data into a replacement string. `'x'.replace('x', userText)` expands `$&`, `$$`, `` $` `` and `$'` inside `userText` (and `$1` too when the pattern is a regex with groups). Pass a function (`() => userText`) to use the text verbatim.
 
 ## Follow-ups
 

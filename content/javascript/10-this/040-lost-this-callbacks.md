@@ -11,6 +11,8 @@ related:
   - javascript/this/call-apply-bind
   - javascript/closures/what-is-a-closure
 verified: 2026-10
+perishable:
+  - Node.js timer callbacks receive the `Timeout` object as `this` (undocumented)
 sources:
   - https://tc39.es/ecma262/#sec-evaluatecall
   - https://tc39.es/ecma262/#sec-function-calls-runtime-semantics-evaluation
@@ -18,7 +20,7 @@ sources:
   - https://tc39.es/ecma262/#sec-grouping-operator-runtime-semantics-evaluation
   - https://tc39.es/ecma262/#sec-ordinarycallbindthis
   - https://dom.spec.whatwg.org/#concept-event-listener-inner-invoke
-  - https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html
+  - https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#timer-initialisation-steps
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
 tldr: >
   `obj.method` evaluates to a Reference Record whose base is `obj`; only a call made
@@ -61,7 +63,7 @@ console.log(counter.increment()); // → 1
 try {
   run(counter.increment);
 } catch (error) {
-  console.log(error.message); // → Cannot read properties of undefined (reading 'count')
+  console.log(error.name); // → TypeError
 }
 console.log(run(() => counter.increment())); // → 2
 console.log(run(counter.increment.bind(counter))); // → 3
@@ -81,7 +83,7 @@ console.log([1].map(counter.increment, counter)); // → [ 4 ]
 **A:** Host-defined, not language semantics. The DOM spec calls the listener with the event's `currentTarget` as the callback `this` value, so a regular function sees the element it was registered on. An arrow ignores that and keeps its lexical `this`.
 
 **Q:** And inside a `setTimeout` callback?
-**A:** Also host-defined. The HTML standard calls the handler with the window (or the worker global) as `this`. In Node 24, a regular function callback sees the `Timeout` object, which I observed but did not find in the Node docs.
+**A:** Also host-defined. The HTML standard calls the handler with the window (or the worker global) as `this`. In Node.js 24 a regular function callback sees the `Timeout` object; that is observed behaviour, not stated in the Node docs.
 
 **Q:** Does `bind` or an arrow wrapper keep working with `removeEventListener`?
 **A:** Only if you keep the same function object. `el.removeEventListener('click', fn.bind(x))` creates a new function and removes nothing; store the bound function once and pass that to both calls.

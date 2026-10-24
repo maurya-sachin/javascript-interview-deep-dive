@@ -33,12 +33,12 @@ A `#name` declaration creates a **Private Name**: a unique key created each time
 
 What follows from that:
 
-- **Real encapsulation.** Outside the class, `obj.#x` is a `SyntaxError` at parse time, and `obj['#x']` is just an ordinary string key. `delete obj.#x` is a `SyntaxError` too.
+- **Real encapsulation.** Outside the class, `obj.#x` is a `SyntaxError` at parse time, and `obj['#x']` is just an ordinary string key. `delete obj.#x` is a `SyntaxError` even inside the class.
 - **Invisible to reflection.** `Object.keys`, `Reflect.ownKeys`, `JSON.stringify`, and `structuredClone` don't see them.
 - **Not properties, so no property machinery.** `Object.freeze` doesn't stop writes to private fields. Proxies can't intercept them: `new Proxy(obj, {}).#x` looks the Private Name up on the proxy object itself, which has none, so it throws a `TypeError`.
 - **Own-object only.** Lookup doesn't walk the prototype chain. A subclass can't touch a parent's `#x` directly, though inherited methods that use it keep working on subclass instances, because the parent constructor installed it on `this`.
 - **Brand checks.** Reading a missing private element throws a `TypeError`. `#x in obj` returns a boolean instead, which is the safe "is this really one of ours?" test (it throws for non-objects).
-- **Private methods are shared**, not copied per instance; the spec just records which objects have been branded with them.
+- **Private methods are shared**, not copied per instance: each object's list holds the same function, and the spec notes engines may track this as a per-class brand.
 
 Compared with alternatives: `_name` is a convention anyone can bypass, a `Symbol` key is still discoverable via `getOwnPropertySymbols`, and closures give true privacy but allocate per-instance functions and can't be shared with prototype methods.
 
@@ -88,7 +88,7 @@ console.log(acct.balance); // → 20
 **A:** Private fields. They are simpler, checked by the engine, and give you brand checks. A `WeakMap` is only needed for targets that predate private names.
 
 **Q:** Can a field be added twice to the same object?
-**A:** No. `PrivateFieldAdd` throws a `TypeError` if the object already has that name. This can happen when a base constructor returns an existing object and two derived constructors both stamp it.
+**A:** No. `PrivateFieldAdd` throws a `TypeError` if the object already has that name. This can happen when a base constructor returns an existing object and the same derived class is constructed over it twice.
 
 ## Exercises
 

@@ -10,8 +10,11 @@ related:
   - javascript/inside-the-engine/hidden-classes-inline-caches
   - javascript/inside-the-engine/smi-and-heap-numbers
 verified: 2026-10
+perishable:
+  - Deopt reason strings and trace format of V8 13.6
 sources:
-  - https://github.com/v8/v8/blob/main/src/deoptimizer/deoptimize-reason.h
+  - https://github.com/v8/v8/blob/13.6.233.17/src/deoptimizer/deoptimize-reason.h
+  - https://github.com/v8/v8/blob/13.6.233.17/src/common/globals.h
   - https://v8.dev/blog/launching-ignition-and-turbofan
   - https://v8.dev/blog/maglev
   - https://nodejs.org/docs/latest/api/cli.html
@@ -23,7 +26,7 @@ tldr: >
 
 ## Answer
 
-This is **V8 behaviour**, from V8's source and tracing flags; it is not in ECMAScript. Observed on Node 24.19 (V8 13.6); wording and details change between versions.
+This is **V8 behaviour**, from V8's source and tracing flags; it is not in ECMAScript. Observed on Node 24.19 (V8 `13.6.233.17-node.51`); wording and details change between versions.
 
 Optimizing tiers (Maglev, TurboFan) compile from bytecode plus the **feedback** gathered while the function ran ([pipeline](010-v8-pipeline.md)). They assume the feedback stays true and insert **guards** that check it. A failed guard triggers a **deoptimization** ("deopt", "bailout"): V8 throws away the optimized frame, rebuilds the interpreter state, and continues in bytecode. The function can be marked hot again and recompiled with the new feedback.
 
@@ -53,7 +56,7 @@ console.log('warm');
 getX({ y: 0, x: 1 }); // a second shape
 console.log('shape changed');
 // → warm
-// → [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x… <JSFunction getX …>, 0x… <Code MAGLEV>, …
+// then a trace line: [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x… <JSFunction getX …>, 0x… <Code MAGLEV>, …
 // → shape changed
 ```
 
@@ -61,7 +64,7 @@ I abridged addresses and trailing fields. In three runs `getX` ran in Maglev cod
 
 ## Pitfalls
 
-- Treating `--trace-deopt` text as a stable interface. `deoptimize-reason.h` is on V8's `main` branch, not Node 24's V8. Check the string in your trace, not in a blog post.
+- Treating `--trace-deopt` text as a stable interface. The linked `deoptimize-reason.h` is V8 13.6's, the version in Node 24.19; later versions add and rename reasons. Check the string in your trace, not in a blog post.
 - Concluding that a deopt means your code is bad. Optimized code is a bet; one deopt is normal. Look for repeated optimize/deopt cycles in the trace.
 - Micro-benchmarks that time a function once with one kind of input. They measure whichever tier and feedback they happened to reach, and one different input mid-run can deoptimize it. Warm up with realistic inputs and check `--trace-opt --trace-deopt` before trusting a number. I do not give speedup figures here because I did not measure any.
 - Using `%OptimizeFunctionOnNextCall` or `%GetOptimizationStatus` in production. They are natives behind `--allow-natives-syntax`, not a public API.
@@ -69,7 +72,7 @@ I abridged addresses and trailing fields. In three runs `getX` ran in Maglev cod
 ## Follow-ups
 
 **Q:** What is an *eager* deopt?
-**A:** Every bailout in my traces says `kind: deopt-eager`: a guard in the running optimized code failed. I saw no other kind and have not checked what V8's others mean.
+**A:** A check failed inside the running optimized code, so it deoptimizes immediately. V8 13.6's `globals.h` defines one other kind, *lazy*: code that depends on an assumption checked elsewhere is marked and deoptimizes the next time it runs. Every bailout traced here was eager.
 
 **Q:** Does deoptimizing mean the function never gets optimized again?
 **A:** No. When I followed the `wrong map` bailout with a second 200,000-call loop, the trace showed `getX` marked for Maglev again and recompiled. V8 recompiles from the updated feedback.

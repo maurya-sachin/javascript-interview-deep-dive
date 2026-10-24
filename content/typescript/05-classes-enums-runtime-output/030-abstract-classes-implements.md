@@ -39,7 +39,7 @@ All of this is type-level. The emitted JavaScript has no guard, so a cast defeat
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 interface Named { name: string }
 
 abstract class Shape implements Named {
@@ -70,7 +70,7 @@ console.log(new Weak("w") instanceof Shape);
 
 ## Pitfalls
 
-- Thinking `abstract` is enforced at runtime. I cast it away (`Shape as unknown as new () => Shape`), called `new` and `describe()`, and got `this.area is not a function`. Anything reaching your class through `any`, a cast, or plain JavaScript is unchecked.
+- Thinking `abstract` is enforced at runtime. I cast it away (`Shape as unknown as new () => Shape`), called `new` and `describe()`, and got a `TypeError` (`this.area is not a function` in Node.js 24). Anything reaching your class through `any`, a cast, or plain JavaScript is unchecked.
 - Assuming `implements` types the members. With `class Bad implements Logger { log(msg) {} }` the parameter is an implicit `any` (TS7006); the clause only checks assignability afterwards.
 - Using `implements` on a class that has `private` or `#` members. `class Impl implements Base` fails with TS2720 ("Did you mean to extend 'Base'"), because private members can only come from the declaration itself.
 - Defaulting to inheritance. A deep abstract hierarchy couples subclasses to the base's internals; an interface plus a small helper or composed object usually does the same job.

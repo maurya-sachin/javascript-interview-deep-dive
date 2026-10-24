@@ -71,12 +71,12 @@ console.log(Array.isArray(fakeArray), fakeArray instanceof Array); // → false 
 const fakeError = { __proto__: Error.prototype };
 console.log(Error.isError(new TypeError('x')), Error.isError(fakeError)); // → true false
 
-class Money {
+class Money { // any class can set its own tag
   get [Symbol.toStringTag]() {
     return 'Money';
   }
 }
-console.log(tagOf(new Money())); // → Money (the tag is a program-controlled label)
+console.log(tagOf(new Money())); // → Money
 
 const vm = await import('node:vm');
 const foreign = vm.runInNewContext('[]'); // an array from another realm
@@ -110,4 +110,4 @@ const tag = Object.prototype.toString.call(arrayLike);
 console.log(Array.isArray(arrayLike), arrayLike instanceof Array, tag);
 ```
 
-**Answer:** `false true [object Object]`. The object inherits from `Array.prototype` (so `instanceof` passes) but isn't an Array exotic object (so `Array.isArray` is `false`) and has no array slot (so the built-in tag is `Object`).
+**Answer:** `false true [object Object]`. The object inherits from `Array.prototype` (so `instanceof` passes) but isn't an Array exotic object (so `Array.isArray` is `false` and the built-in tag falls back to `Object`).

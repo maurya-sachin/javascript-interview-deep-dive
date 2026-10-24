@@ -10,12 +10,15 @@ related:
   - javascript/dates-temporal-intl/time-zones
   - javascript/dates-temporal-intl/intl-formatting
 verified: 2026-10
+perishable:
+  - Temporal shipping list; Safari preview only; Node 22/24 flag-only
 sources:
   - https://github.com/tc39/proposals/blob/main/finished-proposals.md
   - https://github.com/tc39/notes/blob/HEAD/meetings/2026-03/march-11.md#temporal-for-stage-4
   - https://tc39.es/proposal-temporal/docs/
   - https://tc39.es/proposal-temporal/docs/zoneddatetime.html
   - https://tc39.es/proposal-temporal/docs/duration.html
+  - https://tc39.es/proposal-temporal/#sec-temporal-handledatetimevalue
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal
   - https://github.com/mdn/browser-compat-data/blob/main/javascript/builtins/Temporal.json
   - https://nodejs.org/en/blog/release/v26.0.0
@@ -55,7 +58,7 @@ Rules that make the API safe:
 ## Example
 
 ```js
-// Same output natively in Chrome 155 and with @js-temporal/polyfill 0.5.1 on Node 24.19.0 (no Temporal global)
+// Same output natively in Node 26.11.1 and Chrome 155, and with @js-temporal/polyfill 0.5.1 on Node 24.19.0
 import { Temporal } from '@js-temporal/polyfill';
 
 // Instant: an exact moment, no zone, no calendar
@@ -88,7 +91,7 @@ console.log(span.toString(), jan31.with({ day: 1 }).toString(), jan31.toString()
 
 - Using `PlainDateTime` for something that happened at a moment. It has no offset, so two systems can read it as different instants. Store an `Instant`, or a `ZonedDateTime` when the zone matters.
 - Adding `{ hours: 24 }` when you mean "tomorrow at the same time", or the reverse. They differ on the two DST days of the year.
-- Assuming Temporal exists. Node 22 and 24 have no `Temporal` global, and Safari has not shipped it. A polyfill adds bundle size, so feature-detect before loading it.
+- Assuming Temporal exists. Node 22 and 24 have no `Temporal` global by default (their `--harmony-temporal` flag exposes an older, incomplete V8 implementation), and Safari has not shipped it. A polyfill adds bundle size, so feature-detect before loading it.
 - Calling `Duration.total()` or `round()` in months or years without `relativeTo`. A month has no fixed length, so it throws.
 
 ## Follow-ups
@@ -122,13 +125,13 @@ console.log(Temporal.Duration.from({ hours: 25 }).round({ largestUnit: 'day' }).
 // → P1DT1H
 ```
 
-Output above matches natively in Chrome 155 and with the polyfill on Node 24.19.0, like every Temporal output in this question.
+Output above matches natively in Node 26.11.1 and Chrome 155, and with the polyfill on Node 24.19.0, like every Temporal output in this question.
 
 ### Edge cases
 
 - `Instant` rejects calendar units: `instant.add({ days: 1 })` throws a `RangeError`, because a day is not a fixed length. Use hours, or convert to `ZonedDateTime`.
 - `PlainDate.from('2026-03-08T12:00:00Z')` throws: a `Z` designator means an exact moment, which a plain value must not silently discard.
-- Formatting goes through `toLocaleString()`. `new Intl.DateTimeFormat().format(zonedDateTime)` throws a `TypeError` (the polyfill's message says to call `toLocaleString()`), and options that do not apply to the type are rejected (a `timeStyle` on a `PlainDate`). Both throw natively in Chrome 155 and in the polyfill; I did not read the matching ECMA-402 text.
+- Formatting goes through `toLocaleString()`. `new Intl.DateTimeFormat().format(zonedDateTime)` throws a `TypeError` (the polyfill's message says to call `toLocaleString()`), and options that do not apply to the type are rejected (a `timeStyle` on a `PlainDate`). Both throw natively in Node 26.11.1, Chrome 155 and the polyfill, as the Intl part of Temporal's spec requires (`HandleDateTimeValue` throws for a `ZonedDateTime`; a `PlainDate` format with only time fields is null, which throws).
 - `toString()` for `Instant` is always UTC (`…Z`); to show a zone, convert first.
 - `Date.prototype.toTemporalInstant` exists only where Temporal does; the polyfill exports it as a standalone function instead.
 
@@ -154,7 +157,7 @@ With `Date` the same logic needs manual last-day-of-month checks and mutation of
 
 Temporal costs a larger API surface (eight types) and an explicit choice at every call site; `Date` lets you skip that choice and then breaks. Native support is new, so libraries that serve older engines still need a polyfill, and `Date` remains the type many platform APIs return or accept. For an `Instant` that only needs ordering and storage, a plain epoch number or ISO string is still enough.
 
-How I checked support: `typeof Temporal` was `undefined` on Node 22.23.2, 24.19.0, and on a Homebrew build of Node 26.7.0, whose `process.config.variables.v8_enable_temporal_support` was `0` (Node's build docs say Temporal support requires a build with `temporal_rs`). Node 26's release notes say it is enabled by default, and MDN's compatibility data lists Node 26.0.0, so treat my local Node 26 as a build-configuration exception, not the norm.
+How I checked support: `typeof Temporal` was `'object'` on an official Node 26.11.1 build and `undefined` on Node 22.23.2 and 24.19.0. Their V8 `--harmony-temporal` flag adds an older implementation that still has `Temporal.TimeZone`, prints `Asia/Calcutta` for `Asia/Kolkata` and doesn't throw on `format(zonedDateTime)`, so don't test against it. A Homebrew build of Node 26.7.0 had no `Temporal` (`process.config.variables.v8_enable_temporal_support` was `0`): Node's build docs say Temporal needs `temporal_rs` at build time, so a distribution's build can lack it even though Node 26's release notes say it is enabled by default.
 
 ## Exercises
 

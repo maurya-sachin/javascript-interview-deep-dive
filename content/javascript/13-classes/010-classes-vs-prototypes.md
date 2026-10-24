@@ -37,7 +37,7 @@ It is not pure sugar, because the spec's `ClassDefinitionEvaluation` creates a f
 - **Everything inside is strict mode**, without a directive.
 - **The binding is in a TDZ** like `let`, and inside the class body there's a second, immutable binding of the name.
 - **Derived constructors** have no `this` until `super()` returns, and `super()` is what creates the object. The base constructor allocates it, which is how `class X extends Array` can get exotic-array behaviour.
-- **Fields and private names** (`#x`) have no function-and-prototype equivalent: a private name isn't a property or a symbol.
+- **Private names** (`#x`) have no function-and-prototype equivalent: a private name isn't a property or a symbol. Fields can only be approximated by defining properties in the constructor.
 
 Interview answer: classes are built on prototypes, but they are a distinct construct with stricter semantics, so "sugar" undersells them. The mental model for lookup is still the prototype chain.
 
@@ -80,7 +80,7 @@ try { Counter.reset(); } catch (e) { console.log(e.name); } // → TypeError
 **A:** On `Class.prototype`, as writable, configurable, non-enumerable properties. Static methods live on the constructor itself. Fields live on each instance, which is covered in the fields-vs-methods question.
 
 **Q:** Can you write `class Foo extends Bar` in ES5?
-**A:** Nearly. `Object.create` sets the prototype chain and `Reflect.construct` can mimic `new.target`, but you lose the enforced `new`, the non-enumerable methods, and private names.
+**A:** Only approximately. `Object.create` and `Parent.call(this)` rebuild the chain and the initialisation, but you lose the enforced `new`, the non-enumerable methods, private names, and the parent allocating `this`, so subclassing `Array` or `Error` falls short. `Reflect.construct` (ES2015, not ES5) is needed for that.
 
 ## Deep dive
 
@@ -89,9 +89,9 @@ try { Counter.reset(); } catch (e) { console.log(e.name); } // → TypeError
 `ClassDefinitionEvaluation` does the following, in order:
 
 1. Creates a new declarative environment (`classEnv`) holding an **immutable** binding of the class name, and a new `PrivateEnvironment` with one fresh **Private Name** for every `#name` in the body.
-2. Evaluates `extends`, if any. `protoParent` is `superclass.prototype` and `ctorParent` is the superclass itself. With no `extends` they're `Object.prototype` and `Function.prototype`. `extends null` gives `protoParent = null`. A non-constructor throws a `TypeError`.
+2. Evaluates `extends`, if any. `protoParent` is `superclass.prototype` and `ctorParent` is the superclass itself. With no `extends` they're `Object.prototype` and `Function.prototype`. `extends null` gives `protoParent = null`. A non-constructor, or one whose `prototype` is neither an object nor `null`, throws a `TypeError`.
 3. Creates `proto` with `OrdinaryObjectCreate(protoParent)`.
-4. Builds the constructor function from your `constructor` method (or a default one), marks it as a class constructor, and sets its own `[[Prototype]]` to `ctorParent`. That second link is why static members are inherited.
+4. Builds the constructor function from your `constructor` method and marks it as a class constructor (with no `constructor`, it makes a default built-in function that itself throws without `new`), and sets its own `[[Prototype]]` to `ctorParent`. That second link is why static members are inherited.
 5. Defines `constructor` on `proto` as non-enumerable via `DefineMethodProperty`.
 6. Walks the elements: instance methods go on `proto`, static methods on the constructor, instance fields are collected into the constructor's `[[Fields]]`, and private methods go in `[[PrivateMethods]]`.
 7. Initialises the inner class binding, installs static private methods, then runs static fields and static blocks in order.

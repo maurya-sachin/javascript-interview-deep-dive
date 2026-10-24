@@ -90,7 +90,7 @@ console.log(0.5 + 0.25 === 0.75); // → true
 
 ### How it works
 
-A binary64 value has 1 sign bit, 11 exponent bits and 52 fraction bits (MDN's description; the spec calls the format "double-precision IEEE 754 binary64"). A normal number is `±1.fraction × 2^exponent`, so there are 53 significant bits including the implicit leading one. That is roughly 15 to 17 significant decimal digits.
+A binary64 value has 1 sign bit, 11 exponent bits and 52 fraction bits (MDN's description; the spec calls the values "double-precision floating point IEEE 754-2019 binary64"). A normal number is `±1.fraction × 2^exponent`, so there are 53 significant bits including the implicit leading one. That is roughly 15 to 17 significant decimal digits.
 
 Writing `0.1` in binary shows why it can't be exact:
 

@@ -16,6 +16,7 @@ sources:
   - https://tc39.es/ecma262/#sec-ordinaryset
   - https://tc39.es/ecma262/#sec-ordinarysetwithowndescriptor
   - https://tc39.es/ecma262/#sec-ordinarysetprototypeof
+  - https://v8.dev/blog/fast-properties
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain
 tldr: >
   Every object has an internal `[[Prototype]]` link to another object or `null`. Reading a
@@ -155,7 +156,7 @@ The fix is to create the array per instance (`this.items = []` in the constructo
 
 ### Trade-offs
 
-Delegation keeps memory low and lets you patch behaviour for every object at once, but it makes behaviour depend on the chain *at the time of the access*. A property can come from several objects away, so reading a single file no longer tells you where a value originates. Deep chains also cost a little per miss, since each level is another check. Engines hide most of this with hidden classes and inline caches, which work best when objects keep a stable shape and prototype; changing a prototype after creation can invalidate those caches (see the `__proto__` question).
+Delegation keeps memory low and lets you patch behaviour for every object at once, but it makes behaviour depend on the chain *at the time of the access*. A property can come from several objects away, so reading a single file no longer tells you where a value originates. Deep chains also cost a little per miss, since each level is another check. In V8, inline caches hide most of this; they key on an object's hidden class, which also records its prototype, so they work best when objects keep a stable shape and prototype, and changing a prototype after creation can defeat them (see the `__proto__` question).
 
 Copying (spreading or `Object.assign`) takes a snapshot instead: no sharing surprises, but no updates either, and no `instanceof`/method reuse. Choose delegation when behaviour should be shared and live; choose copying when each object must be independent.
 

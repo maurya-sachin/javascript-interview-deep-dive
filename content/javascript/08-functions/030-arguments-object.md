@@ -15,6 +15,8 @@ sources:
   - https://tc39.es/ecma262/#sec-createunmappedargumentsobject
   - https://tc39.es/ecma262/#sec-createmappedargumentsobject
   - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
+  - https://tc39.es/ecma262/#sec-arguments-exotic-objects-defineownproperty-p-desc
+  - https://nodejs.org/docs/latest-v24.x/api/modules.html#the-module-wrapper
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters
 tldr: >
@@ -45,7 +47,7 @@ function mapped(a, b) {
   return [a, arguments[1]];
 }
 console.log(mapped('x', 'y')); // → [ 'changed', 'B' ]
-console.log(mapped('x')); // → [ 'changed', undefined ]  (no argument 1, so no link)
+console.log(mapped('x')); // → [ 'changed', undefined ]
 
 function strictOne(a) {
   'use strict';
@@ -67,13 +69,13 @@ console.log(sum(1, 2, 3)); // → 6
 
 - Relying on parameter aliasing. Add a default value, a rest parameter, or `'use strict'` (or just use a module or class body) and the link vanishes silently.
 - Calling array methods on it directly (`arguments.map(...)` throws). Spread it first: `[...arguments]`.
-- Using `arguments` in an arrow and expecting its own call's arguments. It reads the outer function's. At the top of a CommonJS module it is the module wrapper's arguments, not an error.
+- Using `arguments` in an arrow and expecting its own call's arguments. It reads the outer function's. At the top of a Node.js CommonJS module it is the module wrapper's arguments, not an error.
 - Leaving `arguments.callee` in code that may become strict. It throws there.
 
 ## Follow-ups
 
 **Q:** How does the mapping get broken?
-**A:** Deleting an index, or redefining it as non-writable with `Object.defineProperty`, removes the alias for that index. Redefining only its `value` keeps the alias. Parameters past the passed count were never mapped.
+**A:** Deleting an index, or redefining it as an accessor or as non-writable with `Object.defineProperty`, removes the alias for that index. Redefining only its `value` keeps the alias. Parameters past the passed count were never mapped.
 
 **Q:** How do you write a variadic function today?
 **A:** `function f(first, ...rest)`. `rest` is a real array, is named in the signature, and works in arrows. To forward everything unchanged: `(...args) => g(...args)`.

@@ -1,6 +1,6 @@
 # isobath redesign — design
 
-Built on `v2`. Approved layouts: `mockups/page-layouts.html` (open in a browser); wordmark and mark drafts in `mockups/`. Settled rules are R13–R20 in `PLAN.md`; this file records the design behind them.
+Approved layouts: `mockups/page-layouts.html` (open in a browser); wordmark and mark drafts in `mockups/`. Settled rules are R13–R20 in `PLAN.md`; this file records the design behind them.
 
 ## Goal
 A site for **any software engineer** that is evergreen, scales past 100 topics, and has an original, ownable identity. The content format (one `.md` per question) is unchanged.

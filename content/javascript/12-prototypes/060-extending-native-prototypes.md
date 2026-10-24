@@ -42,11 +42,12 @@ Alternatives: a standalone function (`last(array)`), a wrapper or subclass you o
 ## Example
 
 ```js
+const keysIn = (object) => { const keys = []; for (const key in object) keys.push(key); return keys; };
 Array.prototype.flatten = function () { // assignment: enumerable
   return this.reduce((all, item) => all.concat(item), []);
 };
 const items = ['a', 'b'];
-for (const key in items) console.log(key); // → 0 1 flatten
+console.log(keysIn(items)); // → [ '0', '1', 'flatten' ]
 delete Array.prototype.flatten;
 
 // Overwriting a built-in by assignment keeps its attributes: still non-enumerable.
@@ -64,7 +65,7 @@ if (!Object.hasOwn(Array.prototype, 'last')) {
   });
 }
 console.log([1, 2, 3].last()); // → 3
-for (const key in items) console.log(key); // → 0 1
+console.log(keysIn(items)); // → [ '0', '1' ]
 ```
 
 ## Pitfalls

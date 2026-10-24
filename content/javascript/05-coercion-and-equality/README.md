@@ -1,6 +1,6 @@
 # 05 — Coercion and equality
 
-> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
 
 How values convert between types, the algorithms behind `==` and `===`, and which comparison each API uses.
 
@@ -24,7 +24,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - `Date` objects defaulting to the string hint → 030
 - `+`: string concatenation vs numeric addition → 040
 - `IsStrictlyEqual`, `SameValue`, `SameValueZero`, and the APIs using each → 050
-- Relational comparison (`<`, `>`) coercion → —
+- Relational comparison (`<`, `>`) coercion → 060
 
 ## Questions
 
@@ -36,6 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [How does an object convert to a primitive?](030-object-to-primitive.md) | hard | 🟡 draft |
 | 040 | [Why does `[] + {}` give `"[object Object]"`?](040-addition-operator-coercion.md) | medium | 🟡 draft |
 | 050 | [`===` vs `Object.is` vs SameValueZero — which comparison does each API use?](050-equality-algorithms.md) | medium | 🟡 draft |
+| 060 | [How does `<` compare values of different types, and why is `null >= 0` true?](060-relational-comparison.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources

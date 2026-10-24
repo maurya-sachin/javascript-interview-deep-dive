@@ -15,6 +15,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/2/generics.html
   - https://www.typescriptlang.org/docs/handbook/2/keyof-types.html
   - https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html
+  - https://github.com/microsoft/TypeScript/blob/v5.9.3/src/compiler/checker.ts
 tldr: >
   A generic is a function, interface, class or type alias with type parameters, so one definition
   works over many types while keeping the relationship between input and output types.
@@ -39,12 +40,12 @@ A constraint can refer to another type parameter. The classic form is `K extends
 
 **Defaults.** `<T = unknown>` makes the argument optional when it cannot be inferred or written. Required parameters cannot follow optional ones (error TS2706).
 
-**Where it bites.** The constraint is a lower bound for the body but a caller can pick any subtype. In `function f<T extends string>(): T { return "x"; }`, `"x"` is not assignable to `T`, because `T` could be `"y"`. Reach for generics only when a type parameter appears at least twice (relates inputs to outputs); a parameter used once is usually just its constraint.
+**Where it bites.** The constraint is an upper bound: a caller can pick any subtype of it. In `function f<T extends string>(): T { return "x"; }`, `"x"` is not assignable to `T`, because `T` could be `"y"`. Reach for generics only when a type parameter appears at least twice (relates inputs to outputs); a parameter used once is usually just its constraint.
 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 interface HasLength { length: number }
 
 function longest<T extends HasLength>(a: T, b: T): T {
@@ -75,7 +76,7 @@ const typed: Result<string> = { data: "ok" }; // TError still defaults to Error
 ## Pitfalls
 
 - Confusing a constraint with a parameter type. `(a: HasLength): HasLength` forgets the caller's type; `<T extends HasLength>(a: T): T` keeps it.
-- Returning a fresh value typed as `T`. `function f<T extends string>(): T { return "x"; }` fails with TS2322 (`'string' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constraint 'string'`, checked on 7.0.2 and 5.9.3). The caller chooses `T`; the body cannot.
+- Returning a fresh value typed as `T`. `function f<T extends string>(): T { return "x"; }` fails with TS2322 (`'string' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constraint 'string'`, checked on 7.0.2 and 6.0.3). The caller chooses `T`; the body cannot.
 - Type parameters used once (`function f<T>(x: T): void`). They relate nothing; use the constraint or `unknown`.
 - Assuming `extends` is inheritance. It is a structural assignability check, so object literals with extra properties and primitives like `string` can satisfy `{ length: number }`.
 
@@ -95,13 +96,13 @@ At a call, the checker collects **inference candidates** for each type parameter
 
 Inside the body, `T` is a distinct opaque type whose **base constraint** is `HasLength` (`unknown` when none is written). Property access resolves through the base constraint (`a.length` works), but assignability to `T` does not: only values already typed `T` are assignable to it, which is the root of the `return "x"` error above. `T extends string` can be instantiated as the literal `"y"`, so a fresh `"x"` might be wrong.
 
-A constraint can mention its own parameter (`T extends Comparable<T>`) and a later parameter can use an earlier one (`K extends keyof T`); defaults can too (`<A, B = A[]>`). All three compile on 7.0.2 and 5.9.3.
+A constraint can mention its own parameter (`T extends Comparable<T>`) and a later parameter can use an earlier one (`K extends keyof T`); defaults can too (`<A, B = A[]>`). All three compile on 7.0.2 and 6.0.3.
 
 ### Edge cases
 
 - `T extends object` rejects primitives: `merge(1, {})` with `<A extends object, B extends object>` reports `number` is not assignable to `object` (checked on both versions).
-- A string-like constraint keeps literal types in inferred results (`T` became `"ab" | "c"` above) instead of widening to `string`.
-- Union order in printed errors can differ between compiler versions: `keyof { id; name }` printed as `"id" | "name"` on 7.0.2 and `"name" | "id"` on 5.9.3 in the same program. Do not depend on it.
+- Inferred literals are kept when `T` is the whole return type (`"ab" | "c"` above) or the constraint is primitive (`T extends string`); otherwise they widen: `<T extends HasLength>(a: T): T[]` returns `string[]` for `"ab"` (rule in `checker.ts`, observed on both versions).
+- Union order in printed errors can differ between compiler versions: `keyof { id; name }` printed as `"id" | "name"` on 7.0.2 and `"name" | "id"` on 6.0.3 in the same program. Do not depend on it.
 - `class Box<T> { static make(x: T) }` is an error: static members cannot reference the class type parameter (error TS2302, checked on both versions).
 
 ### Trade-offs

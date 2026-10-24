@@ -14,6 +14,9 @@ sources:
   - https://tc39.es/ecma262/#sec-atomics-object
   - https://tc39.es/ecma262/#sec-dowait
   - https://tc39.es/ecma262/#sec-memory-model
+  - https://html.spec.whatwg.org/multipage/webappapis.html#creating-a-new-javascript-realm
+  - https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializeinternal
+  - https://html.spec.whatwg.org/multipage/browsers.html#coep
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/wait
@@ -63,7 +66,7 @@ if (isMainThread) {
     Atomics.add(workerData, 1, 1);    // one indivisible step
   }
 }
-// → plain  : (varies every run, below 400000; saw 241424, 195457, 197707)
+// plain prints a different total each run (lost updates), e.g. 235984 or 245105
 // → atomic : 400000
 ```
 
@@ -80,7 +83,7 @@ if (isMainThread) {
 **A:** Use one slot as state. Acquire with `Atomics.compareExchange(s, 0, 0, 1)` until it returns `0`, sleeping with `Atomics.wait(s, 0, 1)` when it fails. Release with `Atomics.store(s, 0, 0)` then `Atomics.notify(s, 0, 1)`. Four Node workers doing 20,000 locked increments each gave `80000` in every run.
 
 **Q:** Why did browsers require cross-origin isolation?
-**A:** Browsers disabled shared memory and high-resolution timers in 2018 because of Spectre side-channel attacks. Cross-origin isolation is the later, secure way to re-enable them: it keeps untrusted cross-origin content out of the page's process.
+**A:** Browsers effectively disabled shared memory and high-resolution timers at the start of 2018 because of Spectre side-channel attacks. Cross-origin isolation is the later, secure way to re-enable them: COOP and COEP ensure that everything sharing the page's process has opted in to being there.
 
 **Q:** When do I not need SAB?
 **A:** When one thread owns the data at a time. `postMessage` with a transfer list moves an `ArrayBuffer` without copying, which is simpler and race-free.

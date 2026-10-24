@@ -10,6 +10,8 @@ related:
   - javascript/keyed-collections/weakmap-weakset
   - javascript/memory-and-gc/memory-leaks
 verified: 2026-10
+perishable:
+  - Example collection and callback timing observed on Node 24.19 / V8 13.6
 sources:
   - https://tc39.es/ecma262/#sec-weakref-processing-model
   - https://tc39.es/ecma262/#sec-weakref-invariants
@@ -21,6 +23,7 @@ sources:
   - https://tc39.es/ecma262/#sec-cleanup-finalization-registry
   - https://tc39.es/ecma262/#sec-weak-ref-objects
   - https://tc39.es/ecma262/#sec-finalization-registry-objects
+  - https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakRef
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry
 tldr: >
@@ -40,7 +43,7 @@ The spec is deliberately weak:
 
 - It "does not make any guarantees that any object or symbol will be garbage collected." Unreachable objects "may be released after long periods of time, or never at all."
 - Cleanup callbacks run as a separate job after synchronous code ends. Implementations "may omit FinalizationRegistry callbacks for any reason", for example if the application is shutting down.
-- **Pinning (KeepDuringJob):** `new WeakRef(target)` and `deref()` call `AddToKeptObjects`, which holds the target strongly until `ClearKeptObjects` runs at the end of the current synchronous job. So the target cannot vanish between two `deref()` calls in the same job; it can between jobs.
+- **Pinning (KeepDuringJob):** `new WeakRef(target)` and `deref()` call `AddToKeptObjects`, which holds the target strongly until the host calls `ClearKeptObjects` once the synchronous run completes. HTML does that after the microtask checkpoint, so the pin survives an `await` in the same task. The target cannot vanish between two `deref()` calls in one run; it can between tasks.
 
 Consequences: collection timing differs by engine, flags, heap pressure and version, so code that "works" while testing may behave differently in production. Do not use these for resource management (use `try/finally`, `using`, `AbortController`), correctness, or logic that must run. Legitimate uses are narrow: a cache of recomputable values that may be dropped under memory pressure, and a last-resort cleanup of something external (a native handle) if the owner forgot to dispose of it.
 
@@ -51,23 +54,23 @@ Consequences: collection timing differs by engine, flags, heap pressure and vers
 const nextTask = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 let target = { name: 'big object' };
-const ref = new WeakRef(target);   // pins target until this job ends
+const ref = new WeakRef(target);   // pins target until this synchronous run ends
 const registry = new FinalizationRegistry((held) => console.log('callback for', held));
 registry.register(target, 'big object');
 
 target = null;                     // no strong reference left
-global.gc();                       // forced, same job
-console.log(ref.deref()?.name);    // → big object  (guaranteed by the spec)
+global.gc();                       // forced, same run
+console.log(ref.deref()?.name);    // guaranteed by the spec
+// → big object
 
-await nextTask();                  // a new job: the pin is gone
+await nextTask();                  // a new task: the pin is gone
 global.gc();
-console.log(ref.deref()?.name);    // → undefined  (VARIES: allowed to stay "big object")
+console.log(ref.deref()?.name);    // undefined or 'big object': both allowed
 await nextTask();
-await nextTask();
-// → callback for big object  (VARIES: may print later, or never)
+await nextTask();                  // the callback may print here, later, or never
 ```
 
-Only the first output is guaranteed. The second and third are what Node 24.19 printed on one machine in three runs; `--expose-gc` makes collection likely, not required. Without the `global.gc()` calls, a separate three-tick test kept the object alive and never ran the callback.
+Only the first output is guaranteed. In three runs on Node 24.19 (V8 `13.6.233.17-node.51`) the second line printed `undefined` and the callback printed `callback for big object` during the last two ticks; `--expose-gc` makes collection likely, not required. Without the `global.gc()` calls, a separate three-tick test kept the object alive and never ran the callback.
 
 ## Pitfalls
 
@@ -100,7 +103,7 @@ global.gc();
 console.log(ref.deref()?.n);
 ```
 
-**Answer:** It prints `1`. `new WeakRef(obj)` already called `AddToKeptObjects`, so the object stays alive until the current synchronous job ends. Nothing can reach `obj` after `obj = null`, but the kept-alive list does. The same program split across two jobs (with an `await` before `gc()`) is allowed to print `undefined`, but is not required to.
+**Answer:** It prints `1`. `new WeakRef(obj)` already called `AddToKeptObjects`, so the object stays alive until the current synchronous job ends. Nothing can reach `obj` after `obj = null`, but the kept-alive list does. Split across two tasks (with `await` on a `setTimeout` before `gc()`), it is allowed to print `undefined`, but is not required to. An `await null` is not enough: HTML clears the kept list only after the microtask checkpoint, and Node 24.19 still printed `1`.
 
 ### Which lines throw?
 

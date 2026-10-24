@@ -203,7 +203,7 @@ Writing these by hand is an interview exercise; in production code use the built
 ```js
 console.log([1, , 3].map((n) => n * 2));
 console.log([1, 2, 3].reduce((a, b) => a + b, undefined));
-try { [].reduce((a, b) => a + b); } catch (e) { console.log(e.message); }
+try { [].reduce((a, b) => a + b); } catch (e) { console.log(e.name); }
 ```
 
-**Answer:** `[ 2, <1 empty item>, 6 ]`; `NaN`; then `Reduce of empty array with no initial value` (V8's message; the spec only requires a `TypeError`). In the second line `undefined` is a real initial value, so the first call is `undefined + 1`.
+**Answer:** `[ 2, <1 empty item>, 6 ]`; `NaN`; then `TypeError` (reduce of an empty array with no initial value). In the second line `undefined` is a real initial value, so the first call is `undefined + 1`.

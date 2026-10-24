@@ -19,6 +19,8 @@ sources:
   - https://tc39.es/ecma262/#sec-global-environment-records
   - https://tc39.es/ecma262/#sec-object-environment-records-hasbinding-n
   - https://tc39.es/ecma262/#sec-createimportbinding
+  - https://tc39.es/ecma262/#sec-functiondeclarationinstantiation
+  - https://chromium.googlesource.com/v8/v8.git/+/main/docs/runtime/scopes-and-scope-infos.md
 tldr: >
   An Environment Record is the spec's table of identifier bindings for one scope, plus an
   `[[OuterEnv]]` link to the enclosing one. There are declarative, function, module, object, and
@@ -44,7 +46,7 @@ The spec defines an abstract type and these concrete kinds:
 
 Each binding has attributes: mutable or immutable, strict, deletable, initialized or not. These explain the observable rules: a `const` is an immutable binding (assignment throws a `TypeError`), a `let` before its declaration is an uninitialized binding (reads throw a `ReferenceError`), and a closure is a function whose `[[Environment]]` points at a record that outlives its call.
 
-The operations are `HasBinding`, `CreateMutableBinding`, `CreateImmutableBinding`, `InitializeBinding`, `SetMutableBinding`, `GetBindingValue`, and `DeleteBinding`. Name resolution is `HasBinding` repeated along `[[OuterEnv]]`.
+The binding operations are `HasBinding`, `CreateMutableBinding`, `CreateImmutableBinding`, `InitializeBinding`, `SetMutableBinding`, `GetBindingValue`, and `DeleteBinding`; `HasThisBinding`, `GetThisBinding`, `HasSuperBinding`, and `WithBaseObject` complete the set. Name resolution is `HasBinding` repeated along `[[OuterEnv]]`.
 
 ## Example
 
@@ -90,12 +92,13 @@ console.log(first.read(), second.read()); // → 2 1
 When a function is called, `PrepareForOrdinaryCall` calls `NewFunctionEnvironment`, which makes a record with `[[OuterEnv]]` set to the function's `[[Environment]]`. `FunctionDeclarationInstantiation` then fills it:
 
 1. Parameters become mutable bindings, initialized from the arguments.
-2. Function declarations are created and initialized; `var` names are created and initialized to `undefined`.
+2. `var` and function declaration names are created and initialized to `undefined`, unless a parameter already holds the name.
 3. `let`, `const`, and `class` names get *uninitialized* bindings, which `InitializeBinding` later sets when the declaration is evaluated.
+4. Function objects are created and stored in their names' bindings.
 
-If the parameter list contains expressions, the body's `var`s go into a second record whose outer link is the parameter record.
+If the parameter list contains expressions, the body's `var`s go into a second record whose outer link is the parameters' record. In sloppy code the parameters then also get a record nested inside the Function Environment Record, so `var`s from a direct `eval` in a default land outside it.
 
-A block statement does `NewDeclarativeEnvironment(current)`, runs `BlockDeclarationInstantiation`, swaps the context's `LexicalEnvironment` to it, and swaps it back on exit. This is cheap in theory and often free in practice: engines can skip creating a record when nothing in the block is captured.
+A block statement does `NewDeclarativeEnvironment(current)`, runs `BlockDeclarationInstantiation`, swaps the context's `LexicalEnvironment` to it, and swaps it back on exit. This is cheap in theory and often free in practice: V8, for one, creates a heap block context only when a closure captures one of the block's variables.
 
 ### Edge cases
 
@@ -126,7 +129,7 @@ import(import.meta.url).then((self) => {
 
 ### Trade-offs
 
-The record model keeps the semantics of scopes small and uniform: one chain, one lookup algorithm, different storage rules. The cost is a gap between the model and reality. Engines optimize the records away, merge them, or allocate them on the stack, and they only have to match what code can observe. When you read V8 or SpiderMonkey internals, expect "contexts" or "scope objects" that approximate this model rather than copy it.
+The record model keeps the semantics of scopes small and uniform: one chain, one lookup algorithm, different storage rules. The cost is a gap between the model and reality. Engines optimize the records away, merge them, or allocate them on the stack, and they only have to match what code can observe. When you read engine internals, expect structures that approximate this model rather than copy it, such as V8's `Context` chain.
 
 ## Exercises
 

@@ -44,7 +44,7 @@ Interview-level summary: conditional types are lazy, distribute over naked type 
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 type IsString<T> = T extends string ? true : false;
 type A = IsString<"a">; // true
 type B = IsString<string | number>; // boolean
@@ -79,7 +79,7 @@ function label<T extends string | number>(x: T): T extends string ? "s" : "n" {
 ## Follow-ups
 
 **Q:** How do you detect `any`?
-**A:** `0 extends 1 & T ? true : false`: `1 & any` is `any`, to which `0` is assignable; for any other `T` the intersection is `1` or `never` and `0` is not. Checked on 5.9.3 and 7.0.2: true for `any`, false for `unknown`, `string` and `never`.
+**A:** `0 extends 1 & T ? true : false`. `1 & any` is `any`, which accepts `0`; for any other `T` the intersection is `1`, a narrower `1 & …` or `never`, none of which accepts `0`. Checked on 6.0.3 and 7.0.2 with `any`, `unknown`, `string` and `never`.
 
 **Q:** Does `Exclude<boolean, true>` work?
 **A:** Yes. `boolean` is `true | false`, so it distributes and leaves `false`.
@@ -97,8 +97,8 @@ In the true branch of a distributive conditional, references to `T` are the indi
 - `never`: zero members, zero results. Checked on both versions: `IsString<never>` is `never`, while `Whole<never>` and `IsNever<never>` are `true`.
 - `any` as the check type produces both branches (`IsString<any>` printed `boolean`).
 - `boolean` is `true | false`, so `IsString<boolean>` is `false` per member.
-- `keyof T extends "a" | "b" ? 1 : 2` is not distributive: with `{ a: 1 }` it gives `1`, with `{ a: 1; c: 2 }` it gives `2` (checked on 5.9.3).
-- A union inside an object, function return, or tuple position is not distributed by an outer alias; the conditional there distributes when its own check type is a naked parameter at instantiation, e.g. `Obj<string | number>` printed `{ v: 2 | 1 }` (union order differs by compiler).
+- `keyof T extends "a" | "b" ? 1 : 2` is not distributive: with `{ a: 1 }` it gives `1`, with `{ a: 1; c: 2 }` it gives `2` (checked on 6.0.3 and 7.0.2).
+- A union inside an object, function return, or tuple position is not distributed by an outer alias; the conditional there distributes when its own check type is a naked parameter at instantiation, e.g. `Obj<string | number>` printed `{ v: 1 | 2 }` on 7.0.2 and `{ v: 2 | 1 }` on 6.0.3.
 - To force distribution without a conditional you otherwise need, the idiom `T extends T ? ... : never` works (checked: `Dist<1 | 2>` gave `[1] | [2]`, printed in either order).
 
 ### Trade-offs

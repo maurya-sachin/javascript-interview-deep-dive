@@ -81,7 +81,7 @@ await show('any', Promise.any(jobs()));
 ## Follow-ups
 
 **Q:** What is in an `AggregateError`?
-**A:** `Promise.any` rejects with `AggregateError`, whose `errors` array holds each rejection reason in input order. Its message is `All promises were rejected`.
+**A:** `Promise.any` rejects with `AggregateError`, whose `errors` array holds each rejection reason in input order. The spec sets no message; in V8 (Node 24) it is `All promises were rejected`.
 
 **Q:** Which method gives results for both successes and failures?
 **A:** `Promise.allSettled`. Each entry has `status` (`'fulfilled'` or `'rejected'`) plus `value` or `reason`. It rejects only if the argument is not iterable.
@@ -137,7 +137,7 @@ console.log(await all); // → [ 'a', 'b', 'c' ]
 
 ### Edge cases
 
-- **Errors during iteration close the iterator.** If reading the iterable or calling `Promise.resolve` throws partway through, the result rejects with that error and the iterator is closed. Elements already started keep running.
+- **Errors during iteration reject the result.** If calling `Promise.resolve` or an element's `then` throws partway through, the result rejects with that error and the iterator is closed. If the iterator's own `next()` throws, the result rejects but the iterator is not closed. Elements already started keep running.
 - **Late rejections are handled.** After `all` rejects, a later rejection from another input doesn't raise `unhandledRejection`, because each input has a reaction attached.
 - **The combinators are generic over `this`.** They use `this` as the constructor, so they work on Promise subclasses. Called with a non-constructor (`Promise.all.call({}, [])`), they throw a `TypeError` instead of returning a rejected promise.
 

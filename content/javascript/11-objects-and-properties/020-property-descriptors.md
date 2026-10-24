@@ -73,7 +73,7 @@ console.log(JSON.stringify(point)); // → {"x":1}
 try {
   Object.defineProperty(point, 'y', { enumerable: true });
 } catch (error) {
-  console.log(error.message); // → Cannot redefine property: y
+  console.log(error.name); // → TypeError
 }
 ```
 
@@ -107,7 +107,7 @@ The spec stores attributes as internal slots on each property: `[[Value]]` and `
 - If it exists and is configurable: apply any change, even turning a data property into an accessor.
 - If it exists and is **non-configurable**: reject `configurable: true`, any change of `enumerable`, and any switch between data and accessor. For an accessor, `get` and `set` must be the same functions. For a data property that isn't writable, reject `writable: true` and any `value` that isn't `SameValue` to the current one. A writable data property may still change its `value` and may go from `writable: true` to `false`, but never back.
 
-Assignment uses the same data. `OrdinarySetWithOwnDescriptor` returns `false` when the found data property is non-writable, and the caller throws in strict code. It also looks at the *prototype chain* first, which is why an inherited read-only property blocks the write instead of being shadowed.
+Assignment uses the same data. `OrdinarySetWithOwnDescriptor` returns `false` when the found data property is non-writable, and the caller throws in strict code. When the object has no own property, it walks the *prototype chain* before creating one, which is why an inherited read-only property blocks the write instead of being shadowed.
 
 ### Edge cases
 
@@ -142,7 +142,7 @@ Re-defining a non-configurable property with the same value is a successful no-o
 
 ### Real-world scenario
 
-Library code uses descriptors to make internals harder to touch. A module can expose a version constant that can't be overwritten or listed, and a `class` is already doing this for its methods:
+Library code uses descriptors to make internals harder to touch. A module can expose a version constant that can't be overwritten or deleted, and a `class` is already doing this for its methods:
 
 ```js
 const api = { fetchUser() {} };

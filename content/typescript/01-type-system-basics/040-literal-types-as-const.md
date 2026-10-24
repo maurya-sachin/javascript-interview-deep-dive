@@ -14,6 +14,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html
+  - https://github.com/microsoft/TypeScript/issues/47920
 tldr: >
   A literal type is a type with exactly one value, like "GET" or 42. Inference keeps the literal
   for `const` bindings but widens it to `string`/`number` where the value could change (`let`,
@@ -78,13 +79,13 @@ dirs.push("left");
 
 - Thinking `as const` makes data immutable at runtime. It is erased, and `Object.isFrozen` on the result is `false`. Use `Object.freeze` if you need that, and it is shallow.
 - Applying `as const` to an expression: `(Math.random() ? "a" : "b") as const` fails with `TS1355: A 'const' assertion can only be applied to references to enum members, or string, number, boolean, array, or object literals.`
-- Passing a `readonly` tuple to a function that takes `string[]`. TypeScript reports `TS4104: The type 'readonly ["up", "down"]' is 'readonly' and cannot be assigned to the mutable type 'string[]'`; type the parameter `readonly string[]`.
+- Passing a `readonly` tuple to a function that takes `string[]`. TypeScript 7.0 reports `TS4104: The type 'readonly ["up", "down"]' is 'readonly' and cannot be assigned to the mutable type 'string[]'` (6.0 reports TS2345 with that line beneath); type the parameter `readonly string[]`.
 - Using `as "GET"` on a single property as a fix everywhere. It works, but it is an assertion: if the value isn't `"GET"`, nothing complains.
 
 ## Follow-ups
 
 **Q:** What is the difference between `as const` and `satisfies`?
-**A:** `satisfies T` checks the value against `T` and keeps its inferred type; it doesn't add `readonly` or stop widening. `as const` changes the inferred type to the narrowest one. `{ a: 1 } as const satisfies Record<string, number>` gives `{ readonly a: 1 }` and also validates it.
+**A:** `satisfies T` validates against `T` and keeps the inferred type: no `readonly`, and literals stay only where `T` expects them (`{ m: "GET" } satisfies { m: Method }` keeps `"GET"`). `as const` narrows fully; `{ a: 1 } as const satisfies Record<string, number>` is `{ readonly a: 1 }`.
 
 **Q:** How do you get literals from a generic function without `as const` at the call site?
 **A:** A `const` type parameter (TS 5.0): `function f<const T>(x: T)`. It only affects literals written inline in the call, and with a mutable constraint like `string[]` it won't infer a readonly tuple.

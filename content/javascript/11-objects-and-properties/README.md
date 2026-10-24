@@ -1,6 +1,6 @@
 # 11 — Objects and properties
 
-> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/9 · **Last verified:** —
 
 The property model — keys, attributes, accessors, integrity levels — and copying and comparing objects.
 
@@ -25,8 +25,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - `for…in`, `Object.keys`/`values`/`entries`, `Object.hasOwn`, `Reflect.ownKeys` → 050
 - Spread vs `Object.assign` (setters, own enumerable only); `structuredClone` limits → 060
 - Deep clone and deep equal implementations; cycles → 060, 070
-- Computed keys, shorthand properties, method syntax → —
-- `Object.fromEntries` and transforming objects → —
+- Computed keys, shorthand properties, method syntax → 080
+- `Object.fromEntries` and transforming objects → 090
 
 ## Questions
 
@@ -40,6 +40,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [How do you list an object's properties?](050-enumerating-properties.md) | easy | 🟡 draft |
 | 060 | [Shallow vs deep copy — spread, `Object.assign`, or `structuredClone`?](060-shallow-vs-deep-copy.md) | medium | 🟡 draft |
 | 070 | [How do you compare two objects for equality?](070-deep-equality.md) | medium | 🟡 draft |
+| 080 | [What do computed keys, shorthand properties and method syntax change beyond brevity?](080-object-literal-syntax.md) | medium | 🟡 draft |
+| 090 | [How do you map or filter an object's properties?](090-transforming-objects.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources

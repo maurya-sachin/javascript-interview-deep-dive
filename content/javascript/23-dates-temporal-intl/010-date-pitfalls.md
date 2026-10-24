@@ -35,7 +35,7 @@ A `Date` wraps a single **time value**: an integer number of milliseconds since 
 - **0-based months, 1-based days.** `new Date(2026, 1, 31)` is not an error. Out-of-range fields roll over into the next month. Two-digit years `0`–`99` map to 1900–1999.
 - **Mutable.** Setters change the object in place, so `const end = start; end.setMonth(…)` also changes `start`. Date arithmetic means copying with `new Date(date)` and then mutating.
 - **Silent invalidity.** Bad input gives an "Invalid Date" with time value `NaN`. Only `toISOString()` throws a `RangeError`; comparisons and getters return `NaN` or `false`. Check `Number.isNaN(d.getTime())`.
-- **No zones, no calendars, no durations.** There is no way to hold "9:00 in Tokyo" or "March 8, no time". Months and days are the only calendar fields, and "add one month" is hand-written arithmetic.
+- **No zones, no calendars, no durations.** There is no way to hold "9:00 in Tokyo" or "March 8, no time". The only calendar is the proleptic Gregorian one, and "add one month" is hand-written arithmetic.
 
 Use `Date` for instants and `Date.now()`. For wall-clock or calendar values, use Temporal ([`temporal-types`](020-temporal-types.md)).
 

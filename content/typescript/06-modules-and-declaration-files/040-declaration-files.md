@@ -47,7 +47,7 @@ A **declaration file** (`.d.ts`) describes the shape of JavaScript that lives in
 ## Example
 
 ```ts
-// src/untyped-lib.d.ts  (TypeScript 7.0.2 and 5.9.3, strict)
+// src/untyped-lib.d.ts  (TypeScript 7.0.2 and 6.0.3, strict)
 declare module "untyped-lib" {
   export function greet(name: string): string;
 }
@@ -71,14 +71,14 @@ export class Counter { #n = 0; inc() { return ++this.#n; } }
 ## Pitfalls
 
 - Adding a top-level `import` or `export` to the file that holds `declare module "x" { ... }`. It then becomes a module and the block is treated as an augmentation: both versions reported TS2665 ("Invalid module name in augmentation. Module 'untyped-lib' resolves to an untyped module") and the original TS7016 stayed.
-- Believing `@types/foo` needs a `types` entry. On 7.0.2 with `types` unset, `import ms from "ms"` found `@types/ms`, while the global `process` from `@types/node` failed with TS2591 until `--types node` was passed.
+- Believing `@types/foo` needs a `types` entry. On 6.0.3 and 7.0.2 with `types` unset, `import ms from "ms"` found `@types/ms`, while the global `process` from `@types/node` failed with TS2591 until `--types node` was passed.
 - Using `declare module "x";` as the finished answer. It silences TS7016, but `greet(1, 2, 3)` compiled without any error, so you lose all checking.
 - Shipping `.d.ts` files that import `@types/*` while listing those packages only in `devDependencies`. The publishing guide says to put them in `dependencies`.
 
 ## Follow-ups
 
 **Q:** Package has both `types` and `exports`. Which does `tsc` use?
-**A:** Under `nodenext` and `bundler`, `exports` wins, with `types` as the first condition. The top-level `types` field still serves resolvers that ignore `exports`; in my `node10` test `tsc` used it (see the module-resolution question).
+**A:** Under `nodenext` and `bundler`, `exports` wins; list its `types` condition first, since conditions match in order. The top-level `types` field still serves resolvers that ignore `exports`; in a `node10` test on 6.0.3 `tsc` used it (see the module-resolution question).
 
 **Q:** Why not just write `.d.ts` by hand for my own code?
 **A:** Hand-written files drift from the implementation. Let `declaration: true` generate them, or use JSDoc types in JavaScript.

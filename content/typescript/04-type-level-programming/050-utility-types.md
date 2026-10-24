@@ -14,7 +14,7 @@ verified: 2026-10
 sources:
   - https://www.typescriptlang.org/docs/handbook/utility-types.html
   - https://raw.githubusercontent.com/microsoft/TypeScript-Website/v2/packages/documentation/copy/en/reference/Utility%20Types.md
-  - https://raw.githubusercontent.com/microsoft/TypeScript/v5.9.3/src/lib/es5.d.ts
+  - https://raw.githubusercontent.com/microsoft/TypeScript/v6.0.3/src/lib/es5.d.ts
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-8.html
   - https://github.com/microsoft/TypeScript/pull/21919
 tldr: >
@@ -42,7 +42,7 @@ type Parameters<T extends (...args: any) => any> = T extends (...args: infer P) 
 type ReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : any;
 ```
 
-(From the TS 5.9.3 source; `NonNullable` became `T & {}` in 4.8.)
+(From the TS 6.0.3 lib, identical in 7.0.2; `NonNullable` became `T & {}` in 4.8.)
 
 What to say about them:
 
@@ -58,7 +58,7 @@ Use them to derive types from one source of truth: DTO variants, partial updates
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict
+// TypeScript 7.0.2 and 6.0.3, --strict
 interface User { readonly id: number; name: string; email?: string; address: { city: string } }
 type MyRequired<T> = { [K in keyof T]-?: T[K] };
 type MyPick<T, K extends keyof T> = { [P in K]: T[P] };
@@ -116,7 +116,7 @@ The mapped-type utilities depend on being **homomorphic**: the key source is `ke
 - `Partial<User>["address"]` is `{ city: string } | undefined`: the optional adds `undefined`.
 - `Record<"a" | "b", number>` is `{ a: number; b: number }`; `Record<string, number>` is `{ [x: string]: number }`.
 - `NonNullable<unknown>` printed `{}`.
-- `Pick<Shape, "kind">` on the union printed `{ kind: "a" | "b" }`.
+- `Pick<Shape, "kind">` on the union is `{ kind: "a" | "b" }` (checked by type equality; diagnostics print the alias).
 - `Parameters<(a: string, ...r: number[]) => void>` keeps labels and the rest element as a tuple.
 
 ### Real-world scenario

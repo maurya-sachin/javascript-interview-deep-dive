@@ -30,7 +30,7 @@ The check applies only to a **fresh** object literal, the expression written at 
 Two related rules to know:
 
 - **Weak types** (TS 2.4). A type whose properties are all optional rejects anything that shares no properties with it, even from a variable. `{ colour: "red" }` has nothing in common with `{ color?: string; width?: number }`, so this is an error without a literal at all.
-- **Where the check does not apply.** Spread members aren't checked, and a union target without a discriminant accepts a literal that matches any member. With a discriminant, TypeScript picks the matching member and checks against it.
+- **Where the check does not apply.** Spread members aren't checked, and a union target without a discriminant rejects only properties that no member declares. With a discriminant, TypeScript picks the matching member and checks against it.
 
 **Fixing it:** correct the typo; if the extra property is legitimate, add it to the type, or add an index signature (`[key: string]: unknown`). The handbook says if you're hitting this on option bags, revise the declarations instead of silencing the check. An `as Options` assertion bypasses it but also hides real mistakes.
 
@@ -70,7 +70,7 @@ const shape: Shape = { kind: "a", a: 1, b: 2 };
 ## Follow-ups
 
 **Q:** What does `exactOptionalPropertyTypes` change?
-**A:** Without it, `theme?: "dark"` also accepts an explicit `undefined`. With it, that assignment fails (`TS2412`, `TS2375` for literals). The distinction matters at runtime: `{ ...{ theme: "dark" }, ...{ theme: undefined } }` yields `{ theme: undefined }` (Node 24.19).
+**A:** Without it, `theme?: "dark"` also accepts an explicit `undefined`. With it, that assignment fails (`TS2412` for a property write, `TS2375` for a whole object). The distinction matters at runtime: `{ ...{ theme: "dark" }, ...{ theme: undefined } }` yields `{ theme: undefined }` (Node 24.19).
 
 **Q:** What does `noUncheckedIndexedAccess` add for index signatures?
 **A:** Reading an undeclared key through an index signature gives `T | undefined` instead of `T`. Without it, `d.nope` on `{ [k: string]: number }` is typed `number` even if absent. It is not part of `strict`.

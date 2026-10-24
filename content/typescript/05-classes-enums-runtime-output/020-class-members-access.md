@@ -16,6 +16,7 @@ sources:
   - https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-3.html
   - https://www.typescriptlang.org/tsconfig/#useDefineForClassFields
   - https://www.typescriptlang.org/tsconfig/#noImplicitOverride
+  - https://tc39.es/ecma262/#sec-static-semantics-allprivateidentifiersvalid
 tldr: >
   TypeScript adds `public`, `protected`, `private`, `readonly`, `override`, and parameter
   properties to JavaScript classes. All are erased or compiled away, so `private` is only a
@@ -40,7 +41,7 @@ Choose `#` when privacy must hold at runtime (libraries, secrets in objects that
 ## Example
 
 ```ts
-// TypeScript 7.0.2 and 5.9.3, --strict --noImplicitOverride
+// TypeScript 7.0.2 and 6.0.3, --strict --noImplicitOverride --target es2022
 class Account {
   #pin = 1234; // hard private: ECMAScript private field
   private secret = "s3"; // soft private: erased after type checking
@@ -68,7 +69,7 @@ console.log(a["secret"], Object.keys(a)); // bracket access skips the check
 ## Pitfalls
 
 - Thinking `private` protects data. It does not exist at runtime, and `a["secret"]` passes the checker too. Use `#` for real privacy.
-- Using a parameter property in a field initializer with `target` ES2022+. `class A { constructor(public x: number) {} y = this.x * 2; }` errors (TS2729) on 7.0.2 and 5.9.3, and `new A(2).y` printed `NaN` when compiled for ES2022 but `4` for ES2021, because `useDefineForClassFields` is true from ES2022 and fields initialise before the constructor body.
+- Using a parameter property in a field initializer with `target` ES2022+. `class A { constructor(public x: number) {} y = this.x * 2; }` errors (TS2729) on 7.0.2 and 6.0.3, and `new A(2).y` printed `NaN` when compiled for ES2022 but `4` for ES2021, because `useDefineForClassFields` is true from ES2022 and fields initialise before the constructor body.
 - Forgetting that `protected` members widen to `public` in a subclass that redeclares them without a modifier (Handbook, "Exposure of protected members").
 - Mixing up `override` errors: TS4114 (missing `override`) only appears with `noImplicitOverride`; a wrong `override` on a non-existent base member is TS4113 regardless.
 
@@ -78,4 +79,4 @@ console.log(a["secret"], Object.keys(a)); // bracket access skips the check
 **A:** Yes. Checked on both versions: `Q` to `P` fails with "Types have separate declarations of a private property 'v'", and `#v` gives a similar error. A structural `{ v: number }` target also rejects a class with `private v`.
 
 **Q:** How do you do mixins?
-**A:** A function that takes a constructor type and returns a class expression extending it, e.g. `Timestamped(User)`. Checked: instances have both `name` and `createdAt`. Mixins cannot declare `private`/`protected` members (Handbook); use `#` fields.
+**A:** A function that takes a constructor type and returns a class expression extending it, e.g. `Timestamped(User)`. Checked: instances have both `name` and `createdAt`. With `declaration` on, an exported mixin's class cannot have `private`/`protected` members (TS4094), hence the Handbook's advice to use `#` fields.

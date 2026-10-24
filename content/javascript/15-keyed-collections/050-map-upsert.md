@@ -9,7 +9,10 @@ related:
   - javascript/keyed-collections/map-vs-object
   - javascript/keyed-collections/groupby
 verified: 2026-10
+perishable:
+  - Node 24.19 lacks getOrInsert; Node 26.7 has it
 sources:
+  - https://github.com/tc39/proposals/blob/main/finished-proposals.md
   - https://github.com/tc39/proposal-upsert
   - https://tc39.es/ecma262/#sec-map.prototype.getorinsert
   - https://tc39.es/ecma262/#sec-map.prototype.getorinsertcomputed
@@ -45,7 +48,7 @@ Details from the spec:
 - `getOrInsertComputed` throws a `TypeError` if `callback` is not callable. If `callback` itself adds that key to the map, the spec's re-check overwrites the entry with the callback's return value.
 - `WeakMap` has both methods, with the same `CanBeHeldWeakly` key rule as `set`.
 
-**Availability (checked, not assumed).** The TC39 upsert proposal is at Stage 4, and `getOrInsert` / `getOrInsertComputed` are in the living ECMAScript specification. MDN lists them as Baseline 2026 (newly available since February 2026). In this repo's runs, Node 24.19 does **not** have them (`typeof` is `undefined`) and Node 26.7 does. So feature-detect, or use a small helper for older runtimes, as below. Which numbered ECMAScript edition first includes them is ❓ not verified here.
+**Availability (checked, not assumed).** The TC39 upsert proposal is at Stage 4, and `getOrInsert` / `getOrInsertComputed` are in the living ECMAScript specification. MDN lists them as Baseline 2026 (newly available since February 2026). In this repo's runs, Node 24.19 does **not** have them (`typeof` is `undefined`) and Node 26.7 does. So feature-detect, or use a small helper for older runtimes, as below. TC39's finished-proposals list gives 2026 as the publication year, so they are ES2026.
 
 ## Example
 

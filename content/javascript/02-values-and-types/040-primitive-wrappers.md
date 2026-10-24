@@ -13,6 +13,7 @@ sources:
   - https://tc39.es/ecma262/#sec-toobject
   - https://tc39.es/ecma262/#sec-getvalue
   - https://tc39.es/ecma262/#sec-putvalue
+  - https://tc39.es/ecma262/#sec-ordinarysetwithowndescriptor
   - https://tc39.es/ecma262/#sec-ordinarycallbindthis
   - https://tc39.es/ecma262/#sec-object-value
   - https://developer.mozilla.org/en-US/docs/Glossary/Primitive
@@ -20,7 +21,7 @@ sources:
 tldr: >
   A property access on a primitive first runs `ToObject` on it, creating a temporary wrapper
   (String, Number, Boolean, Symbol, BigInt) whose prototype supplies the method. The wrapper is
-  thrown away afterwards, so `'a'.foo = 1` can't stick (it throws in strict mode). `null` and
+  thrown away afterwards, and `'a'.foo = 1` stores nothing (it throws in strict mode). `null` and
   `undefined` have no wrapper, so property access on them throws.
 ---
 
@@ -30,7 +31,7 @@ Primitives have no properties of their own. When you write `'abc'.toUpperCase()`
 
 Consequences:
 
-- **Writes are lost.** `PutValue` also converts the base with `ToObject`, so `str.foo = 1` writes onto a throwaway wrapper. In strict mode (modules, classes) the failed write throws a `TypeError`; in sloppy mode it's silently ignored.
+- **Writes fail.** `PutValue` also boxes the base, but passes the primitive as the `[[Set]]` receiver, and ordinary `[[Set]]` won't create a property on a non-object receiver, so `str.foo = 1` stores nothing. In strict mode (modules, classes) the failed write throws a `TypeError`; in sloppy mode it's silently ignored.
 - **`null` and `undefined` have no wrapper.** `ToObject` throws a `TypeError` for them, which is why `undefined.x` throws (V8 words it "Cannot read properties of undefined").
 - **Engines may skip the allocation.** The spec notes that the object "is not accessible outside" the operation, so an implementation may avoid creating it.
 - **`this` is the one place boxing can show.** A sloppy-mode function called on a primitive receives a wrapper object as `this`; a strict function receives the primitive unchanged.
@@ -44,9 +45,9 @@ const word = 'hello';
 console.log(word.toUpperCase(), word.length); // → HELLO 5
 
 try {
-  word.foo = 1; // ToObject creates a wrapper, the property lands on it, the wrapper is discarded
+  word.foo = 1; // [[Set]] fails: the receiver is the primitive, not the wrapper
 } catch (error) {
-  console.log(error.message); // → (V8 wording) Cannot create property 'foo' on string 'hello'
+  console.log(error.name); // → TypeError
 }
 console.log(word.foo); // → undefined
 

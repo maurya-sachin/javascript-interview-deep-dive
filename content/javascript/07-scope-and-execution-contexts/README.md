@@ -1,6 +1,6 @@
 # 07 — Scope, hoisting, and execution contexts
 
-> **Status:** 🔴 planned · **Published:** 0/9 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/10 · **Last verified:** —
 
 How bindings are created and found: scope, hoisting, the TDZ, and the spec machinery underneath — execution contexts, Environment Records, and realms.
 
@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Global object, global Environment Record, `globalThis` → 070
 - Stack overflow, recursion depth, proper tail calls (JavaScriptCore only) → 080
 - Realms and intrinsics; cross-realm `instanceof` → 090
-- `with` and direct `eval` changing scope at run time → —
+- `with` and direct `eval` changing scope at run time → 100
 
 ## Questions
 
@@ -44,6 +44,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 070 | [What is the global object, and how does `globalThis` relate to global variables?](070-global-object-globalthis.md) | medium | 🟡 draft |
 | 080 | [What causes "Maximum call stack size exceeded", and do tail calls help?](080-stack-overflow-tail-calls.md) | medium | 🟡 draft |
 | 090 | [What is a realm, and why does `instanceof Array` fail across iframes?](090-realms.md) | hard | 🟡 draft |
+| 100 | [How do `with` and direct `eval` change scope at run time?](100-with-and-direct-eval-scope.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources

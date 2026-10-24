@@ -1,6 +1,6 @@
 # 09 — Closures
 
-> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
 
 What a closure is in terms of environments, what it keeps alive, and the patterns built on it.
 
@@ -22,7 +22,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - What V8 actually captures (context allocation); leaks through closures → 030
 - Module pattern, factory functions, private state → 040
 - Debounce, throttle (leading/trailing), once → 050
-- Memoization → —
+- Memoization → 060
 
 ## Questions
 
@@ -34,6 +34,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What does a closure keep alive in memory?](030-closure-memory.md) | hard | 🟡 draft |
 | 040 | [How do closures create private state?](040-private-state.md) | medium | 🟡 draft |
 | 050 | [Implement `debounce`, `throttle`, and `once`.](050-debounce-throttle-once.md) | medium | 🟡 draft |
+| 060 | [Implement `memoize`. What makes the cache key hard?](060-memoization.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources

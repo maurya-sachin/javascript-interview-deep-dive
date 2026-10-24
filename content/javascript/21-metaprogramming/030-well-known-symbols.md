@@ -22,8 +22,8 @@ sources:
 tldr: >
   Well-known symbols are built-in `Symbol.*` values the spec uses as property keys for extension points. Define the
   property and the built-in calls it: `iterator` for `for…of` and spread, `toPrimitive` for coercion, `hasInstance`
-  for `instanceof`, `toStringTag` for `Object.prototype.toString`, `species`, `isConcatSpreadable`, the regex-protocol
-  four, and `unscopables`.
+  for `instanceof`, `toStringTag` for `Object.prototype.toString`, `species`, `isConcatSpreadable`, the five regex-protocol
+  symbols, and `unscopables`.
 ---
 
 ## Answer

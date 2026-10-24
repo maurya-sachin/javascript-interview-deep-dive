@@ -11,13 +11,16 @@ related:
   - javascript/objects-and-properties/shallow-vs-deep-copy
   - javascript/keyed-collections/map-vs-object
 verified: 2026-10
+perishable:
+  - util.isDeepStrictEqual skipPrototype option, added in Node.js 24.9
 sources:
   - https://tc39.es/ecma262/#sec-isstrictlyequal
   - https://tc39.es/ecma262/#sec-samevalue
   - https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
-  - https://nodejs.org/docs/latest/api/util.html#utilisdeepstrictequalval1-val2
+  - https://nodejs.org/docs/latest-v24.x/api/util.html#utilisdeepstrictequalval1-val2-options
+  - https://nodejs.org/docs/latest-v24.x/api/assert.html#comparison-details_1
 tldr: >
   `===` and `Object.is` compare object identity, so two equal-looking objects differ. Deep
   equality is something you define: same prototype, same own keys, equal values recursively,
@@ -40,7 +43,7 @@ Objects are compared by **reference**: `{} === {}` is `false`, and `Object.is({}
 
 Every step is a policy decision: whether `-0` equals `0`, whether `{ a: undefined }` equals `{}`, whether different classes with the same fields are equal, whether symbol keys and non-enumerable properties count, and how `Map`, `Set`, `RegExp` and typed arrays compare.
 
-In Node, `util.isDeepStrictEqual` makes one set of choices: same prototypes, `NaN` equal, `-0` differs, `Map` and `Set` compared by content. Outside Node, use a maintained library for production code.
+In Node, `util.isDeepStrictEqual` makes one set of choices: same prototypes (unless you pass `skipPrototype`, added in Node.js 24.9), `NaN` equal, `-0` differs, `Map` and `Set` compared by content. Outside Node, use a maintained library for production code.
 
 The implementation below is deliberately limited to plain objects, arrays, class instances and `Date`.
 
@@ -76,7 +79,7 @@ console.log(deepEqual([1, 2], { 0: 1, 1: 2 })); // → false
 const x = { name: 'x' }; x.self = x;
 const y = { name: 'x' }; y.self = y;
 console.log(deepEqual(x, y)); // → true
-console.log(deepEqual(new Map([[1, 2]]), new Map([[1, 2]]))); // → false (Map: identity only)
+console.log(deepEqual(new Map([[1, 2]]), new Map([[1, 2]]))); // → false
 ```
 
 ## Pitfalls
@@ -84,7 +87,7 @@ console.log(deepEqual(new Map([[1, 2]]), new Map([[1, 2]]))); // → false (Map:
 - Comparing with `==` or `===` and expecting structure. Both are identity checks for objects.
 - Using `JSON.stringify` equality. Key order changes the string, and unequal values (`{ a: undefined, b: NaN }` and `{ b: null }`) can produce the same one.
 - Forgetting that types with no own enumerable keys, such as `Map`, `Set` and `RegExp`, look "equal" to every other instance if you only compare keys. This code returns `false` for them (identity only) rather than guess.
-- Skipping the cycle guard. Self-referencing data overflows the stack with a `RangeError`.
+- Skipping the cycle guard. Self-referencing data overflows the stack (a `RangeError` in V8).
 
 ## Follow-ups
 
@@ -95,7 +98,7 @@ console.log(deepEqual(new Map([[1, 2]]), new Map([[1, 2]]))); // → false (Map:
 **A:** Check equal sizes, then for each element of `a` look for an equal element in `b`. Primitives can use `b.has`, but object elements need an `O(n²)` deep search that marks matches as used.
 
 **Q:** Why check the prototype?
-**A:** Without it, instances of different classes with the same fields compare equal. Whether that is wanted is a policy choice; `util.isDeepStrictEqual` treats them as different.
+**A:** Without it, instances of different classes with the same fields compare equal. Whether that is wanted is a policy choice; `util.isDeepStrictEqual` treats them as different by default.
 
 ## Exercises
 

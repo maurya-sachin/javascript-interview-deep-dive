@@ -1,6 +1,6 @@
 # 20 — Modules
 
-> **Status:** 🔴 planned · **Published:** 0/7 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/9 · **Last verified:** —
 
 How ES modules load and link, how they differ from CommonJS, and the newer module features.
 
@@ -25,8 +25,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Top-level `await` and async module evaluation → 050
 - Import attributes, JSON modules → 060
 - `import.meta.url`, `import.meta.resolve` → 070
-- Tree shaking and side-effect-free modules → —
-- Import maps and bare specifiers in browsers → —
+- Tree shaking and side-effect-free modules → 080
+- Import maps and bare specifiers in browsers → 090
 - Import defer and source phase imports (Stage 3) → —
 
 ## Questions
@@ -41,6 +41,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 050 | [What does top-level `await` do to the module graph?](050-top-level-await.md) | medium | 🟡 draft |
 | 060 | [What are import attributes and JSON modules?](060-import-attributes-json-modules.md) | easy | 🟡 draft |
 | 070 | [What is `import.meta`?](070-import-meta.md) | easy | 🟡 draft |
+| 080 | [How does tree shaking work, and what stops it?](080-tree-shaking.md) | medium | 🟡 draft |
+| 090 | [How do browsers resolve bare specifiers with import maps?](090-import-maps.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources

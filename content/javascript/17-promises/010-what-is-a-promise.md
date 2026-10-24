@@ -107,20 +107,22 @@ The constructor throws a `TypeError` if called without `new` or without a callab
 
 ```js
 const self = new Promise((resolve) => setTimeout(() => resolve(self)));
-self.catch((e) => console.log(e.constructor.name)); // → TypeError
+self.catch((e) => console.log(e.constructor.name));
 
 const badGetter = Promise.resolve({
   get then() { throw new Error('boom'); },
 });
-badGetter.catch((e) => console.log('rejected:', e.message)); // → rejected: boom
+badGetter.catch((e) => console.log('rejected:', e.message));
 
 const thenable = { then(resolve) { console.log('then called'); resolve('x'); } };
 const adopted = Promise.resolve(thenable);
 console.log('sync');
 adopted.then(console.log);
 // → sync
+// → rejected: boom
 // → then called
 // → x
+// → TypeError
 ```
 
 The thenable's `then` is not called in the line that resolved the promise. A job calls it later, so adoption costs extra microtask ticks (see chaining). The `then` property is read once, at resolution time. That is also why a plain object with a `then` method is treated as a promise by accident.
