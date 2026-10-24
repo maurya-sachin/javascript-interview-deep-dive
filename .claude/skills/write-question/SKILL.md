@@ -37,6 +37,6 @@ A question needing no change gets no commit (no empty commits). After a topic's 
 Errors past audits caught, so look for them: stale process documents trusted over the published record, wrong proposal stages, overstated attributions, spec algorithms misread (`??`, primitive writes, `==` rules, for-in order), and source anchors that don't exist.
 
 ## Never
-- Read v1 content (`main` / tag `v1-archive`) or copy text from books/courses.
+- Read v1 content (tag `v1-archive`) or copy text from books/courses.
 - State something engine-specific as if it were spec behaviour.
 - Set `status: published` — only the maintainer does that after review.
