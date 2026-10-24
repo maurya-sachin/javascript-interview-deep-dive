@@ -15,6 +15,7 @@ sources:
   - https://www.typescriptlang.org/tsconfig/noUnusedParameters.html
   - https://www.typescriptlang.org/tsconfig/noFallthroughCasesInSwitch.html
   - https://www.typescriptlang.org/tsconfig/noEmitOnError.html
+  - https://eslint.org/docs/latest/rules/no-fallthrough
 tldr: >
   `noUnusedLocals` errors on declared-but-unread variables, imports, types and private members;
   `noUnusedParameters` on unread parameters (and type parameters), except names starting with `_`.
