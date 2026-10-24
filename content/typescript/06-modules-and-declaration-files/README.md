@@ -39,7 +39,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [Why does importing a CommonJS module sometimes fail, and what does `esModuleInterop` do?](030-esm-cjs-interop.md) | hard | 🟡 draft |
 | 035 | [How do you ship types for a package that publishes both ESM and CommonJS?](035-dual-package-types.md) | hard | 🟡 draft |
 | 040 | [What is a `.d.ts` file, and how do you write one for an untyped library?](040-declaration-files.md) | medium | 🟡 draft |
-| 045 | [How do you write a declaration file for a global, UMD, or function-exporting library?](045-declaration-authoring-patterns.md) | hard | 🔴 planned |
+| 045 | [How do you write a declaration file for a global, UMD, or function-exporting library?](045-declaration-authoring-patterns.md) | hard | 🟡 draft |
 | 050 | [How do you augment a module or add a global type?](050-module-augmentation-globals.md) | medium | 🟡 draft |
 | 055 | [How do you type imports of CSS, SVG, and other non-JS files?](055-non-js-module-declarations.md) | medium | 🔴 planned |
 | 060 | [How can you type-check JavaScript with TypeScript?](060-checkjs-jsdoc.md) | easy | 🟡 draft |
