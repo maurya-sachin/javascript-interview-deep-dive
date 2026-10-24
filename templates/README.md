@@ -208,4 +208,4 @@ Commands (Node 24, run in `app/`):
 | `npm run content:build` | Compiles content into `app/public/data/` (draft and published questions; drafts are labelled Draft) |
 | `npm run dev` | Builds content and starts the app |
 
-Fixes to existing questions are welcome the same way. Content is licensed under the repo's [MIT License](../LICENSE).
+Fixes to existing questions are welcome the same way. Content is licensed [CC BY-NC-SA 4.0](../content/LICENSE).
