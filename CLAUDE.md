@@ -20,11 +20,10 @@ One Markdown file per question in `content/`; the client-only app in `app/` read
 ## Token rules
 - Never bulk-read `content/`, `app/public/data/`, or `app/dist/`. Find through READMEs, script output, or a title grep; open one file.
 - v1 lives only on tag `v1-archive` (built site on `gh-pages`) — never read it or reuse its text.
-- Batch writing (questions or flashcards): `write-question` skill → Batch mode.
 - Validate with `content:check` (in `app/`); don't re-read files you just wrote.
 
 ## Working rules
-- Work on branch `dev`, cut from `main`. Commit after every finished task — small, one concern (deletion, docs, dependency, feature, one question or chapter). Conventional messages (`feat:`, `docs:`, `content:`, `chore:`). No big catch-all commits.
+- Work on branch `dev`, cut from `main`. Commit after every finished task, one concern each (deletion, docs, dependency, feature, one question or chapter), with conventional messages (`feat:`, `docs:`, `content:`, `chore:`).
 - Merge `dev` into `main` with a merge commit (PR or local `--no-ff`) — never squash (GitHub's heatmap counts only commits on `main`). `main` deploys to production.
 - Any push (even `dev`), deploy, DNS change or `published` needs the maintainer's OK each time.
-- Content follows `templates/README.md`; write it with the `write-question` skill.
+- Content follows `templates/README.md`; write it with the `write-question` skill (Batch mode for chapters and flashcards).
