@@ -38,7 +38,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 025 | [What do `noUnusedLocals`, `noUnusedParameters`, and `noFallthroughCasesInSwitch` catch, and when do you leave them to a linter?](025-unused-and-fallthrough-checks.md) | easy | 🟡 draft |
 | 030 | [What is the difference between `target`, `lib`, and `module`?](030-target-lib-module.md) | medium | 🟡 draft |
 | 040 | [How do `paths`, `baseUrl`, and `extends` work?](040-paths-and-extends.md) | medium | 🟡 draft |
-| 045 | [What do `types`, `typeRoots`, `rootDir`, and `outDir` default to, and what changed in TypeScript 6?](045-types-and-output-directories.md) | medium | 🔴 planned |
+| 045 | [What do `types`, `typeRoots`, `rootDir`, and `outDir` default to, and what changed in TypeScript 6?](045-types-and-output-directories.md) | medium | 🟡 draft |
 | 050 | [What are project references, and how do `composite` and `incremental` help?](050-project-references.md) | hard | 🟡 draft |
 | 060 | [What do `skipLibCheck`, `declaration`, and `sourceMap` do?](060-skiplibcheck-declaration-sourcemaps.md) | easy | 🟡 draft |
 | 070 | [How do you migrate a project from TypeScript 6 to TypeScript 7?](070-migrating-to-typescript-7.md) | medium | 🔴 planned |
