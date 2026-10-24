@@ -1,7 +1,7 @@
 # TypeScript
 
 > **Track:** Frontend
-> **Status:** 🔴 planned · **Published:** 0/53 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/57 · **Last verified:** —
 
 TypeScript's type system and compiler: how types are checked, inferred, and erased.
 Most frontend and Node.js codebases are TypeScript now, and interviews probe whether you can reason about types rather than just annotate.
