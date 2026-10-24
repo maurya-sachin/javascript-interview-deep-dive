@@ -35,7 +35,7 @@ TypeScript 7.0 is the native port with 6.0's defaults; 6.0 was the bridge releas
    - `target: es5`, `downlevelIteration` → ES2015+; use another tool for ES5.
    - `moduleResolution: node`/`classic` → `nodenext` or `bundler`.
    - `module: amd`/`umd`/`system`/`none`, `outFile` → ESM plus a bundler.
-   - `baseUrl` → fold it into `paths`, which in 7.0.2 must then be relative (`"./src/*"`, else TS5090).
+   - `baseUrl` → fold it into `paths`, which must then be relative (`"./src/*"`, else TS5090 on 6.0.3 and 7.0.2).
    - `esModuleInterop`/`allowSyntheticDefaultImports`/`alwaysStrict: false` → delete; they're always on.
    - Syntax: `module Foo {}` → `namespace` (TS1540), `assert {}` → `with {}` (TS2880).
 3. **Set the new defaults explicitly** where you relied on old ones: `types` (now `[]`), `rootDir` (now the tsconfig folder), `strict` (now `true`), `module`/`target` (now `esnext`/`es2025`).
@@ -75,13 +75,13 @@ JavaScript projects also check `tsc/CHANGES.md` in the TypeScript repo: JSDoc su
 
 - Shipping with `ignoreDeprecations: "6.0"` and calling the migration done. It defers the work; 7.0.2 fails on the same config.
 - Putting `"checkers": 2` in a tsconfig that `tsc6` also reads. 7.0.2 accepts it there; 6.0.3 rejects it with TS5025 (`Unknown compiler option 'checkers'`). Pass it on the 7.0 command line instead.
-- Removing `baseUrl` but leaving `paths` entries like `"src/*"`. Without a base they must start with `./` (TS5090 on 7.0.2).
+- Removing `baseUrl` but leaving `paths` entries like `"src/*"`. Without a base they must start with `./` (TS5090 on both versions).
 - Expecting every 6.0 deprecation to be skippable. `module Foo {}` (TS1540) and `assert { type: "json" }` (TS2880) were errors on 6.0.3 even with `ignoreDeprecations`.
 
 ## Follow-ups
 
 **Q:** Is there a codemod for the config changes?
-**A:** The 6.0 release notes point to an experimental `ts5to6` tool that rewrites `baseUrl` and `rootDir` settings. I did not run it.
+**A:** The 6.0 release notes point to an experimental `ts5to6` tool that rewrites `baseUrl` and `rootDir` settings; review its diff like any other config change.
 
 **Q:** What does `--stableTypeOrdering` do on 7.0?
 **A:** 7.0.2's `tsc --all` lists it as a boolean that defaults to `true`: 7.0 always orders types deterministically, which 6.0 can only imitate with the flag.
