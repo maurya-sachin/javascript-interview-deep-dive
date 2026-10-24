@@ -38,7 +38,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 025 | [Which TypeScript features break under single-file transpilers, and what does `isolatedDeclarations` add?](025-single-file-transpiler-gaps.md) | hard | 🟡 draft |
 | 030 | [How does Node.js run TypeScript files directly?](030-node-type-stripping.md) | medium | 🟡 draft |
 | 040 | [What are the stages of the TypeScript compiler?](040-compiler-pipeline.md) | hard | 🟡 draft |
-| 045 | [How does the checker relate and cache types, and how do editors talk to `tsserver`?](045-checker-and-tsserver.md) | hard | 🔴 planned |
+| 045 | [How does the checker relate and cache types, and how do editors talk to `tsserver`?](045-checker-and-tsserver.md) | hard | 🟡 draft |
 | 050 | [What is the native (Go) port of the TypeScript compiler?](050-native-compiler-port.md) | medium | 🟡 draft |
 | 055 | [How do tools built on the TypeScript compiler API move to the native compiler?](055-compiler-api-migration.md) | hard | 🔴 planned |
 | 060 | [Is TypeScript's type system sound? Where does it not catch errors?](060-type-system-soundness.md) | hard | 🟡 draft |
