@@ -1905,6 +1905,198 @@
   front: "What does `maxNodeModuleJsDepth` do?"
   back: "It makes `tsc` infer types from JavaScript inside `node_modules`. The docs advise leaving it at `0`."
   question: typescript/modules-and-declaration-files/checkjs-jsdoc
+- id: dual-one-declaration-per-js-file
+  front: "What is the handbook's rule for declaration files in a dual package, and how does `tsc` pick a declaration file's format?"
+  back: "Every declaration file represents exactly one JavaScript file, and its format must match it. `.d.mts` is ESM, `.d.cts` is CommonJS, and `.d.ts` follows the nearest `package.json` `\"type\"`."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-per-condition-types
+  front: "How do you wire types per condition in a dual package's `exports`?"
+  back: "Nest `types` inside each branch: `\"import\": { \"types\": \"./index.d.mts\", \"default\": \"./index.mjs\" }`, and the same for `require` with `.d.cts`. Put `types` first, since conditions match in key order."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-extension-substitution
+  front: "How can a dual package skip the `types` key entirely?"
+  back: "Extension substitution: for a target `./index.mjs`, `tsc` looks for `index.mts`, then `index.d.mts`. The same works with two `dist/` folders whose own `package.json` sets `\"type\"`."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-single-dts-bug
+  front: "What goes wrong when one `.d.ts` serves both the ESM and CJS builds?"
+  back: "Without `\"type\": \"module\"` it is read as CommonJS, so an ESM consumer's default import gets `module.exports` and the types claim the function sits on `.default` (masquerading as CJS). With `\"type\": \"module\"`, `require` users are misled (masquerading as ESM)."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-emit-twice
+  front: "Why must a dual package compile twice, and what does the handbook warn about dual emit?"
+  back: "A single `tsc` run emits one format per file. The handbook warns that any dual-emit setup checks only one output, so test both builds before publishing."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: arethetypeswrong
+  front: "What does arethetypeswrong (`npx @arethetypeswrong/cli`) do?"
+  back: "It reports type-resolution mismatches, such as masquerading, per resolution mode."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: require-esm-esm-only
+  front: "Why is shipping ESM only often the simpler answer for a package?"
+  back: "`require()` can load synchronous ES modules (unflagged in Node 22.12 and 20.19)."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-broken-error-ts2349
+  front: "What error does an ESM consumer see for a masquerading-as-CJS package's default import, and why is it false?"
+  back: "TS2349, not callable: the type has no call signatures. Node loads `index.mjs`, whose default export is the function. The \"fix\" `broken.default(...)` type-checks but throws a TypeError on Node 24.19.0."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-copy-dts-naming
+  front: "Why isn't copying one `.d.ts` to both formats enough?"
+  back: "The format comes from the extension or `\"type\"`, not the contents, so the copy must be named `.d.mts`/`.d.cts` or sit under the right `package.json`."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-types-last
+  front: "Why put `types` first in a conditional `exports` object?"
+  back: "Node's docs say it should always be included first. In a 6.0.3 trace, with `types` last `tsc` matched `import`, found no `index.d.mts`, then fell through to the later `types` key and used the CommonJS-format `.d.ts`, which works only by accident."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-masquerading-esm-node16
+  front: "Why test a dual package beyond `module: nodenext`?"
+  back: "A masquerading-as-ESM package type-checks there (6.0.3 and 7.0.2 allow `require` of ESM), but under `node16` the same `.cts` import is error TS1479."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-package-hazard
+  front: "What is the dual package hazard that Node's docs warn about?"
+  back: "Both builds can load in one process. On Node 24.19.0, `import` and `require` of `greet-fixed` gave two different functions (`===` was `false`), so `instanceof` and singletons can break."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: dual-require-esm-return
+  front: "What does `require()` of an ESM package return in Node 24?"
+  back: "The module namespace object; a default export appears as `.default` with `__esModule: true`. An ESM file can export a binding named `\"module.exports\"` to make `require()` return it directly."
+  question: typescript/modules-and-declaration-files/dual-package-types
+- id: declaration-shape-follows-loading
+  front: "What determines the shape of a declaration file for a library?"
+  back: "How the JavaScript is loaded, so read the library's code first. The handbook maps kinds to templates: `global.d.ts`, `module.d.ts`, `module-function.d.ts`, `module-class.d.ts`, plus plugin variants."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: global-library-dts
+  front: "How do you write the `.d.ts` for a global library, and what should you check first?"
+  back: "A script: no top-level `import`/`export`, just `declare function`, `declare namespace` and interfaces, which become global. The handbook warns most \"global\" libraries are really UMD, so check for `define`/`module.exports` first."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: export-equals-namespace-merge
+  front: "How do you declare a module whose export is one function (`module.exports = fn`) and also export types?"
+  back: "Write `export = fn` and declare a `namespace` with the same name. It merges with the function, so `fn.Options` is a type and `fn.version` a property."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: export-equals-consumers
+  front: "How do consumers import an `export =` module?"
+  back: "A default import (with `esModuleInterop`; 6.0.3 and 7.0.2 emitted `__importDefault` without the flag) or `import fn = require(...)`."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: umd-export-as-namespace
+  front: "How do you declare a UMD library, and what happens in a module file that uses the global?"
+  back: "Write the module form and add `export as namespace myLib;`. Script files can use `myLib` directly; module files must import it, or `tsc` reports TS2686 unless `allowUmdGlobalAccess` is on."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: es-style-module-dts
+  front: "How do you declare a plain ES-style module?"
+  back: "Named `export declare` statements (the `module.d.ts` template)."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: typesversions-first-match
+  front: "How does `typesVersions` in `package.json` work?"
+  back: "It maps a semver range of the TypeScript version to other files; first match wins, falling back to `types`."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: typesversions-ignored-with-exports
+  front: "What replaces `typesVersions` when `exports` is read?"
+  back: "The modules reference says `typesVersions` is ignored then; use versioned conditions such as `\"types@>=5.2\"`. In a test, `\"types@>=7.0\"` picked the new file on 7.0.2 and the plain `types` file on 6.0.3."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: import-star-merged-namespace
+  front: "Why does `import * as slug from \"slugify-lite\"; slug()` fail for an `export =` function with a merged namespace?"
+  back: "Both 6.0.3 and 7.0.2 report TS2349 (`Type 'typeof slugify' has no call signatures`). The template comment says \"WRONG! DO NOT DO THIS!\"."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: nodenext-module-detection-global-script
+  front: "Why does a global script file get TS2686 when tested under `module: nodenext`?"
+  back: "In 6.0.3's source, `moduleDetection` then defaults to `force`, so every file is a module. With `--moduleDetection auto` it passed. The tsconfig reference documents only `auto`."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: export-default-for-module-exports
+  front: "Why not write `export default` for a library that sets `module.exports = fn`?"
+  back: "It claims an `exports.default` property the runtime never sets."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: plugin-templates
+  front: "Which templates describe a module that adds methods to another library or to globals?"
+  back: "The plugin templates: `module-plugin.d.ts` augments another module with `declare module \"x\"`, and `global-modifying-module.d.ts` uses `declare global` inside a module."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: module-class-template
+  front: "How do you describe a module whose export is a class?"
+  back: "The `module-class.d.ts` template: `export = MyClass` with `declare class MyClass`, plus a same-named namespace for its option and result types, exactly like the function case."
+  question: typescript/modules-and-declaration-files/declaration-authoring-patterns
+- id: non-js-imports-bundler
+  front: "Why does importing `./logo.svg` give TS2307, and what changed in TS 6.0 for `import \"./global.css\"`?"
+  back: "A bundler turns the file into JavaScript, which `tsc` can't see, so a value import of an unknown file is TS2307. Since TS 6.0 `noUncheckedSideEffectImports` is on by default, so even a side-effect CSS import fails with TS2882."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-ambient-module
+  front: "How do you type all `.svg` imports, and what does the declaration file need to be?"
+  back: "`declare module \"*.svg\" { const url: string; export default url; }` (one `*` wildcard) in a `.d.ts` the project includes, which must be a script file, not a module."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: css-side-effect-declaration
+  front: "What is enough to type side-effect CSS imports?"
+  back: "`declare module \"*.css\" {}`. Add it to a global declaration file rather than turning `noUncheckedSideEffectImports` off, which still catches typos in package side-effect imports."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: per-file-css-declarations
+  front: "How do per-file declarations for `button.module.css` work (TS 5.0+)?"
+  back: "`tsc` looks for `button.module.d.css.ts`, the pattern `{basename}.d.{extension}.ts`. It can list the real class names, so typos fail. It needs `allowArbitraryExtensions`; without it 6.0.3 and 7.0.2 report TS6263."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-vs-per-file-tradeoff
+  front: "What is the trade-off between wildcard and per-file declarations?"
+  back: "A wildcard is one line and covers everything, but its types are generic (`{ readonly [className: string]: string }` accepts any class name). Per-file declarations are exact but must be generated and kept in sync."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: declarations-are-claims
+  front: "Do wildcard or per-file module declarations check that the file exists or what the bundler returns?"
+  back: "No, both are claims. If the bundler is configured differently (an SVG as a React component, say), the types lie. Match the declaration to the loader's real output."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-needs-no-file
+  front: "Does `import missing from \"./nope.svg\"` error with a `*.svg` wildcard declaration?"
+  back: "No. No file is needed for a wildcard match."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: wildcard-order-longest-prefix
+  front: "What goes wrong with `\"*.css\"` declared before `\"*.module.css\"`?"
+  back: "Both have an empty prefix before `*`; 6.0.3's source picks the longest prefix and keeps the first on a tie. With `\"*.css\" {}` first, `styles.btn` was TS2339 on both versions."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: assets-dts-no-top-level-import
+  front: "What happens if the asset declarations file has a top-level `import` or `export`?"
+  back: "The modules reference says the same syntax is then a module augmentation. Adding `export {}` to `assets.d.ts` made the SVG import TS2307 on both versions."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: d-css-ts-naming-nodenext
+  front: "Why use `app.d.css.ts` rather than the older `app.css.d.ts` naming?"
+  back: "The tsconfig reference says the `.d.css.ts` form is what works with `node16`/`nodenext`, where relative imports keep their real extension."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: css-index-signature-unchecked
+  front: "How do you stop index-signature CSS class maps from hiding missing keys?"
+  back: "Turn on `noUncheckedIndexedAccess`, so `styles.btn` becomes `string | undefined`, or generate per-file declarations."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: json-import-typing
+  front: "Does a JSON import need a declaration, and what does `nodenext` add?"
+  back: "No. With `moduleResolution: bundler` or `nodenext`, 6.0.3 and 7.0.2 typed `import d from \"./d.json\"` from the file's contents. Under `nodenext` an ES module must add `with { type: \"json\" }`, or it is error TS1543."
+  question: typescript/modules-and-declaration-files/non-js-module-declarations
+- id: jsdoc-callback
+  front: "What does JSDoc `@callback Name` do, and where must `@template` go?"
+  back: "It declares a named function type, described by its own `@param` and `@returns` lines. Use with `@type {Name}` on an arrow function to infer parameters. `@template` must come before `@callback`; after it, TS8039."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-overload
+  front: "How does JSDoc `@overload` (TS 5.0) work, and what types the implementation?"
+  back: "Each JSDoc comment containing `@overload` becomes one overload signature of the function declaration that follows. The last, untagged comment types the implementation, which callers can't see."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-this
+  front: "What does JSDoc `@this {Type}` check?"
+  back: "Both ways: inside the function `this.prefix` is typed; at call sites, calling it detached from a matching object is TS2684."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-template-constraint
+  front: "How do you constrain a JSDoc `@template`, and what is the `@template {string} K, V` caveat?"
+  back: "Put a constraint in braces before the name: `@template {keyof T} K` is `K extends keyof T`. In `@template {string} K, V` only `K` is constrained; `V` is unconstrained."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-template-default
+  front: "How do you give a JSDoc `@template` a default?"
+  back: "`@template [T=string]`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-closure-function-ts7
+  front: "What happens to Closure-style `{function(string): void}` in JSDoc on 6.0.3 versus 7.0.2?"
+  back: "6.0.3 accepts it; 7.0.2 fails to parse it (TS1005), since TS 7.0's JavaScript support was rewritten. Use `{(s: string) => void}` or a `@callback`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-overload-arrow-ts7
+  front: "What does TS 7.0 do with `@overload` on an arrow function or function expression?"
+  back: "Ignores it, because TypeScript has no overloads for those. On 6.0.3 two overloads made `twice(2)` a `number`; on 7.0.2 it was `string | number`. Overload a `function` declaration, or put an overloaded type in `@type`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-template-after-typedef
+  front: "What happens if `@template` follows `@typedef`, `@callback` or `@overload`?"
+  back: "TS8039 (\"A JSDoc '@template' tag may not follow a '@typedef', '@callback', or '@overload' tag\"), and every use of the type parameter then fails with TS2304."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-overload-error-ts2769
+  front: "How do overload errors read in JavaScript files on 6.0.3 versus 7.0.2?"
+  back: "TS2769 \"No overload matches this call\". 6.0.3 lists each overload's failure; 7.0.2 printed only \"The last overload gave the following error.\" for the same call."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
+- id: jsdoc-typedef-vs-callback
+  front: "When use `@typedef` with a function type instead of `@callback`?"
+  back: "`@typedef {(s: string) => boolean} Pred` is fine for short signatures. `@callback` reads better when parameters need names, descriptions or optional markers like `[index]`."
+  question: typescript/modules-and-declaration-files/jsdoc-advanced-tags
 
 # 07 tsconfig and strictness
 - id: strict-members
