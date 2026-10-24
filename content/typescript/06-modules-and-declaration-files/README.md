@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 010 | [What do `import type`, `isolatedModules`, and `verbatimModuleSyntax` do?](010-import-type-isolated-modules.md) | medium | 🟡 draft |
 | 020 | [How does `moduleResolution` work, and when do you use `bundler` or `nodenext`?](020-module-resolution.md) | hard | 🟡 draft |
 | 030 | [Why does importing a CommonJS module sometimes fail, and what does `esModuleInterop` do?](030-esm-cjs-interop.md) | hard | 🟡 draft |
-| 035 | [How do you ship types for a package that publishes both ESM and CommonJS?](035-dual-package-types.md) | hard | 🔴 planned |
+| 035 | [How do you ship types for a package that publishes both ESM and CommonJS?](035-dual-package-types.md) | hard | 🟡 draft |
 | 040 | [What is a `.d.ts` file, and how do you write one for an untyped library?](040-declaration-files.md) | medium | 🟡 draft |
 | 045 | [How do you write a declaration file for a global, UMD, or function-exporting library?](045-declaration-authoring-patterns.md) | hard | 🔴 planned |
 | 050 | [How do you augment a module or add a global type?](050-module-augmentation-globals.md) | medium | 🟡 draft |
