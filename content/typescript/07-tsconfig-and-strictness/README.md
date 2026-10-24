@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 |---|---|---|---|
 | 010 | [What does `strict` enable, and why is `strictNullChecks` the important one?](010-strict-mode-flags.md) | medium | 🟡 draft |
 | 020 | [Which flags beyond `strict` do you turn on, such as `noUncheckedIndexedAccess`?](020-flags-beyond-strict.md) | medium | 🟡 draft |
-| 025 | [What do `noUnusedLocals`, `noUnusedParameters`, and `noFallthroughCasesInSwitch` catch, and when do you leave them to a linter?](025-unused-and-fallthrough-checks.md) | easy | 🔴 planned |
+| 025 | [What do `noUnusedLocals`, `noUnusedParameters`, and `noFallthroughCasesInSwitch` catch, and when do you leave them to a linter?](025-unused-and-fallthrough-checks.md) | easy | 🟡 draft |
 | 030 | [What is the difference between `target`, `lib`, and `module`?](030-target-lib-module.md) | medium | 🟡 draft |
 | 040 | [How do `paths`, `baseUrl`, and `extends` work?](040-paths-and-extends.md) | medium | 🟡 draft |
 | 045 | [What do `types`, `typeRoots`, `rootDir`, and `outDir` default to, and what changed in TypeScript 6?](045-types-and-output-directories.md) | medium | 🔴 planned |
