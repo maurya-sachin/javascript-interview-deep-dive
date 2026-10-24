@@ -36,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [How do TypeScript classes differ from JavaScript classes: modifiers, parameter properties, `#private`?](020-class-members-access.md) | medium | 🟡 draft |
 | 025 | [How do `useDefineForClassFields`, `declare` fields, and `static` blocks change class fields?](025-class-field-semantics.md) | hard | 🟡 draft |
 | 030 | [When do you use `abstract` classes versus `implements` an interface?](030-abstract-classes-implements.md) | medium | 🟡 draft |
-| 035 | [How do you type a mixin in TypeScript?](035-mixins.md) | hard | 🔴 planned |
+| 035 | [How do you type a mixin in TypeScript?](035-mixins.md) | hard | 🟡 draft |
 | 040 | [What is declaration merging, and are namespaces still used?](040-declaration-merging-namespaces.md) | medium | 🟡 draft |
 | 050 | [How do decorators work in TypeScript?](050-decorators.md) | hard | 🟡 draft |
 | 055 | [How do decorator metadata and `accessor` fields work, and what did `emitDecoratorMetadata` give DI frameworks?](055-decorator-metadata.md) | hard | 🔴 planned |
