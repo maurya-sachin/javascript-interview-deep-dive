@@ -1,6 +1,6 @@
 # 04 — Type-level programming
 
-> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/8 · **Last verified:** —
 
 Computing types from types: conditional types and `infer`, mapped types, template literal types, recursive types, and the built-in utility types.
 
@@ -24,8 +24,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - Template literal types, intrinsic string types, pattern inference → 040
 - `Partial`, `Required`, `Pick`, `Omit`, `Record`, `Exclude`, `Extract`, `NonNullable`, `ReturnType`, `Parameters` → 050
 - Recursive and tail-recursive conditional types, instantiation depth limits → 060
-- `InstanceType`, `ConstructorParameters`, `ThisParameterType`, `OmitThisParameter`, `ThisType` (only named in passing) → —
-- Variadic tuple types and tuple-based type-level arithmetic (`[...A, ...B]`, `Acc["length"]`; only used as a tool in 060) → —
+- `InstanceType`, `ConstructorParameters`, `ThisParameterType`, `OmitThisParameter`, `ThisType` → 070
+- Variadic tuple types and tuple-based type-level arithmetic (`[...A, ...B]`, `Acc["length"]`) → 080
 
 ## Questions
 
@@ -38,6 +38,8 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [What are template literal types, and what are they used for?](040-template-literal-types.md) | medium | 🟡 draft |
 | 050 | [Which built-in utility types do you use, and how would you implement them?](050-utility-types.md) | medium | 🟡 draft |
 | 060 | [How do you write a recursive type such as `DeepPartial`, and what are the limits?](060-recursive-types.md) | hard | 🟡 draft |
+| 070 | [What do `InstanceType`, `ConstructorParameters`, and the `this` utility types do?](070-class-and-this-utility-types.md) | medium | 🔴 planned |
+| 080 | [How do variadic tuple types work, and how do you do arithmetic with tuples at the type level?](080-variadic-tuple-types.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
