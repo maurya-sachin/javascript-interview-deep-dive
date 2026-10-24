@@ -7,6 +7,7 @@ core: false
 tags: [typescript-7, typescript-6, migration, ignoredeprecations, deprecations, checkers, tsconfig]
 related:
   - typescript/the-compiler/native-compiler-port
+  - typescript/the-compiler/compiler-api-migration
   - typescript/tsconfig-and-strictness/types-and-output-directories
   - typescript/tsconfig-and-strictness/paths-and-extends
   - typescript/modules-and-declaration-files/module-resolution
@@ -41,7 +42,7 @@ TypeScript 7.0 is the native port with 6.0's defaults; 6.0 was the bridge releas
 3. **Set the new defaults explicitly** where you relied on old ones: `types` (now `[]`), `rootDir` (now the tsconfig folder), `strict` (now `true`), `module`/`target` (now `esnext`/`es2025`).
 4. **Compare outputs with `--stableTypeOrdering` on 6.0.** The 7.0 announcement says code that compiles cleanly on 6.0 with it, and without `ignoreDeprecations`, should compile identically on 7.0. It's diagnostic only: the 6.0 notes warn of up to 25% slowdown.
 5. **Switch the CLI.** `--checkers` (default 4) sets type-checking workers per project and `--builders` sets concurrent project-reference builds; more of either costs memory. `--singleThreaded` turns parallelism off for constrained CI.
-6. **Keep 6.0 for API consumers.** 7.0 has no stable JavaScript API, so typescript-eslint and language-service-plugin tools stay on `@typescript/typescript6` (`tsc6`) until 7.1.
+6. **Keep 6.0 for API consumers.** 7.0 has no stable JavaScript API, so tools built on it (typescript-eslint, language-service plugins) keep 6.0 through the npm alias `"typescript": "npm:@typescript/typescript6"`. The 7.1 API is new and different, so they need a port, not a switch back; `tsserver` plugins can't load into the Go server at all.
 
 JavaScript projects also check `tsc/CHANGES.md` in the TypeScript repo: JSDoc support was rewritten and some old forms are gone.
 
