@@ -3,10 +3,10 @@
 Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene.
 
 ## Now
-- Branch `dev`; production = `main` (last release `efcb20a`, ~350 commits behind). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
-- Done: JS 183 q / 1088 cards, TS 63 q / 762 cards, all `draft`, Opus-written or -audited, 0 TS gaps. Unfinished JS proposals stay `→ —`. Limits: JS ch 18–22 browser claims Chrome 155 only; ch 26 V8 natives Node 24.19 only; TS 7.1 facts from 7.1.0-beta.
-- Next: blocked on the maintainer. Phase 7 needs the chapter order for the 26 README-only topics; until then, no new content work.
-- Awaiting maintainer: release `dev` → `main`; Phase 5 reviews (Draft → `published`); wordmark redraw.
+- Branch `dev`; production = `main` (last release `9e2f22b`, live 2026-10-24). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
+- Done: JS 183 q / 1088 cards, TS 63 q / 762 cards, all `draft`, Opus-written or -audited. Limits: JS ch 18–22 browser claims Chrome 155 only; ch 26 V8 natives Node 24.19 only; TS 7.1 facts from 7.1.0-beta.
+- Bug (since `7e76852`): direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/<topic>/<chapter>`, unknown paths) get Vercel's NOT_FOUND, not `app-shell.html`; `/app-shell.html` 308s to `/app-shell` under `cleanUrls`. Fix needs the maintainer's OK to deploy.
+- Next: Phase 7 HTML and CSS (Frontend path order): plan chapters from **Not yet mapped**, stub, write. Awaiting maintainer: Phase 5 reviews; wordmark redraw.
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
