@@ -20,3 +20,4 @@ Record here only conventions not covered there (e.g., maintainer corrections). D
 ## Content (`content/`)
 - New chapters are appended after the last number (JS 27, 28) rather than renumbering folders; question ids carry no numbers, so order is the only cost.
 - Flashcard backs are double-quoted YAML: escape inner `"`.
+- A concept listed in two chapters' sub-topics gets one owner: keep its line where the question lives and delete the other (sub-topics can only point to their own chapter's numbers).
