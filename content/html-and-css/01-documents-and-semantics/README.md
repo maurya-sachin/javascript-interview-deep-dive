@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [What does `<!DOCTYPE html>` do, and what are quirks and standards modes?](010-doctype-and-rendering-modes.md) | medium | 🟡 draft |
-| 020 | [What is HTML's content model, and what happens when you put a `<div>` inside a `<p>`?](020-content-model-and-parser-repair.md) | medium | 🔴 planned |
+| 020 | [What is HTML's content model, and what happens when you put a `<div>` inside a `<p>`?](020-content-model-and-parser-repair.md) | medium | 🟡 draft |
 | 030 | [Why use semantic HTML, and when is a `div` the right element?](030-semantic-elements.md) | easy | 🔴 planned |
 | 040 | [How do landmarks and headings structure a page now that the outline algorithm is gone?](040-landmarks-and-headings.md) | medium | 🔴 planned |
 | 050 | [What belongs in `<head>`, and what do `charset`, `viewport`, and `<base>` change?](050-head-metadata.md) | medium | 🔴 planned |
