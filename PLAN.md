@@ -5,8 +5,8 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 ## Now
 - Branch `dev`; production = `main` (last release `9e2f22b`, live 2026-10-24). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
 - Done: JS 183 q / 1088 cards, TS 63 q / 762 cards, all `draft`, Opus-written or -audited. Limits: JS ch 18–22 browser claims Chrome 155 only; ch 26 V8 natives Node 24.19 only; TS 7.1 facts from 7.1.0-beta.
-- Bug (since `7e76852`): direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/<topic>/<chapter>`, unknown paths) get Vercel's NOT_FOUND, not `app-shell.html`; `/app-shell.html` 308s to `/app-shell` under `cleanUrls`. Fix needs the maintainer's OK to deploy.
-- Next: Phase 7 HTML and CSS (Frontend path order): plan chapters from **Not yet mapped**, stub, write. Awaiting maintainer: Phase 5 reviews; wordmark redraw.
+- Bug (since `7e76852`, awaiting OK to fix and deploy): direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/<topic>/<chapter>`, unknown paths) get Vercel's NOT_FOUND; the rewrite targets `/app-shell.html`, which `cleanUrls` 308s to `/app-shell` (200). Likely fix: destination `/app-shell` — confirm in Vercel docs, then curl those routes live.
+- Next: Phase 7 HTML and CSS (topics follow the Frontend path order): one `docs(html-and-css): plan chapters` commit (draft below), stubs per chapter, Opus Batch mode, Sonnet cards. Awaiting maintainer: Phase 5 reviews; wordmark redraw.
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
@@ -41,6 +41,7 @@ Non-goals: backend service, accounts, paid AI.
 
 ### 7 — Next topics
 - [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content
+  - HTML and CSS draft chapters: 01 documents and semantics (standards mode, content model, landmarks/headings, `<head>` metadata) · 02 forms, dialog, popover · 03 the cascade (layers, specificity, inheritance, value stages) · 04 box model and formatting contexts · 05 flexbox and grid · 06 positioning and stacking (containing blocks, sticky, z-index, top layer, anchor positioning) · 07 responsive design (media/container queries, viewport units, `clamp()`) · 08 modern CSS (custom properties, `@property`, `:has()`, nesting, `@scope`, logical properties) · 09 typography, colour, motion. Leave script loading and Web Components to browser, responsive images and font loading to web-performance, labels/ARIA to accessibility. Verify CSS claims in real Chrome (e.g. puppeteer-core in the scratchpad driving the installed Chrome).
 
 ## Parked (don't start without maintainer)
 Supabase sync/votes · in-browser AI (WebLLM + retrieval; no paid APIs, no fine-tuning) · PWA offline · runnable challenges (Sandpack)
