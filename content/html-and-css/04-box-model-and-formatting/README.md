@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Explain the CSS box model and what `box-sizing: border-box` changes.](010-box-model-and-box-sizing.md) | easy | 🔴 planned |
+| 010 | [Explain the CSS box model and what `box-sizing: border-box` changes.](010-box-model-and-box-sizing.md) | easy | 🟡 draft |
 | 020 | [What does `display` actually set — outer and inner display types?](020-display-outer-and-inner.md) | medium | 🔴 planned |
 | 030 | [What is a block formatting context, and what creates one?](030-block-formatting-context.md) | medium | 🔴 planned |
 | 040 | [When do vertical margins collapse, and how do you stop it?](040-margin-collapsing.md) | medium | 🔴 planned |
