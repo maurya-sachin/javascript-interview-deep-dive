@@ -36,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [Why use semantic HTML, and when is a `div` the right element?](030-semantic-elements.md) | easy | 🟡 draft |
 | 040 | [How do landmarks and headings structure a page now that the outline algorithm is gone?](040-landmarks-and-headings.md) | medium | 🟡 draft |
 | 050 | [What belongs in `<head>`, and what do `charset`, `viewport`, and `<base>` change?](050-head-metadata.md) | medium | 🟡 draft |
-| 060 | [What do link types like `canonical`, `noopener`, and `nofollow` do?](060-link-types.md) | easy | 🔴 planned |
+| 060 | [What do link types like `canonical`, `noopener`, and `nofollow` do?](060-link-types.md) | easy | 🟡 draft |
 | 070 | [How do `data-*`, `hidden`, and other global and boolean attributes behave?](070-global-attributes.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
