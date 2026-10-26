@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [What happens when a form is submitted — what is sent, and how?](010-form-submission.md) | medium | 🟡 draft |
-| 020 | [How do input types, `inputmode`, and `autocomplete` shape what the user gets?](020-input-types-and-autofill.md) | easy | 🔴 planned |
+| 020 | [How do input types, `inputmode`, and `autocomplete` shape what the user gets?](020-input-types-and-autofill.md) | easy | 🟡 draft |
 | 030 | [Why does a `<button>` inside a form submit it, and how do you control which form and action it uses?](030-button-types-and-form-owner.md) | easy | 🔴 planned |
 | 040 | [How does native constraint validation work, and how do you customise it?](040-constraint-validation.md) | medium | 🔴 planned |
 | 050 | [How does `<dialog>` work — `show()` vs `showModal()`, closing, and the return value?](050-dialog-element.md) | medium | 🔴 planned |
