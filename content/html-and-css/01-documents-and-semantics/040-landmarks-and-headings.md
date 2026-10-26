@@ -74,6 +74,8 @@ The standard now also defines `headingoffset` and `headingreset` attributes and 
 </body>
 ```
 
+Roles and names are Chrome 155's accessibility tree, read with Puppeteer's accessibility snapshot.
+
 ## Pitfalls
 
 - Using `<h1>` in every `section` and relying on nesting. Chrome 155 exposed all of them as level 1, and Chrome 155 and Firefox 158 both rendered a `section h1` at the same 32px as a top-level one.
