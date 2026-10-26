@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [How does native constraint validation work, and how do you customise it?](040-constraint-validation.md) | medium | 🟡 draft |
 | 050 | [How does `<dialog>` work — `show()` vs `showModal()`, closing, and the return value?](050-dialog-element.md) | medium | 🟡 draft |
 | 060 | [What does the `popover` attribute give you, and how is it different from `<dialog>`?](060-popover-attribute.md) | medium | 🟡 draft |
-| 070 | [How do `<details>` and `<summary>` work, including exclusive accordions?](070-details-and-summary.md) | easy | 🔴 planned |
+| 070 | [How do `<details>` and `<summary>` work, including exclusive accordions?](070-details-and-summary.md) | easy | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
