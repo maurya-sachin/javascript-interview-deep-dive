@@ -1,6 +1,6 @@
 # 03 — The cascade
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
 
 How CSS decides which declaration applies: the cascade's sort order, specificity, layers, `!important`, inheritance, and the stages a value passes through.
 
@@ -18,18 +18,24 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Cascade sort order: origin and importance, context, element-attached styles, layers, specificity, scope proximity, order of appearance → —
-- Specificity: the (A, B, C) triple, `:is()`/`:not()`/`:has()` vs `:where()`, inline styles → —
-- `@layer`: declaring order, anonymous and nested layers, unlayered styles, `@import layer()` → —
-- `!important`: reversed origin and layer order, transitions and animations in the cascade → —
-- Inheritance; `inherit`, `initial`, `unset`, `revert`, `revert-layer` → —
-- Value stages: declared, cascaded, specified, computed, used, actual; resolved values from `getComputedStyle()` → —
+- Cascade sort order: origin and importance, context, element-attached styles, layers, specificity, scope proximity, order of appearance → 010
+- Specificity: the (A, B, C) triple, `:is()`/`:not()`/`:has()` vs `:where()`, inline styles → 020
+- `@layer`: declaring order, anonymous and nested layers, unlayered styles, `@import layer()` → 030
+- `!important`: reversed origin and layer order, transitions and animations in the cascade → 040
+- Inheritance; `inherit`, `initial`, `unset`, `revert`, `revert-layer` → 050
+- Value stages: declared, cascaded, specified, computed, used, actual; resolved values from `getComputedStyle()` → 060
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [How does the cascade decide which declaration wins?](010-cascade-sort-order.md) | medium | 🔴 planned |
+| 020 | [How is specificity calculated, including `:is()`, `:where()`, and `:not()`?](020-specificity.md) | medium | 🔴 planned |
+| 030 | [What are cascade layers, and how do they change what overrides what?](030-cascade-layers.md) | medium | 🔴 planned |
+| 040 | [What does `!important` really do, and why does it reverse origin and layer order?](040-important-reverses-order.md) | hard | 🔴 planned |
+| 050 | [Which properties inherit, and what do `inherit`, `initial`, `unset`, `revert`, and `revert-layer` do?](050-inheritance-and-global-keywords.md) | medium | 🔴 planned |
+| 060 | [What are specified, computed, used, and resolved values?](060-value-stages.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
