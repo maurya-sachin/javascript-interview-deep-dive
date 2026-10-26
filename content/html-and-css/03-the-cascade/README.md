@@ -33,7 +33,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 010 | [How does the cascade decide which declaration wins?](010-cascade-sort-order.md) | medium | 🟡 draft |
 | 020 | [How is specificity calculated, including `:is()`, `:where()`, and `:not()`?](020-specificity.md) | medium | 🟡 draft |
 | 030 | [What are cascade layers, and how do they change what overrides what?](030-cascade-layers.md) | medium | 🟡 draft |
-| 040 | [What does `!important` really do, and why does it reverse origin and layer order?](040-important-reverses-order.md) | hard | 🔴 planned |
+| 040 | [What does `!important` really do, and why does it reverse origin and layer order?](040-important-reverses-order.md) | hard | 🟡 draft |
 | 050 | [Which properties inherit, and what do `inherit`, `initial`, `unset`, `revert`, and `revert-layer` do?](050-inheritance-and-global-keywords.md) | medium | 🔴 planned |
 | 060 | [What are specified, computed, used, and resolved values?](060-value-stages.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
