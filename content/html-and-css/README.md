@@ -1,7 +1,7 @@
 # HTML and CSS
 
 > **Track:** Frontend
-> **Status:** 🔴 planned · **Published:** 0/54 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/61 · **Last verified:** —
 
 Markup and styling as the platform defines them: semantic HTML, forms, the cascade, and layout.
 Interviews use them to separate engineers who understand layout from those who adjust values until it looks right.
