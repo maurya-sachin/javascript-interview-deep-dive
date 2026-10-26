@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does the cascade decide which declaration wins?](010-cascade-sort-order.md) | medium | 🔴 planned |
+| 010 | [How does the cascade decide which declaration wins?](010-cascade-sort-order.md) | medium | 🟡 draft |
 | 020 | [How is specificity calculated, including `:is()`, `:where()`, and `:not()`?](020-specificity.md) | medium | 🔴 planned |
 | 030 | [What are cascade layers, and how do they change what overrides what?](030-cascade-layers.md) | medium | 🔴 planned |
 | 040 | [What does `!important` really do, and why does it reverse origin and layer order?](040-important-reverses-order.md) | hard | 🔴 planned |
