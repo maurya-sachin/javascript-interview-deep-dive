@@ -22,6 +22,7 @@ sources:
   - https://html.spec.whatwg.org/multipage/links.html#link-type-opener
   - https://html.spec.whatwg.org/multipage/links.html#get-an-element's-noopener
   - https://www.rfc-editor.org/rfc/rfc6596
+  - https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#browser_compatibility
 tldr: >
   `rel` says how the linked resource relates to this page. Some values fetch something
   (`stylesheet`, `icon`); others only describe the link: `canonical` names the preferred URL,
@@ -48,7 +49,7 @@ The ones interviewers ask about:
 - **`noreferrer`**: no `Referer` header and an empty `document.referrer`, and it also implies `noopener`.
 - **`opener`**: the opt-out. It restores `window.opener`.
 
-The standard's "get an element's noopener" step returns true when `rel` contains `noopener` or `noreferrer`, *or* when `target` is `_blank` and `rel` lacks `opener`. So `target="_blank"` is already safe from reverse tabnabbing (the opened page redirecting its opener to a phishing page); adding `rel="noopener"` is harmless and covers older browsers.
+The standard's "get an element's noopener" step returns true when `rel` contains `noopener` or `noreferrer`, *or* when `target` is `_blank` and `rel` lacks `opener`. So `target="_blank"` is already safe from reverse tabnabbing (the opened page redirecting its opener to a phishing page); adding `rel="noopener"` is harmless and covers browsers older than Chrome 88, Firefox 79 and Safari 12.1, which made `_blank` imply it.
 
 ## Example
 
@@ -80,7 +81,7 @@ Chrome 155 and Firefox 158 logged the same lines. The referrer is the full URL h
 ## Pitfalls
 
 - Thinking `rel="noopener"` is still required on every `target="_blank"` link. Current browsers imply it; `window.opener` was `null` for the plain link.
-- Using `noreferrer` when you only want `noopener`. It also strips the referrer, which breaks analytics attribution on the destination.
+- Using `noreferrer` when you only want `noopener`. It also sends no `Referer`, so the destination can't see where the visit came from.
 - Putting `canonical` on `<a>`. It is allowed only on `<link>`.
 - Expecting `nofollow` to stop crawling or indexing. It only annotates the link; it is not an access control.
 
