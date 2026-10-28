@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 040 | [How do `justify-*`, `align-*`, and `place-*` work in flexbox and grid?](040-box-alignment.md) | medium | 🟡 draft |
 | 050 | [How do grid tracks size — `fr`, `minmax()`, and `auto-fill` vs `auto-fit`?](050-grid-track-sizing.md) | medium | 🟡 draft |
 | 060 | [How do you place items on a grid — lines, named areas, and auto-placement?](060-grid-placement.md) | medium | 🟡 draft |
-| 070 | [What problem does `subgrid` solve?](070-subgrid.md) | medium | 🔴 planned |
+| 070 | [What problem does `subgrid` solve?](070-subgrid.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
