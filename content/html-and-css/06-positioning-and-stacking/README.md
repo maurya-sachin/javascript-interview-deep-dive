@@ -34,7 +34,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [How does `position: sticky` work, and why does it sometimes not stick?](020-sticky-positioning.md) | medium | 🟡 draft |
 | 030 | [What is a stacking context, and why doesn't `z-index: 9999` always win?](030-stacking-contexts.md) | hard | 🟡 draft |
 | 040 | [Why does a `transform` on an ancestor break `position: fixed`?](040-transform-breaks-fixed.md) | medium | 🟡 draft |
-| 050 | [What is the top layer, and how do dialogs and popovers escape `z-index` and `overflow`?](050-top-layer.md) | medium | 🔴 planned |
+| 050 | [What is the top layer, and how do dialogs and popovers escape `z-index` and `overflow`?](050-top-layer.md) | medium | 🟡 draft |
 | 060 | [How does CSS anchor positioning work?](060-anchor-positioning.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
 
