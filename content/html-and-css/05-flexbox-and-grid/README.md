@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [How does flexbox size items — `flex-grow`, `flex-shrink`, and `flex-basis`?](020-flex-sizing-algorithm.md) | hard | 🟡 draft |
 | 030 | [Why won't a flex or grid item shrink below its content, and what does `min-width: 0` fix?](030-automatic-minimum-size.md) | medium | 🟡 draft |
 | 040 | [How do `justify-*`, `align-*`, and `place-*` work in flexbox and grid?](040-box-alignment.md) | medium | 🟡 draft |
-| 050 | [How do grid tracks size — `fr`, `minmax()`, and `auto-fill` vs `auto-fit`?](050-grid-track-sizing.md) | medium | 🔴 planned |
+| 050 | [How do grid tracks size — `fr`, `minmax()`, and `auto-fill` vs `auto-fit`?](050-grid-track-sizing.md) | medium | 🟡 draft |
 | 060 | [How do you place items on a grid — lines, named areas, and auto-placement?](060-grid-placement.md) | medium | 🔴 planned |
 | 070 | [What problem does `subgrid` solve?](070-subgrid.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
