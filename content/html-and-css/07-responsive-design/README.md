@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How do you build a responsive layout, and how much should depend on breakpoints?](010-intrinsic-responsive-layout.md) | medium | 🔴 planned |
+| 010 | [How do you build a responsive layout, and how much should depend on breakpoints?](010-intrinsic-responsive-layout.md) | medium | 🟡 draft |
 | 020 | [How do media queries work, including range syntax and `prefers-*` features?](020-media-queries.md) | easy | 🔴 planned |
 | 030 | [What are container queries, and how do you establish a container?](030-container-queries.md) | medium | 🔴 planned |
 | 040 | [What are `em`, `rem`, `%`, and `ch` relative to, and when do you use each?](040-relative-units.md) | easy | 🔴 planned |
