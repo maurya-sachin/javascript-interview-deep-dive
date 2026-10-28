@@ -37,7 +37,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What is a block formatting context, and what creates one?](030-block-formatting-context.md) | medium | 🟡 draft |
 | 040 | [When do vertical margins collapse, and how do you stop it?](040-margin-collapsing.md) | medium | 🟡 draft |
 | 050 | [How are inline boxes laid out — line boxes, `line-height`, and `vertical-align`?](050-line-boxes-and-vertical-align.md) | hard | 🟡 draft |
-| 060 | [What does `overflow` do, and how is `overflow: clip` different from `hidden`?](060-overflow-and-scroll-containers.md) | medium | 🔴 planned |
+| 060 | [What does `overflow` do, and how is `overflow: clip` different from `hidden`?](060-overflow-and-scroll-containers.md) | medium | 🟡 draft |
 | 070 | [How do floats and `clear` work, and where are they still the right tool?](070-floats-and-clear.md) | easy | 🔴 planned |
 | 080 | [What are `min-content`, `max-content`, and `fit-content`?](080-intrinsic-sizing.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
