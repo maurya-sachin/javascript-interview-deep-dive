@@ -33,7 +33,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 |---|---|---|---|
 | 010 | [How does the browser pick a font face, and when does it synthesise bold or italic?](010-font-matching.md) | medium | 🟡 draft |
 | 020 | [How do you truncate text with an ellipsis on one line or several?](020-text-truncation-and-wrapping.md) | easy | 🟡 draft |
-| 030 | [What do `oklch()` and wide-gamut colour spaces give you over `rgb()` and `hsl()`?](030-oklch-and-wide-gamut.md) | medium | 🔴 planned |
+| 030 | [What do `oklch()` and wide-gamut colour spaces give you over `rgb()` and `hsl()`?](030-oklch-and-wide-gamut.md) | medium | 🟡 draft |
 | 040 | [How do `color-mix()` and relative colour syntax work?](040-color-mix-and-relative-colour.md) | medium | 🔴 planned |
 | 050 | [How do `color-scheme` and `light-dark()` support dark mode?](050-dark-mode-color-scheme.md) | medium | 🔴 planned |
 | 060 | [How do CSS transitions work, and how do you transition `display` or an element's entry?](060-transitions-and-discrete-properties.md) | medium | 🔴 planned |
