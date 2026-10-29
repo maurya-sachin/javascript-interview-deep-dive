@@ -3275,3 +3275,520 @@
   front: "What does `clamp(1rem, 0.6667rem + 1.6667vw, 2rem)` give at 800px, 320px and 1280px+?"
   back: "About 24px at 800px (Firefox 159 printed `24px`, Chrome 156 `24.0008px` from rounded coefficients), 16px at 320px, and `32px` from 1280px up."
   question: html-and-css/responsive-design/fluid-sizing-clamp
+# 08 Modern CSS
+- id: cp-what-is
+  front: "What is a custom property, and how does it behave in the cascade and inheritance?"
+  back: "Any property whose name starts with `--`. It goes through the cascade like `color`, and unregistered it inherits by default. Names are case-sensitive: `--accent` and `--Accent` are two properties."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-token-list
+  front: "What does CSS check about a custom property's value at parse time?"
+  back: "Essentially nothing. The value is a token list, because CSS doesn't know what it will be used for; `--accent: 20px` is valid."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-var-computed-value-time
+  front: "When is `var(--accent, red)` substituted?"
+  back: "At computed-value time."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-fallback-when
+  front: "When does the `var()` fallback apply?"
+  back: "Only when the custom property has the guaranteed-invalid value: never set, set to `initial`, or part of a cycle. Otherwise its value is substituted even if invalid for the target property; the fallback is not a type check."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-no-fallback-invalid
+  front: "What if the custom property is guaranteed-invalid and `var()` has no fallback?"
+  back: "The declaration is invalid at computed-value time."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-invalid-at-computed-value-time
+  front: "What happens when a substituted `var()` value doesn't match the property's grammar?"
+  back: "The declaration is invalid at computed-value time. The cascade already discarded the others, so the property behaves as `unset`: inherited properties take the parent's value, others their initial value."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-typo-vs-var
+  front: "Why does `color: 20px` differ from `color: var(--accent)` with `--accent: 20px`?"
+  back: "`color: 20px` is dropped at parse time, so an earlier `color` still applies. The `var()` declaration is kept, wins the cascade, then fails, so the text inherits its colour instead."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-var-in-custom-resolved-early
+  front: "Where is `var()` inside a custom property resolved?"
+  back: "On the element that declares it, and the result is what inherits. Derived variables on `:root` don't react to overrides further down."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-example-outputs
+  front: "With `.card { color: blue; --accent: 20px }`, what colour does `color: var(--accent, red)` give a child?"
+  back: "Blue (`rgb(0, 0, 255)`): the fallback is skipped and the invalid value acts as `unset`, so the child inherits blue. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-earlier-declaration-discarded
+  front: "In `color: green; color: var(--accent);` with `--accent: 20px`, what colour results?"
+  back: "The inherited colour (blue in the example), not green. The `var()` declaration wins the cascade and green is discarded."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-undefined-fallback
+  front: "What does `color: var(--missing, red)` give when `--missing` is never set?"
+  back: "Red. The property is guaranteed-invalid, so the fallback is used."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-non-inherited-fallback-initial
+  front: "What does `background-color: var(--accent)` with `--accent: 20px` compute to?"
+  back: "`rgba(0, 0, 0, 0)`: `background-color` doesn't inherit, so the failed declaration falls to its initial `transparent`."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-fallback-before-var
+  front: "What does writing a fallback declaration before a `var()` one protect against?"
+  back: "Browsers that can't parse `var()`, not a bad value."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-derived-space-pitfall
+  front: "Why doesn't overriding `--base` on a component change `--space: calc(var(--base) * 2)` defined on `:root`?"
+  back: "`--space` was already computed at the root, so the component inherits `16px`. Redeclaring `--space` where `--base` changes recomputes it."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-glue-units
+  front: "Why does `var(--gap)px` fail, and what is the fix?"
+  back: "It gives two tokens (`20` and `px`), so the declaration fails. Use `calc(var(--gap) * 1px)`."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-reset-initial
+  front: "How do you reset a custom property so fallbacks apply again, and how does `--accent: ;` differ?"
+  back: "`--accent: initial` sets the guaranteed-invalid value, so `var(--accent, red)` gave red. `--accent: ;` is a valid empty value, so `var(--accent, red)` substituted nothing and inherited."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-var-limits
+  front: "Where can `var()` be used?"
+  back: "Only in property values, not selectors, property names or media query conditions. `@media (width > var(--bp))` never matched in Chrome 156 or Firefox 159. Container style queries can test a custom property's value instead."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-unregistered-animation
+  front: "How do unregistered custom properties animate?"
+  back: "Discretely: a `@keyframes` animation from `--v: a` to `--v: b` read `a` at 499 ms of 1 s and `b` at 500 ms. Registering a type with `@property` makes them interpolate."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-spec-definition
+  front: "How does the spec define the `--*` property?"
+  back: "Value `<declaration-value>?` (almost any tokens), initial value the guaranteed-invalid value, inherited, computed value the specified value with variables substituted."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-parse-time-rejects
+  front: "What does the parser reject in a custom property declaration?"
+  back: "Only unmatched closing brackets, top-level semicolons and a few bad tokens. A declaration using `var()` is kept without checking, since its final value is unknown."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-important-cascade
+  front: "How does `!important` work on a custom property?"
+  back: "Each `--*` name is its own property in the cascade, so `!important` applies to the custom property's own cascade; it is not carried into the value."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-token-substitution
+  front: "Is `var()` substitution text-level or token-level?"
+  back: "Token-level: you can't build a single token, such as `20px`, from two parts."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-dense-fixed
+  front: "What did `getPropertyValue(\"--space\")` return on an element inheriting `--space` from `:root`?"
+  back: "`calc(8px * 2)`, already resolved with the root's `--base`. Redeclaring `--space` on the element where `--base` changes, as `.fixed` did, recomputes it."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-cycles
+  front: "What happens with `--one: var(--two); --two: var(--one);`?"
+  back: "Both become guaranteed-invalid, so `width: var(--one, 7px)` used `7px`. `--x: var(--x)` is also a cycle of one, so there is no way to read the parent's value of the same name."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-empty-value
+  front: "Is `--a: ;` valid, and what about `var(--a,)`?"
+  back: "`--a: ;` is a valid empty value, and `var(--a,)` has a valid empty fallback."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-wide-keywords
+  front: "Can a custom property hold the value `initial`?"
+  back: "No; `--x: initial` resets the custom property itself. A fallback can: `color: var(--missing, initial)` behaves as `color: initial`."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-shorthand-var
+  front: "Can one variable fill several longhands?"
+  back: "Yes. `margin: var(--m, 4px)` with `--m: 1px 2px` computed to `1px 2px`."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-whitespace
+  front: "Is whitespace around a custom property's value kept?"
+  back: "No; leading and trailing whitespace is trimmed. `--x:   red  ;` read back as `\"red\"` in both browsers."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-js-setproperty
+  front: "How can JavaScript drive styles through custom properties?"
+  back: "`el.style.setProperty(\"--x\", \"9px\")` changed the computed `margin` of an element using `var(--x)` immediately, with no class juggling."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-tradeoffs
+  front: "What are the downsides of unregistered custom properties?"
+  back: "No types, so errors surface as `unset` at computed-value time far from the cause; discrete animation until registered; global reach of a token set on `:root`; and values only, not selectors or media conditions."
+  question: html-and-css/modern-css/custom-properties
+- id: cp-inline-gap-margin-exercise
+  front: "What margin-top results from `margin-top: 10px; --gap: 20; margin-top: var(--gap)px;`?"
+  back: "`0px`. The second declaration wins, then substitutes to `20 px`, invalid for `margin-top`, so it acts as `unset`. `margin-top` doesn't inherit, so it takes its initial `0`."
+  question: html-and-css/modern-css/custom-properties
+- id: prop-what-it-is
+  front: "What does `@property` turn a custom property into?"
+  back: "Something close to a built-in property, with a `syntax`, an `inherits` flag and an `initial-value`. A plain custom property is an untyped token list that inherits everywhere and starts guaranteed-invalid."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-animation
+  front: "Why can a registered `<angle>` property animate where an unregistered one can't?"
+  back: "Transitions and keyframes interpolate it by its type. Unregistered, `--angle` from `0deg` to `360deg` is discrete; registered, it passes through `90deg`. That is how you animate a gradient angle or a colour stop."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-computed-type
+  front: "How does a registered `<length>` compute `--x: 8em` with `font-size: 10px`?"
+  back: "To `80px`, so children inherit a length, not tokens to re-resolve."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-initial-no-fallback
+  front: "Does a `var()` fallback ever apply to a registered property?"
+  back: "No. It is never guaranteed-invalid because it always has a value: with `initial-value: 4px` and nothing set, `var(--size, 99px)` gave `4px`."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-inherits-false
+  front: "What does `inherits: false` do?"
+  back: "A value set on a parent doesn't reach its children; they get the initial value. Set the value on the element that uses it, not a wrapper."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-type-check-late
+  front: "When is a registered syntax checked, and what happens to a wrong value?"
+  back: "At computed-value time, not parse time. A wrong value still wins the cascade, then makes the custom property itself act as `unset`, so its inherited or initial value is substituted."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-wrong-type-earlier
+  front: "With `<length>` and `initial-value: 4px`, what does `--size: 10px; --size: red;` give?"
+  back: "`4px`, not `10px`. The wrong-typed declaration still wins the cascade."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-required-descriptors
+  front: "Which `@property` descriptors are required?"
+  back: "`syntax` and `inherits`. `initial-value` is required unless the syntax is `\"*\"`, and it must be computationally independent."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-relative-initial
+  front: "What happens with `initial-value: 1em`?"
+  back: "It is not computationally independent (`var(--x)` is rejected too), so the whole rule is dropped and the property stays unregistered. Both browsers left it out of `cssRules` entirely, with no report."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-registration-scope
+  front: "How global are registrations, and which registration wins?"
+  back: "Registrations are document-global, even from a shadow tree. The last `@property` wins; `CSS.registerProperty()` beats both."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-support
+  front: "Which browsers support `@property`, and since when?"
+  back: "Chrome 85, Firefox 128, Safari 16.4."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-keyframe-quarter
+  front: "At 250 ms of a 1 s keyframe animation to `--angle: 360deg`, what do a registered `--angle` and an unregistered `--plain` read?"
+  back: "`90deg` for the registered one; `--plain` still `0deg`, jumping to `360deg` at the halfway point. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-supports-registered
+  front: "Does `@supports (--size: red)` fail when `--size` is registered as `<length>`?"
+  back: "No. Custom properties accept nearly any value at parse time, registered or not, so `CSS.supports(\"--size: red\")` returned `true`."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-transition
+  front: "What does `transition: --w 1s` do on an unregistered versus a `<length>` registered `--w`?"
+  back: "Unregistered: no transition, the value switches at once. Registered as `<length>`: one `CSSTransition`, at `50px` halfway from `0px` to `100px`."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-registerproperty-errors
+  front: "What errors does `CSS.registerProperty()` throw?"
+  back: "`InvalidModificationError` for a name already registered by it; `SyntaxError` for a relative `initialValue`."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-var-fallback-syntax
+  front: "Must a `var()` fallback match the registered syntax?"
+  back: "The 2024 Working Draft said yes, even when unused; the editor's draft dropped that rule. Chrome 156 and Firefox 159 follow the draft: `width: var(--size, red)` with `--size: 10px` gave `10px`."
+  question: html-and-css/modern-css/registered-properties
+- id: prop-color-exercise
+  front: "With `--c` registered as `<color>`, `initial-value: black`, `inherits: true`, what colour does `p { --c: 12px; color: var(--c); }` get inside a `color: blue` box?"
+  back: "Black. `12px` fails the `<color>` syntax, so `--c` acts as `unset`: it inherits, no ancestor sets it, so it takes `initial-value: black`. Unregistered, `color` itself would fail and inherit blue."
+  question: html-and-css/modern-css/registered-properties
+- id: has-what
+  front: "What does `:has()` change about what selectors can express?"
+  back: "Selectors used to look only down and forward. `:has()` lets the subject depend on what's around it, taking a relative selector anchored at the element being tested."
+  question: html-and-css/modern-css/has-selector
+- id: has-descendant-child
+  front: "What do `.card:has(img)` and `.card:has(> img)` match?"
+  back: "`.card:has(img)`: a card containing an image anywhere. `.card:has(> img)`: a card with an image child. Use `> img` when nested cards would otherwise make an outer card match."
+  question: html-and-css/modern-css/has-selector
+- id: has-previous-sibling
+  front: "How does `:has()` give previous-sibling selection?"
+  back: "`h2:has(+ p)` is a heading immediately followed by a paragraph; `h2:has(~ .note)` is a heading with any later sibling `.note`."
+  question: html-and-css/modern-css/has-selector
+- id: has-state
+  front: "Give examples of `:has()` reacting to state without JavaScript."
+  back: "`form:has(:invalid)`, `label:has(+ input:invalid)` and `html:has(#dark:checked)`."
+  question: html-and-css/modern-css/has-selector
+- id: has-quantity
+  front: "How does `:has()` simplify quantity queries?"
+  back: "`ul:has(> li:nth-child(4))` matches lists with four or more items."
+  question: html-and-css/modern-css/has-selector
+- id: has-no-nesting
+  front: "Can `:has()` be nested inside `:has()`?"
+  back: "No, not even wrapped in `:is()` or `:not()`. `selector(:is(:has(a)))` was supported, but `:has(:is(:has(a)))` and `:has(:not(:has(a)))` were not."
+  question: html-and-css/modern-css/has-selector
+- id: has-no-pseudo-elements
+  front: "Can pseudo-elements appear inside or after `:has()`?"
+  back: "No. Pseudo-elements aren't allowed inside it, and it can't follow one: `::before:has(a)` is invalid."
+  question: html-and-css/modern-css/has-selector
+- id: has-unforgiving
+  front: "What happens to `:has(.a, :foo)` when `:foo` is unknown?"
+  back: "The whole selector is invalid, so the rule is dropped. The list was forgiving until a 2022 spec change. Use separate rules, or wrap the arguments in `:is()`, which is forgiving."
+  question: html-and-css/modern-css/has-selector
+- id: has-specificity
+  front: "What specificity does `:has()` contribute?"
+  back: "That of its most specific argument, like `:is()`: `div:has(#target)` is (1, 0, 1) and beat `div.k.l`. Wrap in `:where()` to make it zero."
+  question: html-and-css/modern-css/has-selector
+- id: has-not-order
+  front: "How do `section:not(:has(h2))` and `section:has(:not(h2))` differ?"
+  back: "The first is a section with no `h2`; the second is a section with any non-`h2` descendant."
+  question: html-and-css/modern-css/has-selector
+- id: has-js
+  front: "Does `:has()` work in JavaScript selector APIs?"
+  back: "Yes, in `querySelectorAll` and `matches`. An invalid use like `document.querySelector(\":has(:has(a))\")` throws a `SyntaxError`."
+  question: html-and-css/modern-css/has-selector
+- id: has-support
+  front: "Which browsers support `:has()`, and since when?"
+  back: "Chrome 105, Firefox 121, Safari 15.4."
+  question: html-and-css/modern-css/has-selector
+- id: has-detect
+  front: "How do you test for `:has()` support?"
+  back: "`@supports selector(:has(a))` in CSS or `CSS.supports(\"selector(:has(a))\")` in JavaScript. Both browsers returned `false` for `selector(:has(:has(a)))`, so the same check catches invalid uses."
+  question: html-and-css/modern-css/has-selector
+- id: has-label-before-input
+  front: "In the example, why can a `label` before an `input` react to its validity?"
+  back: "`label:has(+ input:invalid)` looks at the following sibling, and it updates as soon as the value changes (red when invalid, black after entering `a@b.co`)."
+  question: html-and-css/modern-css/has-selector
+- id: has-sections-exercise
+  front: "Given `section:has(:not(h2)) { background: yellow }`, which sections match: one with `h2` and `p`, one with only an `h2`?"
+  back: "Only the first: it has a descendant that isn't an `h2` (the `p`). The `h2`-only section does not."
+  question: html-and-css/modern-css/has-selector
+- id: nest-what
+  front: "What can a native nested style rule contain?"
+  back: "Other style rules and group rules: `@media`, `@supports`, `@container`, `@layer`, `@scope`."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-relative-selector
+  front: "What does a nested selector without `&` mean?"
+  back: "A descendant of the parent; it may start with a combinator. `&` places the parent anywhere in the selector."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-type-selector-support
+  front: "Which browsers allow a nested selector to start with a type selector like `p`?"
+  back: "Chrome 120, Firefox 117 and Safari 17.2."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-amp-is
+  front: "What does `&` represent in native nesting?"
+  back: "The elements the parent rule matches, as if written `:is(<parent selector>)`. It is not text substitution as in Sass."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-specificity
+  front: "In `#nav, .menu { & a {} }`, what specificity does the nested rule have for `.menu a`?"
+  back: "(1, 0, 1), because `:is()` takes its most specific argument. Sass emits `#nav a, .menu a`, each with its own specificity."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-no-suffix
+  front: "What happens to Sass-style `&__title` or `&-bar` in native CSS?"
+  back: "It is invalid and the nested rule is dropped without an error, so write the full class."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-matching-order
+  front: "How does `.a .b { .c & {} }` match, versus Sass?"
+  back: "It is `.c :is(.a .b)`: a `.b` with `.a` and `.c` ancestors in either order. Sass writes `.c .a .b`, which requires that order."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-pseudo-element
+  front: "Can `&` represent a pseudo-element?"
+  back: "No, the same restriction as `:is()`. `.foo::before { &:hover {} }` matches nothing, unlike in Sass."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-declarations-order
+  front: "What happens to declarations placed after nested rules?"
+  back: "They keep their place, wrapped in a nested declarations rule (Chrome 130, Firefox 132, Safari 18.2); earlier versions moved them to the top."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-cssom
+  front: "How does the CSSOM represent a nested `p` rule?"
+  back: "As a child rule with `selectorText` `& p`."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-example-result
+  front: "In the nesting example, what colours do the link and the `.b` paragraph get natively?"
+  back: "The link is red and the paragraph blue. Sass 1.107 compiled output would make the link green, since `.menu .link` (0, 2, 0) beats `.menu a` (0, 1, 1), and the paragraph not blue."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-deep
+  front: "Why avoid nesting deep to mirror the DOM?"
+  back: "Each level adds specificity and coupling, and nesting doesn't scope anything; that's what `@scope` is for."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-amp-top-level
+  front: "What does `&` mean outside any style rule?"
+  back: "The same as `:scope`, which in a document stylesheet is the root element: a top-level `& { --top: yes; }` applied to `<html>`."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-why-is
+  front: "Why define `&` as `:is()` rather than expanding selectors like Sass?"
+  back: "Expansion multiplies: three levels of three-item lists give 27 selectors. `:is()` keeps one selector, and the spec notes a single specificity per selector keeps matching fast."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-at-rule-declarations
+  front: "Can an at-rule nested in a style rule hold bare declarations?"
+  back: "Yes. `.box { display: block; @media (width > 100px) { display: flex; } }` worked; the CSSOM showed the inner `display` in a `CSSNestedDeclarations` rule inside the `CSSMediaRule`."
+  question: html-and-css/modern-css/css-nesting
+- id: nest-article-exercise
+  front: "In `article { color: green; & { color: blue; } color: red; }`, what colour is the article?"
+  back: "Red. The last declaration is wrapped in a nested declarations rule that keeps its place; all three have specificity (0, 0, 1), so the last wins. Before that change it was hoisted and blue won."
+  question: html-and-css/modern-css/css-nesting
+- id: scope-what
+  front: "What does `@scope (.card) to (.slot)` do?"
+  back: "Limits rules to elements inside a `.card` but not inside its `.slot`: a \"donut\". The root matches `.card`; the optional limit cuts holes so a component doesn't reach into content slotted into it."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-relative-selectors
+  front: "How are inner selectors in `@scope` interpreted?"
+  back: "Relative to the root: `p` means `:scope p`. Only the subject must be in scope; `.page :scope p` can still look outside."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-no-root-specificity
+  front: "Does the scope root's selector add specificity?"
+  back: "No. `@scope (#hero) { em {} }` is (0, 0, 1) and lost to `div em`. `:scope` is (0, 1, 0); `&` is `:where(:scope)`, zero."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-no-prelude
+  front: "What does `@scope { … }` with no prelude inside a `<style>` element scope to?"
+  back: "That element's parent."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-proximity-rule
+  front: "What is scope proximity, and how are unscoped rules treated?"
+  back: "Between declarations from rules with different scoping roots, the one whose root is fewer generational or sibling hops from the element wins. Unscoped rules count as infinitely far."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-proximity-position
+  front: "Where does scope proximity sit in the cascade order?"
+  back: "After specificity and before order of appearance. Layers come before specificity. A scoped `p` lost to an unscoped, more specific `p.n`, but beat a later unscoped `p` of equal specificity."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-draft-prose-conflict
+  front: "Does proximity apply \"regardless of specificity\" in the draft?"
+  back: "The draft's §3.5.1 prose says so, but its cascade criteria list puts proximity after specificity, and Chrome 156 and Firefox 159 follow the list."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-not-encapsulation
+  front: "Is `@scope` encapsulation?"
+  back: "No. Outside rules still match inside, and inheritance is unaffected; isolation is Shadow DOM's job. A global `p { }` with higher specificity still reaches inside."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-support
+  front: "Which browsers support `@scope`?"
+  back: "Chrome 118, Safari 17.4, Firefox 146."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-theme-example
+  front: "With `@scope (.light)` and `@scope (.dark)` rules setting `a` black and white, and `.light` nested in `.dark`, what colour is the link?"
+  back: "Black. The nearer `.light` root wins wherever the rules sit; with plain `.light-plain a` and `.dark-plain a` the later rule wins and the link was white. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-limit-excluded
+  front: "With `to (.slot)`, does a `.slot { }` rule inside the scope match the slot element?"
+  back: "No; the limit element is excluded too."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-vs-bem
+  front: "How does `@scope` compare with BEM or CSS Modules?"
+  back: "Those make every selector unique by name. `@scope` needs a class only on the root and limits, keeps short inner selectors at low specificity, and adds proximity, which naming conventions can't express."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-layers
+  front: "Where does proximity sit relative to cascade layers?"
+  back: "Layers come before specificity, which comes before proximity. A scoped rule in an earlier layer loses to any unlayered rule, however near its root."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-cssom
+  front: "What does the CSSOM expose for `@scope`?"
+  back: "A `CSSScopeRule` with `start` and `end`: `@scope (.card) to (.slot)` gave `.card` and `.slot`."
+  question: html-and-css/modern-css/scope-at-rule
+- id: scope-exercise
+  front: "With `@scope (.card) { :scope { color: red } }`, `@scope (.card) { & { color: green } }` and `.card { color: blue }`, what colour is the card?"
+  back: "Red. `:scope` is (0, 1, 0), tying with `.card`, and proximity (0 hops versus infinitely far) decides before source order. `&` is zero specificity, so it loses to `.card` outright."
+  question: html-and-css/modern-css/scope-at-rule
+- id: logical-vs-physical
+  front: "What are logical properties tied to, versus physical ones?"
+  back: "Physical properties (`margin-left`, `top`, `width`) are tied to the screen. Logical ones are tied to the element's writing mode and direction."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-axes
+  front: "What are the inline and block axes?"
+  back: "The inline axis is the direction text runs within a line; the block axis is the direction lines and blocks stack. Each axis has a start and an end."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-margin-inline-start-map
+  front: "What does `margin-inline-start` map to in `ltr`, `rtl` and `vertical-rl`?"
+  back: "Left in horizontal `ltr`, right in horizontal `rtl`, and top in `vertical-rl`."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-block-start-inline-size-map
+  front: "What do `margin-block-start` and `inline-size` map to in `ltr`, `rtl` and `vertical-rl`?"
+  back: "`margin-block-start`: top, top, right. `inline-size`: width, width, height."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-families
+  front: "Which families do logical properties cover, and how do two-value shorthands read?"
+  back: "Margins, padding, borders and border radii (`border-start-end-radius`), insets (`inset-inline-start`), sizes (`inline-size`, `max-block-size`), plus values like `text-align: start` and `float: inline-start`. Two values set start then end: `padding-inline: 4px 12px`."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-why
+  front: "Why prefer `margin-inline-end` over `margin-right` for UI spacing?"
+  back: "Most UI spacing is about reading order, not screen sides, so it stays correct under `dir=\"rtl\"` with no `[dir=rtl]` overrides. Keep physical properties where the screen matters, such as a drop shadow's offset."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-cascade-pairs
+  front: "How do a logical property and its physical mapping cascade?"
+  back: "As a pair that cascades together. In `margin-inline-start: 1px; margin-left: 2px;` in `ltr`, the later declaration wins and the left margin is `2px`."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-own-writing-mode
+  front: "Which writing mode does an element use to map logical properties?"
+  back: "Its own computed `writing-mode` and `direction`. A horizontal child inside a vertical parent maps `inline-size` to width."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-four-value-physical
+  front: "Are four-value shorthands like `margin: 0 1rem 0 2rem` logical?"
+  back: "No; `margin` and `padding` four-value shorthands stay physical. A `logical` keyword (`margin: logical 1px 2px`) is in the draft, marked as almost certain to change, and no browser supports it."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-support
+  front: "Which browsers support the `-inline`/`-block` shorthands?"
+  back: "Chrome 87, Firefox 66, Safari 14.1."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-example-outputs
+  front: "With `margin-inline-start: 8px` and `border-inline-start: 3px solid`, where do the gap and border land in `ltr`, `rtl` and `vertical-rl`?"
+  back: "Left, right, then top. `getComputedStyle` margin read `0px 0px 0px 8px`, `0px 8px 0px 0px` and `8px 0px 0px`. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-inherit-pitfall
+  front: "What did `margin-inline-start: inherit` take from the parent in Chrome 156 and Firefox 159 when the child has `dir=\"rtl\"`?"
+  back: "The parent's physical side (`margin-right`, `0px`), not its `20px` start margin. The spec says it takes the parent's `margin-inline-start`."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-no-form
+  front: "Which properties have no logical form here?"
+  back: "Shadows, transforms and `background-position` stay physical."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-computed-same
+  front: "What do `marginRight` and `marginInlineStart` return in an `rtl` element with `margin-inline-start: 8px`?"
+  back: "Both `8px`: they map to the same side."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-float-support
+  front: "Which logical values cover `float` and `text-align`, and when did `float: inline-start` ship?"
+  back: "`text-align: start | end` and `float: inline-start | inline-end`. `float: inline-start` shipped in Chrome 118, Firefox 55 and Safari 15."
+  question: html-and-css/modern-css/logical-properties
+- id: logical-rtl-exercise
+  front: "In a `dir=\"rtl\"` paragraph with `margin-inline-start: 1px; margin-left: 2px; margin-inline-end: 3px`, what are the left and right margins?"
+  back: "Left `3px`, right `1px`. `margin-inline-end` pairs with `margin-left` and comes later, so it wins. In `ltr` the result was left `2px`, right `3px`."
+  question: html-and-css/modern-css/logical-properties
+- id: supports-recovery-smallest
+  front: "What unit does CSS error recovery throw away?"
+  back: "The smallest piece it can: a declaration, a style rule, or an at-rule block."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-declaration-fallback
+  front: "Why does writing the fallback declaration first work?"
+  back: "A declaration with an unknown property or value is dropped up to the next `;`, and earlier declarations still apply: `width: 100px; width: stretch;`."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-selector-list-dropped
+  front: "What happens to `.a, .b:new-state { }` in a browser that doesn't know `:new-state`?"
+  back: "The style rule is dropped whole, `.a` included, because the selector list is invalid."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-forgiving-is
+  front: "Which selectors take a forgiving list, and what does that do?"
+  back: "`:is()` and `:where()`. `:is(.a, .b:new-state)` keeps `.a`. `:has()` doesn't. Forgiving parsing was added only to those two, since Selectors 4 keeps the legacy rule."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-unknown-at-rule
+  front: "What happens to an at-rule the browser doesn't know?"
+  back: "It is skipped with its whole block. Nested inside a style rule, only the at-rule was dropped; both declarations around it applied."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-when-to-use
+  front: "When should you use a feature query rather than a fallback declaration?"
+  back: "When a change needs several declarations to move together, or the fallback would conflict with the new value."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-what-tests
+  front: "What does `@supports` test?"
+  back: "Whether the browser accepts a declaration as it would in a style rule. `selector()` tests a selector; newer functions test fonts (`font-tech()`, `font-format()`) and at-rules (`at-rule(@scope)`, Chrome 148 and Firefox 157 only)."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-syntax-rules
+  front: "What are the syntax rules for combining `@supports` conditions?"
+  back: "`and`, `or` and `not` need parentheses, and `and` and `or` can't be mixed without them. An invalid condition drops the whole `@supports` rule."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-js
+  front: "What is the JavaScript equivalent of `@supports`?"
+  back: "`CSS.supports()`."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-unknown-false
+  front: "Is unknown syntax inside `@supports` false or invalid?"
+  back: "False, not invalid. `@supports not (wobble(3))` is true, so a `not` query matches in browsers that don't understand what it tests."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-parsing-not-working
+  front: "Does passing `@supports` mean a feature works?"
+  back: "No. A buggy or partial implementation still passes, and `(color: var(--x))` is always true because `var()` defers checking."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-selector-strict
+  front: "Is `selector()` forgiving like `:is()`?"
+  back: "No; it is strict. `selector(:is(:new-state))` is false even though a rule using it would be kept."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-selector-one
+  front: "How many selectors can `selector()` take?"
+  back: "One complex selector; `selector(.a, .b)` returned `false`."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-pattern
+  front: "What is the progressive-enhancement pattern for new CSS?"
+  back: "Write the baseline unconditionally, then layer the enhancement with fallback declarations, forgiving selectors, or `@supports`."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-cssom-difference
+  front: "How did Chrome 156 and Firefox 159 differ for `:is(.c, .d:new-state)` in the CSSOM?"
+  back: "Both applied the same styles, but Chrome stored `selectorText` as `:is(.c)` while Firefox kept `:is(.c, .d:new-state)`."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-not-old-browsers
+  front: "Why isn't `@supports not (new-syntax)` \"old browsers only\"?"
+  back: "Browsers that predate `@supports` skip the block, and ones that can't parse the test treat it as false, so `not` makes it true."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-custom-property-type
+  front: "Can `@supports (--x: value)` test a registered type?"
+  back: "No. Custom properties accept almost anything at parse time, so it's true for any value."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-webkit-pseudo
+  front: "How are unknown `::-webkit-` pseudo-elements treated in selector lists?"
+  back: "Valid for compatibility but matching nothing, so `.d, .e::-webkit-made-up` kept the rule and styled `.d`. `selector(::-webkit-made-up)` still returned `false`."
+  question: html-and-css/modern-css/feature-queries
+- id: supports-exercise
+  front: "Which of these apply: `(display: grid) and (not (display: wobble))`, `display: grid` without parentheses, or `(display: grid) and (display: flex) or (display: block)`?"
+  back: "Only the first. The second lacks parentheses and the third mixes `and` with `or` without grouping; both are invalid, so each rule is dropped with its contents."
+  question: html-and-css/modern-css/feature-queries
