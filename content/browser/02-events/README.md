@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does event dispatch work — capture, target, and bubble?](010-event-dispatch-phases.md) | medium | 🔴 planned |
+| 010 | [How does event dispatch work — capture, target, and bubble?](010-event-dispatch-phases.md) | medium | 🟡 draft |
 | 020 | [What is event delegation, and when does it break?](020-event-delegation.md) | medium | 🔴 planned |
 | 030 | [What's the difference between `preventDefault()`, `stopPropagation()`, and `stopImmediatePropagation()`?](030-default-actions-and-propagation.md) | easy | 🔴 planned |
 | 040 | [What do the `once`, `passive`, `capture`, and `signal` listener options do?](040-listener-options.md) | medium | 🔴 planned |
