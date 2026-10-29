@@ -1,6 +1,6 @@
 # 10 — Web Components
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
 
 The platform's component model: custom elements and their lifecycle, shadow DOM encapsulation, templates and slots, declarative shadow DOM, and custom elements that join forms.
 
@@ -17,17 +17,22 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Custom elements: `customElements.define()`, lifecycle callbacks, upgrades, autonomous vs customized built-ins → —
-- Shadow DOM: style encapsulation, what inherits in, `:host`, `::part()`, event retargeting → —
-- `<template>` and `<slot>`: inert content, slot assignment, `slotchange` → —
-- Declarative shadow DOM: `shadowrootmode`, server rendering → —
-- Form-associated custom elements: `ElementInternals`, `formAssociated` → —
+- Custom elements: `customElements.define()`, lifecycle callbacks, upgrades, autonomous vs customized built-ins → 010
+- Shadow DOM: style encapsulation, what inherits in, `:host`, `::part()`, event retargeting → 020
+- `<template>` and `<slot>`: inert content, slot assignment, `slotchange` → 030
+- Declarative shadow DOM: `shadowrootmode`, server rendering → 040
+- Form-associated custom elements: `ElementInternals`, `formAssociated` → 050
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [How do custom elements work, including their lifecycle and upgrades?](010-custom-elements.md) | medium | 🔴 planned |
+| 020 | [What does shadow DOM encapsulate, and what crosses the boundary?](020-shadow-dom-encapsulation.md) | medium | 🔴 planned |
+| 030 | [How do `<template>` and `<slot>` work?](030-templates-and-slots.md) | medium | 🔴 planned |
+| 040 | [What is declarative shadow DOM, and why does it matter for server rendering?](040-declarative-shadow-dom.md) | medium | 🔴 planned |
+| 050 | [How can a custom element take part in a form?](050-form-associated-elements.md) | hard | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources

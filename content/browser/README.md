@@ -1,7 +1,7 @@
 # Browser runtime
 
 > **Track:** Frontend
-> **Status:** 🔴 planned · **Published:** 0/46 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/51 · **Last verified:** —
 
 What the browser adds around the language: the DOM, events, the rendering pipeline, the HTML event loop, and Web APIs.
 Frontend interviews test this layer constantly — "why is this click handler slow" is a browser question, not a framework one.
