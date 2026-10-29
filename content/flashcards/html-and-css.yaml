@@ -1916,3 +1916,460 @@
   front: "How do `fit-content` and `auto` differ for a block holding one `50px` item in a `120px` container?"
   back: "`fit-content` shrinks to `50px` around the item, while `auto` always fills at `120px`. With three `50px` items, `max-content` overflowed to `150` and `fit-content` capped at `120`."
   question: html-and-css/box-model-and-formatting/intrinsic-sizing
+# 05 Flexbox and grid
+- id: fvg-flex-one-dimensional
+  front: "In what sense is flexbox one-dimensional, even with `flex-wrap: wrap`?"
+  back: "Items flow along one main axis, and with wrapping each line is laid out independently: flexing and `justify-content` only see the items on that line. Nothing lines the second row up with the first."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-grid-two-dimensional
+  front: "What makes grid two-dimensional?"
+  back: "The container defines column and row tracks and items are placed into cells. A column is shared by every item in it, so items align across rows and columns, can span tracks and can overlap."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-sizing-direction
+  front: "Which direction does each layout size from, according to the grid spec's summary?"
+  back: "Grid works top-down: structure comes from the container (layout in). Flexbox works bottom-up from the content, distributing space within one axis."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-choose-test
+  front: "What question decides between flexbox and grid?"
+  back: "\"When this wraps, should the second row line up with the first?\" If yes, use grid. Flexbox suits a row or column sized by content (nav bars, tag lists); grid suits things that must align in both directions."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-last-row-wrap
+  front: "What goes wrong in a wrapping flex card gallery's last row?"
+  back: "Its items grow wider than the rest with `flex-grow`, or with `space-between` land at the far edges with a hole between. A `330px` flex row of five `flex: 1 1 100px` items gave `110 110 110 165 165`; grid kept `110px` cells."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-grid-content-sized
+  front: "Can grid size tracks from content?"
+  back: "Yes. `grid-template-columns: max-content 1fr` gives a label column as wide as the widest label, sized across every item in the column. Tracks can use `auto`, `max-content` or `fit-content()`."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-flex-percent-gap
+  front: "Why does mixing percentage widths with `gap` fail in flexbox?"
+  back: "Three `33.333%` items with `gap: 15px` in `330px` need `360px`, so the third wraps. In grid, `fr` tracks share the space left after gaps."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-order-accessibility
+  front: "Does reordering with `order` or grid placement change reading and tab order?"
+  back: "No. Keyboard and screen-reader order still follow the DOM, which the spec warns about. Keep the DOM order meaningful."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-flex-2d-via-nesting
+  front: "Can flexbox make a two-dimensional layout?"
+  back: "Only by nesting rows of flex containers, and columns line up only if you fix every item's width. Each row is an independent formatting context, so a wider item in one row can't widen the matching item in another."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-button-bottom
+  front: "How do you pin a card's button to the bottom when cards sit in one grid row?"
+  back: "Grid stretches every card to the row height. Make each card a column flex container and give the button `margin-top: auto`; the auto margin absorbs the card's spare height."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-subgrid-alignment
+  front: "How can a nested element line up with the outer grid's tracks?"
+  back: "Use `subgrid`: the nested grid adopts the parent's tracks in that axis instead of defining its own. A flex row inside a grid cell can't do this."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-algorithms
+  front: "How do the flex and grid algorithms differ in what competes for space?"
+  back: "Flex works per item then per line, so an item only competes with neighbours on the same line. Grid places every item, then sizes columns and then rows, so content in row 3 can widen a column for rows 1 and 2."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-label-field
+  front: "Why do fields in separate flex rows start at different offsets but align in a grid with `max-content 1fr`?"
+  back: "Each flex row sizes its label from its own content (fields start at `40` and `80`). The grid's `max-content` column is as wide as the widest label, so both fields start at `80`."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-column-flex-wrap
+  front: "What does column flex wrapping need to wrap?"
+  back: "A definite or maximum height. Otherwise the line is as tall as its content and never wraps."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-grid-flow-column
+  front: "Is a one-dimensional grid fine, and when is flexbox preferable?"
+  back: "Yes: `grid-auto-flow: column` puts each item in a new column. Prefer flexbox when items should share leftover space by content size rather than by track."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: fvg-flexbox-tradeoff
+  front: "What is flexbox's main strength and cost versus grid?"
+  back: "It needs no up-front structure: add or remove items and the line rebalances, which suits content of unknown size and count. The cost is that alignment only holds within one line."
+  question: html-and-css/flexbox-and-grid/flexbox-vs-grid
+- id: flex-base-size
+  front: "How is the flex base size determined?"
+  back: "From `flex-basis`. A length or percentage is used as is. `auto` means use `width` (or `height` in a column), and if that is `auto` too, `content`, roughly max-content. Clamping by min and max gives the hypothetical main size."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-free-space
+  front: "How is free space computed, and what decides whether grow or shrink applies?"
+  back: "The container's inner size minus the items' outer hypothetical sizes. Positive free space uses the grow factors; negative uses the shrink factors."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-grow-distribution
+  front: "How is positive free space shared among flex items?"
+  back: "Each item gets free space × its `flex-grow` ÷ the sum of `flex-grow`. In a `600px` row with bases `100` and `200`, grows 1 and 2 gave `200` and `400`."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-shrink-scaled
+  front: "How does shrinking differ from growing in the flex algorithm?"
+  back: "Each `flex-shrink` is first multiplied by the item's inner flex base size. With equal factors a `300px` item gives up three times as much as a `100px` one, so small items don't collapse first. `flex-grow` is not scaled."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-shrink-example
+  front: "In a `300px` row, what do `flex: 1 1 100px` and `flex: 1 1 300px` become?"
+  back: "`75px` and `225px`. The overflow is `100px`, and the scaled factors `100` and `300` take `25` and `75`."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-frozen-clamped
+  front: "What happens when a flex item hits its min or max clamp?"
+  back: "It is frozen at that size and the others share what's left again, until every item is frozen. In a `500px` row of three `flex: 1` items with one `max-width: 100px`, the result was `200`, `200`, `100`."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-shorthand-values
+  front: "What do the initial `flex`, `flex: auto`, `flex: 1` and `flex: none` expand to?"
+  back: "Initial: `0 1 auto`, content-sized, shrinks, never grows. `auto`: `1 1 auto`. `1`: `1 1 0%`, so all space is shared by ratio. `none`: `0 0 auto`, rigid."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-one-basis-computed
+  front: "What does `flex: 1` compute to in Chrome 155 and Firefox 158, versus the spec's omitted basis?"
+  back: "Both compute it to `1 1 0%`; the spec says an omitted basis is `0`."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-grow-fraction
+  front: "What happens when flex-grow factors add up to less than 1?"
+  back: "Items take only that share of the free space. Two items with `flex-grow: 0.25` leave half of it unused; with basis `0` in a `400px` row each got `100px`. The spec intends growth to fade smoothly to zero."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-one-vs-auto
+  front: "How do `flex: 1` and `flex: auto` differ when sharing space?"
+  back: "`flex: 1` starts from a zero basis and ignores content, giving equal widths (`200 200`). `flex: auto` starts from content and shares only the extra, so sizes differ (`150 250` for `50px` and `150px` content in `400px`)."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-one-unequal-columns
+  front: "Why can `flex: 1` columns come out unequal?"
+  back: "The automatic minimum stops an item at its min-content width. Add `min-width: 0`."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-one-zero-gotcha
+  front: "What does `flex: 1 0` compute to?"
+  back: "`1 0 0%`. A unitless zero after one factor is the shrink factor, not the basis, so the item no longer shrinks."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-basis-vs-width
+  front: "Which wins, `width` or `flex-basis`?"
+  back: "A non-`auto` `flex-basis` replaces `width`: `width: 300px; flex-basis: 100px` is `100px` wide. `min-width` and `max-width` still clamp."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-basis-percent
+  front: "What does a percentage `flex-basis` resolve against?"
+  back: "The flex container's inner main size. If that size is indefinite, the used basis is `content`. A `flex-basis: 50%` item in a `600px` row was `300px` wide."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-shrink-padding
+  front: "Does padding count in the flex-shrink ratio?"
+  back: "No: the factor is scaled by the inner (content-box) base size. In a `300px` row, a `100px`-basis item with `100px` of left padding beside a `200px` item ended at `166.67px` and `133.33px` outer widths."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-resolve-algorithm
+  front: "What are the steps of resolving flexible lengths for a flex line?"
+  back: "Pick grow or shrink by comparing sizes, freeze inflexible items, compute initial free space, then loop: distribute by factor, clamp by min and max, sum the violations and freeze (zero: all; positive: min violators; negative: max violators), repeat."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-min-violation-example
+  front: "Two `flex: 1 1 200px` items in `300px`, the first with `min-width: 180px`: what are the widths?"
+  back: "`180` and `120`. Pass 1 targets `150` each; the first is clamped up to `180` (a positive violation) and freezes. Pass 2 gives the remaining `−80px` entirely to the second."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-base-ignores-min-max
+  front: "Does clamping apply to the flex base size?"
+  back: "No. Clamping happens for the hypothetical size and after distribution, never to the base size. That's why a max-clamped item is frozen early when growing."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-border-box-negative-base
+  front: "What happens to `flex-basis: 0` with `20px` padding under `border-box`?"
+  back: "The inner base size is negative. The spec allows this and floors it later."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-percent-basis-indefinite-column
+  front: "What does a percentage `flex-basis` do in an auto-height column container?"
+  back: "It falls back to `content`, because the container's height is indefinite. With `overflow: hidden`, a `flex-basis: 50%` item with `30px` of content was `30px` tall."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-sidebar-main
+  front: "How do you write a fixed sidebar with a fluid main area, and why does main need `min-width: 0`?"
+  back: "`.sidebar { flex: 0 0 240px }` and `.main { flex: 1; min-width: 0 }`. Without `min-width: 0`, a `1000px` child kept `.main` at `1000px` and overflowed the row; with it `.main` stayed `560px`."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: flex-use-flex-vs-width
+  front: "Should you size flex items with `flex-basis` or `width`?"
+  back: "Prefer `flex-basis` through the `flex` shorthand, which the spec recommends because it resets unspecified parts to useful values. Use `width` when the item may stop being a flex item."
+  question: html-and-css/flexbox-and-grid/flex-sizing-algorithm
+- id: ams-what-it-is
+  front: "What is the automatic minimum size of flex and grid items?"
+  back: "`min-width` and `min-height` start as `auto`. On ordinary blocks that means `0`, but flex and grid items get a content-based minimum, essentially min-content: the longest word or the widest image or fixed-width child."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-symptoms
+  front: "What symptoms does the automatic minimum size cause?"
+  back: "A `flex: 1` item stops shrinking at its min-content width and overflows. `text-overflow: ellipsis` never appears, a long URL or `<pre>` widens a column, and a nested scroll panel grows instead of scrolling."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-flex-rule
+  front: "How does flexbox compute the content-based minimum?"
+  back: "Main axis only, for items that aren't scroll containers: the min-content size, capped by the item's definite `width` (or `height`) and by its max size. A `width: 100px` item can shrink to `100px` but not further."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-grid-rule
+  front: "When does grid apply the automatic minimum?"
+  back: "Only when the item spans a track whose minimum sizing function is `auto`: `auto` tracks and `1fr` (which is `minmax(auto, 1fr)`). Fixed tracks don't enforce it."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-fixes
+  front: "What are the fixes for the automatic minimum, most targeted first?"
+  back: "`min-width: 0` on the item (`min-height: 0` in a column), `overflow: hidden | auto | scroll` (scroll containers have a zero minimum), or `minmax(0, 1fr)` in grid."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-overflow-clip
+  front: "Does `overflow: clip` remove the automatic minimum?"
+  back: "No. It isn't a scroll container, so it clips the paint but the layout still overflows. A `300px` child kept its item at `300px` with `overflow: clip`."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-spec-suggestion
+  front: "What does the spec suggest for main content areas instead of the content-based minimum?"
+  back: "A deliberate font-relative minimum such as `min-width: 12em`."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-min-width-placement
+  front: "Where must `min-width: 0` go in nested flex containers?"
+  back: "On the flex item, and on every nested flex item between the container and the wide content. An inner item without it stayed `300px` inside an outer item fixed at `200px`."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-block-axis
+  front: "How does the automatic minimum bite in the block axis?"
+  back: "In nested column flex containers, a `flex: 1` middle wrapper takes its content's height, so an inner `overflow: auto` list never scrolls. The wrapper grew to `500px` in a `200px` app; with `min-height: 0` it was `160px` and the list scrolled."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-width-caps-minimum
+  front: "Does an explicit `width` let a flex item shrink further?"
+  back: "No. The width caps the minimum, but it is still a minimum: in a `50px` row, a `width: 100px` item holding a `300px` child stayed `100px`."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-1fr-vs-minmax
+  front: "Why does `1fr` overflow while `minmax(0, 1fr)` doesn't?"
+  back: "`1fr` is `minmax(auto, 1fr)`, and an `auto` minimum makes the track's base size its items' minimum contributions, including their content-based minimum. `minmax(0, 1fr)` starts at zero and turns the automatic minimum off."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-scroll-container-exempt
+  front: "Why are scroll containers exempt from the automatic minimum?"
+  back: "Their content can be scrolled into view, so the spec gives them the usual zero automatic minimum. That is why `overflow: auto` on the item doubles as a fix."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-image
+  front: "Why won't an image in a flex row shrink?"
+  back: "Its content size suggestion is its natural width. A `400px`-wide SVG in a `200px` row stayed `400px`. `min-width: 0` or `max-width: 100%` (which caps the minimum) shrank it to `200px`."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: ams-width-100-min-content-300
+  front: "A `width: 100px` flex item holds a `300px` child in a `50px` row. What are the widths with and without `min-width: 0`?"
+  back: "`100px` without it, since the minimum is the smaller of min-content (`300px`) and the specified width (`100px`). `50px` with `min-width: 0`."
+  question: html-and-css/flexbox-and-grid/automatic-minimum-size
+- id: align-axes
+  front: "Which axis do `justify-*` and `align-*` work on?"
+  back: "`justify-*` works on the inline axis and `align-*` on the block axis. In flexbox, `justify-*` follows the main axis and `align-*` the cross axis, so `flex-direction: column` swaps them visually."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-content-subjects
+  front: "What do `justify-content` and `align-content` move in grid and flex?"
+  back: "They distribute space around the alignment subjects as a group: in grid, the tracks (visible only when smaller than the container); in flexbox, `justify-content` moves the items on each line and `align-content` moves the lines."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-content-nowrap
+  front: "Does `align-content` do anything in a `nowrap` flex container?"
+  back: "No. The single line fills the container's cross size. Use `align-items` or switch to `flex-wrap: wrap`, where the line is as tall as its content and `align-content: center` centres it."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-items-self
+  front: "What do `*-items` and `*-self` do?"
+  back: "`*-items` on the container sets the default `*-self` for every child. `*-self` aligns one item inside its alignment container: its grid area or, for `align-self`, its flex line."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-flex-no-justify-self
+  front: "Does flexbox support `justify-self` or `justify-items`?"
+  back: "No, they don't apply, since there is more than one item on the main axis. Use `justify-content` for the group and auto margins for individual items."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-auto-margins-first
+  front: "In what order do auto margins and `justify-content` take effect in flexbox?"
+  back: "Auto margins first. Positive free space goes to `auto` margins before `justify-content` and `align-self` run, so `margin-left: auto` pushes an item and everything after it to the end and leaves `justify-content` nothing."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-grid-margin-auto
+  front: "What does `margin: auto` do on a grid item?"
+  back: "Centres it in its area. A `50 × 20` item in a centred `100 × 40` cell landed at `175,10` in a `400px` grid. `place-self: center` also works."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-normal
+  front: "What does the initial `normal` alignment value behave as?"
+  back: "`stretch` for flex lines and for grid `auto` tracks. For grid items it stretches non-replaced boxes without a set size and start-aligns replaced ones like images."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-place-shorthand
+  front: "In what order do the `place-*` shorthands take their values?"
+  back: "Align value first: `place-items: end start` is `align-items: end; justify-items: start`. Reading it as x then y is a common mistake."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-gap
+  front: "Where does `gap` add space?"
+  back: "Between tracks or items only (`row-gap`, `column-gap`), never at the edges."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-safe
+  front: "What does the `safe` keyword change, and where is it supported?"
+  back: "When the item overflows it aligns as if `flex-start`, so content isn't pushed past the start edge where it can't be scrolled to. A `200px` item in a `100px` container started at `-50` with `center`, at `0` with `safe center`. Chrome 115, Firefox 63, Safari 17.6."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-grid-content-vs-items
+  front: "In grid, how do `justify-content` and `justify-items` differ?"
+  back: "`justify-content` moves the columns inside the container when they don't fill it. `justify-items` moves each item inside its own column area."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: align-auto-margin-vs-center
+  front: "Does `justify-content: center` centre an item that also has an auto margin?"
+  back: "No. Auto margins consume the free space first. In a `400px` row the auto margin took all `250px`, and `justify-self: end` was ignored."
+  question: html-and-css/flexbox-and-grid/box-alignment
+- id: track-kinds
+  front: "What three kinds of track sizing functions are there?"
+  back: "Fixed (a length or percentage), intrinsic (`min-content`, `max-content`, `auto`, `fit-content(limit)`, sized from the items), and flexible (`fr`, a share of the leftover space)."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-fr-leftover
+  front: "What is an `fr` unit a share of?"
+  back: "The leftover space: what remains after the other tracks and the gaps are sized. `100px 1fr 2fr` in `400px` gives `100 100 200`."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-bare-fr
+  front: "What does a bare `1fr` mean, and why aren't `1fr 1fr` guaranteed equal?"
+  back: "`minmax(auto, 1fr)`. Its `auto` minimum takes the items' content-based minimum, so a wide child forces its column open. `minmax(0, 1fr)` is the guaranteed-equal form."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-auto
+  front: "What is an `auto` track, and how does it use leftover space?"
+  back: "`minmax(auto, auto)`: at least the content minimum, up to max-content. When `justify-content` is `normal` or `stretch`, `auto` tracks share any space left at the end."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-auto-fill
+  front: "How many tracks does `repeat(auto-fill, ...)` create?"
+  back: "As many as fit in the container, gaps included, measuring each by its fixed max, or else its fixed min: `minmax(100px, 1fr)` counts as `100px`. If none fit it is one; with `150px` tracks and `gap: 10px` in `400px`, two."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-auto-fit
+  front: "How does `auto-fit` differ from `auto-fill`?"
+  back: "`auto-fit` collapses repeated tracks that no item occupies to `0`, gutters included, so `fr` tracks with items absorb the space. With enough items to fill every track, the two are identical."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-auto-fill-vs-fit-use
+  front: "When do you pick `auto-fill` versus `auto-fit`?"
+  back: "`auto-fill` keeps cell size consistent when there are few items, so a sparse row stays aligned with full rows. `auto-fit` stretches the few items to fill the row."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-repeat-indefinite
+  front: "What does `repeat(auto-fill, ...)` do without a definite container size?"
+  back: "Without a definite size, maximum or minimum on the container, the list repeats once."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-algorithm-steps
+  front: "What are the five steps of the track sizing algorithm?"
+  back: "Per axis, columns first then rows: initialise base sizes and growth limits, resolve intrinsic sizes from items, maximize tracks to their limits with free space, expand `fr` tracks, then stretch `auto` tracks."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-used-values
+  front: "How can you inspect used track sizes?"
+  back: "`getComputedStyle(grid).gridTemplateColumns` returns the used track sizes."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-percent-gap
+  front: "What happens with `50% 50%` columns and `gap: 20px` in `400px`?"
+  back: "They add up to `420px` and overflow. `1fr 1fr` gave `190px` each, since `fr` shares the space after gaps."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-fit-content-cap
+  front: "Is `fit-content(150px)` a hard cap?"
+  back: "No. Its minimum is still `auto`, so a `300px` child made the track `300px` wide. The limit doesn't clamp the automatic minimum."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-fr-fraction
+  front: "What do `0.25fr 0.25fr` do in `400px`?"
+  back: "Factors summing below 1 take only that fraction: each got `100px`, leaving `200px` empty. The sum of factors is floored at 1 when finding the `fr` size."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-auto-vs-fr
+  front: "How do `auto` and `1fr` tracks differ in sharing space?"
+  back: "`auto` tracks start from their content and share only the remaining space: with `50px` and `100px` items in `400px`, `auto auto` gave `175 225`. `fr` tracks share leftover space by factor from a zero base."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-base-growth
+  front: "What are a track's base size and growth limit?"
+  back: "The base size is how small it may be and only grows; the growth limit is where it wants to stop. A fixed minimum becomes the base size, a fixed maximum becomes the growth limit, and intrinsic or flexible maximums start at infinity."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-fr-restart
+  front: "How does the `fr` size get resolved when a track's base size exceeds its share?"
+  back: "The hypothetical `1fr` is leftover space ÷ sum of factors. If a track's base size is already larger, it is treated as fixed and the calculation restarts. `1fr 1fr 1fr` in `400px` with a `300px` child gave `300 50 50`."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-intrinsic-spans
+  front: "In what order do items contribute to intrinsic track sizes?"
+  back: "Items spanning one track first, then items spanning 2, 3 and so on content-sized tracks. Items crossing an `fr` track come last and put their space only into the flexible tracks."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-no-shrink
+  front: "Does the track sizing algorithm shrink overflowing tracks?"
+  back: "No. It has no shrink step like flexbox's, so a grid with fixed sizes or content minimums that exceed the container overflows it."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-indefinite-height
+  front: "How does `fr` behave in an auto-height grid?"
+  back: "The `fr` size is chosen so every flexible track fits its content at its ratio: `1fr 2fr` rows holding `50px` and `20px` items came out `50px 100px`. A `1fr` row only fills spare space when the container has a height or `min-height`."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-app-shell
+  front: "What grid template makes a footer sit at the bottom and keeps wide content from breaking the layout?"
+  back: "`grid-template-rows: auto 1fr auto` with `min-height: 100dvh`, and `grid-template-columns: 240px minmax(0, 1fr)`. A `600px` `<pre>` overflowed inside its cell instead of widening the page."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-fr-vs-percent
+  front: "When should you prefer `fr` over `%`?"
+  back: "`fr` shares space after gaps, percentages ignore them. Prefer `fr` unless a track must match a fraction of the container exactly."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: track-auto-stretch-start
+  front: "Why does `100px auto` give `100px 300px` in `400px`, but `100px 50px` with `justify-content: start`?"
+  back: "With `normal` the last step stretches `auto` tracks into the remaining space. `justify-content: start` turns that step off, so the track stays at its content size."
+  question: html-and-css/flexbox-and-grid/grid-track-sizing
+- id: place-line-numbers
+  front: "How are grid lines numbered, and what does `-1` mean?"
+  back: "From 1 at the start edge. Negative numbers count back from the end of the explicit grid, so `-1` is its last line. `grid-column: 1 / -1` spans the full explicit width."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-spans
+  front: "How do you place an item with a span?"
+  back: "`grid-column: span 2` starts wherever auto-placement puts it; `2 / span 2` starts at line 2."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-named-lines
+  front: "How do named lines work, and what is created by a `foo-start` and `foo-end` pair?"
+  back: "`grid-template-columns: [content-start] 1fr [content-end]` lets you write `grid-column: content-start / content-end`. A `-start`/`-end` pair also creates an implicit area, so `grid-column: content` works."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-template-areas
+  front: "What are the rules for `grid-template-areas`?"
+  back: "The layout is drawn as strings; each name must form one rectangle, and `.` marks an empty cell. Each area creates `name-start` and `name-end` lines, and `grid-area: main` places an item there."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-non-rectangular
+  front: "What happens with a non-rectangular area such as `\"a a\" \"a b\"`?"
+  back: "The whole `grid-template-areas` declaration is invalid and computes to `none`."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-implicit-tracks
+  front: "What are implicit tracks and what sizes them?"
+  back: "Items placed outside the explicit grid create them. They are sized by `grid-auto-rows` and `grid-auto-columns`, which default to `auto`."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-minus-one-explicit
+  front: "Does `grid-column: 1 / -1` span implicit columns?"
+  back: "No, `-1` is the end of the explicit grid. With two explicit `100px` columns and another item forced into column 3, a `1 / -1` item was still `200px` wide."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-auto-order
+  front: "In what order does auto-placement place items?"
+  back: "First items with a definite position, then items locked to a row, then the rest in order-modified document order. Explicitly placed items go first, so an unplaced item early in the DOM can end up last on screen."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-auto-flow
+  front: "What does the auto-placement cursor do with `grid-auto-flow: row` versus `column`?"
+  back: "With `row` (default) it moves across each row and down, adding rows as needed. `column` fills columns top to bottom and adds columns."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-sparse-dense
+  front: "What is the difference between sparse and `dense` auto-placement?"
+  back: "Sparse (default): the cursor never moves backwards, so items keep their order and holes can remain. `dense` restarts the search from the top for each item and fills holes with later, smaller items."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-dense-a11y
+  front: "Why is `dense` risky on an ordered list such as search results?"
+  back: "It fills holes with later items, so visual order no longer matches the reading order. Visual placement never changes reading or tab order; the DOM order must stay logical."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-overlap
+  front: "What happens when grid items are placed in the same cells?"
+  back: "They overlap. Later items in order-modified DOM order paint on top, and `z-index` works without `position`."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-sparse-vs-dense-example
+  front: "With `repeat(3, 100px)` columns, spans of 2 for A and B, and a one-cell C, where does C go in sparse and `dense` flow?"
+  back: "Sparse: row 2, column 3 (`200,20`), since B doesn't fit and the cursor never goes back. Dense: row 1, column 3 (`200,0`), filling the hole."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-area-implicit-lines
+  front: "What implicit line names does an area `main` create?"
+  back: "Both its row and column start lines get `main-start` and both end lines `main-end`. They don't appear in `grid-template-columns`, but placement can use them: `grid-column: main-start / main-end`."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: place-full-bleed
+  front: "How do you make a full-bleed row inside a centred content column?"
+  back: "Name the lines: `[full-start] 1fr [content-start] 200px [content-end] 1fr [full-end]`. Children get `grid-column: content`; a full-bleed child gets `grid-column: full`."
+  question: html-and-css/flexbox-and-grid/grid-placement
+- id: sub-independent-grid
+  front: "Why can't cards in the same grid row align their inner parts without subgrid?"
+  back: "A grid only lays out its direct children, so a grid item that is a grid gets an independent grid sized only from its own children. A short header in one card and a tall one in the next leave bodies and footers at different heights."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-what-it-does
+  front: "What does `grid-template-rows: subgrid` mean on a grid item?"
+  back: "Don't define tracks in this axis; use the ones I span in my parent. The subgrid's explicit tracks are the parent tracks it covers, and its children are laid out in the parent's track sizing."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-needs-span
+  front: "What must a card have to get three subgrid rows?"
+  back: "`grid-row: span 3`, since the subgrid has as many tracks as its span. With `grid-row: auto` it spans one row and all three children overlapped at offset `0`."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-shared-sizing
+  front: "How are shared rows sized with subgrid?"
+  back: "The tallest header, body and footer in the row size the parent's rows for every card. In the example the rows became `50`, `40` and `10`."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-line-numbers
+  front: "What do line numbers and names mean inside a subgrid?"
+  back: "Numbers restart at 1 on the subgrid's first line. The parent's line names are inherited, and named areas from the parent's `grid-template-areas` produce `-start` and `-end` names inside."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-no-implicit
+  front: "Does a subgridded axis have implicit tracks?"
+  back: "No. Items placed beyond its tracks are clamped into them: an item at `grid-column: 4` in a two-column subgrid landed in the second column."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-gaps
+  front: "How do a subgrid's gaps relate to the parent's?"
+  back: "Inherited by default (`gap: normal`). A subgrid may set its own; the difference is applied as extra margin on its inner items, so its gutters centre on the parent's."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-other-axis
+  front: "Is the other axis of a subgrid also inherited?"
+  back: "No, it stays independent unless it's subgridded too: `grid-template: subgrid / subgrid`."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-falls-back-none
+  front: "When does `subgrid` behave as `none`?"
+  back: "Without a parent grid, or when the box must be an independent formatting context, for example under `contain: layout`. A card with `contain: layout` stopped being a subgrid."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-padding-border
+  front: "Do a subgrid's padding and border affect parent track sizes?"
+  back: "Yes. The spec adds them as extra margin on the edge items when sizing parent tracks: a card with `padding-top: 40px` and a `20px` header made the shared first row `60px`, beating the other card's `50px` header."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-vs-display-contents
+  front: "Why not use `display: contents` on the card instead of subgrid?"
+  back: "It removes the card's box: its children become the parent's grid items and align, but the card loses its border, background, padding and own grid. Fixed heights were the other workaround and break on longer content."
+  question: html-and-css/flexbox-and-grid/subgrid
+- id: sub-support
+  front: "Since when is subgrid supported?"
+  back: "Firefox 71, Safari 16 and Chrome 117."
+  question: html-and-css/flexbox-and-grid/subgrid
