@@ -139,4 +139,4 @@ A feed renders 3,000 cards, each with a heading and two long paragraphs. Resizin
 
 ### Trade-offs
 
-A staged, retained pipeline lets the browser cache each stage's output and redo only what a change dirtied, and lets compositing run on other threads. The price is that cost depends on which stage a property dirties: the same visual change is cheap as a `transform` and expensive as `left` or `width`. Extra layers speed up animation but cost GPU memory, and very large DOMs make every style and layout pass slower whatever was changed.
+A staged, retained pipeline lets the browser cache each stage's output and redo only what a change dirtied, and lets compositing run on other threads. The price is that cost depends on which stage a property dirties: the same visual change is cheap as a `transform` and expensive as `margin-left` or `width`. Extra layers speed up animation but cost GPU memory, and very large DOMs make every style and layout pass slower whatever was changed.
