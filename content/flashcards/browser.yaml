@@ -1,0 +1,357 @@
+# 01 The DOM
+- id: dom-what-is-the-dom
+  front: "What is the DOM, and which standards define it?"
+  back: "The in-memory tree the browser builds from HTML, plus the API scripts use to read and change it. The WHATWG DOM Standard defines the tree and its generic interfaces; the HTML Standard defines the HTML element classes on top."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-node-types-and-numbers
+  front: "Which `nodeType` numbers do `Element`, `Text`, `Comment`, `Document`, `DocumentType` and `DocumentFragment` report?"
+  back: "`Element` is 1, `Text` 3, `Comment` 8, `Document` 9, `DocumentType` 10 and `DocumentFragment` 11. `Attr` is 2."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-attr-is-node-not-child
+  front: "`Attr` is a `Node`. Does it ever appear in `childNodes`?"
+  back: "No. `Attr` is a `Node` for historical reasons but never has a parent; attributes hang off their element, not the tree. Read them with `getAttribute()` or `attributes`."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-document-shape
+  front: "What shape does the standard constrain a `Document` to?"
+  back: "At most one doctype and one element child, `<html>`, which is `document.documentElement`. Elements contain elements and character data."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-characterdata-leaves
+  front: "Which node types are `CharacterData`, and what do they hold?"
+  back: "`Text` and `Comment`. They are leaves that hold a string."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-documentfragment-and-shadowroot
+  front: "What is a `DocumentFragment`, and which other node is one?"
+  back: "A parentless container for building subtrees. A shadow root is also a `DocumentFragment`."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-element-vs-htmlelement
+  front: "What does `Element` hold versus `HTMLElement`?"
+  back: "`Element` holds what every markup element shares: attributes, `id`, `classList`, selectors. `HTMLElement` adds HTML-only features such as `hidden`, `title` and `click()`; each tag gets its own subclass, e.g. `<p>` is `HTMLParagraphElement`."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-paragraph-prototype-chain
+  front: "What is the prototype chain of a `<p>` element?"
+  back: "`HTMLParagraphElement > HTMLElement > Element > Node > EventTarget > Object`. Chrome 156 and Firefox 159 printed the same."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-svg-not-htmlelement
+  front: "Is an SVG element an `Element`? Is it an `HTMLElement`?"
+  back: "It is an `Element` but not an `HTMLElement`. So `instanceof HTMLElement` is not a test for \"is an element\"; use `instanceof Element` or `nodeType === Node.ELEMENT_NODE`."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-unknown-vs-custom-element-class
+  front: "Which class do `document.createElement('foo')` and `createElement('x-foo')` produce?"
+  back: "`foo` is not a known element or valid custom element name, so it becomes `HTMLUnknownElement`. A valid custom element name like `x-foo` gets plain `HTMLElement`, so a later upgrade only extends the chain."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-node-vs-element-apis
+  front: "How do `childNodes`/`firstChild`/`parentNode` differ from `children`/`firstElementChild`/`parentElement`?"
+  back: "The node-level ones include text and comments; the element-level ones skip them. That's why whitespace between tags shows up as `#text` in `childNodes` but not in `children`."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-firstchild-whitespace
+  front: "Why is `firstChild` often not the first tag in indented markup?"
+  back: "The whitespace between tags is its own `#text` node, so `firstChild` is usually that. Use `firstElementChild` to get the first element."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-parentnode-vs-parentelement
+  front: "For `<html>`, what are `parentNode` and `parentElement`?"
+  back: "`document.documentElement.parentNode` is the `document`; its `parentElement` is `null`, because the document is not an element."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-not-same-as-source
+  front: "Is the DOM the same as the HTML source?"
+  back: "No. The parser repairs markup (closing a `<p>` before a `<div>`, adding `<head>` and `<body>`) and scripts change the tree afterwards. DevTools' Elements panel shows the DOM, not the source."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: dom-nodename-tagname-localname
+  front: "What are `nodeName`, `tagName` and `localName` for an HTML `<p>` in an HTML document?"
+  back: "`nodeName` and `tagName` are the qualified name, uppercased for HTML elements in an HTML document: `\"P\"`. `localName` stays lowercase: `\"p\"`."
+  question: browser/the-dom/dom-tree-and-node-types
+- id: collections-live-vs-static
+  front: "What is the difference between a live and a static collection?"
+  back: "A live collection stores no members: `length` and indexing answer from the tree as it is now. A static collection is a snapshot of the matches at creation time; later changes don't touch it. The DOM Standard says collections are live unless stated otherwise."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-htmlcollection-live-sources
+  front: "Which APIs return a live `HTMLCollection`?"
+  back: "`children`, `getElementsByTagName()`, `getElementsByClassName()`, `document.forms` and `table.rows`."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-childnodes-live
+  front: "Is `childNodes` live or static, and what type is it?"
+  back: "A live `NodeList`. Not every `NodeList` is static."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-getelementsbyname-live
+  front: "What does `document.getElementsByName()` return, and is it live?"
+  back: "A live `NodeList`."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-queryselectorall-static
+  front: "What does `querySelectorAll()` return, and is it live?"
+  back: "A static `NodeList`: a snapshot of the matches at creation time. Elements added later don't appear in it; query again."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-liveness-by-method
+  front: "Does liveness depend on the type (`NodeList` vs `HTMLCollection`) or the method?"
+  back: "The method. An `HTMLCollection` is always live here, but a `NodeList` can be live (`childNodes`) or static (`querySelectorAll()`)."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-htmlcollection-nameditem
+  front: "What does `HTMLCollection` hold and what does it add over `NodeList`?"
+  back: "It holds only elements and adds `namedItem()`, lookup by `id` or `name`. The standard calls it \"a historical artifact\". `NodeList` can hold any node."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-foreach-only-nodelist
+  front: "Which of `HTMLCollection` and `NodeList` has `forEach()`, and are both iterable?"
+  back: "Only `NodeList` has `forEach()` (plus `keys()`, `values()`, `entries()`). Both have `length` and indexing and a `Symbol.iterator`, so `for…of`, spread and `Array.from()` work on both."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-no-foreach-reason
+  front: "Why doesn't `HTMLCollection` get `forEach()`?"
+  back: "Its IDL has no `iterable<>` declaration, which is what generates `forEach()`. The standard discourages new APIs from returning `HTMLCollection`, recommending plain sequences (arrays) instead."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-identity
+  front: "Which collection-returning APIs give the same object on every call?"
+  back: "`children` and `childNodes` return the same object every time; `getElementsBy*()` may return the same object for the same argument; `querySelectorAll()` always builds a new list."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-skip-loop-bug
+  front: "What goes wrong removing a class from each item of `getElementsByClassName()` in an index loop?"
+  back: "Each removal drops the item from the live collection and shifts the rest down, so every other element is skipped. With three `.todo` items the loop left `length` 1 and `live[0]` as `b` (Chrome 156 and Firefox 159)."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-infinite-loop
+  front: "What happens inserting matching elements during `for…of` over a live collection?"
+  back: "It can loop forever. In `for (const p of document.getElementsByTagName('p')) p.after(document.createElement('p'))` there is always a next item; with `querySelectorAll('p')` the loop runs only twice."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-safe-iteration
+  front: "How do you safely iterate while mutating the tree under a live collection?"
+  back: "Copy first (`[...live]`), use `querySelectorAll()`, or iterate backwards."
+  question: browser/the-dom/live-vs-static-collections
+- id: collections-no-change-events
+  front: "How do you get notified when a collection's contents change?"
+  back: "You don't: a live collection has no events and only answers correctly when read. To react to tree changes, use a `MutationObserver`."
+  question: browser/the-dom/live-vs-static-collections
+- id: attrs-content-vs-idl
+  front: "In HTML Standard terms, what are a content attribute and an IDL attribute?"
+  back: "A content attribute is what you write in markup: a name and a string value stored on the element, read and written with `getAttribute()`/`setAttribute()`. An IDL attribute is a property on the element's interface, implemented as a getter and setter."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-reflection
+  front: "What does it mean for a property to reflect an attribute?"
+  back: "The getter reads the content attribute and converts it by the property's type; the setter writes a string back. Setting a reflected property such as `link.id` therefore changes the attribute."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-string-missing
+  front: "What does a reflected string property return when the attribute is missing?"
+  back: "`\"\"`, not `null`."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-url-reflection
+  front: "What do `a.href` and `img.src` return versus `getAttribute('href')`?"
+  back: "The property is parsed against the document's base URL and returned absolute. `getAttribute('href')` returns the raw authored string."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-boolean-reflection
+  front: "How does a boolean reflected property like `disabled` map to its attribute?"
+  back: "It is `true` when the attribute is present at all. Setting `true` writes `\"\"`; setting `false` removes the attribute."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-setattribute-false-trap
+  front: "Why does `el.setAttribute('disabled', 'false')` not enable a control?"
+  back: "Any value means the boolean attribute is present, so it stays disabled. Use `el.disabled = false` or `removeAttribute()`."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-number-reflection
+  front: "What does a number property like `maxLength` return for an invalid or missing attribute?"
+  back: "A default value. For `maxLength` that is `-1`."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-enumerated-reflection
+  front: "What does an enumerated property limited to known values, like `input.type`, return for an unknown keyword?"
+  back: "The default state's keyword."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-renamed-properties
+  front: "Which attribute names differ from their property names because of JavaScript clashes?"
+  back: "`class` is `className` and `for` is `htmlFor`."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-custom-attribute-no-property
+  front: "Does a made-up attribute such as `foo` get a property, and does `el.foo = 'x'` create an attribute?"
+  back: "No to both. A made-up attribute gets no property, and expando properties never reach the markup. Use `setAttribute()` or `dataset`."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-input-value-default
+  front: "For `<input>`, what is the `value` attribute versus the `value` property?"
+  back: "The attribute is only the default value, reflected by `defaultValue`. The `value` property is the current value, and `getAttribute('value')` does not return what the user typed."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-dirty-value-flag
+  front: "Why does `setAttribute('value', …)` often seem to do nothing on an input?"
+  back: "Once the user edits the field or a script sets `value`, the control's dirty value flag is set and later attribute changes no longer reach it. `checked` and `defaultChecked` work the same way with a dirty checkedness flag."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-checked-example
+  front: "For `<input type=\"checkbox\" checked>`, after `box.checked = false`, what do `hasAttribute('checked')` and `defaultChecked` return?"
+  back: "Both `true`. Setting `checked` changes only the current state and sets the dirty checkedness flag, so the attribute stays and later attribute changes no longer move the box. Chrome 156 and Firefox 159 agreed."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-rule-of-thumb
+  front: "When should you use properties and when attributes?"
+  back: "Properties for state and typed values. Attributes for what's serialised, for CSS attribute selectors, and for names with no property."
+  question: browser/the-dom/attributes-vs-properties
+- id: attrs-name-case
+  front: "Are attribute names case-sensitive in `setAttribute()`?"
+  back: "Not on HTML elements in an HTML document: the name is lowercased, so `setAttribute('VALUE', 'x')` creates `value`. On SVG elements and in XML documents names keep their case."
+  question: browser/the-dom/attributes-vs-properties
+- id: insert-modern-methods
+  front: "Which modern methods insert nodes, and what do they accept?"
+  back: "`append()` and `prepend()` on the parent; `before()`, `after()` and `replaceWith()` on the node. Each takes any number of nodes and strings. `appendChild()` and `insertBefore()` take one node and return it."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-strings-as-text
+  front: "What happens when you pass an HTML string to `append()`?"
+  back: "Strings become `Text` nodes, so they are inserted as literal text and never parsed as HTML. Markup needs a parser API."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-multiple-args-fragment
+  front: "How does `append(a, b, c)` insert several nodes, and what does a `MutationObserver` see?"
+  back: "The DOM Standard first collects them into a `DocumentFragment`, so the insert happens once. A `MutationObserver` sees one `childList` record with three added nodes."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-moves-not-copies
+  front: "What happens when you insert a node that's already in the tree?"
+  back: "It is first removed from its old position: a node has one parent, so it moves. There's no copy unless you `cloneNode(true)`."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-append-prepend-move-example
+  front: "For `<ul>` with `li` 1, 2, 3, after `list.append(one); list.prepend(three)`, what are the length and `textContent`?"
+  back: "`3` and `321`. Appending `one` moves it to the end (2 3 1); prepending `three` moves it to the front (3 2 1). No nodes are created."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-removing
+  front: "How do you remove a node and how do you empty a parent?"
+  back: "`node.remove()` removes a node, and `parent.replaceChildren()` with no arguments empties a parent."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-replacechildren
+  front: "What does `replaceChildren(...nodes)` do and why is it good for re-rendering a list?"
+  back: "It replaces every child in one step, so it is the clean way to re-render a list. It also clears with no arguments."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-replacechildren-vs-innerhtml
+  front: "Is `el.innerHTML = ''` or `replaceChildren()` better for clearing?"
+  back: "`replaceChildren()`: it says what it means and involves no parser. Both remove all children in one operation."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-fragment
+  front: "What happens to a `DocumentFragment` when you insert it?"
+  back: "Its children move into the target and the fragment is left empty. So you can build many nodes off-tree and insert once."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-batching-why
+  front: "What does each insertion run, and is layout recomputed per inserted node?"
+  back: "Each insertion runs insertion steps: mutation records, custom element callbacks, and side effects such as scripts running or iframes loading. Layout is lazy, so it isn't redone per node unless you read geometry like `offsetHeight` between writes."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-layout-read-write
+  front: "What is the safe order for DOM writes and layout reads?"
+  back: "Build first, insert once, read afterwards. A geometry read such as `offsetHeight` after a write forces synchronous layout, so interleaving reads and writes in a loop is slow."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-movebefore-purpose
+  front: "Why does `moveBefore()` exist versus `insertBefore()` on a connected node?"
+  back: "`insertBefore()` on a connected node is a remove plus an insert, so an iframe reloads, a focused element loses focus and running CSS animations restart. `moveBefore()` is an atomic move that runs separate moving steps and keeps that state."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-movebefore-throws
+  front: "When does `moveBefore()` throw `HierarchyRequestError`?"
+  back: "When the node and the new parent don't share a root (for example a node not yet in the document) or the node isn't an element or character data. Fall back to `insertBefore()` there."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: insert-movebefore-support
+  front: "Which browsers shipped `moveBefore()`, and how should you call it?"
+  back: "Chrome 133 and Firefox 144; Safari doesn't have it. Feature-detect and fall back to `insertBefore()` rather than calling it unconditionally."
+  question: browser/the-dom/inserting-and-moving-nodes
+- id: html-innerhtml-getter-setter
+  front: "What do the `innerHTML` getter and setter do?"
+  back: "The getter serialises the element's children as HTML. The setter runs the HTML fragment parser with the element as context and replaces all children with the result."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innerhtml-scripts
+  front: "Do `<script>` elements created through `innerHTML` run?"
+  back: "No. The fragment is parsed in an inert scripting mode. To run a script, create it with `createElement('script')` and insert it."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innerhtml-xss
+  front: "Why is assigning untrusted strings to `innerHTML` an XSS hole although scripts don't run?"
+  back: "Everything else is live markup. `<img src=x onerror=…>` runs its handler when the image fails."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-textcontent-getter
+  front: "What does the `textContent` getter return on an element, and on `document`?"
+  back: "On an element, the concatenated data of all descendant `Text` nodes in tree order, including text in `<script>`, `<style>` and elements hidden by CSS or `hidden`. On `document` it is `null`."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-textcontent-setter
+  front: "What does setting `textContent` do?"
+  back: "It replaces all children with one `Text` node (none for `\"\"`), so markup is never parsed. It's the safe, cheap way to write text."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innertext-getter
+  front: "What does the `innerText` getter return, and who defines it?"
+  back: "The HTML Standard defines it on `HTMLElement`. It returns the text as rendered: `display: none` and non-visible `visibility` are skipped, `text-transform` is applied, and block boundaries and `<br>` become line breaks."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innertext-layout-cost
+  front: "Why can reading `innerText` be expensive?"
+  back: "It needs up-to-date styles and layout, so reading it after DOM changes forces a synchronous layout. Read `textContent` unless you need the rendered text."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innertext-hidden-fallback
+  front: "What does `innerText` return on an element that is itself `display: none`?"
+  back: "Its descendant text content, as `textContent` would, because the \"not being rendered\" case falls back to it. A hidden child of a rendered element is skipped instead."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innertext-setter
+  front: "What does the `innerText` setter do with `\\n`?"
+  back: "It turns `\\n` into `<br>`."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-menu-example
+  front: "For a `<ul>` with Home, a `display: none` Admin item and About, what do `textContent` and `innerText` return?"
+  back: "`textContent` is `\"HomeAdminAbout\"`, ignoring CSS. `innerText` is `\"Home\\nAbout\"`: it skips the hidden `<li>` and breaks between block items. Chrome 156 and Firefox 159 agreed."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-sethtml-default
+  front: "What does `setHTML(html)` keep and drop with no sanitizer?"
+  back: "It parses like `innerHTML`, then sanitises with the built-in safe default: only elements categorised Default (`<b>`, `<p>`, but not `<img>`) are kept; comments, `data-*` attributes and `javascript:` URLs are dropped."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-sethtml-custom-config
+  front: "Can a custom sanitizer config let `setHTML()` keep `<script>` or `on*` handlers?"
+  back: "No. It still removes everything unsafe, such as `<script>` and `on*` handlers, whatever the config allows. Use `setHTMLUnsafe()` only for trusted markup."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-sethtmlunsafe
+  front: "How does `setHTMLUnsafe()` differ from `innerHTML`?"
+  back: "It is the unsanitised counterpart of `setHTML()` and, unlike `innerHTML`, it parses declarative shadow roots."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-sethtml-support
+  front: "Which browsers shipped `setHTML()` and the Sanitizer, and where is it specified?"
+  back: "Chrome 146 and Firefox 148; not Safari. The Sanitizer API moved from its WICG draft into the HTML Standard."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: html-innerhtml-plus-equals
+  front: "Does `el.innerHTML += '<li>x</li>'` just append?"
+  back: "No. It serialises all children, concatenates, and re-parses: every existing child is replaced by a new node, losing listeners, form state and references. Use `insertAdjacentHTML('beforeend', …)` or `append()`."
+  question: browser/the-dom/innerhtml-textcontent-innertext
+- id: query-selector-methods
+  front: "What do `querySelector()`, `querySelectorAll()`, `closest()` and `matches()` return?"
+  back: "`querySelector()` the first matching descendant in tree order or `null`; `querySelectorAll()` a static `NodeList`; `closest()` the nearest matching ancestor, itself included, or `null`; `matches()` a boolean for this element."
+  question: browser/the-dom/querying-and-traversal
+- id: query-invalid-selector
+  front: "What happens if you pass an invalid selector to `querySelector()`, `closest()` or `matches()`?"
+  back: "They throw a `SyntaxError` `DOMException`."
+  question: browser/the-dom/querying-and-traversal
+- id: query-closest-includes-self
+  front: "Does `closest()` check the element itself?"
+  back: "Yes, it checks the element first, then each ancestor. `btn.closest('button')` returns `btn`."
+  question: browser/the-dom/querying-and-traversal
+- id: query-scope-trap
+  front: "Does `el.querySelector('section p')` require the `section` to be inside `el`?"
+  back: "No. The selector is matched against the whole tree and only the result must be inside `el`, so ancestors outside `el` count. Anchor it with `:scope`: `el.querySelector(':scope > p')`."
+  question: browser/the-dom/querying-and-traversal
+- id: query-scope-in-closest-matches
+  front: "What does `:scope` mean in `closest()` and `matches()`?"
+  back: "The element itself."
+  question: browser/the-dom/querying-and-traversal
+- id: query-shadow-boundary
+  front: "Do selectors cross shadow roots?"
+  back: "No. They match within one tree, so `document.querySelector()` doesn't find nodes inside a component's shadow root, and `closest()` doesn't climb out of one."
+  question: browser/the-dom/querying-and-traversal
+- id: query-delegation
+  front: "How do `closest()` and `matches()` support event delegation?"
+  back: "Put one listener on a container, then use `event.target.closest('.del')` to find the control that was clicked."
+  question: browser/the-dom/querying-and-traversal
+- id: query-css-escape
+  front: "Why escape user input placed into a selector, and with what?"
+  back: "A stray `\"` or `#1` throws `SyntaxError`. Escape it with `CSS.escape()`."
+  question: browser/the-dom/querying-and-traversal
+- id: query-getelementbyid-vs-qs
+  front: "`getElementById()` or `querySelector('#id')`, for an ID such as `1a`?"
+  back: "Both return the first element with that ID in tree order. `getElementById()` takes the raw ID; `querySelector()` needs `#\\31 a` (from `CSS.escape('1a')`). `getElementById()` exists only on `Document` and `DocumentFragment`."
+  question: browser/the-dom/querying-and-traversal
+- id: query-pseudo-elements
+  front: "Can `querySelector()` match a pseudo-element like `p::before`?"
+  back: "No. It returns `null` in Chrome 156 and Firefox 159 rather than throwing, because pseudo-elements aren't nodes."
+  question: browser/the-dom/querying-and-traversal
+- id: query-treewalker-purpose
+  front: "What does a `TreeWalker` visit, and what is it for?"
+  back: "Nodes of any type, chosen by `whatToShow` (`SHOW_TEXT`, `SHOW_COMMENT`, `SHOW_ELEMENT`…). Use it for things selectors can't express: collecting text nodes for highlighting, finding comments, or pruning whole subtrees."
+  question: browser/the-dom/querying-and-traversal
+- id: query-treewalker-filter
+  front: "What do `FILTER_ACCEPT`, `FILTER_SKIP` and `FILTER_REJECT` mean in a `TreeWalker` filter?"
+  back: "Accept visits the node. Skip omits the node but still visits its children. Reject omits the node and its subtree."
+  question: browser/the-dom/querying-and-traversal
+- id: query-treewalker-root
+  front: "Where does a `TreeWalker` start, and does `nextNode()` return the root?"
+  back: "`currentNode` starts at `root`, and `nextNode()` never returns it. Stepping uses `nextNode()`, `parentNode()`, `firstChild()` and friends."
+  question: browser/the-dom/querying-and-traversal
+- id: query-treewalker-mutation
+  front: "How does a `TreeWalker` behave when the tree changes during the walk?"
+  back: "It follows the tree as it is when you step, so it handles mutations during the walk."
+  question: browser/the-dom/querying-and-traversal
+- id: query-nodeiterator-reject
+  front: "How does `FILTER_REJECT` differ between `NodeIterator` and `TreeWalker`?"
+  back: "In a `NodeIterator`, a flat variant, `FILTER_REJECT` acts like `FILTER_SKIP`. Only `TreeWalker` treats reject as \"skip children too\"."
+  question: browser/the-dom/querying-and-traversal
+- id: query-treewalker-reject-example
+  front: "Walking elements under a `div` that holds `p`, `a`, then `ul > li > button`, what does a filter that rejects `UL` yield versus one that skips it?"
+  back: "Reject gives `P,A`; skip gives `P,A,LI,BUTTON`. Neither includes `DIV`, because the walker starts at the root. Chrome 156 and Firefox 159 agreed."
+  question: browser/the-dom/querying-and-traversal
