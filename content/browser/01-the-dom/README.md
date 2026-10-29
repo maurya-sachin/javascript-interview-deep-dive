@@ -1,6 +1,6 @@
 # 01 — The DOM
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/6 · **Last verified:** —
 
 The document as a tree of objects: node types, live and static collections, attributes versus properties, and inserting, moving, querying and serialising nodes.
 
@@ -17,18 +17,24 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Trees, node types, `Node` vs `Element` vs `HTMLElement`, the `document` → —
-- Live `HTMLCollection` vs static `NodeList` from `querySelectorAll()`; live `childNodes` → —
-- Content attributes vs IDL properties; reflection; `value` vs `defaultValue`; resolved `href` → —
-- Inserting, moving and removing nodes: `append()`, `before()`, `replaceChildren()`, `DocumentFragment`, `moveBefore()` → —
-- `innerHTML`, `textContent`, `innerText` and `setHTML()`; when inserted scripts run → —
-- Querying and traversal: `querySelector()`, `closest()`, `matches()`, `TreeWalker` → —
+- Trees, node types, `Node` vs `Element` vs `HTMLElement`, the `document` → 010
+- Live `HTMLCollection` vs static `NodeList` from `querySelectorAll()`; live `childNodes` → 020
+- Content attributes vs IDL properties; reflection; `value` vs `defaultValue`; resolved `href` → 030
+- Inserting, moving and removing nodes: `append()`, `before()`, `replaceChildren()`, `DocumentFragment`, `moveBefore()` → 040
+- `innerHTML`, `textContent`, `innerText` and `setHTML()`; when inserted scripts run → 050
+- Querying and traversal: `querySelector()`, `closest()`, `matches()`, `TreeWalker` → 060
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [What is the DOM, and how do nodes, elements, and the document relate?](010-dom-tree-and-node-types.md) | easy | 🔴 planned |
+| 020 | [What's the difference between a live `HTMLCollection` and a static `NodeList`?](020-live-vs-static-collections.md) | medium | 🔴 planned |
+| 030 | [What's the difference between an attribute and a property?](030-attributes-vs-properties.md) | medium | 🔴 planned |
+| 040 | [How do you insert, move, and remove nodes efficiently?](040-inserting-and-moving-nodes.md) | medium | 🔴 planned |
+| 050 | [How do `innerHTML`, `textContent`, `innerText`, and `setHTML()` differ?](050-innerhtml-textcontent-innertext.md) | medium | 🔴 planned |
+| 060 | [How do `querySelector()`, `closest()`, `matches()`, and `TreeWalker` find nodes?](060-querying-and-traversal.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
