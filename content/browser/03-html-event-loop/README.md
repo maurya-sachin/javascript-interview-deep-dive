@@ -1,6 +1,6 @@
 # 03 — The HTML event loop
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
 
 The browser's event loop beyond tasks and microtasks: where rendering happens, animation frames, timer accuracy, task priorities and idle callbacks. The language-level loop is in JavaScript's async chapter.
 
@@ -17,17 +17,22 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Processing model: task, microtask checkpoint, update the rendering; rendering opportunities → —
-- `requestAnimationFrame`: when callbacks run, batching per frame, background tabs → —
-- Timers: nesting clamp, minimum delay, background throttling, `setInterval` drift → —
-- Task sources and priority: `scheduler.postTask()`, `scheduler.yield()`, `MessageChannel` tasks → —
-- `requestIdleCallback`: deadlines, `timeout`, when it never runs → —
+- Processing model: task, microtask checkpoint, update the rendering; rendering opportunities → 010
+- `requestAnimationFrame`: when callbacks run, batching per frame, background tabs → 020
+- Timers: nesting clamp, minimum delay, background throttling, `setInterval` drift → 030
+- Task sources and priority: `scheduler.postTask()`, `scheduler.yield()`, `MessageChannel` tasks → 040
+- `requestIdleCallback`: deadlines, `timeout`, when it never runs → 050
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [Where does rendering happen in the event loop?](010-rendering-steps.md) | hard | 🔴 planned |
+| 020 | [How does `requestAnimationFrame` work, and when do its callbacks run?](020-request-animation-frame.md) | medium | 🔴 planned |
+| 030 | [Why doesn't `setTimeout(fn, 0)` run after 0 ms?](030-timer-accuracy.md) | medium | 🔴 planned |
+| 040 | [How do you schedule work by priority with `scheduler.postTask()` and `scheduler.yield()`?](040-task-priority-and-scheduler.md) | hard | 🔴 planned |
+| 050 | [What does `requestIdleCallback` guarantee, and when does it never run?](050-request-idle-callback.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
