@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does the browser turn HTML and CSS into pixels?](010-pixel-pipeline.md) | medium | 🔴 planned |
+| 010 | [How does the browser turn HTML and CSS into pixels?](010-pixel-pipeline.md) | medium | 🟡 draft |
 | 020 | [How do `defer`, `async`, and module scripts change loading and execution order?](020-script-loading.md) | medium | 🔴 planned |
 | 030 | [What blocks the parser, and what blocks rendering?](030-parser-and-render-blocking.md) | medium | 🔴 planned |
 | 040 | [Which DOM reads force a synchronous layout, and why?](040-forced-synchronous-layout.md) | medium | 🔴 planned |
