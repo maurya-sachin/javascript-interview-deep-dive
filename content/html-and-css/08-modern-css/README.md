@@ -31,7 +31,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How do custom properties work — cascade, inheritance, fallbacks, and invalid values?](010-custom-properties.md) | medium | 🔴 planned |
+| 010 | [How do custom properties work — cascade, inheritance, fallbacks, and invalid values?](010-custom-properties.md) | medium | 🟡 draft |
 | 020 | [What does `@property` add over a plain custom property?](020-registered-properties.md) | medium | 🔴 planned |
 | 030 | [What does `:has()` make possible, and what are its limits?](030-has-selector.md) | medium | 🔴 planned |
 | 040 | [How does native CSS nesting work, and how does it differ from Sass?](040-css-nesting.md) | medium | 🔴 planned |
