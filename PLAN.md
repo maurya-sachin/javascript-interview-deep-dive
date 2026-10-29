@@ -6,7 +6,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Branch `dev`; production = `main` (last release `9e2f22b`, live 2026-10-24). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
 - Done: JS 183 q / 1088 cards, TS 63 q / 762 cards, all `draft`, Opus-written or -audited. Limits: JS ch 18–22 browser claims Chrome 155 only; ch 26 V8 natives Node 24.19 only; TS 7.1 facts from 7.1.0-beta.
 - Bug (since `7e76852`, awaiting OK to fix and deploy): direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/<topic>/<chapter>`, unknown paths) get Vercel's NOT_FOUND; the rewrite targets `/app-shell.html`, which `cleanUrls` 308s to `/app-shell` (200). Likely fix: destination `/app-shell` — confirm in Vercel docs, then curl those routes live.
-- Doing: Phase 7 HTML and CSS — 9 chapters, 61 `planned` stubs; Opus Batch mode one chapter per agent from 01, then Sonnet cards. Awaiting maintainer: Phase 5 reviews; wordmark redraw.
+- Doing: Phase 7 HTML and CSS — 61 q all `draft` (Opus-written, re-run in Chrome 155–156 / Firefox 158–159); Sonnet flashcards next, 3 chapters per agent. Awaiting maintainer: Phase 5 reviews; wordmark redraw.
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
