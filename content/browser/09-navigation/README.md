@@ -1,6 +1,6 @@
 # 09 — Navigation and page lifecycle
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
 
 Moving between views and pages: the History and Navigation APIs behind client-side routing, View Transitions, the back/forward cache, and the events a page gets as it is hidden or left.
 
@@ -17,17 +17,22 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- History API: `pushState()`, `replaceState()`, `popstate`, state objects, scroll restoration → —
-- Navigation API: the `navigate` event, `intercept()`, entries → —
-- View Transitions: `document.startViewTransition()`, cross-document `@view-transition` → —
-- Back/forward cache: eligibility, `pageshow` and `persisted`, why `unload` blocks it → —
-- Page lifecycle: `visibilitychange`, `pagehide`, `beforeunload`, freezing → —
+- History API: `pushState()`, `replaceState()`, `popstate`, state objects, scroll restoration → 010
+- Navigation API: the `navigate` event, `intercept()`, entries → 020
+- View Transitions: `document.startViewTransition()`, cross-document `@view-transition` → 030
+- Back/forward cache: eligibility, `pageshow` and `persisted`, why `unload` blocks it → 040
+- Page lifecycle: `visibilitychange`, `pagehide`, `beforeunload`, freezing → 050
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [How does client-side routing work with the History API?](010-history-api-routing.md) | medium | 🔴 planned |
+| 020 | [What does the Navigation API fix over the History API?](020-navigation-api.md) | medium | 🔴 planned |
+| 030 | [How do View Transitions work within a page and across pages?](030-view-transitions.md) | medium | 🔴 planned |
+| 040 | [What is the back/forward cache, and what keeps a page out of it?](040-back-forward-cache.md) | medium | 🔴 planned |
+| 050 | [Which page lifecycle events can you rely on when a page is hidden or closed?](050-page-lifecycle-events.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
