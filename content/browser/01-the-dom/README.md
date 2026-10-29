@@ -29,7 +29,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What is the DOM, and how do nodes, elements, and the document relate?](010-dom-tree-and-node-types.md) | easy | 🔴 planned |
+| 010 | [What is the DOM, and how do nodes, elements, and the document relate?](010-dom-tree-and-node-types.md) | easy | 🟡 draft |
 | 020 | [What's the difference between a live `HTMLCollection` and a static `NodeList`?](020-live-vs-static-collections.md) | medium | 🔴 planned |
 | 030 | [What's the difference between an attribute and a property?](030-attributes-vs-properties.md) | medium | 🔴 planned |
 | 040 | [How do you insert, move, and remove nodes efficiently?](040-inserting-and-moving-nodes.md) | medium | 🔴 planned |
