@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [How do `defer`, `async`, and module scripts change loading and execution order?](020-script-loading.md) | medium | 🟡 draft |
 | 030 | [What blocks the parser, and what blocks rendering?](030-parser-and-render-blocking.md) | medium | 🟡 draft |
 | 040 | [Which DOM reads force a synchronous layout, and why?](040-forced-synchronous-layout.md) | medium | 🟡 draft |
-| 050 | [What is compositing, and why do `transform` and `opacity` animate cheaply?](050-compositing.md) | medium | 🔴 planned |
+| 050 | [What is compositing, and why do `transform` and `opacity` animate cheaply?](050-compositing.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
