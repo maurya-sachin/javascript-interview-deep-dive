@@ -27,7 +27,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Why doesn't `fetch()` reject on a 404, and when does it reject?](010-fetch-resolves-on-errors.md) | easy | 🔴 planned |
+| 010 | [Why doesn't `fetch()` reject on a 404, and when does it reject?](010-fetch-resolves-on-errors.md) | easy | 🟡 draft |
 | 020 | [What do `fetch()` options like `mode`, `credentials`, and `cache` control?](020-fetch-request-options.md) | medium | 🔴 planned |
 | 030 | [How do you stream a response body and show download progress?](030-streaming-bodies.md) | medium | 🔴 planned |
 | 040 | [How do you send data reliably when the user leaves the page?](040-sending-data-on-exit.md) | medium | 🔴 planned |
