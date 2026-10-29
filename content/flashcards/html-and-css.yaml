@@ -937,3 +937,457 @@
   front: "With `a` (open) and `b` in group `g` and `c` open in group `h`, what are `open` states after `b.open = true`?"
   back: "`a` false, `b` true, `c` true. Opening `b` closes `a` synchronously; `c` is in a different group."
   question: html-and-css/forms-dialog-popover/details-and-summary
+
+# 03 The cascade
+- id: cascade-per-property
+  front: "At what granularity does the cascade run, and what does it produce?"
+  back: "Per property, per element. It collects every applying declaration, sorts them, and the first becomes the cascaded value. Invalid declarations are dropped before the cascade sees them."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-criteria-order
+  front: "In what order does the cascade apply its sort criteria?"
+  back: "Origin and importance, shadow-tree context, element-attached `style`, layers, specificity, scope proximity, then order of appearance."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-lexicographic
+  front: "When does a later cascade criterion matter?"
+  back: "Only when every earlier one ties, like sorting strings. Specificity is compared only between declarations with the same origin, context, attachment and layer."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-origin-order
+  front: "What is the origin and importance order, strongest first?"
+  back: "Transitions, important UA, important user, important author, animations, normal author, normal user, normal UA."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-context-shadow
+  front: "How does the context step resolve shadow tree conflicts?"
+  back: "For normal declarations the outer context wins; for `!important` the inner (shadow) one wins. A component's normal styles are overridable defaults; its important ones are requirements."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: style-attribute-beats-selectors
+  front: "Where does the `style` attribute sit in the cascade?"
+  back: "It beats any selector-based declaration of the same importance, whatever its specificity. The step comes before layers, so inline styles are not in any layer."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: unlayered-beats-layers
+  front: "How do unlayered styles rank against layered ones for normal declarations?"
+  back: "Unlayered styles form an implicit last layer, so they beat every named layer. An ID selector in `@layer base` loses to a bare unlayered `h1`."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-longhands
+  front: "Does the cascade work on shorthands or longhands?"
+  back: "Longhands. `margin: 0` becomes `margin-top` and so on, each cascading on its own with its rule's specificity. A later shorthand doesn't reset a more specific earlier longhand."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: no-cascaded-value
+  front: "What happens when no declaration applies to a property?"
+  back: "There is no cascaded value. Defaulting then fills in an inherited or initial value."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: invalid-declaration-no-fallthrough
+  front: "Does an invalid value like `color: bluish` fall through to a previous value in the same rule?"
+  back: "No. It is dropped at parse time and the next-best declaration from any rule wins."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: important-not-specificity
+  front: "Does `!important` add specificity?"
+  back: "No. It moves the declaration to a different origin band, where layer order is reversed."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: presentational-hints-origin
+  front: "Where do presentational attributes like `<font color>` or `bgcolor` fit in the cascade?"
+  back: "In an author presentational hint origin between user and author. Any author rule beats them, even `*`: `* { color: blue }` overrode `<font color=\"red\">` in Chrome 155 and Firefox 158."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: scope-proximity-after-specificity
+  front: "Does scope proximity beat specificity?"
+  back: "No. It comes after specificity in the Level 6 draft, so a more specific rule from a farther `@scope` root still wins; proximity only breaks ties. @scope shipped in Chrome 118, Safari 17.4, Firefox 146."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: scope-proximity-definition
+  front: "What does scope proximity compare?"
+  back: "The number of generational or sibling hops between each `@scope` root and the element; rules without a scope root count as infinitely far. With equal selectors the nearer root won in both browsers, regardless of source order."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: stylesheet-order-appearance
+  front: "How is order of appearance computed across style sheets?"
+  back: "Linked sheets are concatenated in link order, `@import`ed sheets count as pasted in place of their rule, and `style` attributes come after every style sheet, in element document order."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: inline-important-beats-layered
+  front: "Does inline `!important` beat an unlayered `!important` ID rule?"
+  back: "Yes. Element attachment is compared before layers, so `style=\"color: green !important\"` beat an unlayered `#d { color: red !important }` in both browsers."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: transition-animation-position
+  front: "Where do animations and transitions sit in the origin order?"
+  back: "Animations are above all normal declarations but below every `!important` one. A running transition beats everything."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-debug-walk
+  front: "How should you debug why a rule doesn't apply?"
+  back: "Walk the criteria in order: transition or animation, `!important`, inline, layers, and only then specificity and source order."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-filtering
+  front: "What does filtering do before the cascade sorts?"
+  back: "It keeps declarations whose style sheet applies, whose conditional rules (`@media`, `@supports`) are true, whose selector matches and whose syntax is valid. These are the declared values."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: cascade-coarse-vs-fine-controls
+  front: "What is the modern guidance for resolving cascade conflicts?"
+  back: "Resolve conflicts with layers and keep selectors flat, using `!important` only for values that must never be overridden. Specificity couples conflict resolution to selector shape, so refactors can change winners."
+  question: html-and-css/the-cascade/cascade-sort-order
+- id: specificity-triple
+  front: "What do the A, B and C of specificity count?"
+  back: "A counts ID selectors. B counts class selectors, attribute selectors and pseudo-classes. C counts type selectors and pseudo-elements."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-comparison
+  front: "How are specificity triples compared?"
+  back: "A first, then B, then C, one component at a time with no carrying. `#a` (1,0,0) beats eleven classes (0,11,0)."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-zero-contributors
+  front: "What do `*` and combinators add to specificity?"
+  back: "Nothing. `* > p` and `p` are both (0,0,1), and the later rule wins a tie."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-repeated-selector
+  front: "Does repeating a selector add specificity?"
+  back: "Yes. `.btn.btn` is (0,2,0). It is a legal way to add weight but hides intent; a layer says it more clearly."
+  question: html-and-css/the-cascade/specificity
+- id: is-not-has-specificity
+  front: "What specificity do `:is()`, `:not()` and `:has()` have?"
+  back: "That of the most specific selector in their argument, whichever one matched. `:is(#nav, .menu) a` is (1,0,1) even on an element matching only `.menu`."
+  question: html-and-css/the-cascade/specificity
+- id: where-zero-specificity
+  front: "What specificity does `:where()` have?"
+  back: "Always (0,0,0), whatever it contains. That makes it the tool for overridable defaults."
+  question: html-and-css/the-cascade/specificity
+- id: nth-child-of-specificity
+  front: "What specificity does `:nth-child(An+B of S)` have?"
+  back: "One pseudo-class plus the most specific selector in `S`. For example `:nth-child(even of li, .item)` is (0,2,0)."
+  question: html-and-css/the-cascade/specificity
+- id: selector-list-specificity
+  front: "How does a selector list on a rule differ from `:is()` for specificity?"
+  back: "In a list like `#x, p`, each element gets the specificity of the most specific selector that matched it, so a `<p>` gets (0,0,1). Rewritten as `:is(#x, p)`, it is (1,0,0)."
+  question: html-and-css/the-cascade/specificity
+- id: style-attr-not-specificity
+  front: "Is the `style` attribute compared by specificity?"
+  back: "No. The 2013 CSS Style Attributes spec phrased it as higher than any selector; Cascade Level 5 makes it a separate step, element-attached styles, decided before layers and specificity."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-only-ties
+  front: "When does specificity actually decide a conflict?"
+  back: "Only as a tie-breaker. A later layer, an `!important` declaration or a different origin wins without specificity being looked at."
+  question: html-and-css/the-cascade/specificity
+- id: not-counts-specificity
+  front: "What is the specificity of `p:not(.a)`?"
+  back: "(0,1,1), not (0,0,1). `:not()` counts its argument; only `:where()` is free."
+  question: html-and-css/the-cascade/specificity
+- id: has-specificity-example
+  front: "What is the specificity of `:has(.k, #nope)` when only `.k` matches?"
+  back: "(1,0,0), from `#nope`. In both browsers it beat a later (0,2,1) rule on the same element."
+  question: html-and-css/the-cascade/specificity
+- id: has-relative-selector-count
+  front: "What specificity does `li:has(> a.active)` have?"
+  back: "(0,1,2). `:has()` counts its relative selectors, following the same rule as `:is()` and `:not()`."
+  question: html-and-css/the-cascade/specificity
+- id: pseudo-element-specificity
+  front: "How do pseudo-elements count in specificity?"
+  back: "Like type selectors, in C: `a::before` is (0,0,2). Legacy single-colon forms such as `:before` count the same way."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-clamp-chrome
+  front: "How does Chrome 155 handle huge specificity counts?"
+  back: "It clamps each component at 255: 256 classes and 255 classes were treated as equal, so the later rule won."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-clamp-firefox
+  front: "How does Firefox 158 handle huge specificity counts?"
+  back: "It clamps each component at 1023: 1023 classes beat 1022, but 1024 and 1023 were equal."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-clamp-component
+  front: "Can many classes overflow into the ID component?"
+  back: "No. The clamp stays within its component: in both browsers one ID beat 1024 classes. The spec requires clamping, not overflow."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-equal-looking
+  front: "How do `.x.x` and `.x.y` compare in specificity?"
+  back: "Both are (0,2,0), so the later rule won in both browsers."
+  question: html-and-css/the-cascade/specificity
+- id: specificity-not-example
+  front: "What is the specificity of `#nav li:not(.active, #x) > a::before`?"
+  back: "(2,0,3). A is `#nav` plus `#x`, since `:not()` takes its most specific argument and isn't counted as a pseudo-class; C is `li`, `a` and `::before`."
+  question: html-and-css/the-cascade/specificity
+- id: where-design-system-defaults
+  front: "Why wrap component defaults in `:where()`?"
+  back: "Every app selector, even a bare `button`, outranks it, so consumers override without `!important` or doubled classes."
+  question: html-and-css/the-cascade/specificity
+- id: is-heaviest-argument-trap
+  front: "What goes wrong with `:is(h1, h2, #content h3)` in a reset?"
+  back: "It gives every heading (1,0,1), because `:is()` takes its heaviest argument, so later utility classes stop working."
+  question: html-and-css/the-cascade/specificity
+- id: layer-definition
+  front: "What is a cascade layer and where does it sit in the cascade?"
+  back: "A named bucket of rules inside one origin. It is compared after origin, shadow context and inline styles but before specificity, so a later layer wins even against an ID selector in an earlier one."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-creation-ways
+  front: "What are the ways to create cascade layers?"
+  back: "`@layer name { … }` puts rules in a layer, `@layer a, b, c;` declares layers and their order, and `@import url(lib.css) layer(vendor);` layers a file. `layer` without a name makes an anonymous one."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-order-first-appearance
+  front: "What determines layer order?"
+  back: "The order of first appearance. Fix it up front with `@layer reset, vendor, components;`; later blocks only add rules. After `@layer b {} @layer a {}`, `a` wins even if more `b` rules come later."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-statement-cannot-reorder
+  front: "Can a later `@layer base, theme;` statement reorder a layer already opened as `theme`?"
+  back: "No. `theme` first appears earlier, so the statement only adds `base` after it. The order is `theme`, `base`, so `base`'s `p` beats `theme`'s `#intro` despite the ID."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-unlayered-gotcha
+  front: "What risk comes from layering only the third-party CSS?"
+  back: "Unlayered rules win over all layers, which is usually the intent, but a stray unlayered reset will beat your component layer."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-nesting
+  front: "How do nested layers sort?"
+  back: "`@layer framework { @layer base { … } }` or `framework.base`. Nested layers sort inside their parent, and the parent's own rules (outside any child) come after its children."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-important-reversal
+  front: "How does layer order work for `!important` declarations?"
+  back: "It reverses: an important declaration in the first layer wins. That keeps `!important` meaningful for a reset or vendor layer."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-style-attribute
+  front: "Does the `style` attribute lose to layers?"
+  back: "No. It is decided before layers, so `style=\"color: green\"` beat `@layer a { #t { color: red } }` in both browsers."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-support
+  front: "In which browser versions did `@layer` ship?"
+  back: "Chrome 99, Firefox 97 and Safari 15.4."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-names-dotted
+  front: "Are `framework.base` and a top-level `base` the same layer?"
+  back: "No. Names are dotted paths, so they are different layers, and a nested layer can't refer to layers outside its parent."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-anonymous
+  front: "What is an anonymous layer?"
+  back: "Each `@layer { }` without a name is a separate layer that nothing else can add to; libraries use it to hide internal ordering. `@import url(lib.css) layer;` also creates one."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-import-before-statement
+  front: "What happens to `@import` rules that follow an `@layer` statement?"
+  back: "Any `@layer` statement after an `@import` makes the following `@import`s invalid. Both browsers dropped them from `cssRules`."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-link-element
+  front: "Can you put `<link>`ed CSS into a layer with an attribute?"
+  back: "No; the spec has an open issue for one. Use `@import url(x.css) layer(name);` or wrap the file's contents in `@layer name { … }`."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-in-false-media
+  front: "What happens to an `@layer` declared inside a false `@media` or `@supports`?"
+  back: "It doesn't take its place in the order. In both browsers `@media (max-width: 1px) { @layer b, a; }` didn't affect how a later `@layer a` and `@layer b` ordered."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-cssom
+  front: "How do you read layers from script?"
+  back: "`CSSLayerBlockRule.name`, `CSSLayerStatementRule.nameList` and `CSSImportRule.layerName`, which gave `\"vendor\"`, `\"\"` for an anonymous layer and `null` for an unlayered import."
+  question: html-and-css/the-cascade/cascade-layers
+- id: revert-layer-in-layers
+  front: "What does `revert-layer` do?"
+  back: "Rolls the property back to what earlier layers would give, as if this layer had no rule for it. With no lower layer in the origin, it acts like `revert`."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-keyframes-collision
+  front: "How do layers affect `@keyframes` name collisions?"
+  back: "Layers decide them: with `@layer fw, over;`, keyframes named `k` in `over` replaced those in `fw` in both browsers."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-keyword-names
+  front: "Are CSS-wide keywords valid layer names?"
+  back: "The spec reserves them and makes `@layer initial { }` invalid, but Chrome 155 and Firefox 158 accepted `initial`, `revert` and `unset.foo` and ordered them like any other."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-important-unlayered
+  front: "Does an unlayered normal rule beat a layered `!important`?"
+  back: "No. `@layer a { p { color: green !important } }` beat an unlayered `#t { color: red }`, because importance is decided at the origin step, before layers."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-limits
+  front: "What do layers not help with, and what is a pitfall of layer names?"
+  back: "Conflicts inside one layer, where specificity and source order still apply. A misspelled layer name silently creates a new layer wherever it first appears."
+  question: html-and-css/the-cascade/cascade-layers
+- id: layer-vendor-override
+  front: "How do layers let you override a UI kit without a specificity fight?"
+  back: "Declare `@layer kit, app;` and import the kit into `kit`; every `app` rule then beats every `kit` rule. If the kit uses `!important`, drop yours: its important declarations still win."
+  question: html-and-css/the-cascade/cascade-layers
+- id: important-definition
+  front: "When is a declaration important, and at which step is that decided?"
+  back: "When its value ends with `!` and `important` (whitespace, comments and case don't matter). Importance is decided at the first step with origin, so it beats every normal declaration before selectors are compared."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-reverse-reason
+  front: "Why does `!important` reverse the origin order?"
+  back: "Balance of power. A user needing large text or high contrast can mark styles important and override the page, and the browser can enforce things like `input[type=hidden i] { display: none !important; }`."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-origin-order
+  front: "In what order do important declarations rank by origin?"
+  back: "Important UA beats important user beats important author. Normal ones go author > user > UA."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-hidden-input
+  front: "Can an author style show `<input type=\"hidden\">` with `display: block !important`?"
+  back: "No. The UA's important `display: none` beats the author's, in both browsers."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-layer-reverse
+  front: "How does `!important` interact with layer order?"
+  back: "The first layer wins for important declarations, so a later layer can't override a reset layer's `!important` with its own. Fighting it with a more specific `!important` only works within one layer."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-unlayered-weakest
+  front: "Where does an unlayered `!important` rank among author important declarations?"
+  back: "Weakest. For normal rules unlayered wins; for important ones it is the weakest author layer."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-shadow-context
+  front: "How does `!important` affect shadow DOM conflicts?"
+  back: "Normal page styles beat a component's, but important styles from inside the component beat the page's. A `:host` rule won with both sides important; with both normal the page's `x-el` rule won."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-inline-vs-sheet
+  front: "Is the inline `!important` order reversed?"
+  back: "No. Inline `!important` beats any style sheet `!important`, and specificity and source order still decide within one layer."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-vs-animations
+  front: "How do `!important` and animations interact?"
+  back: "A running animation overrides normal rules but loses to `!important`. `#a { color: blue }` animated to red; `#b { color: green !important }` stayed green."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-in-keyframes
+  front: "What happens to `!important` inside `@keyframes`?"
+  back: "The declaration is ignored: `color: red !important` in a keyframe had no effect in both browsers, while the keyframe's other properties still animated."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-vs-transitions
+  front: "Does `!important` stop a transition?"
+  back: "No. Transitions sit above everything, since they only animate between values the cascade already chose. A transition between two important values still ran, reading `rgb(100, 0, 0)` at halfway."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-js-setproperty
+  front: "How do you set an important inline style from JavaScript?"
+  back: "`el.style.setProperty(\"color\", \"red\", \"important\")`. `el.style.color = \"red !important\"` is invalid and ignored. `getPropertyPriority(\"color\")` returns `\"important\"`."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: important-shorthand
+  front: "Does `!important` on a shorthand apply to its longhands?"
+  back: "Yes, the shorthand expands to longhands that are each important. `#sh { margin: 5px !important }` beat a later `#sh { margin-top: 1px }`."
+  question: html-and-css/the-cascade/important-reverses-order
+- id: inherited-property-defaulting
+  front: "What does defaulting give an inherited property with no declaration?"
+  back: "The parent's computed value. Inherited properties are mostly about text: `color`, `font-*`, `line-height`, `letter-spacing`, `text-align`, `white-space`, `visibility`, `cursor`, `list-style`. Custom properties inherit too."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: non-inherited-initial
+  front: "What do non-inherited properties like `margin`, `display` and `width` get with no declaration?"
+  back: "Their initial value from the property's definition table. The root element has no parent, so it gets initial values."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: inheritance-flattened-tree
+  front: "Which element does a slotted element inherit from?"
+  back: "Its `<slot>`, not its light-DOM parent: inheritance follows the flattened tree."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: inherit-keyword
+  front: "What does `inherit` do?"
+  back: "Uses the parent's computed value, even for a property that doesn't normally inherit, such as `border: inherit`. It copies the computed value, not the declared one."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: initial-keyword
+  front: "What does `initial` do, and what does `display: initial` give on a `<div>`?"
+  back: "It sets the property's initial value from the spec, not the browser's default for the element. `display: initial` on a `<div>` gives `inline`."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: unset-keyword
+  front: "What does `unset` do?"
+  back: "`inherit` for inherited properties and `initial` for the rest: what the property would do with no declaration."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: revert-keyword
+  front: "What does `revert` do?"
+  back: "Rolls back to the previous origin. In author CSS it falls back to user styles and then the UA style sheet, so `display: revert` on a `<div>` gives `block`."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: revert-layer-keyword-unlayered
+  front: "What does `revert-layer` do in unlayered CSS?"
+  back: "Unlayered styles are the implicit last layer, so it rolls back to the named layers. An unlayered `a.x { color: revert-layer }` gave green from `@layer base { a { color: green } }`."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: revert-vs-revert-layer-example
+  front: "In `@layer components`, what colours do `color: revert-layer` and `color: revert` give a link over `@layer base { a { color: green } }`?"
+  back: "`revert-layer` gives green from `base`. `revert` ignores every author layer and falls back to the UA link colour, `rgb(0, 0, 238)`."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: revert-rule
+  front: "What is `revert-rule`?"
+  back: "A keyword in the css-cascade-5 editor's draft that rolls back to what would apply if this rule didn't exist, typically with `if()`. It shipped in Chrome 148, Firefox 150 and Safari 27."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: all-shorthand
+  front: "What does `all` reset, and what does it skip?"
+  back: "Every property except `direction` and `unicode-bidi`, and it doesn't touch custom properties. `all: revert` gives back the browser's styling; `all: unset` strips it."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: inherit-computed-line-height
+  front: "Why do `line-height: 1.5` and `line-height: 150%` inherit differently?"
+  back: "Inheritance passes the computed value. The number is inherited as a number, the percentage as the parent's resolved length: a `10px` parent with `150%` gave a `20px` child `15px`, with `1.5` the child got `30px`."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: form-controls-font-inherit
+  front: "Do form controls inherit fonts, and how do you fix it?"
+  back: "No. The UA style sheet sets their `font`, so a `<button>` stayed `13.3333px` inside a `20px` body until `font: inherit`."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: all-unset-button
+  front: "What does `all: unset` do to a `<button>`?"
+  back: "It loses more than intended: `display` became `inline`, the border `none`, and `font-size` inherited `20px` from the body."
+  question: html-and-css/the-cascade/inheritance-and-global-keywords
+- id: value-stages-pipeline
+  front: "What are the stages a property's value goes through?"
+  back: "Declared, cascaded, specified (after defaulting), computed, used and actual."
+  question: html-and-css/the-cascade/value-stages
+- id: declared-vs-cascaded
+  front: "How do declared values and the cascaded value differ?"
+  back: "Declared values are every valid declaration that applies, possibly none or many. The cascaded value is the one that wins the cascade, and there may be none."
+  question: html-and-css/the-cascade/value-stages
+- id: specified-value
+  front: "What is the specified value?"
+  back: "The cascaded value after defaulting. With no cascaded value it is inherited or initial; CSS-wide keywords are resolved here. Every element has exactly one."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-value
+  front: "What is the computed value, and why does it matter?"
+  back: "The specified value resolved as far as possible without layout: `em`, `vw` and keywords like `bolder` become absolute, while some percentages stay. This is the value children inherit."
+  question: html-and-css/the-cascade/value-stages
+- id: used-value
+  front: "What is the used value?"
+  back: "The computed value plus layout: `width: auto` or `50%` becomes pixels. A property that doesn't apply has no used value."
+  question: html-and-css/the-cascade/value-stages
+- id: actual-value
+  front: "What is the actual value?"
+  back: "The used value adjusted for the device, such as rounding to whole pixels or an available font."
+  question: html-and-css/the-cascade/value-stages
+- id: resolved-value
+  front: "What does `getComputedStyle()` return?"
+  back: "The CSSOM resolved value, not strictly the computed value: used for colours, `line-height` (unless `normal`), and `width`, `height`, margins and paddings when they apply and `display` isn't `none` or `contents`; computed for most other properties."
+  question: html-and-css/the-cascade/value-stages
+- id: resolved-positioned-offsets
+  front: "What does `getComputedStyle` return for `top`, `left`, `right`, `bottom`?"
+  back: "The used value on a positioned element (unless over-constrained), otherwise the computed value. `position: relative; bottom: 10px` read `top` as `-10px`; on a static element `top: 10px` read `10px`."
+  question: html-and-css/the-cascade/value-stages
+- id: calc-display-none
+  front: "Why does `width: calc(50% + 1em)` read as `220px` laid out but `calc(50% + 20px)` under `display: none`?"
+  back: "The `em` is made absolute at computed time, but the percentage needs layout. Under `display: none` there's no used value, so the computed value is returned."
+  question: html-and-css/the-cascade/value-stages
+- id: inline-width-not-applies
+  front: "What does `getComputedStyle().width` return for a non-replaced inline element?"
+  back: "The computed value, such as `auto` or `50%`, because `width` doesn't apply. `parseFloat` gives `NaN`; use `getBoundingClientRect()` to measure."
+  question: html-and-css/the-cascade/value-stages
+- id: detached-element-computed
+  front: "What does `getComputedStyle` return for a detached element?"
+  back: "Empty strings in Chrome 155 and Firefox 158. It is live: the same object read `10px` once the element was appended."
+  question: html-and-css/the-cascade/value-stages
+- id: style-property-vs-computed
+  front: "Why doesn't `el.style.width` tell you an element's width?"
+  back: "`style` holds only the `style` attribute's declarations; it returned `\"\"` for a width set in a style sheet."
+  question: html-and-css/the-cascade/value-stages
+- id: percentage-inheritance
+  front: "Is a percentage resolved before inheritance?"
+  back: "No. A computed `50%` stays `50%`, so `width: inherit` in a child of a `200px`-wide `50%` box gave `100px`, not `200px`."
+  question: html-and-css/the-cascade/value-stages
+- id: line-height-inherit-which
+  front: "Which value does a child inherit for `line-height`, `1.5` or `30px`?"
+  back: "The computed value. `1.5` computes to the number, so each child multiplies by its own font size; `150%` computes to a length that children inherit. `getComputedStyle` reports `30px` for both on a `20px` element."
+  question: html-and-css/the-cascade/value-stages
+- id: why-resolved-value-exists
+  front: "Why does `getComputedStyle` return used values for some properties?"
+  back: "History. It was defined to return the computed value, but CSS later changed what computed value means while browsers had to keep results stable for scripts. CSSOM named that result the resolved value."
+  question: html-and-css/the-cascade/value-stages
+- id: getcomputedstyle-width-border-box
+  front: "What does `getComputedStyle().width` give with `box-sizing: border-box`?"
+  back: "The border-box width, the used value of `width`: `200px` with `padding: 20px` in both browsers. `getBoundingClientRect()` reports the laid-out box even for inline elements."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-exists-when-not-applying
+  front: "Does a computed value exist when the property doesn't apply to the element?"
+  back: "Yes, which lets `text-transform` set on a `<p>` reach the text inside it."
+  question: html-and-css/the-cascade/value-stages
+- id: border-width-snapping
+  front: "How are border widths snapped at computed time?"
+  back: "Below one device pixel rounds up to 1, above it rounds down to a whole device pixel. At DPR 1 both browsers returned `1px` for `0.5px`, `2px` for `2.7px` and `4px` for `4.2px`."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-colours-used
+  front: "How do colours read back from `getComputedStyle`?"
+  back: "As used values: `currentcolor` reads back as the colour it stands for, and `red`, `#f00` and `hsl(0 100% 50%)` all read `rgb(255, 0, 0)`."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-serialisation
+  front: "Why does `getComputedStyle` return `matrix(...)` for `transform: rotate(45deg)`?"
+  back: "Computed values are abstract and `getComputedStyle` serialises them. Both browsers gave `matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)`, and a relative `url(img.png)` came back absolute."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-color-compare-bug
+  front: "Why does comparing `getComputedStyle(el).color` to `\"red\"` never match?"
+  back: "Resolved colours serialise as `rgb(255, 0, 0)`. Compare serialised forms, or read a custom property you control."
+  question: html-and-css/the-cascade/value-stages
+- id: getcomputedstyle-layout-thrash
+  front: "Why is interleaving style writes and `getComputedStyle` reads in a loop slow?"
+  back: "Reading a used value like `width` requires up-to-date layout, so the browser lays out the page repeatedly. Batch reads before writes."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-style-map
+  front: "Which API returns typed computed values, and where is it supported?"
+  back: "`computedStyleMap()` (CSS Typed OM), shipped in Chrome 66 and Safari 16.4 but not Firefox."
+  question: html-and-css/the-cascade/value-stages
+- id: computed-font-size-display-none
+  front: "What do `font-size: 2em` and `line-height: 150%` compute to on a `display: none` child of a `10px` parent?"
+  back: "`20px` and `30px`, resolved without layout. The `25%` width on that element stays `25%`."
+  question: html-and-css/the-cascade/value-stages
