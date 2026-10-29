@@ -36,7 +36,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What does `:has()` make possible, and what are its limits?](030-has-selector.md) | medium | 🟡 draft |
 | 040 | [How does native CSS nesting work, and how does it differ from Sass?](040-css-nesting.md) | medium | 🟡 draft |
 | 050 | [What does `@scope` do, and how is scoping proximity different from specificity?](050-scope-at-rule.md) | hard | 🟡 draft |
-| 060 | [What are logical properties, and why use `margin-inline` over `margin-left`?](060-logical-properties.md) | easy | 🔴 planned |
+| 060 | [What are logical properties, and why use `margin-inline` over `margin-left`?](060-logical-properties.md) | easy | 🟡 draft |
 | 070 | [How do you ship new CSS safely — forgiving parsing and `@supports`?](070-feature-queries.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
