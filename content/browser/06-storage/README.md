@@ -1,6 +1,6 @@
 # 06 — Storage
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
 
 Where a page can keep data: cookies, Web Storage, IndexedDB and the Cache API, how each is scoped and shared, and how much the browser lets a site keep.
 
@@ -17,17 +17,22 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Cookies vs Web Storage vs IndexedDB vs Cache API: size, sync vs async, scope, who can read them → —
-- Cookie scope and lifetime: `Domain`, `Path`, `Expires`/`Max-Age`, host-only cookies, `document.cookie`, partitioned cookies → —
-- `localStorage` vs `sessionStorage`: per-origin and per-tab scope, the `storage` event → —
-- IndexedDB: object stores, indexes, transactions and auto-commit, versions → —
-- Quotas: `navigator.storage.estimate()`, `persist()`, eviction, storage partitioning → —
+- Cookies vs Web Storage vs IndexedDB vs Cache API: size, sync vs async, scope, who can read them → 010
+- Cookie scope and lifetime: `Domain`, `Path`, `Expires`/`Max-Age`, host-only cookies, `document.cookie`, partitioned cookies → 020
+- `localStorage` vs `sessionStorage`: per-origin and per-tab scope, the `storage` event → 030
+- IndexedDB: object stores, indexes, transactions and auto-commit, versions → 040
+- Quotas: `navigator.storage.estimate()`, `persist()`, eviction, storage partitioning → 050
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [Cookies, `localStorage`, `sessionStorage`, or IndexedDB — how do you choose?](010-choosing-browser-storage.md) | easy | 🔴 planned |
+| 020 | [How do cookies work — which requests carry them, and for how long?](020-how-cookies-work.md) | medium | 🔴 planned |
+| 030 | [How do `localStorage` and `sessionStorage` behave across tabs?](030-web-storage-scope.md) | medium | 🔴 planned |
+| 040 | [How does IndexedDB work, and why do its transactions commit on their own?](040-indexeddb-transactions.md) | hard | 🔴 planned |
+| 050 | [How much can a site store, and when does the browser delete it?](050-quotas-and-eviction.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
