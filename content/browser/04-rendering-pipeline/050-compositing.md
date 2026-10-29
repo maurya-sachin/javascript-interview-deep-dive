@@ -37,7 +37,7 @@ tldr: >
 
 `transform` and `opacity` are cheap because neither changes layout or the element's painted content. A transform moves the painted result, not the box, so nothing else reflows. On its own layer, a new frame is the same texture drawn at a new position or alpha. The compositor can then run a declarative animation (CSS, transitions, `element.animate()`) by itself, frame after frame, even while the main thread is busy. Firefox's DevTools mark such animations with a lightning bolt.
 
-Other properties cost more. Animating `width` or `margin-left` reruns layout and paint every frame; `background-color` repaints; `left` and `top` skipped layout in Chrome 156 but still ran on the main thread. All of them need the main thread for every frame, so a long task freezes them.
+Other properties cost more. Animating `width`, `margin-left`, `left` or `top` reruns layout and paint every frame; `background-color` usually repaints. All of them need the main thread for every frame, so a long task freezes them.
 
 When an element gets a layer is engine behaviour too. Chrome promotes an element while a `transform` or `opacity` animation is running, and for `will-change: transform` or `opacity` ahead of time. Each layer costs GPU memory and texture uploads, so promoting everything backfires.
 
@@ -87,16 +87,16 @@ Recorded with the Chrome DevTools Protocol's screencast in Chrome 156 (three run
 
 ### Edge cases
 
-Main-thread layout and paint events in Chrome 156, counted in a performance trace over 60 frames of a CSS animation on a relatively positioned box (identical across three runs):
+Main-thread layout and paint events in Chrome 156, counted in a 1 s performance trace (about 60 frames) of a running CSS animation with only a `to` keyframe, on a relatively positioned box (three runs; counts varied by one):
 
 | Animated property | Layout events | Paint events |
 |---|---|---|
-| `transform` | 1 | 3 |
-| `opacity` | 1 | 2 |
-| `left` | 1 | 2 |
-| `margin-left` | 59 | 118 |
-| `width` | 59 | 118 |
-| `background-color` | 0 | 120 |
+| `transform` | 0 | 0 |
+| `opacity` | 0 | 0 |
+| `left` | 60–61 | 120–122 |
+| `margin-left` | 60–61 | 120–122 |
+| `width` | 60–61 | 120–122 |
+| `background-color` | 0 | 120–122 |
 
-- **`left` and `top` in Chrome.** On a positioned box they produced no per-frame layout or paint events in this trace. They still ran style and pre-paint on the main thread every frame, which is why the example froze.
+- **`background-color` in Chrome.** With both a `from` and a `to` keyframe, the same animation produced no paint events in Chrome 156: Chrome can sometimes run it without repainting. With only `to`, it repainted every frame. Don't count on it.
 - **Layer promotion in Chrome 156**, read with the DevTools Protocol's `LayerTree` domain: `will-change: transform`, `will-change: opacity`, `transform: translateZ(0)` and running `transform` or `opacity` animations each gave the box its own layer. `transform: translateX(10px)`, `opacity: 0.5`, `z-index: 1`, `isolation: isolate`, `will-change: left` and a running `left` animation didn't.
