@@ -2790,3 +2790,488 @@
   front: "Why did a tooltip in a different card from its anchor stay at its static position?"
   back: "Its containing block (a `position: relative` card) doesn't contain the anchor, so the anchor isn't acceptable and `position-area` has no effect. As a child of `<body>` it centred under the anchor."
   question: html-and-css/positioning-and-stacking/anchor-positioning
+# 07 Responsive design
+- id: responsive-intrinsic-vs-conditional
+  front: "What are the two ways to make a layout responsive, and which should you lead with?"
+  back: "Intrinsic layout, where flex and grid respond to available space themselves, and conditional rules (media and container queries) that switch styles at a threshold. Lead with intrinsic layout."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-flex-wrap-technique
+  front: "How does `flex-wrap: wrap` with a `flex-basis` make a layout responsive?"
+  back: "Items sit side by side when they fit and stack when they don't, with no media query."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-grid-auto-fit-minmax
+  front: "Which grid declaration makes as many columns as fit, without overflowing a narrow container?"
+  back: "`repeat(auto-fit, minmax(min(12rem, 100%), 1fr))`. The `min()` stops the `12rem` minimum overflowing a container narrower than `12rem`."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-minmax-without-min
+  front: "What happened in a 160px container with `minmax(12rem, 1fr)` and no `min()`?"
+  back: "The track stayed `192px` and the grid overflowed by 32px. `minmax(min(12rem, 100%), 1fr)` gave one `160px` track."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-fluid-values
+  front: "Which two functions cap line length and scale type and spacing between bounds?"
+  back: "`width: min(100%, 70ch)` caps line length; `clamp()` scales type and spacing between bounds."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-breakpoints-for-structure
+  front: "What are breakpoints for, if intrinsic layout handles size?"
+  back: "Structural changes no algorithm can infer, such as navigation collapsing into a menu button or a table turning into cards."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-content-decides-breakpoints
+  front: "How do you choose a breakpoint width?"
+  back: "Content decides, not devices. Widen the window until the design looks wrong; that is the breakpoint. Device widths change every year."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-mobile-first
+  front: "What does mobile-first mean for the CSS, and what is the real gain?"
+  back: "Base styles are the narrow layout and `@media (width >= 48em)` adds to them. It barely helps performance, since every device downloads the whole stylesheet; the gain is in the cascade, with no desktop styles to reset."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-wcag-reflow
+  front: "What does WCAG 1.4.10 Reflow require, and what window does it correspond to?"
+  back: "Content usable at 320 CSS px wide, which is a 1280px window at 400% zoom. So the narrow layout matters on desktop too."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-em-breakpoints
+  front: "What is `em` relative to inside a media query?"
+  back: "The initial `font-size`, the user's default. Someone with larger text gets the narrower layout sooner, and the page's `html { font-size }` has no effect."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-component-container-queries
+  front: "Why do components use container queries rather than viewport breakpoints?"
+  back: "A card in a sidebar and in the main column sees the same viewport but different space."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-viewport-meta-missing
+  front: "What happens without the viewport `<meta>`?"
+  back: "Mobile browsers lay out at a desktop-sized width, so no query sees the phone's real width."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-wrap-point-computed
+  front: "In the sidebar plus `.main` flex example, why does `.main` wrap under the nav below 640px?"
+  back: "The sidebar wants `15rem` (240px) and `.main` has `flex-basis: 0` but a minimum of 60% of the container. Both fit only when `240 + 16 + 0.6W ≤ W`, so the wrap point is computed, not declared."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-wider-fewer-columns
+  front: "In the intrinsic example, why did a wider viewport (639px to 640px) give fewer grid columns?"
+  back: "The cards respond to their own slot, not the window: at 640px the sidebar sits beside `.main`, narrowing it. A viewport query can't express that."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-flex-grow-999
+  front: "Why give `.main` `flex-grow: 999` next to a sidebar with `flex: 1 1 15rem`?"
+  back: "Once the two sit side by side, nearly all free space goes to `.main` and the sidebar stays close to `15rem`."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-em-query-default-font
+  front: "In Chrome 156 and Firefox 158, did a 1024px window match `(min-width: 40em)` with the browser default font size at 32px?"
+  back: "No. 40em had become 1280px. With a 16px default it matched. `html { font-size: 10px }` changed neither result, and `rem` breakpoints behave the same."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-auto-min-overflow
+  front: "A long URL or wide `<pre>` in a flex or grid item makes the page overflow. Why, and what fixes it?"
+  back: "Flex and grid items have an automatic minimum width of roughly their min-content size, so they won't shrink. `min-width: 0` on the item fixes it."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-min-max-gap
+  front: "Why does pairing `max-width: 767px` with `min-width: 768px` leave a gap?"
+  back: "Fractional viewport widths (zoom, non-integer pixel ratios) fall between them. Range syntax (`width < 48em`, `width >= 48em`) has no gap."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-when-media-query-still
+  front: "When do you still need a media query besides structural changes?"
+  back: "When the change isn't a size adjustment: a different navigation pattern, hiding secondary content, switching a table to a list, or responding to user preferences like `prefers-reduced-motion`."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-test-layout
+  front: "How do you test a responsive layout?"
+  back: "Drag the window through every width instead of jumping between presets, zoom a 1280px window to 400%, and raise the browser's default font size."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: responsive-card-two-layers
+  front: "A product card sits in a three-column listing grid and a 280px sidebar. How is it fixed in two layers?"
+  back: "An intrinsic grid decides how many cards fit each slot, and a container query on the card's wrapper switches the card between stacked and horizontal at its own width."
+  question: html-and-css/responsive-design/intrinsic-responsive-layout
+- id: mq-what-it-tests
+  front: "What is a media query, and where can one appear?"
+  back: "A condition on the environment the document renders in, such as `screen and (width >= 48em) and (hover: hover)`. It appears in `@media`, `<link media>`, `<source media>` and `matchMedia()`."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-media-types
+  front: "Which media types are current, and what about `tv` and `handheld`?"
+  back: "`all`, `screen` and `print`. The others (`tv`, `handheld`) are deprecated and never match."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-combinators-comma
+  front: "How do `and`, `or`, `not` and commas combine in a media query?"
+  back: "Features sit in parentheses and combine with `and`, `or` and `not`. A comma-separated list matches if any query in it matches."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-leading-not
+  front: "What does a leading `not` negate in `not screen and (color)`?"
+  back: "The whole query, type included: it means \"not (a colour screen)\"."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-only-keyword
+  front: "What does `only` do in a media query today?"
+  back: "Nothing. It exists to hide a query from pre-media-query browsers."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-range-syntax
+  front: "What is range syntax in media queries, and which browsers support it?"
+  back: "Comparison with `<`, `<=`, `>`, `>=` that can bound both sides, like `(400px <= width < 768px)`. Supported since Chrome 104, Firefox 102 and Safari 16.4."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-min-max-inclusive
+  front: "Are `min-width` and `max-width` inclusive or exclusive?"
+  back: "Inclusive: they mean `>=` and `<=`."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-width-vs-device-width
+  front: "What does the `width` media feature measure, and why prefer it to `device-width`?"
+  back: "`width` is the viewport, including any scrollbar. `device-width` is the screen's size, not the space the document has; it ignores window size and split screens, and the spec deprecates it."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-hover-pointer
+  front: "What do `hover` and `pointer` describe, and how do `any-hover` and `any-pointer` differ?"
+  back: "`hover` and `pointer` (`none`/`coarse`/`fine`) describe the primary input. `any-hover` and `any-pointer` match if any input qualifies."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-hover-not-desktop
+  front: "Why is `hover: hover` a poor way to detect \"desktop\"?"
+  back: "It describes only the primary input; the spec says a touchscreen device with an optional mouse should match `hover: none`. Use `any-hover` if any hover-capable input will do."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-user-preference-features
+  front: "Which media features report user preferences?"
+  back: "`prefers-reduced-motion`, `prefers-color-scheme`, `prefers-contrast` and `forced-colors`."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-relative-units-initial
+  front: "What do `em` and `rem` resolve against in a media query?"
+  back: "The initial font size, the user's default, ignoring page styles. So `html { font-size: 62.5% }` does not change them."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-matchmedia
+  front: "What does `matchMedia(query)` return, and how do scripts react to changes?"
+  back: "A `MediaQueryList` with `.matches` and a `change` event, so scripts react to the same conditions as CSS."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-unknown-feature-false
+  front: "What does an unknown media feature like `(colour: red)` evaluate to, and what about `not (colour: red)`?"
+  back: "Unknown, which counts as false. Negating unknown is still unknown, so `not (colour: red)` is also false. Chrome 156 and Firefox 158 agreed."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-example-strict-vs-inclusive
+  front: "At a 600px viewport, what do `(min-width: 600px)` and `(width > 600px)` return?"
+  back: "`true` for `(min-width: 600px)` (inclusive) and `false` for `(width > 600px)`."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-reduced-motion-change
+  front: "In Chrome 156, what happened when `prefers-reduced-motion: reduce` was emulated?"
+  back: "The `MediaQueryList` fired `change` with `matches: true`, and a `@media` rule setting `transition-duration: 0s` applied at the same time."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-reduced-motion-meaning
+  front: "What does `prefers-reduced-motion: reduce` require of you?"
+  back: "The user asked the system to minimise non-essential motion, so remove or replace motion that can cause discomfort or distraction. The query only reports the setting; which animations to change is an accessibility decision."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-min-orientation
+  front: "Why does `(min-orientation: portrait)` evaluate to false, and what does `not` of it give?"
+  back: "`orientation` is discrete and takes no `min-` prefix, so `min-orientation` is an unknown feature. Unknown is false, and so is its negation."
+  question: html-and-css/responsive-design/media-queries
+- id: mq-not-whole-query-example
+  front: "At a 600px viewport, what does `not screen and (width < 600px)` return, and why?"
+  back: "`true`. `not` negates the whole query, and `screen and (width < 600px)` is false at 600px."
+  question: html-and-css/responsive-design/media-queries
+- id: cq-media-vs-container
+  front: "How does a container query differ from a media query?"
+  back: "A media query asks about the viewport; a container query asks about an ancestor element, so a component adapts to the slot it's placed in."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-two-steps
+  front: "What are the two steps to use a container query?"
+  back: "Make a query container with `container-type`, then query it with `@container name (width >= 400px) { … }`, which styles descendants."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-container-type-values
+  front: "What do `container-type: inline-size` and `container-type: size` allow queries on?"
+  back: "`inline-size` allows queries on the inline size (width in horizontal writing); `size` allows both axes."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-container-shorthand
+  front: "What is the `container` shorthand?"
+  back: "Name then type: `container: card-slot / inline-size` sets `container-name` and `container-type`."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-unnamed-query
+  front: "Which container does an unnamed `@container` query use?"
+  back: "The nearest ancestor container that supports the features it tests."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-containment-loop
+  front: "Why does `container-type: inline-size` apply inline-size containment?"
+  back: "A query that could change its container's size would loop: width triggers a style, the style changes the width. Containment cuts that dependency in the queried axis."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-inline-size-containment-effect
+  front: "What does inline-size containment do to the container's intrinsic size?"
+  back: "Its inline-axis intrinsic size is computed as if it had no content, so it must get its width from outside, like a block in normal flow or a grid track."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-shrink-to-fit-collapse
+  front: "What happens to an inline-block, float or flex item with `flex-basis: auto` that has `container-type: inline-size`?"
+  back: "As a shrink-to-fit box it collapses to `0` width. In the test, an inline-block and a flex item each holding a line of text were both `0` px wide."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-size-type-height
+  front: "What happens with `container-type: size` and no height set?"
+  back: "The container's block size ignores its content too; it measured `0` px tall."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-container-units
+  front: "What are the container query units, and what do they fall back to with no container?"
+  back: "`cqw`, `cqh`, `cqi`, `cqb`, `cqmin`, `cqmax`: 1% of the nearest suitable container. With none, they fall back to the small viewport units."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-cqi-no-container
+  front: "What did `width: 10cqi` compute to with no container in a 1000px viewport, and inside a 300px container?"
+  back: "`100px` with no container (10% of the small viewport width) and `30px` inside a 300px container."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-style-queries
+  front: "What is a style query, and which elements are style containers?"
+  back: "`@container style(--variant: compact)` tests a computed value. Every element is a style container by default."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-no-self-query
+  front: "Can an element query its own container type?"
+  back: "No. An element never queries itself; `@container` rules on the element with `container-type` query its ancestors, and with none the rule silently doesn't apply."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-size-support
+  front: "Which browsers shipped size container queries, and when?"
+  back: "Chrome 105, Firefox 110 and Safari 16."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-nested-nearest-wins
+  front: "An 800px container named `page` holds an unnamed 300px container. Does an unnamed `@container (width > 500px)` match a paragraph in both?"
+  back: "No; the nearest container (300px) answers. `@container page (width > 500px)` did match. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-not-replace-media
+  front: "Do container queries replace media queries?"
+  back: "No. Page-level layout, user preferences (`prefers-*`), input type (`hover`, `pointer`) and print styles concern the environment, not an element."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-why-not-measure-like-viewport
+  front: "Why can't the browser measure a container like a media query measures the viewport?"
+  back: "The viewport's size doesn't depend on the page, but a box's size depends on its content. Containment cuts that dependency so applying query results can't change the size that was queried."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-containment-effects
+  front: "What does `container-type` apply beyond marking the element?"
+  back: "`inline-size` adds style and inline-size containment; `size` adds style and full size containment. Both make the box an independent formatting context. Its block size still grows with content under `inline-size`."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-layout-containment-dropped
+  front: "Did container-type apply layout containment in Chrome 156 and Firefox 159?"
+  back: "No. Contain 3 (the Candidate Recommendation) applied layout containment, but the current CSS Conditional 5 draft dropped it, and both browsers follow the draft: `fixed` and `absolute` children still position against the viewport."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-query-container-selection
+  front: "How does the browser pick the query container for an element?"
+  back: "From ancestors valid for every feature in the condition (`width` needs `inline-size` or `size`; `height` needs `size`), filtered by name if given, nearest first. If none qualifies, the query is unknown and its rules don't apply."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-units-per-axis
+  front: "Can `cqi` and `cqb` in the same rule come from different containers?"
+  back: "Yes. Each is evaluated per axis: `cqi` uses the nearest container that accepts inline-size queries, `cqb` the nearest for block size. With none, `cqi` behaves like `svw` in horizontal writing."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-style-query-standard-props
+  front: "Did `style(display: flex)` match a `display: flex` parent in Chrome 156 and Firefox 159?"
+  back: "No, although the spec allows it. `style(--variant: compact)` did match. Custom-property style queries shipped in Chrome 111, Firefox 151 and Safari 18."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-pseudo-elements
+  front: "How do pseudo-elements relate to container queries?"
+  back: "They query their originating element's ancestors and can't be containers."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-wrapper-trade-off
+  front: "Why do container-query components often need an extra wrapper?"
+  back: "The container can't be the element being restyled, so components need a wrapper, or the slot itself becomes the container."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-formatting-context-floats
+  front: "What side effect does a container's independent formatting context have on floats?"
+  back: "The container contains its floats."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-cqi-text-clamp
+  front: "How should text combine `cqi` so user font settings still apply?"
+  back: "Combine it with `rem` in `clamp()`, for example `clamp(1rem, 0.5rem + 3cqi, 2rem)`."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-scroll-state
+  front: "Which browsers support scroll-state queries (`container-type: scroll-state`)?"
+  back: "Chrome since 133; not Firefox or Safari."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-style-query-variant
+  front: "How can a component variant like `compact` avoid a modifier class passed through every layer?"
+  back: "Set it as a custom property and query it with `style(--card-variant: compact)`."
+  question: html-and-css/responsive-design/container-queries
+- id: cq-nested-queries
+  front: "Can container queries be nested?"
+  back: "Yes. Several nested `@container` rules can ask about different containers at once, for example `@container page (width > 60rem)` containing `@container (width < 20rem)`."
+  question: html-and-css/responsive-design/container-queries
+- id: units-em-reference
+  front: "What is `em` relative to, and what is the exception?"
+  back: "The element's own computed `font-size`. Inside `font-size` and other `font-*` properties it uses the parent's, so `font-size: 1.2em` multiplies at every level of nesting."
+  question: html-and-css/responsive-design/relative-units
+- id: units-rem-reference
+  front: "What is `rem` relative to?"
+  back: "The root element's computed `font-size`. On the root itself it uses the initial value, the user's default font size (16px unless changed)."
+  question: html-and-css/responsive-design/relative-units
+- id: units-percent-per-property
+  front: "What does `%` resolve against?"
+  back: "Each property defines its own reference. `width`, all four margins and all four paddings use the containing block's width (inline size), even `padding-top`. `font-size` uses the parent's font size; `line-height` the element's own."
+  question: html-and-css/responsive-design/relative-units
+- id: units-percent-height
+  front: "When does `height: 50%` work?"
+  back: "Only if the containing block's height is definite; otherwise it behaves as `auto`. It does nothing inside a parent with `height: auto`."
+  question: html-and-css/responsive-design/relative-units
+- id: units-ch
+  front: "What is `ch`, and how exact is it as a character count?"
+  back: "The advance width of the \"0\" glyph in the element's font (or `0.5em` if it can't be measured). Exact only in monospace fonts; in proportional fonts sixty `0` glyphs is not sixty characters."
+  question: html-and-css/responsive-design/relative-units
+- id: units-lh-rlh
+  front: "What are `lh` and `rlh`?"
+  back: "The computed `line-height` of the element or the root, for vertical rhythm."
+  question: html-and-css/responsive-design/relative-units
+- id: units-rem-for-scale
+  front: "Why use `rem` for type scale and layout spacing?"
+  back: "It follows the user's default font size, which `px` ignores."
+  question: html-and-css/responsive-design/relative-units
+- id: units-em-for-local
+  front: "When is `em` the right unit?"
+  back: "For things that should grow with local text: button padding, icon size, the gap next to a label."
+  question: html-and-css/responsive-design/relative-units
+- id: units-ch-for-measure
+  front: "What is `ch` used for?"
+  back: "Line length (`max-width: 65ch`) and inputs sized to their content (`width: 6ch`)."
+  question: html-and-css/responsive-design/relative-units
+- id: units-em-media-query
+  front: "What do `em` and `rem` use in media queries?"
+  back: "The initial font size, since no element is involved."
+  question: html-and-css/responsive-design/relative-units
+- id: units-example-values
+  front: "A `.child` in a 20px, 400px-wide parent has `font-size: 1.5em`, `padding: 1em` and `padding-top: 10%`. What are its computed font size, left padding and top padding?"
+  back: "`30px`, `30px` and `40px`. `1.5em` in `font-size` uses the parent's 20px, `1em` padding uses the child's own 30px, and `10%` is of the 400px containing block width."
+  question: html-and-css/responsive-design/relative-units
+- id: units-lh-example
+  front: "With `line-height: 1.5` and `font-size: 30px`, what does `height: 2lh` compute to?"
+  back: "`90px`: two 45px lines."
+  question: html-and-css/responsive-design/relative-units
+- id: units-em-nesting-compounds
+  front: "Two nested elements each with `font-size: 1.5em` inside a 30px parent: what are their sizes, and does `rem` compound?"
+  back: "`45px` then `67.5px`, because each level multiplies the last. `rem` doesn't compound."
+  question: html-and-css/responsive-design/relative-units
+- id: units-line-height-percent
+  front: "Why is `line-height: 150%` a pitfall compared with unitless `1.5`?"
+  back: "A percentage computes to a length and children inherit that length: a 40px child of a 10px parent got a `15px` line height. Unitless `1.5` gave `60px`."
+  question: html-and-css/responsive-design/relative-units
+- id: units-html-font-size-px
+  front: "What happens to `html { font-size: 10px }` when the browser's default font size is 24px?"
+  back: "The root stayed `10px`, ignoring the user's setting. `62.5%` gave `15px`, keeping the user's choice."
+  question: html-and-css/responsive-design/relative-units
+- id: units-zoom-vs-default-font
+  front: "Doesn't page zoom make `px` and `rem` equivalent?"
+  back: "For zoom, yes: it scales every CSS pixel. The difference is the browser's default font size setting, which changes `rem` and `em` but not `px`."
+  question: html-and-css/responsive-design/relative-units
+- id: units-em-line-height
+  front: "What is `em` inside `line-height`, and what do `lh` and `rlh` do there?"
+  back: "The element's own font size, like everywhere except font properties. Only `lh` and `rlh` switch to the parent's values when used in `line-height`."
+  question: html-and-css/responsive-design/relative-units
+- id: units-nested-list-exercise
+  front: "With `li { font-size: 0.8em }`, how big is a third-level list item, and with `0.8rem`?"
+  back: "About 8.2px (16 × 0.8³): Chrome 156 printed `8.192px`, Firefox 159 `8.18333px`. With `0.8rem` both printed `12.8px` at every level."
+  question: html-and-css/responsive-design/relative-units
+- id: vp-units-definition
+  front: "What are viewport-percentage units 1% of?"
+  back: "The initial containing block, which on screen is the viewport."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-lvh
+  front: "What viewport size do `lvh` units assume, and what is the downside?"
+  back: "The large viewport, with every retractable UI retracted. It is fixed so never causes relayout, but content can be hidden behind the toolbar when it's showing."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-svh
+  front: "What viewport size do `svh` units assume, and what is the downside?"
+  back: "The small viewport, with the UI expanded. It is fixed and `100svh` always fits, but leaves a gap once the toolbar hides."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-dvh
+  front: "What do `dvh` units measure, and what does it cost?"
+  back: "The current size, between small and large. It is exact but changes while the user scrolls, which can resize content mid-scroll and costs layout work. Browsers may hold the value during the toolbar animation."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-vh-is-large
+  front: "Which viewport size are plain `vh` and `vw` defined as, and what bug does that cause?"
+  back: "The large viewport. That's why `height: 100vh` heroes on phones had their bottom covered by the toolbar."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-why-default-large
+  front: "Why are the default units the large viewport rather than the dynamic one?"
+  back: "Stability. Large and small sizes change only when the viewport itself resizes, so content never relayouts during scrolling. Large also guarantees `100vh` fills the screen once the toolbar hides."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-variants-support
+  front: "Which axis and min/max variants exist, and when did the `s`/`l`/`d` prefixes ship?"
+  back: "`w`, `h`, `i` (inline), `b` (block), `min` and `max`, such as `svi` and `dvmax`. The new prefixes shipped in Chrome 108, Firefox 101 and Safari 15.4."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-keyboard
+  front: "Do on-screen keyboards change viewport units?"
+  back: "Usually not: they overlay the page and change none of these units."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-scrollbars
+  front: "Do viewport units account for scrollbars?"
+  back: "They are sized as if there were no scrollbar, unless the root's `overflow` (for example `overflow: scroll`) or `scrollbar-gutter` reserves space unconditionally."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-rule-of-thumb
+  front: "Which unit for a hero that must fit on load, a full-screen app shell, and a backdrop with no gap?"
+  back: "`min-height: 100svh` for the hero, `100dvh` for an app shell that must track the toolbar, and `lvh` for backgrounds that should never show a gap."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-dvh-everywhere
+  front: "Why avoid `100dvh` everywhere?"
+  back: "It resizes content while the user scrolls; reserve it for layouts that must track the visible area."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-100vw-scrollbar
+  front: "What did `width: 100vw` do in Firefox 159 with classic scrollbars?"
+  back: "The box was 1000px in a window whose content area was 985px, adding a horizontal scrollbar. `width: 100%` doesn't."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-overflow-scroll-root-firefox
+  front: "Did `html { overflow-y: scroll }` fix the `100vw` overflow in Firefox 159?"
+  back: "No: with classic scrollbars and that rule, `100vw` was still 1000px against a 985px content width. Headless Chrome uses overlay scrollbars, so it couldn't be checked there."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-vw-text
+  front: "Why is sizing text in `vw` alone a problem?"
+  back: "It ignores the user's default font size and doesn't grow with page zoom; combine it with `rem` in `clamp()`."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-vmin
+  front: "What is `vmin` for?"
+  back: "The smaller of `vw` and `vh`, for something that must fit both ways regardless of orientation. In a 1000 × 700 viewport, `50vmin` was `350px`."
+  question: html-and-css/responsive-design/viewport-units
+- id: vp-desktop-equal
+  front: "On desktop Chrome 156 and Firefox 159, how do `svh`, `lvh`, `dvh` and `vh` compare?"
+  back: "Equal: a desktop window has no retractable UI, so all four were the same 700px in a 700px-tall viewport."
+  question: html-and-css/responsive-design/viewport-units
+- id: fluid-min-function
+  front: "What does `min(a, b, …)` return, and what does it effectively set?"
+  back: "The smallest value, so it sets a maximum: `width: min(100%, 60rem)` is full width until 60rem, replacing `width` plus `max-width`."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-max-function
+  front: "What does `max(a, b, …)` return, and what does it effectively set?"
+  back: "The largest value, so it sets a minimum: `padding: max(1rem, 3vw)`."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-min-for-minimum
+  front: "Why is `min(1rem, 2vw)` a wrong way to set a minimum?"
+  back: "It is never more than `1rem`. A minimum needs `max()`."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-clamp-definition
+  front: "What is `clamp(MIN, VAL, MAX)` equivalent to, and who wins if MIN exceeds MAX?"
+  back: "Exactly `max(MIN, min(VAL, MAX))`. If MIN is greater than MAX, MIN wins."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-clamp-backwards
+  front: "What did `clamp(3rem, 2.5vw, 1rem)` compute to?"
+  back: "`48px` everywhere: MIN beats MAX."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-no-calc
+  front: "Do you need `calc()` inside `clamp()`?"
+  back: "No. Each argument is already a calculation, so `clamp(1rem, 1rem + 1vw, 3rem)` is valid as written."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-typography
+  front: "How does fluid typography avoid jumps at breakpoints?"
+  back: "A viewport-relative preferred value, like `font-size: clamp(1rem, 1rem + 1vw, 3rem)`, grows smoothly with the window. Container units (`cqi`) do the same per component."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-zoom-catch
+  front: "Why does a pure-`vw` font size not grow when the user zooms?"
+  back: "Zoom enlarges CSS pixels so the viewport has fewer of them. A `vw` value shrinks in CSS pixels by exactly as much as each pixel grows, so on screen it stays the same size."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-zoom-measurement
+  front: "How did a `2.5vw` heading behave at emulated 100%, 200% and 300% zoom?"
+  back: "It stayed 30 device pixels at all three, and it ignored the user's default font size too."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-wcag-f94
+  front: "Which WCAG criterion and failure technique apply to text sized with viewport units?"
+  back: "SC 1.4.4 requires text to be resizable to 200%; failure F94 is text sized mainly with viewport units."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-rem-in-preferred
+  front: "What is the fix for the zoom catch, and why does it work?"
+  back: "Give `rem` part of the preferred value, because only the `rem` part scales. At zoom `z`, rendered size is `z × rem part + vw part`. Keep the `vw` coefficient small and the bounds in `rem`."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-wcag-higher-zoom
+  front: "Does WCAG require text to double at exactly 200% zoom?"
+  back: "No: the Understanding document allows reaching 200% at a higher zoom level; its example halves the font size at 400% zoom and still counts the text as twice as large."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-vw-only-clamp
+  front: "What happened to `clamp(1rem, 2.5vw, 3rem)` at 100% and 200% zoom in a 1280px window?"
+  back: "It rendered 32 device px at both; it grows only once zoom pushes it onto the `1rem` floor."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-px-bounds
+  front: "Why avoid `px` bounds in `clamp()`?"
+  back: "They don't follow the user's default font size; `rem` bounds do."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-example-results
+  front: "With `clamp(1rem, 1rem + 1vw, 3rem)`, what did the heading render at 1200px/100% and 300% zoom (400px viewport)?"
+  back: "28 device px at 100% and 60 at 300%, reaching 2× (56px) only at 300%. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-derive-preferred
+  front: "How do you derive the preferred value for 16px at 320px wide and 32px at 1280px?"
+  back: "Slope = (32 − 16) ÷ (1280 − 320) = 1/60 per px, i.e. `1.6667vw`. Intercept = 16 − 320 ÷ 60 ≈ 10.67px = `0.6667rem`. Result: `clamp(1rem, 0.6667rem + 1.6667vw, 2rem)`."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-14-4-text-only
+  front: "Is WCAG 1.4.4 about text-only zoom?"
+  back: "No. It only requires resizing to 200% without assistive technology; the Understanding document lists page zoom, text-only resizing and a configured text size as ways user agents do it. F94 says viewport-unit text defeats most of them."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
+- id: fluid-size-at-800
+  front: "What does `clamp(1rem, 0.6667rem + 1.6667vw, 2rem)` give at 800px, 320px and 1280px+?"
+  back: "About 24px at 800px (Firefox 159 printed `24px`, Chrome 156 `24.0008px` from rounded coefficients), 16px at 320px, and `32px` from 1280px up."
+  question: html-and-css/responsive-design/fluid-sizing-clamp
