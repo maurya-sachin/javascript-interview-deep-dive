@@ -778,7 +778,7 @@
   question: browser/events/input-events
 - id: input-dead-key
   front: "Which `key` does a dead key produce, and how should you read the resulting text?"
-  back: "`\"Dead\"` on its `keydown`. A composition follows: the next `keydown` already reports `\"ê\"` and `compositionend` carries `\"ê\"`. Read text from input and composition events, not by reassembling keys."
+  back: "`\"Dead\"` on its `keydown`. In the UI Events example, a composition follows: the next `keydown` already reports `\"ê\"` and `compositionend` carries `\"ê\"`. Read text from input and composition events, not by reassembling keys."
   question: browser/events/input-events
 - id: input-knob-example
   front: "A pointer is captured in `pointerdown` (default prevented), dragged off the element and released. Which events log?"
