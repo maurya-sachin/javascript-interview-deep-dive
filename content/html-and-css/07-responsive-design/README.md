@@ -35,7 +35,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 030 | [What are container queries, and how do you establish a container?](030-container-queries.md) | medium | 🟡 draft |
 | 040 | [What are `em`, `rem`, `%`, and `ch` relative to, and when do you use each?](040-relative-units.md) | easy | 🟡 draft |
 | 050 | [What's the difference between `vh`, `svh`, `lvh`, and `dvh`?](050-viewport-units.md) | medium | 🟡 draft |
-| 060 | [How do `clamp()`, `min()`, and `max()` make sizes fluid, and what's the zoom catch?](060-fluid-sizing-clamp.md) | medium | 🔴 planned |
+| 060 | [How do `clamp()`, `min()`, and `max()` make sizes fluid, and what's the zoom catch?](060-fluid-sizing-clamp.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
