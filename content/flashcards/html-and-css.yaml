@@ -1391,3 +1391,528 @@
   front: "What do `font-size: 2em` and `line-height: 150%` compute to on a `display: none` child of a `10px` parent?"
   back: "`20px` and `30px`, resolved without layout. The `25%` width on that element stays `25%`."
   question: html-and-css/the-cascade/value-stages
+# 04 Box model and formatting contexts
+- id: box-four-areas
+  front: "Which four nested areas make up a CSS box?"
+  back: "Content, padding, border and margin, each bounded by an edge. Padding shows the background, the border is drawn around the padding, and the margin is transparent space outside the border."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-content-box-default
+  front: "With the initial `box-sizing: content-box`, what does `width: 200px` size, and how wide is the box with `20px` padding and a `5px` border?"
+  back: "`width` sizes only the content, so the box takes `250px`: the `200px` content plus padding and border on both sides."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-border-box-meaning
+  front: "What does `box-sizing: border-box` change about `width: 200px` with `20px` padding and a `5px` border?"
+  back: "`width` sizes the border box, so padding and border fit inside and the content gets what is left: `150px`."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-sizing-properties-affected
+  front: "Which properties does `box-sizing` re-interpret, and which does it never touch?"
+  back: "It changes the meaning of `width`, `height`, `min-*`, `max-*` and `flex-basis`. It never changes the margin, and it doesn't change an `auto` width: a block fills its container the same way under both values."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-border-box-why-global
+  front: "Why do teams set `border-box` globally?"
+  back: "It matches how designs are specified (a card is 300px wide), and `width: 100%` plus padding stops overflowing the parent. With `content-box`, `width: 50%` and `padding: 20px` can't be combined without `calc()`."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-border-box-floor-at-zero
+  front: "Under `border-box`, what happens when padding and border exceed the specified `width`?"
+  back: "The content box floors at `0` instead of going negative, and the box grows. A `20px` border-box with `50px` of padding and border measured `50px` wide in Chrome 155 and Firefox 158."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-computed-width-reports
+  front: "Which box does `getComputedStyle(el).width` report?"
+  back: "The box that `box-sizing` names, so under `border-box` it includes padding and border. A `content-box` block with `width: auto` reported its content width, not its container's width."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-offset-client-width
+  front: "What do `offsetWidth` and `clientWidth` measure?"
+  back: "`offsetWidth` is the border-box width, rounded to an integer. `clientWidth` is the padding box minus any scrollbar."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-bounding-rect-transforms
+  front: "How does `getBoundingClientRect().width` differ from `offsetWidth`?"
+  back: "It gives the fractional border-box size after transforms, so `scale(2)` doubles it but leaves `offsetWidth` unchanged."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-inline-span-width-height
+  front: "Do `width` and `height` apply to a `<span>`, and what does vertical padding on one do?"
+  back: "They don't apply to inline non-replaced boxes. Vertical padding paints and may overlap neighbouring lines but doesn't push lines apart or change the line box height."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-form-control-defaults
+  front: "Which form controls default to which `box-sizing` in Chrome 155 and Firefox 158?"
+  back: "Their UA styles give `<button>`, `<select>` and checkboxes `border-box`, but text `<input>` and `<textarea>` `content-box`. Form controls don't follow your page default."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-vertical-padding-percent
+  front: "What do percentage `padding-top` and `margin-top` resolve against?"
+  back: "The containing block's inline size (its width in horizontal writing), not its height. All four padding and margin percentages do. That is why `padding-top: 56.25%` made 16:9 boxes before `aspect-ratio`."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-reset-inherit
+  front: "Why write the reset as `html { box-sizing: border-box }` plus `*, *::before, *::after { box-sizing: inherit }`?"
+  back: "A component can opt its whole subtree back into `content-box` by setting it once on its root. With `border-box` set directly on `*`, every descendant would need its own override."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-aspect-ratio-box-sizing
+  front: "Does `box-sizing` affect `aspect-ratio`?"
+  back: "Yes, the ratio applies to the box `box-sizing` names. A `200px` wide `aspect-ratio: 2` box with `20px` padding was `200×100` under `border-box` and `240×140` under `content-box`."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-inline-axis-equation
+  front: "What constraint does CSS 2.2 set on a block's inline-axis sizes, and what is solved from it?"
+  back: "Margins, borders, padding and `width` must add up to the containing block's width. `width: auto` is solved from that equation, so an auto-width block fills its container whatever `box-sizing` says."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-overconstrained-margins
+  front: "How is an over-constrained block width resolved, and why does `margin: 0 auto` centre a fixed-width block?"
+  back: "The end-side margin is ignored (`margin-right` in left-to-right text). Two `auto` margins split the remaining space equally, which centres the block."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-height-auto-source
+  front: "Why does `box-sizing` matter in the block axis only when you set a height?"
+  back: "`height: auto` comes from the content, not from the container, so there is no equation for `box-sizing` to re-map until a height is specified."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-floated-columns-overflow
+  front: "Why did floated `width: 30%` and `width: 70%` columns with `padding: 24px` wrap under `content-box`?"
+  back: "They add up to `100% + 96px`, so the main column dropped below the sidebar. Under `border-box` the percentages just add up, with no `calc(30% - 48px)` that breaks when padding changes."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: box-content-box-still-useful
+  front: "When is `content-box` still the right choice?"
+  back: "When the content size is the contract, such as a `<textarea>` sized in `ch`, or a box whose padding is decorative and should grow it."
+  question: html-and-css/box-model-and-formatting/box-model-and-box-sizing
+- id: display-two-parts
+  front: "What two independent things does `display` set?"
+  back: "The outer type says how the box takes part in its parent's flow (`block` or `inline`). The inner type says which formatting context lays out its children (`flow`, `flow-root`, `flex`, `grid`, `table` or `ruby`)."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-outer-block-inline
+  front: "How do `block` and `inline` outer display types behave in the parent's flow?"
+  back: "`block` boxes stack in the block direction and, with `width: auto`, fill the container's inline size. `inline` boxes sit on lines with text."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-shorthand-pairs
+  front: "Which two-keyword pairs do `block`, `inline`, `flex`, `inline-block` and `inline-grid` stand for?"
+  back: "`block` is `block flow`, `inline` is `inline flow`, `flex` is `block flex`, `inline-block` is `inline flow-root`, and `inline-grid` is `inline grid`."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-flow-root-meaning
+  front: "What does the inner type `flow-root` mean, and what does `display: flow-root` alone compute to?"
+  back: "Normal flow layout that always establishes a new block formatting context. `display: flow-root` alone means `block flow-root`."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-multi-keyword-support
+  front: "Is two-keyword `display` valid, and how does `getComputedStyle()` serialize it?"
+  back: "It is valid CSS, shipped in Chrome 115, Firefox 70 and Safari 15. `getComputedStyle()` still serializes the short form: `inline flow-root` reads back as `inline-block`, and so does `el.style.display`."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-omitted-half-default
+  front: "What do omitted halves of `display` default to, and what does `list-item` add?"
+  back: "`display: inline` means `inline flow`. Adding `list-item` (`list-item`, `inline list-item`) also generates a `::marker` box."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-none-vs-contents
+  front: "How do `display: none` and `display: contents` differ?"
+  back: "Both generate no box. `none` drops the element and its whole subtree; `contents` drops only the element's own box and puts its children in its place. Neither changes the DOM, selector matching or inheritance."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-blockification
+  front: "What is blockification, and which boxes get it?"
+  back: "The parent context forces the outer type to `block` for flex and grid items, floats and absolutely positioned boxes. A `<span>` in a flex container computes to `display: block`, which is why `width` suddenly works."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-inline-block-blockified
+  front: "What does `inline-block` compute to when blockified?"
+  back: "Plain `block`, not `flow-root`. In Chrome 155 and Firefox 158, flex items and floats with `display: inline-block` printed `block`."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-semantics-unchanged
+  front: "Does `display` change an element's semantics, or lay out a replaced element's insides?"
+  back: "No to both. A `<ul>` with `display: flex` is still a list. A replaced element's inner display is outside CSS, so `display: flex` on an `<img>` lays out nothing inside it."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-contents-buttons
+  front: "What happened to a `<button>` with `display: contents` in Chrome 155 and Firefox 158?"
+  back: "It stayed in the accessibility tree but couldn't be focused by `focus()` or Tab. Avoid `display: contents` on interactive elements."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-contents-replaced
+  front: "What does `display: contents` compute to on `<img>`, `<input>`, `<select>` or `<video>`?"
+  back: "`none`. The spec computes it that way, so the element disappears instead of being unwrapped."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-inline-flex-item
+  front: "Does `display: inline` on a flex item keep it on the line?"
+  back: "No. Blockification overrides it; alignment comes from the flex container, not the item's outer type."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-inline-block-baseline-gap
+  front: "Why did a `50px` empty inline-block make its parent taller than `50px` in Chrome 155 and Firefox 158?"
+  back: "It is still on a line and sits on the baseline, with room for descenders below. The parent measured `54px` in Chrome 155 and `56px` in Firefox 158."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-block-vs-flow-root
+  front: "What is the difference between `display: block` and `display: flow-root`?"
+  back: "Both generate a block-level block container. `flow-root` always establishes a new BFC, so it contains floats and its margins don't collapse with its children's. `block` only does so when something else, like `overflow` or `float`, forces it."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-run-in
+  front: "What is `display: run-in`, and is it supported?"
+  back: "A Display 3 outer type for a heading that merges into the start of the next block. Chrome 155 and Firefox 158 don't support it: setting it is ignored and a `<div>` stays `block`."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: display-table-cell-in-grid
+  front: "What does `display: table-cell` compute to on a grid item?"
+  back: "`block`. Blockification turns layout-internal types into `flow`. The table display only takes effect when the parent isn't a flex or grid container."
+  question: html-and-css/box-model-and-formatting/display-outer-and-inner
+- id: bfc-definition
+  front: "What is a block formatting context, and what is the box that starts one called?"
+  back: "The layout environment for normal flow: blocks stack in the block direction, vertical margins between them collapse, and floats are placed and wrapped around. The box that starts a new one is a BFC root."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-contains-floats
+  front: "How does a BFC root treat its floating descendants?"
+  back: "It contains them. An `auto` height grows to the bottom of its floats, so a card with only a floated image doesn't collapse to `0`."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-avoids-floats
+  front: "How does a BFC root behave next to a float outside it?"
+  back: "Its border box sits beside the float in the same context and narrows to fit, instead of running underneath it."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-margins-dont-collapse-edge
+  front: "What happens to a first child's `margin-top` inside a BFC root?"
+  back: "Margins don't collapse across the root's edge, so the child's margin stays inside the root instead of leaking out through it."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-creators
+  front: "Name common ways to create a new block formatting context."
+  back: "The root element, `display: flow-root`, floats, absolute or fixed positioning, inline-blocks, table cells and captions, `overflow` other than `visible` or `clip`, flex and grid items, multi-column containers, and `contain: layout`, `paint` or `strict`."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-container-queries-align-content
+  front: "Which `container-type` values and `align-content` values create a BFC?"
+  back: "`container-type: size` or `inline-size`, and any `align-content` other than `normal` on a block container. `align-content: center` on a `<div>` also contains floats (Chrome 123, Firefox 125, Safari 17.4)."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-non-creators
+  front: "Which properties do not create a BFC?"
+  back: "`position: relative`, `transform`, `opacity`, `z-index`, `isolation` (they affect stacking, not layout), `overflow: clip`, and padding or borders, which stop margin collapsing but don't contain floats."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-overflow-hidden-vs-flow-root
+  front: "Why is `display: flow-root` better than `overflow: hidden` for clearing floats?"
+  back: "`overflow: hidden` works but also clips shadows and focus rings and creates a scroll container. `flow-root` is the purpose-built switch with no other effect."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-overflow-clip-no-bfc
+  front: "Why doesn't `overflow: clip` contain floats?"
+  back: "Overflow 3 says `clip` doesn't cause a new formatting context because it isn't a scroll container. Pair it with `display: flow-root` if you want both."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-body-overflow-propagation
+  front: "Does `overflow: hidden` on `<body>` contain floats?"
+  back: "Not when `<html>` is `overflow: visible`: the body's value propagates to the viewport and the body itself stays non-BFC. Its height was `0` around a `100px` float in Chrome 155 and Firefox 158."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-own-margins-still-collapse
+  front: "Do a BFC root's own margins stop collapsing?"
+  back: "No. They still collapse with its siblings: a `20px` margin and a `flow-root` box's `30px` margin left a `30px` gap."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-independent-formatting-context
+  front: "What is an independent formatting context?"
+  back: "CSS Display 3's general term: a box whose contents are laid out isolated from outside floats and margins. A block container that establishes one has a used inner display of `flow-root`; flex and grid containers establish flex and grid contexts instead."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-block-overlaps-float
+  front: "Why does an ordinary block overlap a float but a BFC root doesn't?"
+  back: "In a BFC, every block's border edge touches the containing block's edge, and only its line boxes shorten around floats. CSS 2.2 §9.5 requires a BFC root's border box not to overlap floats in the same context, so the whole box narrows."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-flex-container
+  front: "Does a flex container create a BFC?"
+  back: "No. It creates a flex formatting context, and each item establishes its own independent context. `float` on a flex item is ignored, so a flex container around a `100px` float is `100px` tall."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-containment-rules
+  front: "Which CSS 2.2 rules produce float containment, float avoidance and the margin wall of a BFC?"
+  back: "§10.6.7: an `auto`-height root includes floats' bottom margin edges. §9.5: a root's border box must not overlap floats in the same BFC. Margins collapse only within one context, so the root's edge is a wall."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-contain-size
+  front: "Does `contain: size` alone create a BFC?"
+  back: "No. Size containment alone didn't stop a child's margin escaping in Chrome 155 or Firefox 158; layout and paint containment do."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-floated-inline-block
+  front: "What happens to a floated `inline-block`'s BFC status?"
+  back: "It computes to `block`, losing `flow-root`, but the float itself makes it a BFC root, so nothing changes in layout."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-media-object
+  front: "How do you build a media object (floated avatar beside text) with BFCs and no clearfix?"
+  back: "Make the parent `display: flow-root` so it contains the float, and make the text column `display: flow-root` so it narrows beside the float instead of running underneath it."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-flow-root-support
+  front: "Since when has `display: flow-root` shipped, and what does it replace?"
+  back: "Chrome 58, Firefox 53 and Safari 13. It replaces the clearfix hack `::after { content: \"\"; display: table; clear: both }`, now needed only for older browsers."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: bfc-trigger-baggage
+  front: "What baggage do BFC triggers other than `flow-root` bring?"
+  back: "`overflow` clips and creates a scroll container, floats and absolute positioning leave the flow, `inline-block` puts the box on a line with a baseline gap, and `contain` changes painting and sizing assumptions."
+  question: html-and-css/box-model-and-formatting/block-formatting-context
+- id: margin-collapse-condition
+  front: "When do block-axis margins collapse?"
+  back: "When two or more adjoining margins belong to in-flow block-level boxes in the same BFC, with no line box, padding, border or clearance between them. They combine into one margin."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-horizontal-never
+  front: "Do horizontal margins collapse?"
+  back: "Never in horizontal writing. In vertical writing modes the block axis is horizontal, so those margins do."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-three-adjoining-cases
+  front: "Which three situations make margins adjoin?"
+  back: "Adjacent siblings, a parent and its first or last child, and an empty block whose own top and bottom margins collapse together (and can collapse with neighbours through it)."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-parent-child-leak
+  front: "What is the surprising parent and first-child margin collapse?"
+  back: "A child's `margin-top` collapses with its parent's when the parent has no top padding or border, so the child's margin appears outside the parent and pushes the parent down. The bottom case also needs the parent's height to be `auto`."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-collapse-arithmetic
+  front: "What is the collapsed margin of `30px` and `-10px`, and how is it computed in general?"
+  back: "`20px`. Take the largest positive margin and add the most negative one. `30px` and `20px` give `30px`; `-30px` and `-10px` give `-30px`."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-prevent-parent-child
+  front: "How do you stop a child's margin collapsing through its parent?"
+  back: "Give the parent padding or a border (even `1px`), or make it a BFC root with `display: flow-root`. A BFC's children never collapse with it. `clear` or inline content between the margins also separates them."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-flex-grid-no-collapse
+  front: "Do margins collapse in flex or grid layouts?"
+  back: "No. Items never collapse with each other or with the container, so `gap` or margins add up. A `30px` bottom and `20px` top margin gave a `50px` gap in a flex column, and the same in a grid."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-never-collapsing-boxes
+  front: "Which boxes never collapse their margins?"
+  back: "Floats, absolutely positioned boxes and inline-blocks. The root element's margins don't collapse either."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-heading-moves-card
+  front: "Why does adding `margin-top` to a heading inside a card move the card?"
+  back: "The heading's margin collapsed through the card's top edge. Give the card padding or `display: flow-root`."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-min-height-bottom
+  front: "Does a non-zero `min-height` block bottom margin collapsing in practice?"
+  back: "CSS 2.2 says it does, but Chrome 155 and Firefox 158 still collapsed a child's `20px` bottom margin through a parent with `min-height: 5px` and `10px` of content. Only a `min-height` that changed the height stopped it."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-siblings-larger-not-sum
+  front: "If both adjacent list items have margins, is the gap their sum?"
+  back: "No. Siblings get the larger of the two margins, not the sum."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-flow-root-own-margins
+  front: "Do the margins of a `display: flow-root` box itself collapse?"
+  back: "Yes, with its siblings and its own parent, because the box still takes part in the outer BFC. It only stops its children's margins from collapsing with its own."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-trim
+  front: "What is `margin-trim`, and who supports it?"
+  back: "A Box 4 property that drops children's margins where they meet the container's edge. `margin-trim: block` trimmed the first child's top and last child's bottom margin in Chrome 155 (shipped there and in Safari 16.4); Firefox 158 doesn't support it."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-one-direction
+  front: "Why do people advise setting margins in one direction only?"
+  back: "If every block sets only `margin-block-end` (or you use `gap` in flex and grid), there's never a pair to collapse and the spacing is predictable."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: margin-empty-block-flex
+  front: "A `10px` margin, an empty block with `20px 0 30px` margins, then a `-15px` margin: what is the gap in normal flow versus a flex column?"
+  back: "`15px` in normal flow: the empty block's margins collapse through it, so all four adjoin and the largest positive (`30px`) plus the most negative (`-15px`) wins. A flex column gave `45px`, the plain sum."
+  question: html-and-css/box-model-and-formatting/margin-collapsing
+- id: line-ifc-definition
+  front: "What is an inline formatting context and a line box?"
+  back: "A block container whose children are inline-level establishes an inline formatting context. Its content breaks into line boxes, stacked one per line, each as tall as needed to hold everything on it."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-inline-box-heights
+  front: "How tall is each inline-level box when computing a line box?"
+  back: "A text inline box is exactly its `line-height`: the content area (ascent plus descent) with the difference split as half-leading above and below. Replaced elements and inline-blocks use their margin box."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-vertical-align-default
+  front: "What does `vertical-align` do by default, and what does `top` align to?"
+  back: "Default `baseline` lines a box's baseline up with its parent's. `middle`, `text-top`, `sub` or a length shift it relative to the parent; `top` and `bottom` align to the line box itself."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-height-calculation
+  front: "How is the line box's height measured once boxes are aligned?"
+  back: "From the highest box top to the lowest box bottom."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-strut
+  front: "What is the strut?"
+  back: "An invisible, zero-width inline box at the start of every line with the block's own font and `line-height`. A line is never shorter than the block's `line-height`, and the baseline sits where the block's text would."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-image-gap
+  front: "Why is there a gap under an inline `<img>`?"
+  back: "The image sits on the baseline and the strut reserves room for descenders below it, so the block ends a few pixels below the image."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-image-gap-fixes
+  front: "How do you remove the gap under an image?"
+  back: "Take the image off the baseline or remove the strut's descent: `display: block`, `vertical-align: top | middle | bottom`, or `line-height: 0` on the parent."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-span-padding
+  front: "Do vertical padding and borders on an inline `<span>` affect the line box?"
+  back: "No. They paint but don't change the line box height. A span with `10px` padding and a `5px` border inside a `20px` line left the line at `20px`."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-vertical-align-applies-to
+  front: "Which boxes does `vertical-align` apply to?"
+  back: "Only inline-level boxes and table cells. It can't centre a block: a table cell's content moved down under `vertical-align: middle`, a `<div>`'s didn't."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-quirks-no-strut
+  front: "Why must you test the image gap with `<!DOCTYPE html>`?"
+  back: "In quirks and limited-quirks mode the strut isn't created, so the same canvas measured `100` instead of `105`. The gap only shows up in standards mode."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-font-size-zero
+  front: "Does `font-size: 0` remove the image gap when `line-height` is a length?"
+  back: "No. The strut keeps its `20px` height, centred on the baseline, so the block grew to `110px`. With a unitless `line-height` of `1.25`, `1.25 × 0` is `0` and the gap went away."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-height-length-vs-number
+  front: "Why prefer a unitless `line-height` on a container with mixed font sizes?"
+  back: "Children inherit a length like `20px` regardless of their size, while a unitless number scales with each element's own font."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-mixed-size-stagger
+  front: "Why does a line with a big `32px` span in `20px` line-height text grow?"
+  back: "Each box is `20px` tall, but the big letter's baseline sits lower in its box, so the boxes stagger vertically and the line grows (to `26px` in the example, depending on the monospace font)."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-inline-block-baseline
+  front: "Where is an inline-block's baseline?"
+  back: "On its last line box, unless it has no in-flow lines or `overflow` other than `visible`: then it's the bottom margin edge. A two-line inline-block made a `40px` line; with `overflow: hidden` the line grew to `45px`."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-text-box-trim
+  front: "How do you trim the space above capitals and below the baseline, and where is it supported?"
+  back: "`text-box: trim-both cap alphabetic` (CSS Inline 3; Chrome 133, Firefox 154, Safari 18.2) trims the first and last line to the cap height and baseline. A `16px/20px` paragraph went from `20px` to `12px` tall."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: line-vertical-align-middle
+  front: "What does `vertical-align: middle` actually align?"
+  back: "The box's midpoint with the parent's baseline plus half the parent's x-height: the middle of lowercase letters, not of the line box. That's why icons next to text often look a pixel or two off."
+  question: html-and-css/box-model-and-formatting/line-boxes-and-vertical-align
+- id: overflow-what-it-is
+  front: "When does content overflow, and what does the `overflow` shorthand cover?"
+  back: "When it extends past the box's padding edge: a long word, a fixed-height card, a wide table. `overflow` is shorthand for `overflow-x` and `overflow-y`."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-visible
+  front: "What does `overflow: visible` do, and is it a scroll container?"
+  back: "It is the initial value: overflow paints outside the box. It is not a scroll container."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-hidden
+  front: "What does `overflow: hidden` do, and can it still scroll?"
+  back: "It clips to the padding box with no scrollbars or user scrolling, but the box is still a scroll container. Script (`scrollTop`, `scrollIntoView()`) and focusing an element inside it can scroll it."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-scroll-auto
+  front: "How do `overflow: scroll` and `auto` differ?"
+  back: "`scroll` clips and always shows a scrolling mechanism. `auto` behaves like `scroll` when there's overflow and like `hidden` otherwise, which is usually what you want."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-clip
+  front: "What does `overflow: clip` do?"
+  back: "It clips to the overflow clip edge and forbids scrolling through any mechanism. It is not a scroll container."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-scroll-container-side-effects
+  front: "What side effects come from being a scroll container?"
+  back: "It establishes a new BFC (contains floats, stops margin collapsing), becomes the scrollport for `position: sticky` descendants, and can be scrolled by focus and `scrollIntoView()`. `clip` has none of these."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-sticky-breaks
+  front: "Why does `overflow-x: hidden` on a wrapper break `position: sticky` inside it?"
+  back: "The wrapper became a scroll container, so the sticky child sticks to it, not the page. It scrolled away at `-400px` while the same child under `overflow-x: clip` stayed at `0`."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-mixing-axes
+  front: "What happens to the other axis if only `overflow-x: hidden` is set?"
+  back: "If one axis is scrollable, `visible` in the other computes to `auto` and `clip` to `hidden`, so `overflow-y` becomes `auto`."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-clip-one-axis
+  front: "What is the reliable way to clip only one axis?"
+  back: "`overflow-x: clip`, which leaves `overflow-y: visible`."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-viewport-propagation
+  front: "Where does `overflow` on `<html>` or `<body>` go?"
+  back: "`overflow` on `<html>`, or on `<body>` when `<html>` is `visible`, is applied to the viewport instead of the element."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-hidden-focus-scroll
+  front: "Does `overflow: hidden` stop a carousel scrolling when a hidden button gets focus?"
+  back: "No. Focusing the third button in a `200px` track scrolled it in Chrome 155 and Firefox 158. With `clip`, `scrollLeft` stayed `0`, so a keyboard user focuses a button they can't see."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-hidden-clearing-floats-cost
+  front: "What is the cost of using `overflow: hidden` to clear floats?"
+  back: "It clips focus rings and shadows as a side effect. Use `display: flow-root` for containment."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-abs-child-not-clipped
+  front: "Does `overflow` clip an absolutely positioned child whose containing block is outside the box?"
+  back: "No. Clipping applies only to descendants whose containing block is the box or inside it."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-clip-margin
+  front: "What does `overflow-clip-margin` do, and who supports it?"
+  back: "It pushes the clip edge out from the box: `overflow: clip; overflow-clip-margin: 20px` lets content paint `20px` past the padding box, so shadows survive. No effect on `hidden`. Firefox 102 supports it; Chrome's support is partial (both axes must be `clip`)."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-scrollheight-padding
+  front: "Does a scroll container's end padding and child margin count in its scrollable area?"
+  back: "Yes in Chrome 155 and Firefox 158: a `100px` box with `20px` bottom padding around a `300px` child with a `50px` bottom margin had `scrollHeight` `370`. Overflow 3 lets UAs include those margins."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: overflow-body-hidden-clip
+  front: "Does `overflow: hidden` on `<body>` clip the body?"
+  back: "Not while `<html>` is `visible`: the value propagates to the viewport and the body's used value becomes `visible`. On the root it may also not clip everything outside a small initial containing block, which can happen on mobile."
+  question: html-and-css/box-model-and-formatting/overflow-and-scroll-containers
+- id: float-what-it-does
+  front: "What does `float: left` do to a box?"
+  back: "It takes the box out of normal flow and shifts it to that edge of its containing block, as high as it can go without overlapping earlier floats. `inline-start` and `inline-end` are the logical values."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-blockified-shrink
+  front: "How does a float's display and width behave?"
+  back: "Its `display` is blockified, and without an explicit width it is shrink-to-fit: as wide as its content needs."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-lines-vs-blocks
+  front: "How do following lines and blocks react to a float?"
+  back: "Line boxes shorten and flow beside it. Block boxes don't move: a paragraph starts at the container's edge underneath the float, and only its text is pushed aside. A BFC-establishing block narrows beside it instead."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-stacking-wrap-down
+  front: "What happens when the next float doesn't fit beside earlier ones?"
+  back: "It moves down to the first place it fits. In a `300px` container, `100px` and `150px` floats fill `250px`, so a third `100px` float lands at left `0`, below them."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-clear-clearance
+  front: "What does `clear` do and how is clearance added?"
+  back: "`clear: left | right | both` makes a block start below earlier floats on that side. The browser adds clearance above the block's top margin, enough to put its border edge below the float; the margin is absorbed into that space."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-clear-margin-absorbed
+  front: "What happens to `margin-top` on a cleared block?"
+  back: "It is swallowed by clearance. A `20px` margin had no effect and a `120px` one gave `120`. Put spacing on the float's `margin-bottom` instead."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-parent-doesnt-contain
+  front: "Does a parent grow to contain its floats?"
+  back: "Not unless it is a BFC root. The fix is `display: flow-root`."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-flex-grid-items
+  front: "What does `float` do on a flex or grid item?"
+  back: "Nothing. `float` doesn't apply to them and is silently ignored."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-still-useful
+  front: "Where do floats still belong, and what lets text follow a curve?"
+  back: "Wrapping text around an image, pull quote or figure in an article, which flex and grid can't do. `shape-outside` makes the text follow a circle, polygon or image alpha. Use flex or grid for page layout."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-paragraph-background
+  front: "Why does a paragraph's background run under a float, and how do you fix it?"
+  back: "Only its line boxes shorten, so its box and background keep the full width. Make the paragraph `display: flow-root` so it narrows instead."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-equal-height
+  front: "Why are floats a bad fit for equal-height columns?"
+  back: "Floats have no notion of a row. Use grid."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-shape-outside
+  front: "What does `shape-outside` change?"
+  back: "The float's exclusion area. `shape-outside: circle(50%)` on a `100px` float made the first `20px` line start at `90px` instead of `100px`. It affects only wrapping, not painting; add a matching `clip-path` or `border-radius` for the visuals."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-inline-start
+  front: "Why use `float: inline-start` instead of `left`?"
+  back: "It follows the writing direction: in a `direction: rtl` container it floated to the right edge. Shipped in Chrome 118, Firefox 55 and Safari 15."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: float-initial-letter
+  front: "Is floating still how you make a drop cap?"
+  back: "It was. `initial-letter` sizes and sinks the first letter properly and is supported in Chrome 110 and, prefixed, in Safari; Firefox doesn't support it, so a floated `::first-letter` remains the fallback."
+  question: html-and-css/box-model-and-formatting/floats-and-clear
+- id: intrinsic-min-content
+  front: "What are `min-content` and `max-content`?"
+  back: "`min-content` is the smallest size without overflow, taking every wrap opportunity (the longest word for text). `max-content` is the size the content wants with infinite room, taking none (all text on one line)."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-where-used
+  front: "Where can the intrinsic size keywords be used?"
+  back: "In `width`, `height`, `min-*`, `max-*`, `flex-basis` and grid tracks."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-width-min-max
+  front: "What do `width: min-content` and `width: max-content` do?"
+  back: "`min-content` wraps as much as possible, useful for a figure whose caption shouldn't be wider than its image. `max-content` never wraps and can overflow the container."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-fit-content
+  front: "How is `width: fit-content` defined, and what is it used for?"
+  back: "`min(max-content, max(min-content, available space))`: short content shrink-wraps, long content fills the container and wraps. It is how floats, inline-blocks and absolute boxes size by default. `fit-content; margin-inline: auto` centres a shrink-wrapped block."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-block-axis-keywords
+  front: "What do the intrinsic keywords mean in the block axis?"
+  back: "For ordinary blocks they equal `auto`, because height already comes from content. A block with a `37px` child and `height: min-content` was `37px`. They are mainly useful in the inline axis and in grid tracks."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-stretch
+  front: "What does `width: stretch` do, and who supports it?"
+  back: "It fills the containing block, margins included, as `width: auto` does for a block, but for boxes that would otherwise shrink-wrap. Chrome 138 and Safari 27 support it unprefixed; Firefox 158 only accepts `-moz-available` and `-webkit-fill-available`."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-stretch-fallback
+  front: "What happened with `width: stretch` on a floated box in Firefox 158?"
+  back: "Firefox ignored it and the box collapsed to `0px`. Declare `width: -moz-available` before it."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-aspect-ratio
+  front: "How does `aspect-ratio` size a box, and when is it ignored?"
+  back: "It sets a preferred ratio so one axis follows the other: `width: 320px; aspect-ratio: 16 / 9` gives `180px` of height. It is ignored when both sizes are set."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-aspect-ratio-min-content
+  front: "Why does an `aspect-ratio` box with tall content grow instead of overflowing?"
+  back: "Sizing 4 gives a non-replaced box that isn't a scroll container an automatic minimum of `min-content`. Add `overflow: auto` or `min-height: 0` to keep the ratio and let content overflow or scroll."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-wrap-opportunities
+  front: "How do `overflow-wrap: anywhere` and `break-word` affect `min-content`?"
+  back: "`anywhere` adds wrap opportunities and lowers `min-content` (a `193px` word shrank to one character, `10px`). `break-word` breaks long words only at layout time and doesn't change it."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-fit-content-function
+  front: "Is `width: fit-content(200px)` valid?"
+  back: "Only in grid track sizing in Chrome 155 and Firefox 158. On `width` it's dropped and the box stays `auto`."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-flex-grid-min
+  front: "Why won't flex and grid items shrink below their longest word?"
+  back: "They have an automatic minimum, `min-width: auto`, based on `min-content`."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-float-width
+  front: "How is an `auto`-width float sized?"
+  back: "Shrink-to-fit: `min(max(min-content, available), max-content)`, the same as `fit-content`. A float with three `50px` inline-blocks in a `120px` container was `120px` wide."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
+- id: intrinsic-fit-vs-auto
+  front: "How do `fit-content` and `auto` differ for a block holding one `50px` item in a `120px` container?"
+  back: "`fit-content` shrinks to `50px` around the item, while `auto` always fills at `120px`. With three `50px` items, `max-content` overflowed to `150` and `fit-content` capped at `120`."
+  question: html-and-css/box-model-and-formatting/intrinsic-sizing
