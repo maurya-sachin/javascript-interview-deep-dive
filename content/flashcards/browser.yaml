@@ -784,3 +784,376 @@
   front: "A pointer is captured in `pointerdown` (default prevented), dragged off the element and released. Which events log?"
   back: "`pointerdown, pointerup, lostpointercapture, click`. Capture sends `pointerup` and `click` to the element; canceling `pointerdown` suppresses `mousedown` and `mouseup` but not `click`. Puppeteer `page.mouse` in Chrome 156 and Firefox 159."
   question: browser/events/input-events
+# 03 The HTML event loop
+- id: loop-cycle
+  front: "What one cycle does the HTML event loop repeat, and is rendering part of it?"
+  back: "Pick a runnable task, run it, then perform a microtask checkpoint that drains every promise reaction and `queueMicrotask()` callback. Rendering is not part of that cycle."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-rendering-task
+  front: "How does rendering get scheduled relative to the event loop?"
+  back: "Whenever a document has a rendering opportunity, the browser queues a task on the rendering task source that runs *update the rendering*. Because it is a task, it competes with other task queues, and the spec doesn't fix its priority."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-rendering-opportunity
+  front: "What is a rendering opportunity?"
+  back: "A moment when the browser can actually present a new frame. The spec leaves the model to the browser: usually the display's refresh rate (about 16.7 ms at 60 Hz), lower when the page can't keep up, and much lower or never for hidden documents."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-rendering-order
+  front: "In what order does update the rendering run its main steps?"
+  back: "Resize and scroll steps; media query changes, then animation updates and events; `requestAnimationFrame` callbacks; style and layout, repeated while `ResizeObserver` callbacks change sizes; intersection observations, paint timing, then the actual screen update."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-task-before-frame
+  front: "If a task makes ten DOM writes, how many frames show them?"
+  back: "One, showing the final state. A task always finishes before a frame; nothing in between is ever painted."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-microtasks-block-rendering
+  front: "Can microtasks block rendering?"
+  back: "Yes. Microtasks finish before a frame, so a microtask that keeps queueing microtasks blocks rendering as surely as a `while` loop. Chaining microtasks to \"break up\" work doesn't help."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-long-task
+  front: "How does a long task affect rendering?"
+  back: "It delays the next frame: the rendering task can't start until the current task and its microtasks are done."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-rendering-skipped
+  front: "When can the browser skip rendering a document?"
+  back: "When it is hidden, render-blocked, or has nothing to repaint and no animation frame callbacks. Rendering happens only at rendering opportunities, not every loop iteration."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-forced-layout-no-paint
+  front: "Does reading `offsetWidth` inside a task paint?"
+  back: "No. It runs style and layout early, but painting still waits for update the rendering. It also doesn't fire `resize` or `scroll` events or run animation frame callbacks."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-loading-message
+  front: "Why doesn't a \"Loading…\" message set before a long synchronous job appear?"
+  back: "No rendering task can run until the current task ends, so it is never painted. Yield to the event loop first. In the exercise the frame showed `Saved`, never `Saving…`."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-timeout-vs-raf-order
+  front: "Does `setTimeout(fn, 0)` run before or after the next `requestAnimationFrame` callback?"
+  back: "The spec doesn't order a timer task against the rendering task. In headless Chrome 156 the timeout ran first in 60 of 60 trials; in headless Firefox 159 the animation frame callback ran first in 60 of 60."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-hidden-raf-spec
+  front: "Do `requestAnimationFrame` callbacks run in a hidden tab, by the spec?"
+  back: "No. Update the rendering filters out documents whose visibility state is `\"hidden\"`, so their callbacks wait until the page is visible again."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-intersection-resize-delivery
+  front: "Where do `IntersectionObserver` and `ResizeObserver` callbacks run?"
+  back: "`ResizeObserver` callbacks run inside the style-and-layout step itself. `IntersectionObserver` observations are computed in update the rendering after layout, but callbacks are delivered in a separate task queued from there."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-timers-back-to-back
+  front: "Can two timer callbacks run with no frame between them?"
+  back: "Yes. The spec lets the browser skip rendering, for example to coalesce timer callbacks so they run back to back with only microtask checkpoints between them."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-example-order
+  front: "In one task: `scrollTo`, a `ResizeObserver`, a rAF, a promise and a `scroll` listener. What is the order?"
+  back: "`task ends, microtask, scroll event, rAF, ResizeObserver`. The scroll event waits for the next frame's scroll steps, before animation frame callbacks; `ResizeObserver` delivers after layout. Chrome 156 and Firefox 159 agreed in three runs each."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-frame-timestamp
+  front: "What is `frameTimestamp` in update the rendering?"
+  back: "The last render opportunity time, recorded when the browser decided a navigable might have a rendering opportunity."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-document-ordering
+  front: "In what order are documents processed in update the rendering?"
+  back: "The fully active documents on the event loop, with an iframe's document after its parent and siblings in tree order. Same-origin iframes share their parent's event loop, so a slow iframe callback delays the parent's paint."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-document-filter
+  front: "Which documents does update the rendering filter out?"
+  back: "Non-renderable ones (render-blocked, hidden, suppressed for a view transition, or without a rendering opportunity now); unnecessary rendering (no visible effect expected and no animation frame callbacks); and any the browser prefers to skip."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-empty-stack-per-callback
+  front: "Is there a microtask checkpoint between callbacks inside update the rendering?"
+  back: "Yes. Every callback is invoked from an empty stack, so a checkpoint runs after each one. A promise resolved in a scroll listener settles before the animation frame callbacks start."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-throttled-opportunities
+  front: "What is the spec's example of throttled rendering opportunities?"
+  back: "A browser that can't sustain 60 Hz might drop a page to 30 opportunities per second, and a hidden page to 4 per second or fewer."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-spinner-fix
+  front: "How do you make feedback appear before a slow synchronous click job?"
+  back: "End the task after the feedback: run the slow part after `await scheduler.yield()`, or in a `setTimeout` queued from a `requestAnimationFrame` callback. Better still, move the parsing to a worker."
+  question: browser/html-event-loop/rendering-steps
+- id: loop-batching-tradeoff
+  front: "What does batching visual work into one step per frame cost?"
+  back: "The page has no way to flush a paint: the only way to show an intermediate state is to end the task and let a rendering opportunity arrive. Progress must be written as several tasks, and layout reads between writes force extra synchronous layouts."
+  question: browser/html-event-loop/rendering-steps
+- id: raf-what-it-does
+  front: "What does `requestAnimationFrame(callback)` do, and what does it return?"
+  back: "It adds the callback to the document's map of animation frame callbacks and returns a handle for `cancelAnimationFrame()`. It doesn't schedule a task; the callbacks run as one step of update the rendering."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-position-in-frame
+  front: "Where in a frame do `requestAnimationFrame` callbacks run?"
+  back: "After resize and scroll events, media query changes and CSS animation events, and before style recalculation, layout and paint. DOM writes made in a callback appear in that same frame."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-one-shot
+  front: "How does an animation loop with `requestAnimationFrame` continue?"
+  back: "Each call registers one callback for one frame, so the loop calls `requestAnimationFrame` again from inside its callback."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-snapshot
+  front: "What happens to callbacks requested or cancelled while a frame's callbacks run?"
+  back: "The browser takes the list of handles before running them. A callback requested during the run waits for the next frame; one cancelled during the run doesn't run, even if cancelled from an earlier callback."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-timestamp
+  front: "What timestamp do `requestAnimationFrame` callbacks receive?"
+  back: "The same `DOMHighResTimeStamp` for every callback in a frame: the time of the frame's rendering opportunity on the `performance.now()` clock, not the time the callback was called."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-microtasks-between
+  front: "What happens between `requestAnimationFrame` callbacks, and if one throws?"
+  back: "Each callback is invoked from an empty stack, so its promise reactions run before the next callback. A callback that throws is reported, and the rest still run."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-frame-rate
+  front: "How often do `requestAnimationFrame` callbacks run?"
+  back: "As often as the browser renders: about every 16.7 ms at 60 Hz, possibly faster on high-refresh displays, slower when the page can't keep up. It is not a fixed rate."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-hidden-observed
+  front: "How did hidden pages behave for `requestAnimationFrame` in the browsers tested?"
+  back: "With a headless page behind another tab, Chrome 156 ran no callbacks in 6 seconds; Firefox 159 still ran one every 1–2 seconds. The spec runs none for hidden documents."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-use-cases
+  front: "What is `requestAnimationFrame` for, and what needs no per-frame script?"
+  back: "Script-driven visual updates: canvas drawing, positions computed from input, batched DOM writes. Declarative motion such as CSS animations and transitions needs no per-frame script."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-fixed-distance
+  front: "Why is moving an object a fixed distance per `requestAnimationFrame` callback a bug?"
+  back: "Speed then depends on the display's refresh rate. Scale movement by the time since the previous frame's timestamp."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-timestamp-vs-now
+  front: "Is the `requestAnimationFrame` timestamp never later than `performance.now()`?"
+  back: "Not always. In headless Firefox 159 it was ahead by up to 0.7 ms in 49 of 120 frames; Chrome 156 never was."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-background-polling
+  front: "Why not use `requestAnimationFrame` to keep time or poll in the background?"
+  back: "Hidden pages get few or no frames. Use timers or events for non-visual work."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-read-write
+  front: "What goes wrong reading layout then writing styles for many elements in one rAF callback?"
+  back: "Each read after a write forces a synchronous layout. Read everything first, then write."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-after-paint
+  front: "How do you run code right after the next frame is painted?"
+  back: "Queue a task from a `requestAnimationFrame` callback, such as `setTimeout(fn, 0)`. That task can only start after the rendering task, paint included, has finished."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-vs-setinterval
+  front: "Why not animate with `setInterval(fn, 16)`?"
+  back: "Timers aren't aligned with rendering opportunities. Some frames get two updates and some none, so motion stutters, and the timer keeps running in hidden pages where nothing is drawn."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-in-workers
+  front: "Does `requestAnimationFrame` exist in workers?"
+  back: "Yes, in dedicated workers, for drawing to an `OffscreenCanvas`: Chrome 69, Firefox 99 and Safari 16.4."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-idle-cost
+  front: "Does a pending `requestAnimationFrame` callback cost anything when nothing changes?"
+  back: "Yes. A document with animation frame callbacks is never dropped as \"unnecessary rendering\", so an idle animation loop keeps the browser rendering every frame."
+  question: browser/html-event-loop/request-animation-frame
+- id: raf-cancel-example
+  front: "Callbacks A (cancelled before the frame), B (cancels C and requests another), C, D are registered. Which run?"
+  back: "`B, D`. `A` is cancelled before the frame. `C` is still in the frame's snapshot, but the algorithm skips any handle no longer in the map, so cancelling it from `B` works. Chrome 156 and Firefox 159 agreed."
+  question: browser/html-event-loop/request-animation-frame
+- id: timer-queues-task
+  front: "What does a timer actually do when its delay passes?"
+  back: "It queues a task. *Run steps after a timeout* waits at least the delay, optionally longer, then queues the callback on the timer task source. It never runs code at an exact time."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-waits-for
+  front: "What can delay a timer callback beyond its delay?"
+  back: "The running task and its microtasks (a 10 ms timer set before 200 ms of synchronous work runs after 200 ms); other queued tasks and rendering, since timers aren't top priority; the nesting clamp; and power-saving padding."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-nesting-clamp
+  front: "What is the timer nesting clamp?"
+  back: "After five nested levels, delays under 4 ms become 4 ms."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-hidden-padding
+  front: "How did timers behave in a hidden page in Chrome 156 and Firefox 159?"
+  back: "With a headless page hidden behind another tab, both ran a 100 ms interval once per second. The spec lets browsers wait \"a further implementation-defined length of time\"."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-intensive-throttling
+  front: "What is Chrome's intensive throttling?"
+  back: "After a page has been hidden for 5 minutes, chained timers wake at most once a minute (since Chrome 88). Pages that played sound in the last 30 seconds are spared any background throttling, and pages with live WebRTC connections are spared intensive throttling."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-delay-overflow
+  front: "What happens with a timer delay above 2,147,483,647 ms?"
+  back: "The delay is a Web IDL `long`, converted modulo 2³², so it wraps around, usually to a negative number, which is treated as 0. A 30-day timeout fires immediately; `Infinity` becomes 0 too."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-far-future
+  front: "How should you schedule work more than about 24.8 days away?"
+  back: "Not with one timer, since the delay wraps. Store the target time and re-check with shorter timers."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-interval-no-catchup
+  front: "If the main thread is blocked through several `setInterval` periods, how many times does the callback run?"
+  back: "Once when the thread is free, not once per missed period. A 100 ms interval blocked for 1,000 ms had `runs` equal to `1` at about 1,050 ms in Chrome 156 and Firefox 159."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-interval-rearm
+  front: "Do Chrome 156 and Firefox 159 follow the spec's interval re-arming exactly?"
+  back: "Neither follows it exactly: a 50 ms callback on a 100 ms interval still started every 100 ms in both."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-interval-after-block
+  front: "After a 100 ms interval is blocked for 1,050 ms, when is the next run in Chrome 156 versus Firefox 159?"
+  back: "It runs once about 1,050 ms in. Chrome 156 then went back to its original 100 ms grid (next run at 1,201 ms); Firefox 159 re-based on the late run (1,250 ms). Neither replayed the missed runs."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-use-for
+  front: "Are timers for \"not before\" or \"exactly at\", and what should you use instead for visuals and yielding?"
+  back: "\"Not before\", never \"exactly at\". For visual updates use `requestAnimationFrame`; for yielding, `scheduler.yield()`."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-clock-pitfall
+  front: "Why not build a clock by counting `setInterval` ticks?"
+  back: "Ticks are late, skipped while the thread is busy, and throttled in hidden pages. Derive time from `performance.now()` or `Date.now()`."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-background-polling
+  front: "Does a background tab keep polling at your interval?"
+  back: "No. Hidden pages get once-per-second wake-ups in Chrome 156 and Firefox 159, and Chrome cuts chained timers to once a minute after 5 minutes."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-settimeout-yield
+  front: "Why is `setTimeout(fn, 0)` a poor way to yield inside a long job?"
+  back: "Each yield queues behind every other task and hits the 4 ms clamp once nested. `scheduler.yield()` avoids both."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-bfcache
+  front: "Do timers count time while a page is in the back/forward cache?"
+  back: "No. On a `Window`, the spec waits until the document has been fully active for the delay, so time in the bfcache doesn't count."
+  question: browser/html-event-loop/timer-accuracy
+- id: timer-zero-delay
+  front: "Is `setTimeout(fn, 0)` ever 0 ms?"
+  back: "For an un-nested call it can be: from a message task, Chrome 156 measured 0 ms at its 0.1 ms clock resolution, and Firefox 159 0–2 ms at 1 ms resolution, over five runs each."
+  question: browser/html-event-loop/timer-accuracy
+- id: sched-problem
+  front: "What problem does the Prioritized Task Scheduling API solve?"
+  back: "The event loop runs one task at a time and lets the browser choose which queue to serve, but a page had no way to say which of its own tasks matter more."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-posttask
+  front: "What does `scheduler.postTask(callback, options)` return?"
+  back: "A promise for the callback's return value, rejected if the callback throws or the task is aborted."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-priorities
+  front: "What are the three `postTask()` priorities and the default?"
+  back: "`\"user-blocking\"` (work the user is waiting on), `\"user-visible\"` (the default) and `\"background\"` (logging, prefetching)."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-signal-delay
+  front: "What do the `signal` and `delay` options of `postTask()` do?"
+  back: "`signal` is an `AbortSignal` to cancel, or a `TaskSignal` from a `TaskController`, whose `setPriority()` moves pending tasks to a new priority and fires `prioritychange`. `delay` is milliseconds to wait before queueing."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-ordering
+  front: "How are scheduler tasks ordered among themselves, and against timers and rendering?"
+  back: "The highest priority runs first and ties go to the oldest. How they interleave with timers, messages, input and rendering is up to the browser; the spec suggests running `background` only when nothing else is waiting."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-yield
+  front: "What does `await scheduler.yield()` do?"
+  back: "It splits a long task: the rest of the function becomes a continuation task, so input handling and rendering get a turn first."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-yield-vs-timeout
+  front: "How is the `scheduler.yield()` continuation better than `setTimeout(fn, 0)`?"
+  back: "It runs one step above tasks of the same priority, so work queued meanwhile doesn't jump ahead; it inherits the priority and abort signal of its `postTask()` task (`user-visible` otherwise); and it isn't a timer, so no nesting clamp or hidden-page throttling."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-yield-example
+  front: "Task `other task` is queued at the same priority before a job's `yield()`. Which runs first?"
+  back: "`job part 2`, the continuation, ran before `other task`. Chrome 156 and Firefox 159 printed `user-blocking, user-visible, job part 1, job part 2, other task, background` in three runs each."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-messagechannel
+  front: "How did libraries yield before this API, and what does that lack?"
+  back: "With a `MessageChannel` message: no nesting clamp, but no priority either, so the continuation waits its turn like any other task."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-support
+  front: "Which browsers support the Scheduler API, and how do you feature-detect?"
+  back: "Chrome 94 and Firefox 142; `yield()` since Chrome 129 and Firefox 142. Safari has neither. Feature-detect with `'scheduler' in globalThis` and fall back to `setTimeout`."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-worker
+  front: "When does work belong in a worker rather than yielding?"
+  back: "When it is CPU-bound rather than input-bound."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-microtask-yield
+  front: "Does `await Promise.resolve()` or `queueMicrotask()` yield to input and rendering?"
+  back: "No. Microtasks run before rendering and input, so nothing is yielded."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-yield-cost
+  front: "How much slower was a loop of 100 awaited `setTimeout(0)` yields than `scheduler.yield()`?"
+  back: "394–428 ms in Chrome 156 and Firefox 159 (three runs each) because of the nesting clamp, versus 0–3 ms for `scheduler.yield()` and `MessageChannel`."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-cross-source-order
+  front: "Is the order of `postTask()` against timers and messages the same in every browser?"
+  back: "No. With a 0 ms timer, a message and three `postTask()` priorities queued together, Chrome 156 ran the timer and message before `user-visible`; Firefox 159 ran the timer last."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-abort-own-signal
+  front: "What happens aborting a task's own signal from inside its callback?"
+  back: "The task's promise is still pending at that point, so it rejects with an `AbortError` even though the callback ran."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-idle-callback-priority
+  front: "What priority does `scheduler.yield()` use inside a `requestIdleCallback` callback?"
+  back: "`background`. The scheduling spec patches idle callbacks to run with a fixed `background` priority, and the continuation inherits it."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-priority-survives-await
+  front: "Does the inherited priority survive other `await`s before the yield?"
+  back: "Yes. The spec stores the scheduling state with promise jobs, so a `yield()` after an awaited timer or `fetch()` inside a `background` task still yielded at `background` priority in Chrome 156 and Firefox 159."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-hidden-tab
+  front: "Does yielding slow down in a background tab like timers do?"
+  back: "No. In a headless page hidden behind another tab, 100 chained `scheduler.yield()` calls took 3–5 ms, while just 10 chained `setTimeout(0)` calls took 3.7 s in Chrome 156 and 9 s in Firefox 159."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-how-often-yield
+  front: "How often should a long job yield?"
+  back: "Often enough that no chunk blocks input for long, for example after each batch or whenever `performance.now()` shows several milliseconds since the last yield."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: sched-priority-example
+  front: "A `background` task A and its signal's `setPriority('user-blocking')`, a `user-visible` B, a `user-blocking` abort, then C on the same signal. What is the order?"
+  back: "`A, C: AbortError, B`. `setPriority()` lifts `A` and `C` to `user-blocking`; the oldest runs first: `A`, then the abort, which rejects `C` before it runs. `B` comes last. Chrome 156 and Firefox 159 agreed."
+  question: browser/html-event-loop/task-priority-and-scheduler
+- id: idle-what-it-does
+  front: "What does `requestIdleCallback(callback, { timeout })` do?"
+  back: "It asks the browser to run `callback` when its event loop is idle, and returns a handle for `cancelIdleCallback()`."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-period-start
+  front: "When does the event loop start an idle period?"
+  back: "Only when no task is runnable."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-deadline
+  front: "What is an idle period's deadline?"
+  back: "The earliest of: 50 ms after the period started (so input arriving mid-callback is handled within 100 ms); the next timer's due time; and the next expected frame, when animation frame callbacks or other rendering updates are pending."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-callback-order
+  front: "How do idle callbacks run within a period, and what about one registered during it?"
+  back: "Callbacks registered before the period started run in order, each as its own task, until the deadline passes. One registered during the period waits for the next period, so a callback can safely re-register itself."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-deadline-object
+  front: "What do `IdleDeadline.timeRemaining()` and `didTimeout` report?"
+  back: "`timeRemaining()` returns the milliseconds left, never negative; check it between small units of work. `didTimeout` is `true` when the callback ran because its `timeout` expired."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-no-guarantee-run
+  front: "Is an idle callback guaranteed to run, and what does `timeout` change?"
+  back: "No: a page that always has a task queued may never be idle, and the spec accepts postponing \"for a potentially unbounded amount of time\". Once `timeout` expires, a task runs it with `didTimeout` `true` and `timeRemaining()` `0`."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-hidden-throttle
+  front: "How often may idle periods occur for hidden pages?"
+  back: "The spec suggests browsers throttle them to one every 10 seconds. Observed with a headless hidden page, Chrome 156 ran a self-re-registering callback about 20 times a second and Firefox 159 about once a second."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-budget-observed
+  front: "How much time budget did idle callbacks get in the browsers tested?"
+  back: "In three headless runs, Chrome 156 gave 50 ms on an idle page and about 16 ms with an animation running; Firefox 159 never gave more than 8.6 ms."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-use-cases
+  front: "What is `requestIdleCallback` for, and what should you avoid in it?"
+  back: "Work that can wait: analytics, prefetching, cache warming. Avoid DOM changes: their style and layout cost is hard to predict, so prepare the change there and apply it in a `requestAnimationFrame` callback."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-safari
+  front: "Is `requestIdleCallback` available in Safari?"
+  back: "Only in Technology Preview, behind a flag. Feature-detect and fall back to `setTimeout`."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-must-happen-work
+  front: "Why not use idle callbacks for work that must happen, like saving before the user leaves?"
+  back: "Without `timeout` they may never run. Flush on `visibilitychange` instead."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-deadline-advisory
+  front: "What happens if an idle callback ignores `timeRemaining()` and runs a 200 ms job?"
+  back: "The deadline is advisory, so the job blocks input exactly like any other long task. Split it and re-register."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-timeout-callback
+  front: "What should a callback do when `didTimeout` is `true`?"
+  back: "`timeRemaining()` is 0, so do the minimum and re-register the rest."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-timeout-example
+  front: "With a task always queued for 500 ms, in what order do a plain idle callback and one with `{ timeout: 100 }` run?"
+  back: "The `timeout` callback was forced to run first, with `didTimeout=true` and `timeRemaining=0`; the plain one waited until the message tasks stopped. Chrome 156 and Firefox 159 agreed in three runs each."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-vs-posttask
+  front: "How does `requestIdleCallback` compare with `scheduler.postTask(fn, { priority: 'background' })`?"
+  back: "`postTask` gives a promise, abort signals and priority changes, and doesn't wait for an idle period, but gives no deadline. It's unavailable in Safari too."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-heavy-computation
+  front: "Is a heavy computation a good fit for an idle callback?"
+  back: "Only if it can be cut into small slices. A computation that can't be split belongs in a worker, which leaves the main thread free."
+  question: browser/html-event-loop/request-idle-callback
+- id: idle-order-example
+  front: "With an idle callback, `setTimeout` 20, `setTimeout` 0 and a promise, what is the order, and what caps `timeRemaining()`?"
+  back: "`microtask, timeout 0, idle (true), timeout 20`. The idle period starts only once no task is runnable, so the 0 ms timer goes first. Its deadline is capped by the pending 20 ms timer, so `timeRemaining()` is at most 20. Chrome 156 and Firefox 159 agreed."
+  question: browser/html-event-loop/request-idle-callback
