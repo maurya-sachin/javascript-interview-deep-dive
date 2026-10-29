@@ -1,6 +1,6 @@
 # 04 — The rendering pipeline
 
-> **Status:** 🔴 planned · **Published:** 0/0 · **Last verified:** —
+> **Status:** 🔴 planned · **Published:** 0/5 · **Last verified:** —
 
 How bytes become pixels: parsing, style, layout, paint and compositing, how scripts and style sheets block the parser or rendering, and which operations force layout.
 
@@ -17,17 +17,22 @@ After this chapter you can:
 
 Coverage checklist: each concept points to the questions covering it; `→ —` marks a gap.
 
-- Parse, style, layout, paint, composite; the render tree; first paint → —
-- Classic, `defer`, `async` and module scripts; execution order; `document.write()` → —
-- Parser-blocking vs render-blocking; script-blocking style sheets; the preload scanner; `blocking="render"` → —
-- Style and layout invalidation; forced synchronous layout; which reads flush layout → —
-- Paint vs composite; compositor layers; why `transform` and `opacity` skip layout and paint → —
+- Parse, style, layout, paint, composite; the render tree; first paint → 010
+- Classic, `defer`, `async` and module scripts; execution order; `document.write()` → 020
+- Parser-blocking vs render-blocking; script-blocking style sheets; the preload scanner; `blocking="render"` → 030
+- Style and layout invalidation; forced synchronous layout; which reads flush layout → 040
+- Paint vs composite; compositor layers; why `transform` and `opacity` skip layout and paint → 050
 
 ## Questions
 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
+| 010 | [How does the browser turn HTML and CSS into pixels?](010-pixel-pipeline.md) | medium | 🔴 planned |
+| 020 | [How do `defer`, `async`, and module scripts change loading and execution order?](020-script-loading.md) | medium | 🔴 planned |
+| 030 | [What blocks the parser, and what blocks rendering?](030-parser-and-render-blocking.md) | medium | 🔴 planned |
+| 040 | [Which DOM reads force a synchronous layout, and why?](040-forced-synchronous-layout.md) | medium | 🔴 planned |
+| 050 | [What is compositing, and why do `transform` and `opacity` animate cheaply?](050-compositing.md) | medium | 🔴 planned |
 <!-- generated:questions:end -->
 
 ## Sources
