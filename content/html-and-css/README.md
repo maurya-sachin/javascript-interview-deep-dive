@@ -1,5 +1,6 @@
 # HTML and CSS
 
+> **Covers:** Chrome 155–156 and Firefox 158–159 on macOS; Safari from compat data only
 > **Track:** Frontend
 > **Status:** 🔴 planned · **Published:** 0/61 · **Last verified:** —
 
