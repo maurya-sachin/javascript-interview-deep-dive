@@ -403,3 +403,537 @@
   front: "Is styling with `[data-state=\"open\"]` fine?"
   back: "Yes for state your script owns, since the selector and `dataset` value stay in one place. Prefer a native attribute or pseudo-class (`[open]`, `:checked`, `:disabled`) when one exists."
   question: html-and-css/documents-and-semantics/global-attributes
+
+# 02 Forms, dialog and popover
+- id: submit-algorithm-order
+  front: "In what order does the browser run a form submission?"
+  back: "Trigger and submitter, validation, the cancelable `submit` event, building the entry list (then `formdata`), encoding, then navigation to `action`."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-submitter-none
+  front: "What is the submitter of a form submission, and what if no button caused it?"
+  back: "The button that triggered it, available as `event.submitter`. With no button, the submitter is the form itself."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-skip-validation
+  front: "How do you skip constraint validation on submit?"
+  back: "Put `novalidate` on the form, or `formnovalidate` on the submitting button."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-event-traits
+  front: "What are the traits of the `submit` event?"
+  back: "It bubbles, is cancelable and carries `event.submitter`. `preventDefault()` there is how script takes over the submission."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: entry-list-exclusions
+  front: "Which controls are left out of the form's entry list?"
+  back: "Disabled controls, controls with no `name` or an empty one, unchecked checkboxes and radios, and buttons other than the submitter."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: checkbox-no-value-on
+  front: "What does a checked checkbox with no `value` attribute submit?"
+  back: "`on`. A `select` sends each selected option."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: formdata-event
+  front: "What is the `formdata` event for?"
+  back: "It fires after the entry list is built, so script can add entries."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: get-replaces-query
+  front: "What happens to a query string in a GET form's `action`, like `/search?lang=en`?"
+  back: "The form's entries replace the whole query, so `lang` is not sent."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: post-enctypes
+  front: "Which three `enctype` values can a POST form use, and which is the default?"
+  back: "`application/x-www-form-urlencoded` (default), `multipart/form-data` and `text/plain`."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: file-upload-enctype
+  front: "What is sent for a file input without `enctype=\"multipart/form-data\"`?"
+  back: "Only the file's name. Only multipart sends file contents."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: method-dialog-submit
+  front: "What does a form with `method=\"dialog\"` do on submit?"
+  back: "It sends nothing and closes the enclosing `<dialog>`."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-vs-requestsubmit
+  front: "How do `form.submit()` and `form.requestSubmit()` differ?"
+  back: "`submit()` skips validation and the `submit` event, so listeners don't run. `requestSubmit(submitter)` runs everything exactly like a click, and throws a `TypeError` if the argument isn't a submit button."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: formdata-submitter-arg
+  front: "How do you keep the clicked button's `name` and `value` when building `FormData` in a `submit` handler?"
+  back: "Pass the submitter: `new FormData(form, event.submitter)`. It shipped in Chrome 112, Firefox 111 and Safari 16.4."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: disabled-vs-readonly-submit
+  front: "How do you show a value the user can't edit but still submit it?"
+  back: "Use `readonly` on inputs and textareas. It doesn't apply to `select` or checkboxes, so pair those with a hidden input. Disabled controls are skipped by definition."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: enter-implicit-submission
+  front: "When does pressing Enter in a text field submit a form?"
+  back: "Enter clicks the form's default button, its first submit button in tree order; if that is disabled, nothing happens. With no submit button, the form submits only if it has at most one blocking field."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: implicit-submit-no-button-submitter
+  front: "What is `event.submitter` when Enter submits a form that has one text field and no button?"
+  back: "`null`. With two or more fields that block implicit submission, nothing happens. Chrome 155 and Firefox 158 matched this."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: text-plain-enctype
+  front: "Why is `text/plain` encoding rarely useful?"
+  back: "It writes `name=value` lines with no escaping, so a name containing `=` or a value containing a line break can't be parsed back reliably. The standard says it's meant for humans to read."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-reentry-flags
+  front: "How does the submit algorithm stop a `submit` listener calling `requestSubmit()` from starting a second submission?"
+  back: "A *firing submission events* flag guards against re-entry; a *constructing entry list* flag does the same for `formdata` listeners."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-marks-user-validity
+  front: "Why does `:user-invalid` start matching after a failed submit?"
+  back: "Before validating, the submit algorithm marks every control's user validity true."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: submit-planned-navigation
+  front: "What happens if you call `requestSubmit()` twice in the same task?"
+  back: "One request, carrying the second call's data. Navigation is queued as a task, and a second submission of the same form before it runs removes the first. Both browsers did this."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: image-button-coordinates
+  front: "What does an image submit button send?"
+  back: "Its click coordinates as `name.x` and `name.y`."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: empty-file-multipart
+  front: "What does an empty file input send in a multipart form?"
+  back: "Still a part, with `filename=\"\"` and type `application/octet-stream`."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: charset-hidden-input
+  front: "What does `<input type=\"hidden\" name=\"_charset_\">` submit?"
+  back: "The name of the encoding used as its value. `accept-charset` picks the encoding; without it the document's encoding is used."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: form-linebreaks-crlf
+  front: "How are line breaks in form names and values encoded?"
+  back: "Normalised to CRLF before encoding."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: fetch-formdata-body-encoding
+  front: "What content type does `fetch` send with a `FormData` body versus `new URLSearchParams(data)`?"
+  back: "`FormData` sends `multipart/form-data`, unlike a plain POST form. Wrapping it in `URLSearchParams` sent `application/x-www-form-urlencoded;charset=UTF-8` in both browsers."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: get-vs-post-tradeoff
+  front: "What are the trade-offs of GET versus POST form submission?"
+  back: "GET is shareable, bookmarkable and cacheable but visible in history, server logs and the next page's `Referer`; use it for searches and filters. POST keeps data out of the URL and suits anything that changes state."
+  question: html-and-css/forms-dialog-popover/form-submission
+- id: type-sanitisation
+  front: "What does the input `type` define beyond the widget?"
+  back: "Its value sanitisation algorithm and its own validity checks. An unknown type falls back to `text`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: number-sanitisation
+  front: "What does `type=\"number\"` do with a value that isn't a valid floating-point number?"
+  back: "`value` becomes `\"\"`. For example `\"12abc\"` and `\"1,5\"` are emptied, since the decimal separator is always `.`; `\"1e3\"` is kept and `valueAsNumber` is `1000`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: email-trim
+  front: "What does `type=\"email\"` do to surrounding whitespace?"
+  back: "It strips it from `value`. `email` and `url` flag malformed values as a type mismatch."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: tel-search-like-text
+  front: "Does `type=\"tel\"` validate phone numbers?"
+  back: "No. `tel` and `search` behave like `text`; there is no format check because phone formats vary."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: number-only-quantities
+  front: "When should you use `type=\"number\"`?"
+  back: "Only for quantities. The standard's test is whether up and down arrows would make sense; for card numbers or postal codes they don't, so use `text`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: number-for-card-pitfall
+  front: "What goes wrong with `type=\"number\"` for card numbers or postal codes?"
+  back: "It accepts `1e3`, offers a spinner, and `valueAsNumber` turns `\"02134\"` into `2134`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: inputmode-purpose
+  front: "What does `inputmode` do, and what doesn't it do?"
+  back: "It picks the virtual keyboard only. It doesn't validate or sanitise; `pattern` or script has to restrict input. Values: `none`, `text`, `decimal`, `numeric`, `tel`, `email`, `url`, `search`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: enterkeyhint
+  front: "What does `enterkeyhint` do?"
+  back: "It labels the Enter key on virtual keyboards: `enter`, `done`, `go`, `next`, `previous`, `search` or `send`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: card-number-recipe
+  front: "How do you mark up a card number field?"
+  back: "`type=\"text\"` with `inputmode=\"numeric\"` and `autocomplete=\"cc-number\"`, not `type=\"number\"`. Add `pattern=\"[0-9]*\"` for validation."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: autocomplete-token-order
+  front: "What is the structure of an `autocomplete` token list?"
+  back: "An optional `section-*` group, an optional `shipping` or `billing`, then a field name such as `email`, `street-address`, `postal-code`, `cc-number` or `one-time-code`. A trailing `webauthn` offers saved passkeys."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: autocomplete-off-form-default
+  front: "What does `autocomplete=\"off\"` mean, and what does a control without the attribute use?"
+  back: "`off` marks a value as sensitive or never reused. A control without the attribute takes its form's `on` or `off` state."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: autocomplete-invalid-token
+  front: "What does the IDL `autocomplete` return for an invented token like `autocomplete=\"nope\"`?"
+  back: "`\"\"` in both Chrome 155 and Firefox 158, so the browser treats it as no valid value. Use `off` or a real field name."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: autocomplete-idl-lowercase
+  front: "What does the `autocomplete` IDL property return for `autocomplete=\"Shipping Postal-Code\"`?"
+  back: "`shipping postal-code`: the valid tokens, lower-cased."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: number-badinput-browsers
+  front: "How do Chrome 155 and Firefox 158 differ for letters typed into a number field?"
+  back: "Firefox kept the typed letters and set `validity.badInput`; Chrome dropped the letters as they were typed. When the text isn't a number, `value` is `\"\"`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: email-a-at-b
+  front: "Why does `type=\"email\"` accept `a@b`?"
+  back: "The standard's valid-email grammar requires an `@` with text on both sides, but the domain needs no dot, so intranet addresses pass. `ab` is a type mismatch. Real checks belong on the server."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: new-vs-current-password
+  front: "What is the difference between `current-password` and `new-password`?"
+  back: "`current-password` is the password for the account in the username field, as when logging in; `new-password` is one being created or changed. A password manager fills a saved password into one and not the other."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: form-autocomplete-idl
+  front: "What does `autocomplete` on `<form>` set, and what does an input's IDL property report?"
+  back: "It sets the default for controls without their own `autocomplete`. The control's IDL property reflects only its own attribute: an input in `<form autocomplete=\"off\">` reported `\"\"`."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: pattern-vs-inputmode-space
+  front: "Did `inputmode` change the value or validity of `4242 4242` typed in a `cc-number` field with `pattern=\"[0-9]*\"`?"
+  back: "No. `inputmode` left `value` untouched; only `pattern` caught the space, giving `patternMismatch` true."
+  question: html-and-css/forms-dialog-popover/input-types-and-autofill
+- id: button-type-keywords
+  front: "What are a button's `type` keywords, and what is a missing or invalid value?"
+  back: "`submit`, `reset` and `button`. A missing or invalid value is the Auto state, which is a submit button unless it has `command` or `commandfor`."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: button-default-submit-reason
+  front: "Why does `<button>Save</button>` in a form submit it?"
+  back: "Submitting is the historical default, kept for compatibility. Always write `type`; `type=\"button\"` does nothing by default and `type=\"reset\"` restores every control to its default value."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: form-owner-definition
+  front: "What is a control's form owner?"
+  back: "Its nearest ancestor `<form>`, unless it has a `form` attribute naming a form by `id` anywhere in the same document. `element.form` returns it."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: form-attribute-elements
+  front: "Does `form.elements` include controls attached with the `form` attribute?"
+  back: "Yes. That lets a button or input sit outside the form's markup, for example in a sticky footer."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: forms-cannot-nest
+  front: "What does the parser do with a `<form>` start tag inside another form?"
+  back: "It ignores it. Forms can't nest."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: form-override-attributes
+  front: "Which attributes let a submit button override the form for its own submissions?"
+  back: "`formaction`, `formmethod`, `formenctype`, `formtarget` and `formnovalidate`. They apply to `<button>` and `<input type=\"submit\">` or `\"image\"` submit buttons."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: form-override-non-submit
+  front: "What happens with `formaction` on a `type=\"button\"` or `type=\"reset\"` button?"
+  back: "Nothing changes. These attributes apply only to submit buttons."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: button-name-value-clicked-only
+  front: "Which button's `name` and `value` are sent on submit?"
+  back: "Only the button that was clicked, so one form can offer Save draft and Publish with different endpoints and rules."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: popovertarget-in-form
+  front: "What happens to a type-less button with `popovertarget` inside a form?"
+  back: "It is a submit button, so it submits and the popover doesn't open. Add `type=\"button\"`."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: commandfor-in-form
+  front: "What happens to a type-less button with `commandfor` inside a form?"
+  back: "Nothing at all: the standard returns early for Auto buttons that have a form owner. Chrome 155 logs a console warning."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: button-type-idl
+  front: "What does `button.type` return for a button without the attribute?"
+  back: "`\"submit\"` if it is a submit button, otherwise `\"button\"`. A type-less button with `commandfor` reported `\"button\"` even in a form; one with only `popovertarget` reported `\"submit\"`."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: button-vs-input-submit
+  front: "How do `<button>` and `<input type=\"submit\">` differ?"
+  back: "Submission behaviour is the same. `<input>`'s `value` is both its label and the value sent; `<button>` can contain markup such as an icon and keeps its label separate from its `value`."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: destructive-first-button
+  front: "Why avoid ordering a destructive submit button first in a form?"
+  back: "Pressing Enter in a field clicks the form's first submit button in tree order."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: invoker-commands-support
+  front: "In which browser versions did `command` and `commandfor` ship?"
+  back: "Chrome 135, Firefox 144 and Safari 26.2."
+  question: html-and-css/forms-dialog-popover/button-types-and-form-owner
+- id: candidate-for-validation
+  front: "Which controls are candidates for constraint validation?"
+  back: "Submittable controls that aren't barred: disabled, `readonly`, hidden inputs and non-submit buttons are barred. `willValidate` tells you which."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: validitystate-flags
+  front: "Which `ValidityState` flags do `required`, `type`, `pattern`, `maxlength` and `min`/`max`/`step` set?"
+  back: "`valueMissing` (`required`), `typeMismatch` (`email`, `url`), `patternMismatch`, `tooLong` and `tooShort`, `rangeUnderflow`, `rangeOverflow` and `stepMismatch`."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: badinput-flag
+  front: "What does the `badInput` validity flag mean?"
+  back: "The user entered text the browser can't convert, such as letters in a number field."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: checkvalidity-vs-reportvalidity
+  front: "How do `checkValidity()` and `reportValidity()` differ?"
+  back: "Both fire a cancelable, non-bubbling `invalid` event at each failing control. `reportValidity()` also shows the browser's message for a control whose event wasn't cancelled; both browsers focused the first such control."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: invalid-event-bubbles
+  front: "Why must a form-level `invalid` listener use `capture: true`?"
+  back: "The `invalid` event doesn't bubble."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: invalid-blocks-submit
+  front: "What happens when you submit a form with an invalid control?"
+  back: "The interactive validation runs: no `submit` event fires and nothing is sent."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: setcustomvalidity-persists
+  front: "How long does `setCustomValidity(message)` last?"
+  back: "Until you call `setCustomValidity(\"\")`, the only way to clear it. Set once and never cleared, the field stays invalid and the form can't be submitted."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: custom-error-ui
+  front: "How do you replace the browser's validation bubble with your own error UI?"
+  back: "Listen for `invalid` in the capture phase, call `preventDefault()` to suppress the bubble, and render `validationMessage` yourself."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: user-invalid-vs-invalid
+  front: "Why style `:user-invalid` instead of `:invalid`?"
+  back: "`:invalid` matches from page load, so empty required fields look wrong before anyone touches them. `:user-invalid` matches only after the user has changed and left the field, or tried to submit."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: user-invalid-script-value
+  front: "Does a script-set value turn on `:user-invalid`?"
+  back: "No. User validity becomes true on a committed user change, on blur after a user change, on a `<select>` selection change, and for every control when submission is attempted. Resetting the form clears it."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: validation-server-too
+  front: "Is native constraint validation enough on its own?"
+  back: "No. It is a usability layer only; the server must still validate."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: pattern-anchored-v-flag
+  front: "How is the `pattern` attribute compiled?"
+  back: "With the `v` flag and anchored as `^(?:pattern)$`, so `[0-9]{3}` fails for `1234`. A pattern like `[\\w-]+` is a syntax error in `v` mode (the `-` needs escaping) and the control then has no pattern constraint at all."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: maxlength-script-value
+  front: "Does setting `value` from script longer than `maxlength` make the field invalid?"
+  back: "No. `tooLong` and `tooShort` apply only when the value was last changed by a user edit. After `max.value = \"abcdef\"` on a `maxlength=\"3\"` input, `tooLong` was `false` in both browsers."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: disabled-field-validation
+  front: "Do disabled fields block form submission?"
+  back: "No. They are barred from constraint validation (`willValidate` is `false`) and left out of submitted data. Some flags are still computed, but `required` never flags one because it needs a mutable field."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: validation-message-browsers
+  front: "What is `validationMessage`, and do browsers word it the same?"
+  back: "Your custom message if set, otherwise the browser's localised string. For an empty required field Chrome 155 returned \"Please fill in this field.\" and Firefox 158 \"Please fill out this field.\""
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: static-vs-interactive-validation
+  front: "What is the difference between statically and interactively validating a form?"
+  back: "Static validation collects failing controls and fires `invalid` at each; `checkValidity()` stops there. Interactive also reports the problem for at least one unhandled control and may focus it; `reportValidity()` and submission use it."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: all-invalid-cancelled-focus
+  front: "What happens when every `invalid` event is cancelled on submit?"
+  back: "Submission is still blocked, but the browser has nothing to report, so it doesn't move focus. In both browsers focus stayed on the clicked button; your handler must focus the first invalid field."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: required-radio-group
+  front: "How does `required` work on radio buttons?"
+  back: "It applies to the whole group: one checked radio in the group satisfies every member."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: custom-elements-validity
+  front: "How do custom elements take part in constraint validation?"
+  back: "Through `ElementInternals.setValidity()`, which sets the same flags."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: novalidate-tradeoff
+  front: "What does `novalidate` keep and remove?"
+  back: "It turns off the automatic check on submit while keeping the whole API, which suits forms that call `reportValidity()` or run their own checks before sending with `fetch`."
+  question: html-and-css/forms-dialog-popover/constraint-validation
+- id: dialog-hidden-until-open
+  front: "When is a `<dialog>` visible?"
+  back: "Only while it has the `open` attribute. Don't remove `open` by hand: no `close` event fires and a modal dialog leaves the page blocked."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: show-vs-showmodal
+  front: "How do `show()` and `showModal()` differ?"
+  back: "`show()` opens non-modally: the page stays interactive and Escape doesn't close it by default. `showModal()` puts it in the top layer with a `::backdrop`, makes the rest of the document inert, lets Escape close it, and matches `:modal`."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: dialog-focus-handling
+  front: "Where does focus go when a dialog opens and closes?"
+  back: "Into the dialog (its `autofocus` descendant, otherwise its first focusable element). Closing returns focus to whatever had it before."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: close-vs-requestclose
+  front: "How do `close(value)` and `requestClose(value)` differ?"
+  back: "`close()` closes immediately. `requestClose()` first fires a cancelable `cancel` event, exactly as Escape does, so one `cancel` handler covers every route. It shipped in Chrome 134, Firefox 139 and Safari 18.4."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: method-dialog-returnvalue
+  front: "What does a `<form method=\"dialog\">` inside a dialog do?"
+  back: "On submit it closes the dialog instead of sending a request, and the submit button's `value` becomes `returnValue`. Validation still runs first."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: returnvalue-persistence
+  front: "When is `returnValue` updated, and is it reset on reopening?"
+  back: "Only when a value is given, and it isn't reset when the dialog reopens, so reset it yourself before `showModal()`."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: dialog-close-event-timing
+  front: "When does the dialog's `close` event fire?"
+  back: "As a separate queued task after closing, so `open` is already `false` and code after `close()` sees that before any `close` listener runs."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: closedby-values
+  front: "What do the `closedby` values mean?"
+  back: "`any`: Escape or a click outside. `closerequest`: Escape only, the modal default. `none`: the non-modal default. `requestClose()` ignores it. Chrome 134 and Firefox 141 support it; Safari doesn't yet."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: dialog-invoker-commands
+  front: "Which `command` values drive a dialog without script?"
+  back: "With `commandfor=\"id\"`: `show-modal`, `close` and `request-close`. Chrome 135, Firefox 144 and Safari 26.2."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: returnvalue-no-value-button
+  front: "What happens to `returnValue` when a `method=\"dialog\"` button has no `value`?"
+  back: "The standard leaves it unchanged. Chrome 155 kept the previous value; Firefox 158 set it to `\"\"`. Give every closing button a `value`."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: escape-returnvalue-browsers
+  front: "What does `returnValue` read after Escape closes a dialog that earlier returned `\"delete\"`?"
+  back: "Firefox 158 still reads `\"delete\"`, as the standard says. Chrome 155 sets it to `\"\"` on Escape, but keeps it for `requestClose()` and light dismiss."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: close-no-argument-returnvalue
+  front: "What do `close()` and `requestClose()` with no argument do to `returnValue`?"
+  back: "Keep the previous value in both browsers."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: dialog-cancel-button-formnovalidate
+  front: "Why might Cancel fail to close a `method=\"dialog\"` form containing a `required` field?"
+  back: "Submission validates first. Add `formnovalidate` to the Cancel button."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: showmodal-scroll
+  front: "Does `showModal()` stop the page scrolling behind it?"
+  back: "No. Inert stops interaction, not scrolling; both browsers scrolled the page on a wheel event. Use `html:has(dialog:modal) { overflow: hidden; }`, which kept `scrollY` at 0."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: cancel-preventdefault-trap
+  front: "Can `cancel.preventDefault()` trap the user in a dialog?"
+  back: "Not for long. The standard allows preventing an Escape close only while the page has history-action user activation, so a second Escape with no click in between closes it anyway. Firefox 158 did this."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: showmodal-invalidstate
+  front: "When does `showModal()` throw an `InvalidStateError`?"
+  back: "If the dialog was opened with `show()`, isn't connected, or is an open popover. On a dialog that's already modal it does nothing. `show()` on a modal dialog also throws."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: modal-dialog-steps
+  front: "What does `showModal()` do in order?"
+  back: "Fires a cancelable `beforetoggle`, adds `open`, makes everything outside inert, adds the dialog to the top layer, remembers the focused element, hides unrelated open popovers, and runs the dialog focusing steps."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: close-watcher
+  front: "Which inputs go through a close watcher for a dialog?"
+  back: "Escape, the Android back gesture and `requestClose()`. It fires `cancel`; if not cancelled, the dialog closes. `closedby=\"any\"` adds light dismiss through the same path."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: show-nonmodal-top-layer
+  front: "Does a non-modal dialog opened with `show()` use the top layer?"
+  back: "No. It stacks and clips like any element."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: dialog-vs-handbuilt-modal
+  front: "What does a modal `<dialog>` give you over a hand-built modal, and what do you still own?"
+  back: "Top layer instead of `z-index` battles, native inertness instead of a focus trap, Escape handling and focus return. You still own scroll locking, enter and exit animations, and initial focus via `autofocus`."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: dialog-method-dialog-image-coords
+  front: "What `returnValue` does an image button supply in a `method=\"dialog\"` form?"
+  back: "Its click coordinates as `\"x,y\"`."
+  question: html-and-css/forms-dialog-popover/dialog-element
+- id: popover-global-attribute
+  front: "What does the `popover` attribute do to any element?"
+  back: "The element is hidden until shown, then rendered in the top layer, above all `z-index` stacking and outside any `overflow` clipping."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-show-ways
+  front: "How can a popover be shown and hidden?"
+  back: "From a button with `popovertarget` (`popovertargetaction` is `show`, `hide` or the default `toggle`), or with `showPopover()`, `hidePopover()` and `togglePopover()`."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-state-hooks
+  front: "How do you detect and observe an open popover?"
+  back: "`:popover-open` matches while it's shown. `beforetoggle` and `toggle` events report `oldState` and `newState`."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-auto
+  front: "How does `popover=\"auto\"` behave?"
+  back: "Light dismiss: a click outside or Escape closes it. Opening one closes every other open `auto` popover that isn't its ancestor, so menus and submenus work. A bare `popover` is `auto`."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-manual
+  front: "How does `popover=\"manual\"` behave, and what does an invalid value mean?"
+  back: "No light dismiss, no Escape, and it closes nothing else; use it for toasts. Any invalid value means `manual`, so `popover=\"atuo\"` silently loses light dismiss."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-hint
+  front: "How does `popover=\"hint\"` differ from `auto`?"
+  back: "Light dismiss like `auto`, but opening it closes only other hints, not `auto` popovers. It's meant for tooltips. Chrome 151 and Firefox 153 support it; Safari doesn't yet."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-vs-dialog-modality
+  front: "How does a popover differ from a modal `<dialog>` for the page and focus?"
+  back: "A popover is never modal: the page stays clickable and focus stays put, with its contents following the opener in tab order. `showModal()` makes the page inert and moves focus inside."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-no-role
+  front: "Does a popover have its own role or return value?"
+  back: "No. It has no role, no `returnValue` and no `method=\"dialog\"`; it's behaviour added to an element that keeps its own semantics."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-when-to-use
+  front: "When use `showModal()` versus `popover`?"
+  back: "`showModal()` for anything that must block the page until answered. `popover` for menus, pickers, tooltips and toasts."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: dialog-popover-open-state
+  front: "What does `<dialog popover>` give, and how do you check it's open?"
+  back: "A non-modal dialog with light dismiss. Its `open` stays `false`, so check `:popover-open`."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-outside-click
+  front: "Does a click outside a popover reach its target?"
+  back: "Yes. It reaches its target and light-dismisses the popover; both browsers fired the outside button's `click` handler while closing it."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: showpopover-errors
+  front: "What does `showPopover()` do on an element without the attribute, and on an open popover?"
+  back: "It throws `NotSupportedError` without the attribute and does nothing on an already-open popover."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-positioning
+  front: "How is a popover positioned by default, and how do you anchor it to its button?"
+  back: "It is `position: fixed`, centred by `inset: 0; margin: auto`. Anchoring is a CSS job, done with anchor positioning or script."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-beforetoggle-cancel
+  front: "Can `beforetoggle` stop a popover from opening or closing?"
+  back: "It is cancelable when opening. When closing `cancelable` was `false` in both browsers, so a light dismiss can't be refused."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-invoker-commands
+  front: "Which `command` values toggle popovers?"
+  back: "With `commandfor=\"id\"`: `toggle-popover`, `show-popover` and `hide-popover`. The same pair also drives dialogs and custom `--commands`. Chrome 135, Firefox 144, Safari 26.2."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-nested-escape
+  front: "Which popover does Escape close when a popover was opened from inside another?"
+  back: "Only the topmost one. The outer popover stays open because it is an ancestor of the inner one."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: popover-auto-closes-hints
+  front: "After showing an `auto` popover a, a hint b, then an unrelated `auto` popover c, which are open?"
+  back: "Only c. Showing the hint leaves a open, but an unrelated `auto` popover closes every other open `auto` popover and every open hint."
+  question: html-and-css/forms-dialog-popover/popover-attribute
+- id: details-structure
+  front: "How is `<details>` structured?"
+  back: "A disclosure widget that works without script. Its first `<summary>` child is the label and toggle; everything else is content, shown only while the boolean `open` attribute is present."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-no-summary
+  front: "What label does a `<details>` without a `<summary>` get?"
+  back: "The browser supplies its own; the standard's example is \"Details\"."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: summary-toggle-input
+  front: "How can a user or script toggle `<details>`?"
+  back: "Click, Enter or Space on the focusable summary toggles `open`. Script can set `details.open = true`."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-toggle-event
+  front: "What are the traits of the `toggle` event on `<details>`?"
+  back: "It carries `oldState` and `newState`, fires on the `<details>`, and doesn't bubble, so delegate with a capture listener. Changes made in one task are coalesced into one event."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-marker-css
+  front: "How is the `<details>` marker drawn and removed?"
+  back: "The summary is `display: list-item` with `list-style-type: disclosure-closed` or `disclosure-open`. `summary { list-style: none }` removes it and `::marker` styles it."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-content-slot
+  front: "How is closed `<details>` content hidden, and what styles it?"
+  back: "It sits in a slot hidden with `content-visibility: hidden`, which the `::details-content` pseudo-element can style."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-fragment-find
+  front: "What opens a closed `<details>` without a click?"
+  back: "Navigating to a fragment inside it, and find-in-page in supporting browsers (Chrome 97, Firefox 148; Safari partly)."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-name-group
+  front: "How do you make an exclusive accordion with `<details>`?"
+  back: "Give several `<details>` the same `name` so they form a details name group; opening one closes the others. Members need the same `name` in the same tree, not to be siblings."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-group-enforcement
+  front: "Where is details name group exclusivity enforced?"
+  back: "On user toggles, on `open = true` from script, and while parsing, where a second `open` member is closed. Closing the open one is allowed, so the group can be fully collapsed."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-use-cases
+  front: "What is `<details>` for, and not for?"
+  back: "Show-more content, FAQs and filters. The standard rules it out for tabs and menus, which are different widgets."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-second-summary
+  front: "What happens to a second `<summary>` in a `<details>`?"
+  back: "Only the first `summary` child is the toggle; any other is part of the content and hidden while closed."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-parse-toggle
+  front: "What `toggle` event fires when a group member is opened then closed during parsing?"
+  back: "One with `oldState` and `newState` both `\"closed\"`, because the two changes were coalesced."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-exclusive-warning
+  front: "What does the standard warn about exclusive details groups?"
+  back: "Don't use them for content people compare, since they force opening items one at a time."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-animate
+  front: "How do you animate opening and closing `<details>`?"
+  back: "Target the content with `::details-content` (Chrome 131, Firefox 143, Safari 18.4) and transition it there. Without it the content slot can't be selected."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-closed-content-in-dom
+  front: "Is closed `<details>` content in the DOM and readable by script?"
+  back: "Yes. It's only skipped for rendering: `checkVisibility()` returned `false` for a paragraph in it in both browsers, but `textContent` and `querySelector` still see it."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-vs-popover
+  front: "`<details>` or `popover` for a dropdown?"
+  back: "`<details>` pushes content down in the flow and stays open until toggled. A popover floats in the top layer and light-dismisses, which suits menus and pickers."
+  question: html-and-css/forms-dialog-popover/details-and-summary
+- id: details-open-sync-exclusive
+  front: "With `a` (open) and `b` in group `g` and `c` open in group `h`, what are `open` states after `b.open = true`?"
+  back: "`a` false, `b` true, `c` true. Opening `b` closes `a` synchronously; `c` is in a different group."
+  question: html-and-css/forms-dialog-popover/details-and-summary
