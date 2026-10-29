@@ -47,4 +47,4 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 - [HTML — Reflecting content attributes in IDL attributes](https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#reflecting-content-attributes-in-idl-attributes)
 - [HTML — `innerHTML`](https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#dom-element-innerhtml)
 - [HTML — `innerText`](https://html.spec.whatwg.org/multipage/dom.html#the-innertext-idl-attribute)
-- [HTML Sanitizer API](https://wicg.github.io/sanitizer-api/)
+- [HTML — `setHTML()`](https://html.spec.whatwg.org/multipage/dynamic-markup-insertion.html#dom-element-sethtml)
