@@ -14,12 +14,17 @@ import type { ShikiTransformer } from 'shiki'
 import { unified } from 'unified'
 import { questionAt, targetMarkdownFile, visitLinks } from './links.ts'
 
-/** Lines like `// → 3` show a program's output; the app styles them apart from code. */
+/**
+ * Lines like `// → 3` show a program's output; the app styles them apart from code.
+ * CSS and HTML have no `//` comments, so `/* → … *\/` and `<!-- → … -->` mark output there.
+ */
+const OUTPUT_LINE = /^\s*(?:\/\/|\/\*|<!--) →/
+
 const markOutputLines: ShikiTransformer = {
   name: 'mark-output-lines',
   line(hast, line) {
     const text = this.tokens[line - 1].map((token) => token.content).join('')
-    if (/^\s*\/\/ →/.test(text)) this.addClassToHast(hast, 'output')
+    if (OUTPUT_LINE.test(text)) this.addClassToHast(hast, 'output')
   },
 }
 

@@ -93,7 +93,8 @@ Use exactly these `##` headings, in this order. Leave out optional ones entirely
   - JavaScript must run as written in current Node.js or a modern browser; assume module code (strict mode) and say so when sloppy mode matters.
   - TypeScript must be type-checked with a real `tsc` (`--strict`); state the TypeScript version, and make every `// Error` comment match what `tsc` printed.
   - Configs and commands must be run for real (a scratch project, a container, a local database) before you show their output.
-  - Show output as `// → value` comments.
+  - Show output as `// → value` comments; in CSS use `/* → value */`, in HTML `<!-- → value -->`.
+  - HTML and CSS must be run in a real browser; say which browser and version when behaviour differs between engines.
 
 ## Research
 
