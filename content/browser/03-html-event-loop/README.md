@@ -29,7 +29,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | # | Question | Difficulty | Status |
 |---|---|---|---|
 | 010 | [Where does rendering happen in the event loop?](010-rendering-steps.md) | hard | 🟡 draft |
-| 020 | [How does `requestAnimationFrame` work, and when do its callbacks run?](020-request-animation-frame.md) | medium | 🔴 planned |
+| 020 | [How does `requestAnimationFrame` work, and when do its callbacks run?](020-request-animation-frame.md) | medium | 🟡 draft |
 | 030 | [Why doesn't `setTimeout(fn, 0)` run after 0 ms?](030-timer-accuracy.md) | medium | 🔴 planned |
 | 040 | [How do you schedule work by priority with `scheduler.postTask()` and `scheduler.yield()`?](040-task-priority-and-scheduler.md) | hard | 🔴 planned |
 | 050 | [What does `requestIdleCallback` guarantee, and when does it never run?](050-request-idle-callback.md) | medium | 🔴 planned |
