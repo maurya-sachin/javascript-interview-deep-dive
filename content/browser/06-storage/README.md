@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [Cookies, `localStorage`, `sessionStorage`, or IndexedDB — how do you choose?](010-choosing-browser-storage.md) | easy | 🔴 planned |
+| 010 | [Cookies, `localStorage`, `sessionStorage`, or IndexedDB — how do you choose?](010-choosing-browser-storage.md) | easy | 🟡 draft |
 | 020 | [How do cookies work — which requests carry them, and for how long?](020-how-cookies-work.md) | medium | 🔴 planned |
 | 030 | [How do `localStorage` and `sessionStorage` behave across tabs?](030-web-storage-scope.md) | medium | 🔴 planned |
 | 040 | [How does IndexedDB work, and why do its transactions commit on their own?](040-indexeddb-transactions.md) | hard | 🔴 planned |
