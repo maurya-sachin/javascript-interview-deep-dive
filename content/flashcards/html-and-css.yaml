@@ -1,0 +1,405 @@
+# 01 Documents and semantics
+- id: doctype-purpose
+  front: "What is the only job of `<!DOCTYPE html>`?"
+  back: "It chooses the document's mode. It is not a version declaration and the browser never fetches a DTD; the standard calls it a required preamble kept for legacy reasons."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-three-modes
+  front: "Which three document modes can the DOM give a page?"
+  back: "No-quirks (standards), limited-quirks and quirks. The parser's initial insertion mode sets one when it sees the first token."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-quirks-triggers
+  front: "What puts a document into quirks mode?"
+  back: "No doctype, a doctype whose name isn't `html`, or one of 61 listed legacy identifiers (HTML 3.2, HTML 4.01 Transitional without a system identifier, and so on)."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-limited-quirks
+  front: "What does limited-quirks mode change, and which doctype gives it?"
+  back: "Only the line-height quirks, so an image alone in a table cell has no gap below it. Transitional doctypes such as XHTML 1.0 Transitional trigger it."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-must-come-first
+  front: "What happens if text or an element comes before the doctype, versus a comment or whitespace?"
+  back: "Text or an element is a parse error and sets quirks mode. Comments and whitespace before the doctype are fine."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: quirks-css-changes
+  front: "Which CSS parsing and selector behaviours change in quirks mode?"
+  back: "Unitless lengths (`width: 200`) and hashless hex colours (`color: ff0000`) are accepted, and class and ID selectors match case-insensitively."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: quirks-percentage-height
+  front: "How do percentage heights and `body` behave in quirks mode?"
+  back: "Percentage heights look past `auto`-height ancestors, and `body` stretches to fill the viewport. In standards mode the percentage resolves against an `auto` body."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: quirks-tables-and-scrolling
+  front: "What do tables and `document.scrollingElement` do in quirks mode?"
+  back: "Tables reset inherited font properties and text decoration doesn't propagate into them. `document.scrollingElement` is `body` rather than `html`."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: compat-mode-values
+  front: "What do `document.compatMode` values `BackCompat` and `CSS1Compat` mean?"
+  back: "`BackCompat` is quirks mode. `CSS1Compat` is both no-quirks and limited-quirks, so it is not proof of full standards mode."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-http401-system-identifier
+  front: "How does the system identifier affect an HTML 4.01 Transitional doctype?"
+  back: "Without the system identifier (the URL) it gives quirks mode. With it, the document is limited-quirks."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-srcdoc-mode
+  front: "Does an `iframe srcdoc` document without a doctype get quirks mode?"
+  back: "No. The parser never sets quirks mode for it: `srcdoc=\"<p>no doctype here\"` gave `CSS1Compat` in Chrome 155 and Firefox 158."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-parsing-effect
+  front: "Does the doctype change how HTML is parsed into a tree?"
+  back: "Barely. Tree construction is the same in all modes except that in quirks mode a `<table>` start tag does not close an open `<p>`. The real differences are in CSS and a few DOM APIs."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: limited-quirks-origin
+  front: "Why does limited-quirks mode exist?"
+  back: "Some browsers kept the old shrink-wrapping of images in table cells even in standards mode, and sites came to depend on it. Strict browsers added a third mode keeping only that behaviour."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: doctype-case-and-comments
+  front: "Is `<!doctype HTML>` valid, and may a comment precede the doctype?"
+  back: "Yes to both: the doctype is case-insensitive and gives no-quirks, and a leading comment still gives `CSS1Compat`."
+  question: html-and-css/documents-and-semantics/doctype-and-rendering-modes
+- id: content-model-definition
+  front: "What is an HTML element's content model, and how is it expressed?"
+  back: "The standard's description of what the element may contain, stated in content categories: flow, phrasing, metadata, sectioning, heading, embedded and interactive content."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: p-content-model
+  front: "What content model does `<p>` have, and is `<div>` inside it conforming?"
+  back: "`<p>` accepts phrasing content. `<div>` is flow content but not phrasing, so `<div>` inside `<p>` is non-conforming."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: transparent-content-model
+  front: "What is a transparent content model, and which elements have one?"
+  back: "The element takes its parent's content model. `<a>`, `<ins>` and `<del>` are transparent, so `<a href><div>` is valid where the parent allows flow content, but `<p><a><div>` is not."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: content-model-vs-parser
+  front: "Does the parser enforce content models?"
+  back: "No. Content models are conformance rules that validators report. The parser repairs only the cases its tree-construction algorithm names, and leaves most other violations as written."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: div-in-p-parse
+  front: "What DOM does `<p>Intro<div>Block</div></p>` produce?"
+  back: "Three siblings: `<p>Intro</p>`, `<div>Block</div>` and `<p></p>`. The `div` start tag closes the open `p`, and the stray `</p>` makes the parser insert an empty `p`."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: p-closing-start-tags
+  front: "Which start tags close an open `p` in button scope?"
+  back: "Block starts such as `div`, `ul`, `section`, `table`, `h1`-`h6` and another `p`. This is also why `<p>`'s end tag is optional."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: div-in-p-consequences
+  front: "What two practical effects does the repaired `<p>`/`<div>` DOM have?"
+  back: "Selectors like `p > div` never match, and the extra empty `<p>` adds its default margins."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: invalid-nesting-kept
+  front: "Does the parser repair `<span><div>` or `<button><div>`?"
+  back: "No. Both stay nested exactly as written, though they are still invalid. Parser repair is not validation."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: parser-other-rewrites
+  front: "Name three other rewrites the HTML parser performs on invalid nesting."
+  back: "A second `<a>` closes the first, a nested `<form>` start tag is ignored, and non-table content inside `<table>` is foster-parented to just before the table."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: foster-parenting-result
+  front: "What does `<table><div>x</div><tr><td>c</td></tr></table>` parse to?"
+  back: "`<div>x</div><table><tbody><tr><td>c</td></tr></tbody></table>`. The `div` is foster-parented before the table and a `tbody` is inserted."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: p-div-dom-api-reparse
+  front: "What happens if you build `p > div` with DOM `append`, then re-parse its `outerHTML` via `innerHTML`?"
+  back: "The DOM API allows it, but re-parsing gives three siblings: `<p></p><div></div><p></p>`. Chrome 155 and Firefox 158 printed the same."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: p-div-ssr-hydration
+  front: "Why does `<p><div>` break server-side rendering?"
+  back: "The server sends it as text and the browser's parser turns it into sibling elements, so the DOM no longer matches the framework's rendered tree and hydration finds a mismatch."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: button-scope-stops-p-close
+  front: "Does `<div>` inside a `<button>` inside a `<p>` close the `p`?"
+  back: "No. The has-a-`p`-in-button-scope check stops at `button`, so `<p>a<button><div>b</div></button></p>` is unchanged. It is still invalid, since `button` accepts only phrasing content."
+  question: html-and-css/documents-and-semantics/content-model-and-parser-repair
+- id: semantics-three-benefits
+  front: "What three things do semantic elements buy you?"
+  back: "Accessibility-tree roles, built-in behaviour (focus, keyboard activation, form submission), and other consumers such as reader modes and search engines reading the same structure."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: implicit-aria-roles
+  front: "What implicit ARIA roles do `nav`, `main`, `button` and `ul` map to?"
+  back: "`navigation`, `main`, `button` and `list`. Screen readers announce the role and let users navigate by landmark, heading or list."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: div-span-generic
+  front: "What role do `div` and `span` map to, and how is it announced?"
+  back: "`generic`, which is announced as nothing."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: button-vs-div-btn
+  front: "What does a `<button>` give you that a `<div class=\"btn\">` lacks?"
+  back: "It is focusable, activates on click and the keyboard, can be `disabled`, and submits its form. The div has none of that until you write it."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: div-element-of-last-resort
+  front: "When is a `div` the right element?"
+  back: "When there is no meaning to express: the standard calls it an element of last resort. Examples are a flex or grid wrapper, a class hook, a group sharing `lang`, or a `dt`/`dd` group in `<dl>`."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: role-button-on-div
+  front: "What does `role=\"button\"` on a `div` actually change?"
+  back: "Only what assistive technology is told. It adds no focus, keyboard handling or form behaviour."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: role-button-div-keyboard-chrome
+  front: "In Chrome 155, did Enter and Space activate a `div role=\"button\" tabindex=\"0\"`?"
+  back: "No. It was focusable, but Enter and Space did not fire its `click` handler; only the mouse did."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: button-default-type-submit
+  front: "What is the default `type` of a `<button>` inside a form, and what goes wrong?"
+  back: "`submit`. A toggle button without `type=\"button\"` submits the form."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: section-without-name-generic
+  front: "What role does a `<section>` have without an accessible name?"
+  back: "`generic`, the same as a `div`. With `aria-label` or `aria-labelledby` it is a `region` landmark."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: b-i-strong-em-roles
+  front: "Are `<b>` and `<i>` meaningless, and which inline elements have their own roles?"
+  back: "They have defined meanings (`b` draws attention without importance, `i` marks an alternate voice) but map to `generic`. `<strong>` (importance) and `<em>` (stress) have their own roles."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: semantics-styling-effect
+  front: "How do semantic elements affect styling?"
+  back: "Only through the user-agent stylesheet, such as bold headings and list markers. That is a default you override, never a reason to pick an element."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: a-without-href-generic
+  front: "What role is `<a>` without `href`, and is it focusable?"
+  back: "`generic`, and not focusable. With `href` it is a `link`."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: header-footer-role-scope
+  front: "How does context change the role of `header` and `footer`?"
+  back: "As a child of `body` they are the `banner` and `contentinfo` landmarks. Inside `article`, `aside`, `main`, `nav` or `section` they are not."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: scoped-header-spec-disagreement
+  front: "What role does a `header` scoped inside `article` get per ARIA in HTML versus Chrome 155?"
+  back: "ARIA in HTML lists `generic`. The HTML-AAM editor's draft maps it to `sectionheader`, which Chrome 155 exposed. The two specs disagree."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: explicit-role-overrides
+  front: "Can an explicit role override an element's implicit role?"
+  back: "Yes where ARIA in HTML allows it: `<ul role=\"tablist\">` replaces the list semantics. Redundant roles such as `<nav role=\"navigation\">` are warned against."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: aria-on-div-when
+  front: "When is ARIA on a `div` the right choice?"
+  back: "Only for a widget HTML has no element for, such as a tree or grid, and then you own focus and keyboard behaviour."
+  question: html-and-css/documents-and-semantics/semantic-elements
+- id: landmark-vs-heading-structures
+  front: "What are the two navigable structures of a page?"
+  back: "Landmarks, which are regions users jump between, and headings, which form the outline. Screen reader users use both."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: landmark-role-mapping
+  front: "Which landmark roles do `nav`, `aside` and `search` map to?"
+  back: "`nav` is `navigation`, `aside` is `complementary` and `search` is `search`. `main` is `main`."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: section-form-landmark-name
+  front: "When does a `section` or `form` become a landmark?"
+  back: "Only with an accessible name: a `section` becomes a `region` and a `form` becomes a `form` landmark."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: duplicate-landmarks-label
+  front: "What should you do when a page has two landmarks of the same type?"
+  back: "Give each an `aria-label`, such as primary and pagination `nav`, so the list of landmarks can tell them apart."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: outline-algorithm-removed
+  front: "What happened to HTML's outline algorithm?"
+  back: "Browsers never implemented it for assistive technology, and in July 2022 WHATWG replaced it (PR #7829). The outline is now all headings in tree order, each at its own level."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: h1-in-section-level
+  front: "What level does an `h1` nested in a `section` have now?"
+  back: "Level 1. Nesting sectioning elements never demotes a heading. Chrome 155 exposed all of them as level 1, and both browsers rendered a `section h1` at the same 32px as a top-level one."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: heading-level-rules
+  front: "What are the conformance rules for heading levels?"
+  back: "At least one heading should be level 1, and each heading may go at most one level deeper than the one before it. `h2` straight to `h4` is non-conforming."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: hgroup-outline
+  front: "What does `hgroup` do to the outline?"
+  back: "It wraps a heading with subtitle paragraphs, and only the heading enters the outline."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: headingoffset-support
+  front: "Can you rely on `headingoffset` and `:heading` today?"
+  back: "No. `CSS.supports(\"selector(:heading)\")` was `false` in Chrome 155 and Firefox 158, and Chrome still exposed an `h1` inside `headingoffset=\"1\"` as level 1."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: sectioning-effect-on-headings
+  front: "What do sectioning elements do, if not change heading levels?"
+  back: "They group content and can give landmarks. Choose heading levels for the structure and size them with CSS."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: single-main-rule
+  front: "How many `<main>` elements may a document have, and where may one sit?"
+  back: "No more than one without the `hidden` attribute. Its ancestors may only be `html`, `body`, `div`, an unnamed `form` and autonomous custom elements, never `article`, `aside` or `nav`."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: redundant-banner-role
+  front: "Is `role=\"banner\"` needed on a `<header>`?"
+  back: "No. ARIA in HTML calls redundant roles not recommended, and a `header` scoped to `body` is already `banner`."
+  question: html-and-css/documents-and-semantics/landmarks-and-headings
+- id: head-content-model
+  front: "What may `<head>` contain?"
+  back: "Metadata content: exactly one `<title>`, at most one `<base>`, and any number of `meta`, `link`, `style`, `script`, `noscript` and `template`."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: meta-charset-1024
+  front: "Where must `<meta charset>` sit, and what value must it have?"
+  back: "Fully inside the first 1024 bytes, because browsers prescan those bytes before parsing. The value must be UTF-8."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: charset-precedence
+  front: "What beats a `<meta charset>` declaration?"
+  back: "A charset in the HTTP `Content-Type` header, or a byte-order mark."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: no-charset-fallback
+  front: "What did Chrome 155 and Firefox 158 do with a UTF-8 `café` served over HTTP without a declared encoding, on an en-US profile?"
+  back: "Both decoded it as windows-1252, giving `cafÃ©`."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: charset-file-protocol
+  front: "Which encoding did Chrome and Firefox guess for an undeclared ASCII-only page on `file:`?"
+  back: "Chrome chose windows-1252 and Firefox chose UTF-8."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: charset-late-honoured
+  front: "Is a `charset` placed after the first 1024 bytes ignored?"
+  back: "It is non-conforming, but both browsers still honoured one after 1,100 bytes, because the parser can swap decoders on the fly or reload the page. Keep it first to avoid that."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: viewport-meta-spec
+  front: "Which spec defines the viewport meta tag, and what does it do?"
+  back: "CSS Viewport, not HTML. With `width=device-width, initial-scale=1` the layout viewport matches the device width and media queries see the real size, instead of a wide fallback."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: viewport-fallback-980
+  front: "What did Chrome 155 mobile emulation at 390px report without a viewport tag?"
+  back: "`innerWidth` was `980` and `(max-width: 600px)` didn't match. With the tag it was `390` and it matched. The fallback width is browser-defined, not specified."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: viewport-no-zoom
+  front: "Why avoid `maximum-scale=1` or `user-scalable=no` in the viewport tag?"
+  back: "Where a browser honours it, users who need to zoom can't."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: title-uses
+  front: "What does `<title>` name, and which one does `document.title` read?"
+  back: "The document in tabs, history, bookmarks and search results; Chrome's accessibility tree uses it as the page name. `document.title` reads the first `<title>` in the document."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: base-href-effect
+  front: "What does `<base href>` change?"
+  back: "The document base URL, which every relative URL resolves against: links, images, `fetch`, and even `href=\"#id\"`. Only the first `base` with `href` counts."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: base-hash-link-gotcha
+  front: "What happens to `href=\"#top\"` when `<base href=\"https://shop.example/app/\">` is present?"
+  back: "It resolves to `https://shop.example/app/#top`, another page, so clicking navigates away instead of scrolling."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: base-target
+  front: "What does the `target` attribute on `<base>` set?"
+  back: "The default browsing context for links and forms."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: standard-meta-names
+  front: "Which `<meta name>` values does the standard define, and what about `robots`?"
+  back: "Standard ones include `description`, `referrer`, `theme-color`, `color-scheme`, `application-name` and `generator`. Others such as `robots` are extensions defined outside the standard."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: head-closed-by-non-metadata
+  front: "What happens to a `meta` tag that comes after a `<div>` in `<head>`?"
+  back: "The first non-metadata element or text closes `head`, so everything after it, including later `meta` tags, goes into `body`."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: head-duplicate-title-base-result
+  front: "With two `<title>`s and two `<base href>`s after a `<div>` in `<head>`, which win?"
+  back: "The first `title` and the first `base` with `href`. The `div` closes `head`, but `document.title` takes the first `<title>` in the document and the first `base` still sets the base URL wherever it is."
+  question: html-and-css/documents-and-semantics/head-metadata
+- id: rel-link-type-kinds
+  front: "How does the standard sort `rel` link types?"
+  back: "External resources the browser fetches (`stylesheet`, `icon`, `manifest`), hyperlinks that describe another document (`canonical`, `alternate`, `next`, `license`), and annotations on `a`, `area` or `form` links (`nofollow`, `noopener`, `noreferrer`, `opener`)."
+  question: html-and-css/documents-and-semantics/link-types
+- id: canonical-link
+  front: "What does `rel=\"canonical\"` do, and where is it allowed?"
+  back: "It names the preferred URL so search engines can merge duplicates such as `?utm_source=` variants (RFC 6596). Allowed only on `<link>`, not `<a>`; the standard gives browsers nothing to do with it."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rel-alternate-uses
+  front: "What does `rel=\"alternate\"` mean with `type=\"application/atom+xml\"`, with `hreflang`, and with `stylesheet`?"
+  back: "A feed for autodiscovery, a translation, and an alternative stylesheet respectively."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rel-icon-selection
+  front: "How does the browser choose among several `rel=\"icon\"` links, and with none?"
+  back: "It picks by `type`, `media` and `sizes`. With none, it may request `/favicon.ico`."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rel-nofollow
+  front: "What does `rel=\"nofollow\"` do?"
+  back: "It says the author doesn't endorse the link, or that it exists because of a commercial relationship. It changes nothing in the browser; search engines read it. It is not an access control."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rel-noopener
+  front: "What does `rel=\"noopener\"` do?"
+  back: "A new top-level tab opened by the link gets no `window.opener`, so it can't navigate or script the page that opened it."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rel-noreferrer
+  front: "What does `rel=\"noreferrer\"` do beyond `noopener`?"
+  back: "It sends no `Referer` header and leaves `document.referrer` empty, and it also implies `noopener`."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rel-opener
+  front: "What does `rel=\"opener\"` do?"
+  back: "It is the opt-out that restores `window.opener`."
+  question: html-and-css/documents-and-semantics/link-types
+- id: target-blank-implies-noopener
+  front: "Is `rel=\"noopener\"` still needed on `target=\"_blank\"` links?"
+  back: "No. The noopener step returns true when `rel` has `noopener` or `noreferrer`, or `target` is `_blank` and `rel` lacks `opener`. Adding it only covers browsers older than Chrome 88, Firefox 79 and Safari 12.1."
+  question: html-and-css/documents-and-semantics/link-types
+- id: reverse-tabnabbing
+  front: "What is reverse tabnabbing?"
+  back: "The opened page redirecting its opener, via `window.opener`, to a phishing page."
+  question: html-and-css/documents-and-semantics/link-types
+- id: noreferrer-opener-combined
+  front: "What does the new tab see for `rel=\"noreferrer opener\"` on a `_blank` link?"
+  back: "`opener` is `null` and the referrer is empty. `noreferrer` implies `noopener`, and the step checks it before `opener`, so `opener` can't undo it."
+  question: html-and-css/documents-and-semantics/link-types
+- id: noreferrer-when-only-noopener
+  front: "Why not use `noreferrer` when you only want `noopener`?"
+  back: "It also sends no `Referer`, so the destination can't see where the visit came from."
+  question: html-and-css/documents-and-semantics/link-types
+- id: referrer-cross-origin
+  front: "What `Referer` did Chrome 155 and Firefox 158 send on a cross-origin `_blank` link without `noreferrer`?"
+  back: "Only the origin, for example `http://localhost:8765/`. Same-origin it was the full URL."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rellist-supports
+  front: "How can script check which `rel` values a browser supports?"
+  back: "`element.relList.supports(token)`. For `<a>`, both browsers reported `noopener` supported and `nofollow` not."
+  question: html-and-css/documents-and-semantics/link-types
+- id: rellist-canonical-disagreement
+  front: "What did `link.relList.supports(\"canonical\")` return in Chrome 155 and Firefox 158?"
+  back: "`true` in Chrome 155 and `false` in Firefox 158."
+  question: html-and-css/documents-and-semantics/link-types
+- id: window-open-opener
+  front: "Does `window.open` get the `_blank` noopener protection?"
+  back: "No. In Chrome 155 and Firefox 158 it returned a `Window` and the new page saw its opener. With `\"noopener\"` in the features string it returned `null` and `opener` was `null`."
+  question: html-and-css/documents-and-semantics/link-types
+- id: global-attributes-list
+  front: "What are global attributes?"
+  back: "Attributes allowed on every HTML element, such as `hidden`, `inert`, `lang`, `popover`, `style`, `tabindex`, `title`, `id`, `class`, `slot`, event handler attributes and any `data-*` attribute."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: boolean-attribute-presence
+  front: "How does a boolean attribute like `disabled` get its value?"
+  back: "True when present, false when absent, whatever the value: `disabled=\"false\"` still disables. A valid value is the empty string or the attribute's own name."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: boolean-attribute-turn-off
+  front: "How do you turn a boolean attribute off?"
+  back: "Remove it with `removeAttribute`, or set the IDL property to `false`. `setAttribute(\"hidden\", false)` still leaves it on."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: enumerated-vs-boolean
+  front: "How do enumerated attributes like `contenteditable`, `spellcheck` and `draggable` differ from boolean ones?"
+  back: "`\"false\"` is a real keyword for them, whereas for a boolean attribute any value means true."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: hidden-enumerated
+  front: "What values does the `hidden` attribute take?"
+  back: "It is enumerated: `hidden`, `\"\"` or any invalid value means Hidden, and `until-found` means Hidden Until Found."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: hidden-ua-display-none
+  front: "Why does `.row { display: flex }` make a `hidden` element visible?"
+  back: "`hidden` is implemented by a UA stylesheet rule, `[hidden]:not([hidden=until-found i]) { display: none }`, and any author `display` rule beats a UA rule."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: hidden-fix-display
+  front: "How do you stop author `display` rules from overriding `hidden`?"
+  back: "Add `[hidden] { display: none !important; }` to your base styles, or never set `display` on elements you toggle with `hidden`."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: hidden-until-found
+  front: "How does `hidden=\"until-found\"` differ from plain `hidden`?"
+  back: "It hides with `content-visibility: hidden`, so find-in-page and fragment navigation can reach the content. The browser fires `beforematch` and removes the attribute before scrolling to it."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: hidden-vs-display-none
+  front: "When choose `hidden` over a `display: none` class?"
+  back: "`hidden` says the content isn't relevant right now and works without your CSS loaded; a class is purely presentational. In Chrome 155 both, and `until-found` content too, were absent from the accessibility tree."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: data-attribute-naming
+  front: "What are the naming rules for `data-*` attributes, and what happens to `data-userId`?"
+  back: "Something must follow `data-`. The parser lowercases attribute names, so `data-userId` is stored as `data-userid` and the key is `dataset.userid`, not `dataset.userId`."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: dataset-camel-case
+  front: "How does `dataset` map attribute names to keys?"
+  back: "`data-product-id` becomes `dataset.productId`. Writing `dataset.orderCount = 3` creates `data-order-count=\"3\"`, and `delete` removes the attribute."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: dataset-strings
+  front: "What type are `dataset` values?"
+  back: "Always strings. `dataset.productId` was `\"7\"`, so parse it if you need a number or boolean."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: data-attributes-purpose
+  front: "What are `data-*` attributes for, and not for?"
+  back: "Private data for the page's own scripts. Not for metadata meant for other software; that is what microdata or a standard attribute is for."
+  question: html-and-css/documents-and-semantics/global-attributes
+- id: data-state-selectors
+  front: "Is styling with `[data-state=\"open\"]` fine?"
+  back: "Yes for state your script owns, since the selector and `dataset` value stay in one place. Prefer a native attribute or pseudo-class (`[open]`, `:checked`, `:disabled`) when one exists."
+  question: html-and-css/documents-and-semantics/global-attributes
