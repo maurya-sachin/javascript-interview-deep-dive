@@ -33,7 +33,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [What's the difference between a live `HTMLCollection` and a static `NodeList`?](020-live-vs-static-collections.md) | medium | 🟡 draft |
 | 030 | [What's the difference between an attribute and a property?](030-attributes-vs-properties.md) | medium | 🟡 draft |
 | 040 | [How do you insert, move, and remove nodes efficiently?](040-inserting-and-moving-nodes.md) | medium | 🟡 draft |
-| 050 | [How do `innerHTML`, `textContent`, `innerText`, and `setHTML()` differ?](050-innerhtml-textcontent-innertext.md) | medium | 🔴 planned |
+| 050 | [How do `innerHTML`, `textContent`, `innerText`, and `setHTML()` differ?](050-innerhtml-textcontent-innertext.md) | medium | 🟡 draft |
 | 060 | [How do `querySelector()`, `closest()`, `matches()`, and `TreeWalker` find nodes?](060-querying-and-traversal.md) | easy | 🔴 planned |
 <!-- generated:questions:end -->
 
