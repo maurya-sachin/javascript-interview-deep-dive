@@ -355,3 +355,432 @@
   front: "Walking elements under a `div` that holds `p`, `a`, then `ul > li > button`, what does a filter that rejects `UL` yield versus one that skips it?"
   back: "Reject gives `P,A`; skip gives `P,A,LI,BUTTON`. Neither includes `DIV`, because the walker starts at the root. Chrome 156 and Firefox 159 agreed."
   question: browser/the-dom/querying-and-traversal
+# 02 Events
+- id: dispatch-event-path
+  front: "What is the event path that dispatch builds, and when is it fixed?"
+  back: "The target, each parent up to the root, then the `Document` and its `Window`. It is fixed before any listener runs, so moving or removing nodes mid-dispatch doesn't change who gets called."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-three-phases
+  front: "In what order does dispatch walk the path, and what is `eventPhase` in each phase?"
+  back: "Capture from `Window` down to the target's parent (`eventPhase` 1), then the target (`AT_TARGET`, 2), then bubble from the target's parent back up to `Window` (`BUBBLING_PHASE`, 3)."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-at-target-order
+  front: "At the target, in what order do listeners run?"
+  back: "Capture listeners first, then the rest, whatever order they were added in. Registration order does not decide it."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-bubbles-false
+  front: "What does `bubbles: false` remove from dispatch?"
+  back: "Only the bubble phase (phase 3). The target's own listeners and every capture listener on ancestors still run."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-target-vs-currenttarget
+  front: "What are `event.target`, `event.currentTarget` and `composedPath()`?"
+  back: "`target` is the node the event was dispatched at; `currentTarget` is the node whose listener is running now; `composedPath()` returns the path as an array, target first."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-bubbling-events
+  front: "Which common events bubble, and which don't?"
+  back: "`click`, `input` and `keydown` bubble. `focus`, `blur`, `mouseenter`, `mouseleave` and `load` on an element don't, but a capture listener on an ancestor still sees them."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-reset-after
+  front: "What are `eventPhase`, `currentTarget` and `composedPath()` after dispatch ends?"
+  back: "`eventPhase` is 0, `currentTarget` is `null` and `composedPath()` returns `[]`. Read them inside the listener, not after an `await` or in a `setTimeout`."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-shadow-retarget
+  front: "What do listeners outside a shadow root see for `target`, and which events leave the shadow tree?"
+  back: "`target` is retargeted to the host, and only `composed: true` events leave the shadow tree at all."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-default-bubble
+  front: "Why does `addEventListener()` default to bubble rather than capture?"
+  back: "Bubbling lets the most specific handler run first and ancestors react afterwards, which is what delegation needs. Capture is for seeing an event before the target's own handlers do."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-load-not-window
+  front: "Does `window` see every bubbling event, e.g. an `<img>`'s `load`?"
+  back: "No. A `Document` returns no parent for `load` events, so an `<img>`'s `load` reaches `document` listeners but never `window` ones."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-this-in-listener
+  front: "What does `this` refer to in a listener?"
+  back: "`currentTarget` for a regular function. An arrow function keeps the surrounding `this`, so use `event.currentTarget` there."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-get-the-parent
+  front: "How does dispatch use *get the parent* to build the path, and why does a standalone `EventTarget` never propagate?"
+  back: "A node returns its assigned slot if it has one, otherwise its parent; a `Document` returns its `Window`; a shadow root returns its host. A `Window` and a plain `new EventTarget()` return null, so nothing propagates."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-listener-list-clone
+  front: "What happens to a listener added to the current node during dispatch, versus one added to a node not yet reached?"
+  back: "Inner invoke clones the node's listener list before calling anything, so a listener added to the current node doesn't run for this event. One added to a node the walk hasn't reached yet does. A removed listener is skipped even if it's in the clone."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-listener-throws
+  front: "What happens when a listener throws during dispatch?"
+  back: "The error is reported to `window`'s `error` event and dispatch moves on to the next listener; one broken handler doesn't stop the others."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-detached-path
+  front: "What is the event path for a node outside the document?"
+  back: "Its ancestors only, with no `Document` or `Window`. A `span` inside a detached `div` gave `SPAN,DIV` in Chrome 156 and Firefox 159."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-load-capture-document
+  front: "How can you observe every image `load` event in one place?"
+  back: "A capture listener on `document`. Resource `load` events stop at the `Document`, so a `window` capture listener never saw them in Chrome 156 and Firefox 159."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-focusin-focusout
+  front: "Which events bubble for the same focus changes as `focus` and `blur`?"
+  back: "`focusin` and `focusout`. Delegated focus handling uses those, or a capture listener."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-click-outside-capture
+  front: "Why can a bubble-phase click-outside handler on `document` stop working, and what fixes it?"
+  back: "Some component calls `stopPropagation()` on its clicks. Registering the handler with `capture: true` sees the click on the way down, before any target-side handler can stop it. Don't call `stopPropagation()` there."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-capture-vs-bubble-tradeoff
+  front: "When should a handler use capture versus bubble?"
+  back: "Capture on `document` runs before every component's handlers: right for observation, wrong for behaviour a component should override. Bubble lets inner code run first and decide with `preventDefault()`, but `stopPropagation()` can skip it. Ask who gets the last word."
+  question: browser/events/event-dispatch-phases
+- id: dispatch-ping-example
+  front: "A `new Event('ping')` is dispatched on a child. Which listeners run: parent capture, parent bubble, child?"
+  back: "Parent capture and child. `new Event('ping')` has `bubbles: false`, which skips only the bubble phase. Chrome 156 and Firefox 159 agreed."
+  question: browser/events/event-dispatch-phases
+- id: delegation-definition
+  front: "What is event delegation?"
+  back: "Handling events for many elements with one listener on an ancestor. A `click` on any descendant bubbles up to it, and the handler works out which item was meant."
+  question: browser/events/event-delegation
+- id: delegation-closest-steps
+  front: "What are the three steps of a delegated handler?"
+  back: "Start from `event.target`, the innermost element hit; call `event.target.closest(selector)` for the nearest matching ancestor or the element itself; check `container.contains(match)`, because `closest()` keeps climbing past the container."
+  question: browser/events/event-delegation
+- id: delegation-why
+  front: "Why use event delegation?"
+  back: "Items rendered later work without wiring, there's one listener instead of thousands, and nothing needs removing when rows are deleted. `event.currentTarget` is still the container."
+  question: browser/events/event-delegation
+- id: delegation-non-bubbling
+  front: "Which events never reach an ancestor's bubble listener, and what are the alternatives?"
+  back: "`focus`, `blur`, `mouseenter`, `mouseleave`, `pointerenter`, `pointerleave`, element `scroll`, `invalid`, and `load`/`error` on an image. Use the bubbling twins (`focusin`/`focusout`, `pointerover`/`pointerout`) or a capture listener."
+  question: browser/events/event-delegation
+- id: delegation-stoppropagation-below
+  front: "How can `stopPropagation()` break delegation?"
+  back: "Any handler between the target and the container that stops propagation hides the event from the delegate."
+  question: browser/events/event-delegation
+- id: delegation-shadow-dom
+  front: "Why can't `closest()` find an inner element from a delegate outside a shadow root, and what can?"
+  back: "Outside a shadow root `event.target` is retargeted to the host. `composedPath()` can see the inner nodes for open shadow roots; a closed root's internals are left out."
+  question: browser/events/event-delegation
+- id: delegation-disabled-controls
+  front: "Does a delegate hear a real click on a disabled `<button>` or on an element inside one?"
+  back: "No. A real click fires no `click` at all. In Chrome 156 and Firefox 159 a trusted click dispatched `pointerdown` to the delegate but no `mousedown`, `mouseup` or `click`. Use `pointerdown`, or `aria-disabled` instead of `disabled`."
+  question: browser/events/event-delegation
+- id: delegation-matches-vs-closest
+  front: "Why is `event.target.matches('button')` wrong for delegating clicks on a button?"
+  back: "A click on the `<b>` inside the button fails the test. Use `closest()` to find the nearest matching ancestor."
+  question: browser/events/event-delegation
+- id: delegation-contains-check
+  front: "Why keep the `container.contains(match)` check in a delegated handler?"
+  back: "With nested lists, `closest()` can return an ancestor outside the container. A tag's `<li>` without `data-id` made `closest('li[data-id]')` climb to the outer post item (`7 false`)."
+  question: browser/events/event-delegation
+- id: delegation-divs-a11y
+  front: "Why delegate clicks on real `<button>`s rather than `<div>`s?"
+  back: "The handler works on divs, but keyboard and screen-reader users can't reach a div. Enter and Space on a focused `<button>` fire `click`, so keyboard support comes free."
+  question: browser/events/event-delegation
+- id: delegation-performance
+  front: "Is delegation faster?"
+  back: "It saves memory and setup when there are many items or they change often. Each event pays for a `closest()` walk, which matters only for high-frequency events like `pointermove`; there a direct listener is cheaper."
+  question: browser/events/event-delegation
+- id: delegation-mouseenter-per-item
+  front: "How do you delegate `mouseenter` per item?"
+  back: "Listen for `pointerover` (it bubbles), find the item with `closest()`, and ignore the event when `event.relatedTarget` is inside the same item, meaning the pointer moved between the item's own children."
+  question: browser/events/event-delegation
+- id: delegation-submit-vs-invalid
+  front: "Why does a delegated `submit` listener on `document` work but `invalid` doesn't?"
+  back: "`submit` bubbles; `invalid` is fired without `bubbles`. Register `invalid` with `capture: true` on the form or document."
+  question: browser/events/event-delegation
+- id: delegation-bubbles-observed
+  front: "Which events had `bubbles: false` and which `true` seen from a `document` capture listener in Chrome 156 and Firefox 159?"
+  back: "`false` for `focus`, `blur`, `mouseenter`, `mouseleave`, `pointerenter`, element `scroll`, `invalid`, and an image's `load` and `error`. `true` for `focusin`, `focusout`, `mouseover` and `pointerover`."
+  question: browser/events/event-delegation
+- id: delegation-closed-shadow
+  front: "What should a component with a closed shadow root do to be delegated to?"
+  back: "Dispatch its own composed event, because a closed shadow root's internals are left out of `composedPath()` for outside listeners."
+  question: browser/events/event-delegation
+- id: delegation-tradeoffs
+  front: "What does delegation give up?"
+  back: "Per-element control: one delegate can't easily be removed for one item, and its order relative to item-level handlers is fixed by the bubble phase. It also moves work from setup time to event time, including for events that match nothing."
+  question: browser/events/event-delegation
+- id: propagation-two-outcomes
+  front: "What are the two independent outcomes of an event, and which method touches which?"
+  back: "Which listeners hear it, and whether the browser then does its default action. The stop methods affect the first; `preventDefault()` the second."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-preventdefault
+  front: "What does `preventDefault()` do and when does it silently do nothing?"
+  back: "It sets the canceled flag, so `defaultPrevented` is `true` and the default action (navigation, submit, key insertion) doesn't happen. It does nothing when `event.cancelable` is false or inside a `passive` listener. Propagation continues."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-stoppropagation
+  front: "What does `stopPropagation()` do?"
+  back: "It sets the stop propagation flag. Remaining listeners on the current node still run, but the event goes no further along the path. In a capture listener on an ancestor it stops the event before it reaches the target."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-stopimmediate
+  front: "How does `stopImmediatePropagation()` differ from `stopPropagation()`?"
+  back: "It also stops the remaining listeners on the current node."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-stop-not-cancel
+  front: "Does `stopPropagation()` stop a link from navigating?"
+  back: "No. Neither stop method cancels the default action; only `preventDefault()` does."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-activation-behaviour
+  front: "When do defaults like links, buttons, checkboxes and form submission run, and who can cancel them?"
+  back: "Activation behaviour runs after dispatch finishes, so any listener on the path can cancel it, and so can a `click()` or `dispatchEvent()` from script."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-checkbox-toggle
+  front: "Why does a click handler on a checkbox already see the new `checked` value?"
+  back: "Its legacy-pre-activation behaviour toggles it before dispatch. If the event ends up canceled, legacy-canceled-activation behaviour restores the old value."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-return-false
+  front: "Does returning `false` cancel an event?"
+  back: "From an `on*` handler property such as `onclick`, yes. From an `addEventListener()` callback, no, it does nothing."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-legacy-aliases
+  front: "What are the legacy aliases of `preventDefault()` and `stopPropagation()`?"
+  back: "`event.returnValue = false` for `preventDefault()` and `cancelBubble = true` for `stopPropagation()`."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-noncancelable
+  front: "What happens calling `preventDefault()` on `new Event('x')`?"
+  back: "Nothing. `new Event('x')` defaults to `cancelable: false`. Check `defaultPrevented`."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-defaultprevented-dispatch
+  front: "How can a later listener, or the dispatcher, know an event was canceled?"
+  back: "`event.defaultPrevented` is `true`. `dispatchEvent()` returns `false` when a cancelable event was canceled."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-stop-blinds-delegates
+  front: "Why is `stopPropagation()` a poor way to keep a click to yourself?"
+  back: "It also blinds delegates and document-level handlers such as analytics and click-outside. Prefer checking `defaultPrevented` there."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-onerror-true
+  front: "Does `return true` from `window.onerror` mean carry on?"
+  back: "No, it's the inverted case: for `error` events on a global object returning `true` cancels the event, suppressing the default error report. `onbeforeunload` is the other exception."
+  question: browser/events/default-actions-and-propagation
+- id: propagation-checkbox-example
+  front: "A checked box's click is canceled in an ancestor's capture listener. What does a box listener see for `checked`, and what is it afterwards?"
+  back: "The listener sees `checked=false`, because the toggle happens before listeners run, and the box is `true` again afterwards because the cancelation restores it. A merely stopped click isn't canceled, so it stays toggled. Chrome 156 and Firefox 159 agreed."
+  question: browser/events/default-actions-and-propagation
+- id: options-arguments
+  front: "What can the third argument of `addEventListener()` be?"
+  back: "A boolean, meaning `capture`, or an options object with `capture`, `once`, `passive` and `signal`."
+  question: browser/events/listener-options
+- id: options-capture
+  front: "What does the `capture` option do and what is its default?"
+  back: "It registers the listener for the capture phase, so an ancestor hears the event before the target does. Default `false`."
+  question: browser/events/listener-options
+- id: options-once
+  front: "When does `once` remove the listener?"
+  back: "Just before its first call, even if the callback then throws."
+  question: browser/events/listener-options
+- id: options-passive
+  front: "What does `passive: true` promise and what happens if the listener calls `preventDefault()`?"
+  back: "That the listener won't call `preventDefault()`. If it does, the call is ignored and Chrome logs \"Unable to preventDefault inside passive event listener invocation.\""
+  question: browser/events/listener-options
+- id: options-passive-scroll
+  front: "Why do non-passive `touchstart`, `touchmove` and `wheel` listeners cause scroll jank?"
+  back: "For these types a passive listener lets the browser scroll without waiting for script, which is why non-passive listeners cause scroll jank."
+  question: browser/events/listener-options
+- id: options-passive-default
+  front: "Which listeners are passive by default?"
+  back: "When `passive` isn't given, `touchstart`, `touchmove` and `wheel` listeners on `window`, `document`, `<html>` or `<body>` default to passive."
+  question: browser/events/listener-options
+- id: options-passive-block-scroll
+  front: "How do you block scrolling from a `wheel` or `touchmove` listener?"
+  back: "Use `passive: false`, or CSS `touch-action` for touch. Marking it `passive` makes `preventDefault()` a no-op."
+  question: browser/events/listener-options
+- id: options-signal
+  front: "What does the `signal` option do?"
+  back: "Aborting the `AbortSignal` removes the listener. One `AbortController` can remove a whole component's listeners at once, with no function references kept. An already aborted signal means the listener is never added."
+  question: browser/events/listener-options
+- id: options-identity
+  front: "What identifies a listener, and what happens adding the same one again?"
+  back: "Type, callback and `capture`. Adding the same trio again is ignored, even with different `once` or `passive` values, and `removeEventListener()` looks only at those three."
+  question: browser/events/listener-options
+- id: options-remove-capture
+  front: "How do you remove a listener added with `capture: true`?"
+  back: "Pass `capture: true` to `removeEventListener()` too. Without it nothing matches and the listener stays."
+  question: browser/events/listener-options
+- id: options-remove-arrow
+  front: "Why does `removeEventListener()` with a new arrow function not work?"
+  back: "It's a different callback. Keep the reference or use `signal`."
+  question: browser/events/listener-options
+- id: options-handler-properties
+  front: "How do event handler properties like `el.onclick` behave?"
+  back: "One handler per event type: assigning replaces it, `null` removes it, and returning `false` cancels the event. The first non-null assignment adds a non-capture listener at that point in the list; later assignments keep that position."
+  question: browser/events/listener-options
+- id: options-support-versions
+  front: "In which browser versions did `once` and `signal` arrive?"
+  back: "`once` in Chrome 55, Firefox 50 and Safari 10; `signal` in Chrome 90, Firefox 86 and Safari 15."
+  question: browser/events/listener-options
+- id: options-passive-default-support
+  front: "In which browsers are touch and `wheel` listeners passive by default?"
+  back: "Touch listeners in Chrome 55, Firefox 61 and Safari 11.1; `wheel` listeners in Chrome 73 and Firefox 84, not Safari."
+  question: browser/events/listener-options
+- id: options-wheel-uncancelable
+  front: "What happens to `cancelable` when every `wheel` listener is passive?"
+  back: "The DOM Standard lets the browser dispatch it uncancelable so scrolling can start in parallel. In Chrome 156 and Firefox 159 a real wheel with only a default-passive `window` listener arrived with `cancelable: false` and the page scrolled."
+  question: browser/events/listener-options
+- id: options-event-target-when
+  front: "What is `EventTarget.when(type)` and how widely does it ship?"
+  back: "From the WICG Observable proposal, it returns an Observable of events. It shipped in Chrome 135 only; Firefox and Safari don't have it, so treat it as experimental."
+  question: browser/events/listener-options
+- id: options-once-remove
+  front: "Does `removeEventListener()` remove a `once` listener before it fires?"
+  back: "Yes, if type, callback and `capture` match. `once` doesn't change identity."
+  question: browser/events/listener-options
+- id: custom-customevent
+  front: "How do you create a custom event that carries data?"
+  back: "`new CustomEvent('cart:add', { detail })`. `detail` carries any value, by reference."
+  question: browser/events/custom-events
+- id: custom-flags
+  front: "What do `bubbles`, `cancelable` and `composed` do on a custom event, and what do they default to?"
+  back: "All default to `false`. `bubbles: true` lets ancestors and delegates hear it; `cancelable: true` lets a listener veto with `preventDefault()`; `composed: true` lets it cross shadow-root boundaries."
+  question: browser/events/custom-events
+- id: custom-subclass
+  front: "How can you carry typed fields on a custom event instead of `detail`?"
+  back: "Subclass `Event`, e.g. `class AddEvent extends Event`, and put the fields on it."
+  question: browser/events/custom-events
+- id: custom-dispatchevent-return
+  front: "What does `dispatchEvent()` return and when is it synchronous?"
+  back: "It runs the listeners synchronously and returns `false` if the event was cancelable and some listener canceled it. That is how a component asks permission before acting."
+  question: browser/events/custom-events
+- id: custom-redispatch-error
+  front: "What happens dispatching an event that is already being dispatched?"
+  back: "An `InvalidStateError`."
+  question: browser/events/custom-events
+- id: custom-eventtarget-objects
+  front: "How do you give a non-DOM object `addEventListener()` and `dispatchEvent()`?"
+  back: "Use `new EventTarget()` or a class that extends it. Such targets have no parent, so nothing propagates. The constructor arrived in Chrome 64, Firefox 59 and Safari 14."
+  question: browser/events/custom-events
+- id: custom-istrusted
+  front: "What does `isTrusted` mean?"
+  back: "`true` when the browser dispatched the event because of real input or its own algorithms; `false` for anything from `dispatchEvent()`, including `el.click()`."
+  question: browser/events/custom-events
+- id: custom-user-activation
+  front: "Which events grant user activation, and does a dispatched one?"
+  back: "Only trusted `keydown`, `mousedown`, `pointerdown`, `pointerup` and `touchend` events. Untrusted events grant none, so they can't unlock activation-gated APIs like `requestFullscreen()`."
+  question: browser/events/custom-events
+- id: custom-events-notify
+  front: "Does a synthetic event cause the action it names, e.g. a `keydown` typing a character?"
+  back: "No, events notify; they don't cause actions. The exception is activation behaviour: a `MouseEvent` named `click` follows a link or toggles a checkbox even when untrusted."
+  question: browser/events/custom-events
+- id: custom-event-click-checkbox
+  front: "Does dispatching `new Event('click', { bubbles: true })` toggle a checkbox, and does a `MouseEvent` named `click`?"
+  back: "The plain `Event` doesn't (`false`); the `MouseEvent` does (`true`). Activation behaviour runs only for a `MouseEvent` (or subclass) whose type is `click`, trusted or not."
+  question: browser/events/custom-events
+- id: custom-naming
+  front: "How should you name custom events?"
+  back: "So they can't clash with built-in ones, for example with a prefix like `cart:add`."
+  question: browser/events/custom-events
+- id: custom-istrusted-not-security
+  front: "Is `isTrusted` a security boundary for your own code?"
+  back: "No. It tells you the browser fired the event, nothing more; it doesn't authenticate data in `detail`."
+  question: browser/events/custom-events
+- id: custom-click-not-trusted
+  front: "Is `el.click()` trusted, and does it give user activation?"
+  back: "No. The DOM Standard calls it the legacy exception: it runs activation behaviour like a real click but `isTrusted` is `false`. `navigator.userActivation.isActive` stayed `false` in its listener and was `true` for a real click in Chrome 156 and Firefox 159."
+  question: browser/events/custom-events
+- id: custom-redispatch-canceled
+  front: "Can the same event object be dispatched twice, and does cancelation persist?"
+  back: "After the first dispatch finishes, yes. Dispatch resets the stop flags but not the canceled flag, so a canceled event stays `defaultPrevented` and `dispatchEvent()` returns `false` again."
+  question: browser/events/custom-events
+- id: custom-web-component-event
+  front: "How does a web component announce a change to the page?"
+  back: "Dispatch a bubbling `CustomEvent` on the host itself. An event dispatched inside the shadow root also needs `composed: true` to cross the boundary; outside listeners then see it retargeted to the host."
+  question: browser/events/custom-events
+- id: microtask-dispatch-sync
+  front: "Is `dispatchEvent()` synchronous?"
+  back: "Yes. It builds the path, calls every listener in order, runs any activation behaviour, and only then returns `true`, or `false` if canceled. A throwing listener is reported to `window`'s `error` event and the caller carries on."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-checkpoint
+  front: "When does a microtask checkpoint run after a listener?"
+  back: "The HTML Standard performs one in clean up after running script, whenever a callback returns and the JavaScript execution context stack is empty. Web IDL runs that cleanup after every listener call."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-real-click
+  front: "In a real click, when do a listener's microtasks run?"
+  back: "Before the next listener starts and before the default action. The browser dispatches from a task with no script running, so each listener returns to an empty stack. Trusted click logged `listener 1, microtask 1, listener 2, microtask 2` in Chrome 156 and Firefox 159."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-scripted-dispatch
+  front: "When do microtasks run for `el.click()` or `dispatchEvent()` called from script?"
+  back: "After the whole dispatch. The calling script is still on the stack, so it never empties between listeners; microtasks wait until the outermost script returns. Logged `listener 1, listener 2, after dispatchEvent(), microtask 1, microtask 2`."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-stack-not-istrusted
+  front: "Is the microtask ordering difference about `isTrusted`?"
+  back: "No, it's about who is on the stack. A trusted `focus` event fired synchronously by `el.focus()` behaves like the scripted case: the microtask runs after the script ends."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-await-preventdefault
+  front: "Does `preventDefault()` after an `await` in a click listener work?"
+  back: "For a real click, yes: dispatch is still in progress and `currentTarget` is set. For `el.click()` the code runs after dispatch ended, `currentTarget` is `null` and canceling is too late. Call it before the first `await`."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-test-pitfall
+  front: "Why can tests using `el.click()` pass while real users see different behaviour?"
+  back: "Microtask ordering and the state after an `await` differ between scripted and real dispatch. Use real input (WebDriver, Puppeteer, Playwright) when ordering matters."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-no-paint
+  front: "Does a real click's microtask run before the browser paints?"
+  back: "Yes. Microtasks run within the task that dispatched the click; rendering happens only between tasks, so neither listener nor microtask is separated by a paint."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-nested-dispatch
+  front: "What if a listener dispatches another event?"
+  back: "It runs synchronously inside the listener, and its listeners' microtasks wait because the outer listener is still on the stack. In a real click they run when that outer listener returns, before the next one."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-settimeout-between
+  front: "Do tasks such as `setTimeout` queued in a listener run between listeners?"
+  back: "No, never. A task runs only after the current task, including the whole dispatch and its default action, has finished."
+  question: browser/events/dispatch-and-microtasks
+- id: microtask-focus-example
+  front: "In `field.focus()` with two `focus` listeners and a `queueMicrotask` in the first, what is the log order?"
+  back: "`focus trusted=true, focus 2, after focus(), microtask`. The browser fires `focus` itself so it's trusted, but synchronously inside `field.focus()` while the script is on the stack. Chrome 156 and Firefox 159 agreed."
+  question: browser/events/dispatch-and-microtasks
+- id: input-pointer-events
+  front: "Which events cover pointing for mouse, touch and pen, and how do you tell the device and simultaneous touches apart?"
+  back: "`pointerdown`, `pointermove`, `pointerup` and `pointercancel`. `pointerType` says which device; `pointerId` separates simultaneous touches."
+  question: browser/events/input-events
+- id: input-pointer-capture
+  front: "What does `el.setPointerCapture(event.pointerId)` do?"
+  back: "It sends that pointer's later events to `el` even after the pointer leaves it, until `pointerup`. Without it a drag stops updating when the pointer leaves the element."
+  question: browser/events/input-events
+- id: input-touch-action
+  front: "Why set CSS `touch-action: none` on a touch drag?"
+  back: "It tells the browser which panning or zooming it may start itself. Without it the browser may take the gesture to pan or zoom, and fires `pointercancel` when it does."
+  question: browser/events/input-events
+- id: input-compat-mouse-events
+  front: "What does canceling `pointerdown` suppress among the compatibility mouse events?"
+  back: "The later `mousedown` and `mouseup`, but not `click`. Touch events are needed only for code that predates pointer events."
+  question: browser/events/input-events
+- id: input-click-activation
+  front: "Which event means the user activated something?"
+  back: "`click`. It fires for mouse, touch, and Enter or Space on a focused button."
+  question: browser/events/input-events
+- id: input-key-vs-code
+  front: "What is the difference between `event.key` and `event.code`?"
+  back: "`key` is the value produced, after layout and modifiers (`\"a\"`, `\"A\"`, `\"!\"`, `\"Enter\"`). `code` is the physical key (`\"KeyA\"`, `\"Digit1\"`), the same on every layout. Use `key` for character shortcuts and `code` for position-based controls like WASD."
+  question: browser/events/input-events
+- id: input-keypress-deprecated
+  front: "What is the status of `keypress`?"
+  back: "Deprecated."
+  question: browser/events/input-events
+- id: input-layout-code
+  front: "On a French layout, what are `key` and `code` for the key in the \"2\" position?"
+  back: "`key` is `\"é\"` but `code` is still `\"Digit2\"`. Matching shortcuts on `code` breaks when the user means a character."
+  question: browser/events/input-events
+- id: input-beforeinput-vs-input
+  front: "How do `beforeinput` and `input` differ?"
+  back: "`beforeinput` fires before the edit with `inputType` and `data`, and canceling it blocks the edit. `input` fires after and can't be canceled."
+  question: browser/events/input-events
+- id: input-no-keydown-filter
+  front: "Why not filter text in `keydown`?"
+  back: "Text arrives by typing, paste, drag, autocorrect, dictation and IMEs, which key events can't track. Use `beforeinput`."
+  question: browser/events/input-events
+- id: input-composition
+  front: "What fires during IME composition and which of it can be canceled?"
+  back: "Between `compositionstart` and `compositionend`, the steps fire `beforeinput`/`input` with `isComposing: true`, and that `beforeinput` can't be canceled. Validate or search on `compositionend`, not every step."
+  question: browser/events/input-events
+- id: input-beforeinput-cancelable
+  front: "Is every `beforeinput` cancelable?"
+  back: "Input Events Level 2 makes every one cancelable except those inside an IME composition. In Chrome 156 (the only browser checked, via CDP emulation) an emulated composition's `insertCompositionText` events had `cancelable: false` and canceling them changed nothing."
+  question: browser/events/input-events
+- id: input-dead-key
+  front: "Which `key` does a dead key produce, and how should you read the resulting text?"
+  back: "`\"Dead\"` on its `keydown`. A composition follows: the next `keydown` already reports `\"ê\"` and `compositionend` carries `\"ê\"`. Read text from input and composition events, not by reassembling keys."
+  question: browser/events/input-events
+- id: input-knob-example
+  front: "A pointer is captured in `pointerdown` (default prevented), dragged off the element and released. Which events log?"
+  back: "`pointerdown, pointerup, lostpointercapture, click`. Capture sends `pointerup` and `click` to the element; canceling `pointerdown` suppresses `mousedown` and `mouseup` but not `click`. Puppeteer `page.mouse` in Chrome 156 and Firefox 159."
+  question: browser/events/input-events
