@@ -3792,3 +3792,552 @@
   front: "Which of these apply: `(display: grid) and (not (display: wobble))`, `display: grid` without parentheses, or `(display: grid) and (display: flex) or (display: block)`?"
   back: "Only the first. The second lacks parentheses and the third mixes `and` with `or` without grouping; both are invalid, so each rule is dropped with its contents."
   question: html-and-css/modern-css/feature-queries
+# 09 Typography, colour and motion
+- id: font-match-per-character
+  front: "Does font matching run per element or per character?"
+  back: "Per character (CSS Fonts 4, §5), not per element."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-match-family-lookup
+  front: "How are names in `font-family` looked up?"
+  back: "A generic (`serif`, `system-ui`) maps to a real family; other names are looked up in `@font-face` rules first, then installed fonts. A name defined by `@font-face` never falls through to an installed font of the same name, even if every face fails to load."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-match-narrowing-order
+  front: "In what order does the browser narrow a family's faces?"
+  back: "By `font-width`, then `font-style`, then `font-weight`. For `@font-face` faces the descriptors count, not what the file contains."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-match-missing-glyph
+  front: "What happens when the matched face lacks a glyph for the character?"
+  back: "The browser moves to the next family; other faces in the same family aren't tried. After the list runs out, the browser's own system fallback picks a font."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-match-weight-search
+  front: "How does the weight search work for targets below 400, above 500, and from 400 to 500?"
+  back: "Below 400: lighter first, then heavier. Above 500: heavier first, then lighter. From 400 to 500: up to 500, then lighter, then above 500."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-match-400-picks-500
+  front: "With faces at 300, 500 and 700, which face does `font-weight: 400` pick?"
+  back: "500. `document.fonts.load(\"600 16px Demo\")` picked 700 and `350` picked 300 in the same family. Chrome 156 and Firefox 159 on macOS agreed."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-match-style-beats-weight
+  front: "Does style or weight take priority in face matching?"
+  back: "Style beats weight. `font: italic 700` in a family with a regular italic and an upright bold picks the italic and makes it bold another way."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-synthesis-what
+  front: "What is font synthesis, and how do you turn it off?"
+  back: "When the matched face is lighter or more upright than asked, the browser may fake bold (thickening strokes) or oblique (shearing glyphs). `font-synthesis: none`, or the longhands `font-synthesis-weight` and `font-synthesis-style`, turn it off."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-variable-axes
+  front: "Are variable-font axes synthesis, and how do you expose a range?"
+  back: "No. A variable font's `wght`, `wdth`, `slnt` and `ital` axes aren't synthesis: declare a range (`font-weight: 100 900`) and the browser treats every value in it as an available face."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-synthesis-position
+  front: "Which browsers support `font-synthesis-position`?"
+  back: "Firefox 118 only, not Chrome or Safari."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-bold-descriptor-default
+  front: "What happens if a bold file's `@font-face` omits `font-weight: 700`?"
+  back: "The descriptor defaults to `auto`, which matches as `normal`. Firefox 159 then synthesised bold over the real bold (text widened from 362.6px to 375.8px); Chrome 156 didn't."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-missing-bold-no-fallback
+  front: "Does a missing bold fall back to the next family?"
+  back: "No. Fallback happens only when no face matches or a glyph is missing; a missing weight is synthesised or approximated within the family."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-italic-without-style
+  front: "What happens if an italic file shares the family name but lacks `font-style: italic`?"
+  back: "It matches as an upright face. With two upright faces at 400, the later rule rendered plain text in italics in Chrome 156 and Firefox 159."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-weight-animation
+  front: "What happens when you animate `font-weight` over static faces?"
+  back: "The value changes continuously but the face jumps at the search boundaries; only a variable font moves smoothly."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-synthetic-bold-layout
+  front: "Does synthetic bold change layout?"
+  back: "It depends on the engine. With Georgia Regular faked to 700, Firefox 159 widened the text from 310.4px to 323.6px; Chrome 156 kept 310.4px and only thickened the strokes. Georgia's real bold was 362.6px in both."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-first-available
+  front: "What is the \"first available font\", and why does it matter?"
+  back: "The first font in the list whose `unicode-range` covers U+0020 (space), whether or not it has a space glyph. Font-relative units like `ex` and `line-height` use its metrics, even when other fonts draw the glyphs."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-synthesis-default-on
+  front: "Why do browsers keep font synthesis on by default?"
+  back: "Faking is better than showing the wrong weight when a family ships only one face. Turn it off for scripts where shearing or thickening damages legibility, or when a design system ships every face it uses."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: font-weight-450
+  front: "With faces at 300, 400 and 600, which face renders `font-weight: 450`?"
+  back: "The 400 face: from 450 the search looks heavier only as far as 500 (none), then lighter, so 400 wins before 600. Chrome 156 and Firefox 159 fetched only `brand-400.woff2`; the others stayed `unloaded`."
+  question: html-and-css/typography-colour-motion/font-matching
+- id: trunc-one-line
+  front: "Which three declarations truncate text to one line with an ellipsis?"
+  back: "`white-space: nowrap` so it overflows sideways, `overflow: hidden` so it's clipped, and `text-overflow: ellipsis` to draw the \"…\"."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-text-overflow-role
+  front: "What does `text-overflow` decide, and where must it be set?"
+  back: "Only how clipped inline content is drawn, so it needs overflowing content and a clipping box. It applies to block containers and isn't inherited, so set it on the box that clips, not an inline child or flex container."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-missing-parts
+  front: "What happens if you drop `nowrap` or `overflow: hidden` from the one-line recipe?"
+  back: "Without `nowrap` the text wraps instead of overflowing; without `overflow: hidden` it spills out visibly."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-line-clamp-standard
+  front: "What is the standard `line-clamp: 3`, and does any stable browser ship it?"
+  back: "A CSS Overflow 4 shorthand for `max-lines`, `block-ellipsis` and `continue` that fragments away everything after line 3 and puts an ellipsis at the end of the last line. No stable browser ships it yet."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-webkit-quartet
+  front: "Which declarations make up the legacy multi-line clamp?"
+  back: "`display: -webkit-box`, `-webkit-box-orient: vertical`, `-webkit-line-clamp: N` and `overflow: hidden`."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-webkit-needs-all
+  front: "What does `-webkit-line-clamp` alone do?"
+  back: "Nothing: without `display: -webkit-box` and `-webkit-box-orient: vertical` the paragraph stayed 80px tall."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-overflow-hidden-needed
+  front: "Why is `overflow: hidden` still needed on a clamped box?"
+  back: "The box shrinks to the clamped lines and draws the ellipsis, but the lines after the clamp otherwise keep painting: lines three and four painted below it in both browsers."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-display-flow-root
+  front: "What does the draft do to the `display` of a `-webkit-line-clamp` box?"
+  back: "Turns it into `flow-root`, and Chrome 156 and Firefox 159 report that."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-line-clamp-unprefixed
+  front: "Does `CSS.supports(\"line-clamp: 2\")` return true in Chrome 156 and Firefox 159?"
+  back: "No, it returned `false` and the box stayed 80px tall. Write the `-webkit-` form, optionally with `line-clamp` alongside."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-detect
+  front: "How does script detect truncated text?"
+  back: "`scrollWidth > clientWidth` (or `scrollHeight > clientHeight`)."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-overflow-wrap
+  front: "What does `overflow-wrap: anywhere` do, and what do `balance` and `pretty` do for `text-wrap`?"
+  back: "`overflow-wrap: anywhere` (or `break-word`) breaks a long word or URL that would overflow. `text-wrap: balance` evens out line lengths in short blocks like headings; `pretty` asks for slower, better breaking, such as avoiding a lone last word."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-text-wrap-support
+  front: "Which browsers support `text-wrap: balance` and `text-wrap: pretty`?"
+  back: "`balance`: Chrome 114, Firefox 121, Safari 17.5. `pretty`: Chrome 117, Safari 26, not Firefox."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-flex-container
+  front: "Why doesn't `text-overflow: ellipsis` on a flex container work?"
+  back: "Flex containers aren't block containers. Style the item, which is blockified."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-balance-differs
+  front: "Do Chrome and Firefox balance a heading the same way?"
+  back: "No; the spec leaves the algorithm to the browser. A 320px heading broke into three lines in both, but Chrome 156 started \"How do you truncate\" and Firefox 159 \"How do you truncate text\". The spec lets browsers treat `balance` as `auto` beyond ten lines."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-anywhere-vs-break-word
+  front: "What is the difference between `overflow-wrap: anywhere` and `break-word`?"
+  back: "Both break an unbreakable word that would overflow. Only `anywhere` counts those breaks in min-content size, so a flex item with a long word shrank to its 120px container with `anywhere` but stayed 191px wide with `break-word`."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-middle
+  front: "Can CSS truncate in the middle, like `file…name.pdf`?"
+  back: "No: `text-overflow` cuts at the end edge of the line. Middle truncation needs script that measures and rewrites the text, keeping the full string in `title` or an accessible name."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: trunc-flex-min-width
+  front: "Why does a `text-overflow: ellipsis` title inside a flex row show no ellipsis and push a button out?"
+  back: "The flex item's `min-width: auto` keeps it at its content width, so the title never overflows. Add `min-width: 0` to the item; the title then clipped and the button ended at the row's edge."
+  question: html-and-css/typography-colour-motion/text-truncation-and-wrapping
+- id: oklch-srgb-spaces
+  front: "Which colour notations describe sRGB, and what does `hsl()` add?"
+  back: "`rgb()`, hex and `hsl()` all describe sRGB, the gamut of the old web. `hsl()` only reshapes the RGB cube into hue, saturation and lightness; its lightness is arithmetic, not perceptual."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-hsl-lightness-example
+  front: "What are the Oklab lightness values of `hsl(60 100% 50%)` and `hsl(240 100% 50%)`?"
+  back: "0.97 for yellow and 0.45 for blue, although both share `50%` HSL lightness."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-what
+  front: "What are the parts of `oklch(L C H)`?"
+  back: "The polar form of Oklab. `L` (0–1 or 0–100%) is perceived lightness, `C` is chroma (0 is grey; in practice under 0.5), `H` is hue in degrees."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-why-palettes
+  front: "Why do design systems build palettes in `oklch()`?"
+  back: "Changing `H` at fixed `L` and `C` gives a new hue at the same visual weight."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-wide-gamut
+  front: "What does `color(display-p3 1 0 0)` give, and is `oklch()` tied to a gamut?"
+  back: "A red more saturated than any sRGB colour, visible on a P3 screen. `oklch()` isn't tied to any gamut, so one notation covers sRGB, P3 and beyond."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-gamut-mapping-spec
+  front: "What does Color 4 describe for gamut mapping, and where does it apply?"
+  back: "Reducing chroma at constant lightness and hue. The value is kept as written through computed value (`getComputedStyle` returns `oklch(0.7 0.4 30)` unchanged); only painting must bring it into range."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-clipping
+  front: "How did Chrome 156 and Firefox 159 map out-of-gamut colours when painting to sRGB?"
+  back: "They clipped each channel instead, so very different out-of-gamut colours can land on the same pixel. `oklch(70% 0.4 30)` painted the same pure red as `oklch(62.8% 0.2577 29.23)`."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-practice
+  front: "What is the practical advice for writing colours in `oklch()`?"
+  back: "Write colours in `oklch()`, keep chroma within the target gamut for important colours, and gate vivid P3 values with `@media (color-gamut: p3)`."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-support
+  front: "Which browsers shipped `oklch()`, and when?"
+  back: "Chrome 111, Firefox 113 and Safari 15.4."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-hsl-contrast
+  front: "Why is HSL lightness a poor proxy for contrast?"
+  back: "The same `L%` in `hsl()` gives text that passes on one hue and fails on another; compare `oklch()` `L` instead, then check real contrast."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-clip-shifts
+  front: "What is the risk of pushing chroma past the gamut today?"
+  back: "The browser doesn't pick a nice nearby colour; today's clipping can shift hue and lightness. Keep chroma in range or test on both kinds of screen."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-computed-unmapped
+  front: "What does `getComputedStyle` return for an out-of-gamut colour?"
+  back: "The unmapped value, not the displayed one: `rgb(from oklch(70% 0.4 30) r g b)` computed to `color(srgb 1.3196 -0.449799 -0.310059)` in Chrome 156."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-fallback
+  front: "How do you provide a fallback for browsers older than Chrome 111 or Firefox 113?"
+  back: "Declare a hex value first; the `oklch()` line overrides it where supported."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-hue-differs
+  front: "Why is hue `30` red in `oklch()` but orange in `hsl()`?"
+  back: "Hue angles aren't shared between spaces. HSL's 0° is sRGB red; OkLCh's 0° points along Oklab's positive `a` axis (purplish red), and sRGB red sits near 29°."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-out-of-range
+  front: "How are out-of-range `oklch()` values parsed?"
+  back: "`L` is clamped to 0–1 (`oklch(150% 0.1 30)` computed to `oklch(1 0.1 30)`), negative chroma to 0, and hue wraps: `390deg` computed to `30`."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: oklch-detect-p3
+  front: "How do you detect a wide-gamut screen, and what did headless Chrome 156 and Firefox 159 match?"
+  back: "`@media (color-gamut: p3)` or `matchMedia(\"(color-gamut: p3)\")`. Both headless browsers matched `srgb` but not `p3`."
+  question: html-and-css/typography-colour-motion/oklch-and-wide-gamut
+- id: mix-why-derive
+  front: "Why derive colours with `color-mix()` and relative colour syntax instead of a preprocessor?"
+  back: "One `--brand` token can produce hover, border and tint variants that follow it, even when it changes at runtime. Preprocessors run before `var()` exists."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-space-matters
+  front: "How does the interpolation space change `color-mix()` results?"
+  back: "Blue and yellow mixed `in srgb` gave exact grey; `in oklch` gave a vivid teal. Without `in …` the default is Oklab, a good general choice."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-percentages
+  front: "How does `color-mix()` handle missing percentages and totals over 100%?"
+  back: "One missing percentage is `100%` minus the other; both missing is 50/50. If they sum to more than 100% they're scaled down."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-under-100
+  front: "What happens when `color-mix()` percentages sum to less than 100%?"
+  back: "The mix is made at full strength and its alpha is multiplied by the sum: `red 20%, blue 20%` is a 50/50 purple at alpha 0.4. Give one colour no percentage for an opaque mix."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-polar-hue
+  front: "How do polar spaces (`hsl`, `oklch`, `lch`) interpolate hue in `color-mix()`?"
+  back: "Along the shorter arc unless you write `longer hue`, `increasing hue` or `decreasing hue`."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-relative-syntax
+  front: "What does relative colour syntax do?"
+  back: "Starts a colour function with `from <color>`. The origin is converted into that function's space and each channel keyword (`l`, `c`, `h`, `r`, `alpha`…) becomes a plain number you can keep, swap or compute with `calc()`."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-channel-ranges
+  front: "What number ranges do the channel keywords have in `rgb(from …)` and `oklch(from …)`?"
+  back: "`r` is 0–255 in `rgb()`; `l` is 0–1 in `oklch()`."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-when-to-use
+  front: "When do you choose `color-mix()` over relative colour syntax?"
+  back: "`color-mix()` to blend towards another colour (tints, overlays); relative syntax to adjust one channel precisely (lightness steps, alpha)."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-computed-time
+  front: "When do both functions resolve, and what happens to `currentColor` inside `color-mix()`?"
+  back: "At computed-value time, so `getComputedStyle` returns the final colour. A `currentColor` inside `color-mix()` stays unresolved so each element mixes with its own `color`."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-support
+  front: "Which browsers support relative colour syntax?"
+  back: "Chrome 122 (oklch), Firefox 128, Safari 18."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-example-values
+  front: "What do `color-mix(in srgb, red 25%, blue)` and `color-mix(in srgb, blue, yellow)` compute to?"
+  back: "`color(srgb 0.25 0 0.75)` and `color(srgb 0.5 0.5 0.5)` (grey). Chrome 156 and Firefox 159 printed the same values."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-hsl-vs-srgb
+  front: "How do `color-mix(in hsl, red, blue)` and `in srgb` differ?"
+  back: "The `hsl` mix goes round the hue wheel to magenta (`color(srgb 1 0 1)`); the `srgb` one averages channels to purple."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-relative-examples
+  front: "What do `oklch(from var(--brand) calc(l - 0.1) c h)` and `calc(h + 180)` do to `oklch(60% 0.15 250)`?"
+  back: "The first gives `oklch(0.5 0.15 250)` (darker); the second `oklch(0.6 0.15 70)` (the complement)."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-percent-in-l
+  front: "Why does `calc(l - 10%)` fail in `oklch(from …)`?"
+  back: "`l` is a number, so subtracting a percentage made the whole value invalid; use `calc(l - 0.1)`."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-legacy-commas
+  front: "Does relative colour syntax work with legacy commas?"
+  back: "No. `rgb(from red r, g, b)` was invalid; relative syntax only exists in the space-separated form."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-srgb-mud
+  front: "Why avoid mixing opposite hues `in srgb`?"
+  back: "Channel averaging passes through grey. Mix in `oklab` or `oklch`."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-one-or-three
+  front: "Can `color-mix()` take one colour, or three?"
+  back: "The current draft allows one or more. Firefox 159 accepted `color-mix(in srgb, red, blue, lime)` and computed `color(srgb 0.333333 0.333333 0.333333)`; Chrome 156 rejected it as invalid, as it did a single colour."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-currentcolor-inherit
+  front: "What does a child inherit from a parent's `color-mix(in srgb, currentColor 50%, white)` in a registered `<color>` property?"
+  back: "The function, not a colour. With a parent `color: red`, its blue child computed `color(srgb 0.5 0.5 1)`, mixed with its own blue."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: mix-relative-no-clamp
+  front: "Do relative colours clamp channels into the gamut?"
+  back: "No. `rgb(from oklch(70% 0.4 30) r g b)` computed to `r` above 1 and negative `g` and `b`; only painting brings them into range."
+  question: html-and-css/typography-colour-motion/color-mix-and-relative-colour
+- id: dark-media-not-enough
+  front: "Why isn't `@media (prefers-color-scheme: dark)` enough for dark mode?"
+  back: "It changes only what you style. Without `color-scheme`, inputs, scrollbars, the canvas and `Canvas`/`CanvasText` stay light. The browser can't darken them on its own, because an older page might put dark text on them."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-color-scheme-used
+  front: "How does the browser choose an element's used colour scheme?"
+  back: "The user's preference if it's listed in `color-scheme`, otherwise the first listed one, otherwise light."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-root-opt-in
+  front: "What does `:root { color-scheme: light dark }` do?"
+  back: "Turns the canvas, default text, form controls and system colours (`Canvas`, `CanvasText`, `Field`, `LinkText`…) dark for users who prefer dark. On the root it also covers the viewport's scrollbars and background."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-meta
+  front: "What does `<meta name=\"color-scheme\" content=\"light dark\">` add?"
+  back: "It sets the page's supported schemes from the HTML, so it takes effect without waiting for a stylesheet."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-subtree-only
+  front: "How do you pin a subtree to a scheme, and what does `only` do?"
+  back: "`color-scheme: dark` on the subtree. The `only` keyword (`light only`) forbids the browser from force-darkening or recolouring the page."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-light-dark
+  front: "What does `light-dark(a, b)` compute to?"
+  back: "Its first colour when the element's used scheme is light and the second when dark. It follows `color-scheme`, not a media query, so tokens are written once."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-theme-toggle
+  front: "How does a theme toggle work with `light-dark()` tokens?"
+  back: "It only changes `color-scheme` (for example `[data-theme=\"dark\"] { color-scheme: dark }`); every `light-dark()` follows, with no duplicated `@media` block."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-light-dark-support
+  front: "Which browsers shipped `light-dark()`, and what does it accept?"
+  back: "Chrome 123, Firefox 120 and Safari 17.5. Colours only, plus images since Chrome 150, Firefox 150 and Safari 27."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-light-dark-no-scheme
+  front: "What does `light-dark()` return without `color-scheme`?"
+  back: "Always its first colour: the used scheme stays light, even for users who prefer dark."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-hardcoded-surface
+  front: "What goes wrong with `color-scheme: light dark` and `body { background: white }`?"
+  back: "Default text turns light in dark mode, so the page goes white-on-white. Chrome 156 computed `rgb(255, 255, 255)` text, Firefox 159 `rgb(251, 251, 254)`; use `background: Canvas` or `light-dark()`."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-body-vs-root
+  front: "Why set `color-scheme` on `:root` rather than `body`?"
+  back: "The canvas and viewport scrollbars follow the root, and `color` inherits from the root's `CanvasText`: with only `body` dark, text stayed `rgb(0, 0, 0)`."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-non-colours
+  front: "Does `light-dark()` accept non-colours?"
+  back: "Not lengths: `padding: light-dark(1px, 2px)` was rejected as invalid."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-user-override
+  front: "How do you respect the system setting but let users override it?"
+  back: "Default to `color-scheme: light dark` on `:root`, and let the toggle set `light` or `dark` there (via a class or attribute) and store the choice. `light-dark()` tokens, system colours and form controls all follow."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-only-keyword
+  front: "What does the `only` keyword do in `color-scheme: light only`?"
+  back: "Without it, a browser with a user override may force the page into the preferred scheme and auto-adjust its colours. `light only` tells it the page must not be recoloured."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: dark-example-output
+  front: "In the Chrome 156 example, what are the `color` and `Canvas` background under `color-scheme: dark`?"
+  back: "`rgb(129, 217, 254)` on `rgb(18, 18, 18)`. Firefox 159 matched except its dark `Canvas`, `rgb(28, 27, 34)`."
+  question: html-and-css/typography-colour-motion/dark-mode-color-scheme
+- id: trans-start-conditions
+  front: "When does a transition start?"
+  back: "At a style change event, if the value changed and both values can interpolate, `transition-property` lists it (or `all`), and duration plus delay is above `0s`."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-change-driven
+  front: "Why does nothing transition on page load or for a just-inserted element?"
+  back: "Transitions are driven by changes: there is no before-change style to start from."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-starting-style
+  front: "What does `@starting-style` do?"
+  back: "Supplies the start values for an element with no before-change style, one just inserted or changing from `display: none`. The rules cascade like normal rules but only feed the starting style."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-allow-discrete
+  front: "What does `transition-behavior: allow-discrete` do?"
+  back: "Lets discrete properties (ones with no in-between values) transition. They flip at 50%, except `display`, which stays visible for the whole transition between `none` and a visible value."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-display-rule
+  front: "Why does a `display` transition keep the element visible until the end?"
+  back: "`display` borrows `visibility`'s rule: for progress strictly between 0 and 1 the interpolated value is the visible one, in both directions. CSS Display 4 makes the element inert while its real value is `none`."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-fade-recipe
+  front: "How do you fade a toggled element in and out?"
+  back: "`transition: opacity 0.4s, display 0.4s allow-discrete`, with `[hidden] { display: none; opacity: 0 }` and `@starting-style { .panel { opacity: 0 } }`. Top-layer elements also need `overlay 0.4s allow-discrete`."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-support
+  front: "Which browsers support `transition-behavior` and `@starting-style`?"
+  back: "Chrome 117 and Safari 17.4–17.5. Firefox 129 added both but, as of Firefox 159, doesn't transition `display`, so its exit simply cuts."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-example-chrome
+  front: "In the Chrome 156 panel example, what are `display` and `opacity` at 100ms of showing and at 100ms of hiding?"
+  back: "Showing: `block` and `0.25`. Hiding: `block` and `0.75`; at 400ms of hiding, `none` and `0`. Firefox 159 matched on show but started no transition on hide."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-insert-same-task
+  front: "Why doesn't inserting an element and changing its class in the same task transition?"
+  back: "There's no before-change style, so `getAnimations()` was empty in both browsers. Use `@starting-style` instead of forcing a reflow."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-height-auto
+  front: "Why does `height` to `auto` jump, and what fixes it?"
+  back: "Keywords don't interpolate. `interpolate-size: allow-keywords` (and `calc-size()`) fixes it in Chrome 129+ only; Firefox 159 doesn't support it, so use a fallback such as a measured pixel height."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-transitionend-cancel
+  front: "When does `transitioncancel` fire instead of `transitionend`?"
+  back: "When a transition is interrupted, overridden by `transition: none`, or hidden with `display: none`. Firefox 159 fired nothing for one cancelled before its first frame."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-all-allow-discrete
+  front: "What is the danger of `transition: all … allow-discrete`?"
+  back: "Every discrete property change now waits until 50%, including ones you never meant to animate."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-reverse
+  front: "What happens when you reverse a transition halfway?"
+  back: "The running one is cancelled and a new one starts from the current value, shortened by how far the first had got. Paused at 25% of a 1s `width` transition and reversed, the new one lasted 250ms in both browsers."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-delay-only
+  front: "Does a `0s` duration with a delay transition?"
+  back: "Yes, the rule is duration plus delay above zero: `width 0s 0.1s` created a transition that jumps after 100ms; `width 0s` created none."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-cascade-origin
+  front: "Where do transitions and keyframe animations sit relative to `!important`?"
+  back: "Transitions sit in their own origin above `!important` author declarations, so a transition still runs on an `!important` value. Keyframe animations sit below important declarations."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-bookkeeping
+  front: "What state does the browser keep per element and longhand for transitions?"
+  back: "At most one running transition and one completed transition."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-before-after-change
+  front: "What are the before-change and after-change styles?"
+  back: "Before-change is the computed style from the previous style change event, with running animations and transitions advanced to now. After-change is the new computed style, without any transitions."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-matching-property
+  front: "How does the browser find the duration, delay and timing function for a longhand?"
+  back: "It finds the last matching `transition-property` value, then uses the matching duration, delay, timing function and behaviour by list position."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-transitionable
+  front: "What makes a property transitionable?"
+  back: "Its animation type is neither \"not animatable\" nor \"discrete\", or, in Transitions 2, discrete with `allow-discrete`. Some pairs are discrete even when the property isn't: `box-shadow` between inset and non-inset can't interpolate. Custom properties are discrete unless registered."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-csstransition-object
+  front: "How do you inspect a running transition and why does it override `!important`?"
+  back: "It is a `CSSTransition` object visible through `element.getAnimations()`. Its effect writes into the transitions origin of the cascade, above even `!important` author rules. You can pause it and set `currentTime`."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-starting-style-cascade
+  front: "How do `@starting-style` rules cascade?"
+  back: "They inherit from the parent's after-change style and don't win by position: they cascade normally, so a more specific rule outside `@starting-style` can override them."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-discrete-50
+  front: "When does a discrete property switch under `allow-discrete`?"
+  back: "The transition holds the start value until 50% progress, then switches. In Chrome 156 and Firefox 159, `text-align: left` to `right` over 1s linear read `left` at 400ms and `right` at 600ms."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-events
+  front: "What are the four transition events, and when are they dispatched?"
+  back: "`transitionrun` (created, still in its delay), `transitionstart` (delay ends), `transitionend` (completes) and `transitioncancel` (removed early), each with `propertyName` and `elapsedTime`. They're dispatched at animation-frame time, not synchronously."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-reversing-factor
+  front: "What is the reversing shortening factor?"
+  back: "When a running transition's end value no longer matches but the new after-change value equals its start value, the reverse transition's duration is scaled by how much of the first completed."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-cancellation-causes
+  front: "When does the browser cancel a running transition?"
+  back: "When the property drops out of `transition-property` (including `transition: none`, which jumps to the end value), when the element stops being rendered (`display: none`) or leaves the document."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-cancel-event-engines
+  front: "Did Chrome 156 and Firefox 159 fire `transitioncancel` for a transition started and cancelled in the same task?"
+  back: "Chrome fired it; Firefox fired nothing, following the event-dispatch table where `idle` to `idle` dispatches nothing. The table guarantees exactly one `transitionend` or `transitioncancel` per `transitionrun`, so pair cleanup with `transitionrun`."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-inherited-completed
+  front: "Why does the browser keep a completed-transitions set?"
+  back: "One change can start transitions on an ancestor and a descendant at once; the set stops a child with a shorter duration from restarting while the parent's transition still feeds it new values."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-popover
+  front: "Why does a popover exit transition also list `overlay`?"
+  back: "Exiting removes the popover from the top layer, which would otherwise clip the fade and stack it under the page, so `overlay` joins `display` in the discrete list. Overlay transitions: Chrome 117 only."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-popover-firefox
+  front: "How did the popover fade behave in Firefox 159?"
+  back: "Firefox doesn't support `overlay` and started no transition on hide, so the popover vanished at once while the entry fade still worked. The same shape works for `<dialog>` with `[open]`."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-popover-chrome-midway
+  front: "Halfway through a popover hide transition in Chrome 156, what were `display`, opacity and `overlay`?"
+  back: "`block`, `0.5` and `auto`, even though `:popover-open` no longer matched."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-vs-keyframes
+  front: "What suits transitions, and what can't they do?"
+  back: "State changes: one start and one end value, triggered by a class, attribute or pseudo-class, with reversing for free. They can't loop, run without a trigger, or pass through intermediate keyframes. They restart from the current value, so interrupted hover effects look smooth."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: trans-starting-style-replaces
+  front: "What old pattern do `@starting-style` plus `allow-discrete` replace?"
+  back: "Removing `display: none`, forcing a reflow with `offsetWidth`, then adding the class. The CSS version is declarative, but its exit half depends on `display` transitions, which Firefox 159 doesn't do yet."
+  question: html-and-css/typography-colour-motion/transitions-and-discrete-properties
+- id: anim-vs-transition
+  front: "How do transitions and `@keyframes` animations differ in what triggers them?"
+  back: "Transitions react to a change: two values, one trigger, automatic reversing. Animations are declared: `@keyframes` names a sequence of states and `animation` runs it whenever it applies, including on page load or insertion."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-missing-keyframe
+  front: "What happens with a missing `0%` or `100%` keyframe?"
+  back: "It is built from the element's computed value, so `@keyframes grow { to { scale: 1.2 } }` starts from wherever the element is."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-important-keyframe
+  front: "What does `!important` inside a keyframe do?"
+  back: "It is ignored: the declaration is dropped from the keyframe, and an `!important` author rule beats the animation anyway."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-per-keyframe-timing
+  front: "Can keyframes have their own timing functions?"
+  back: "Yes; each keyframe can have its own `animation-timing-function`. They are `from`/`to` or percentages."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-repeat-direction
+  front: "Which properties control repetition and swinging back?"
+  back: "`animation-iteration-count` (`infinite` for loops) and `animation-direction` (`alternate` swings back and forth)."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-fill-modes
+  front: "What do the `animation-fill-mode` values do?"
+  back: "The default `none` affects nothing during the delay or after the end, so the element snaps back. `backwards` applies the first keyframe during the delay, `forwards` holds the last after the end, `both` does both."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-composition
+  front: "What does `animation-composition: add` do, and where is it supported?"
+  back: "Adds keyframe values to the underlying value instead of replacing it, so two animations on `transform` can stack. Chrome 112, Firefox 115, Safari 16."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-events
+  front: "Which events do keyframe animations fire?"
+  back: "`animationstart`, `animationiteration`, `animationend`, and `animationcancel` when it's removed early."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-removal-jumps
+  front: "What happens when you remove the class or `animation-name`?"
+  back: "The animation is cancelled and the value jumps back; there's no reverse like a transition's. `display: none` also cancels it, and showing the element again starts it over."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-change-running
+  front: "What happens when you change duration or other `animation-*` values on a running animation?"
+  back: "It updates the running animation without restarting it."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-cascade
+  front: "Where do animations sit in the cascade?"
+  back: "Above normal author declarations but below `!important` ones; transitions sit above `!important`."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-when-to-pick
+  front: "When do you pick a transition versus a keyframe animation?"
+  back: "A transition for state changes (hover, open/closed); a keyframe animation for anything that loops, plays on arrival, or needs more than two steps."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-fill-example
+  front: "With `slide` from `0px` to `100px`, `margin-left: 50px`, 1s and 0.5s delay, what are the values at 250ms, 1250ms and 1600ms for `fill-mode: none` and `both`?"
+  back: "`none`: 50px, 75px, 50px. `both`: 0px, 75px, 100px. Chrome 156 and Firefox 159 agreed."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-forwards-pitfall
+  front: "Why is `forwards` a poor way to set a final state?"
+  back: "The filled value keeps winning over normal declarations: setting `margin-left: 10px` inline afterwards still computed `100px`; only `!important` got through. Set the end state in a class instead."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-replay-class
+  front: "Does re-adding the same class replay an animation?"
+  back: "No. Remove it, force a style recalculation, then add it back, or seek the `CSSAnimation` from `getAnimations()`."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-alternate
+  front: "What does `alternate` with three iterations do for a 1s `0px` to `100px` slide?"
+  back: "Odd iterations run forwards, even ones backwards: 250ms read `25px`, 1250ms `75px`, 2250ms `25px`; at 3000ms it had ended and showed the element's own value."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-cancel-event
+  front: "When does `animationcancel` fire?"
+  back: "When a running animation stops early: its `animation-name` no longer applies or the element gets `display: none`. Chrome 156 and Firefox 159 fired it for both `animation: none` and `display: none` set 150ms into a 1s animation, with no `animationend`."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-cancel-support
+  front: "Which browsers fully support `animationcancel`?"
+  back: "Chrome 145, Firefox 54, Safari 13.1."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-custom-property
+  front: "Can a keyframe animation move a custom property smoothly?"
+  back: "Only if it's registered with `@property` and a type such as `<length>`. Over 1s linear `0px` to `100px`, a registered one read `40px` at 400ms and `60px` at 600ms; an unregistered one flipped at the halfway point."
+  question: html-and-css/typography-colour-motion/keyframe-animations
+- id: anim-important-exercise
+  front: "At 500ms of a `slide` from `0px` to `100px`, what do `margin-left: 50px !important` and `animation-composition: add` with `margin-left: 50px` compute to?"
+  back: "`50px` for the `!important` element: important author declarations beat animations. `100px` for `add`: the keyframe's `50px` is added to the underlying `50px`."
+  question: html-and-css/typography-colour-motion/keyframe-animations
