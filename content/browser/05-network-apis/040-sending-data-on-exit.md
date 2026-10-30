@@ -47,7 +47,7 @@ When a document goes away, the Fetch Standard terminates its in-flight fetches u
 
 Keepalive requests from one page share **64 KiB of in-flight body**. Past it, `sendBeacon()` returns `false` and a keepalive `fetch()` rejects with a `TypeError`. Firefox 159 enforced this for `fetch()` but not for beacons: a 16 MiB one went through.
 
-**When to send.** Flush when `visibilitychange` reports `visibilityState === 'hidden'`. The Beacon spec calls it the only event guaranteed to fire on mobile when the user switches apps, after which the OS may kill the page without `unload`. Add `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, wherever `unload` runs it keeps the page out of the back/forward cache, and since Chrome 155 Chrome doesn't run `unload` handlers by default. The page can come back after `"hidden"`, so a flush must be repeatable: send what's new and clear it.
+**When to send.** Flush when `visibilitychange` reports `visibilityState === 'hidden'`. The Beacon spec calls it the only event guaranteed to fire on mobile when the user switches apps, after which the OS may kill the page without `unload`. Add `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, `unload` costs the back/forward cache wherever it runs, and Chrome 155+ doesn't run it by default. The page can come back after `"hidden"`, so a flush must be repeatable: send what's new and clear it.
 
 Better still, batch while the user is active, so the exit send carries only the tail.
 
