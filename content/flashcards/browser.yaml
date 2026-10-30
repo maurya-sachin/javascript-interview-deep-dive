@@ -1157,3 +1157,324 @@
   front: "With an idle callback, `setTimeout` 20, `setTimeout` 0 and a promise, what is the order, and what caps `timeRemaining()`?"
   back: "`microtask, timeout 0, idle (true), timeout 20`. The idle period starts only once no task is runnable, so the 0 ms timer goes first. Its deadline is capped by the pending 20 ms timer, so `timeRemaining()` is at most 20. Chrome 156 and Firefox 159 agreed."
   question: browser/html-event-loop/request-idle-callback
+# 04 The rendering pipeline
+- id: pixel-five-stages
+  front: "What are the five stages from HTML and CSS to pixels, and when do they run?"
+  back: "Parse, style, layout, paint, composite. Parsing runs as the document arrives; the rest run when the event loop reaches \"update the rendering\", at most once per frame."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-parse-stage
+  front: "What does the parse stage produce, and what can pause it?"
+  back: "The HTML tokenizer and tree builder turn bytes into the DOM incrementally, and CSS from `<style>` and `<link>` is parsed into style sheets (the CSSOM). Classic scripts can pause the parser."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-box-tree
+  front: "What is the CSS box tree, and what does layout do with it?"
+  back: "Elements generate boxes, forming the box tree. Layout then gives each box a size and position. One element can generate several boxes or none, and `::before` gets a box with no DOM node."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-render-tree-names
+  front: "What do engines call the \"render tree\", and does any spec use that term?"
+  back: "It is an old engine name for the box tree. Chromium calls it the layout tree and Gecko the frame tree. No spec uses the term \"render tree\"."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-display-none-vs-visibility
+  front: "How do `display: none` and `visibility: hidden` differ in box generation?"
+  back: "`display: none` generates no boxes for the element or its descendants. `visibility: hidden` keeps the box, and its space, but makes it invisible, so it is still laid out on every pass."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-paint-records-commands
+  front: "What does the paint stage actually produce?"
+  back: "A display list of drawing commands recorded in paint order (backgrounds, borders, text, stacking contexts by `z-index`), not pixels. Rasterization and compositing produce the pixels, in Chromium on other threads."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-composite-stage
+  front: "What happens in the composite stage, and which thread does it use in Chromium?"
+  back: "The display list is split into layers, rasterized into tiles, and the GPU draws them into the frame. In Chromium, raster and compositing run off the main thread; Firefox hands its display list to WebRender."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-change-reruns-from-dirtied-stage
+  front: "Which stages do `color`, `width`, and changing an existing `transform` re-run?"
+  back: "`color` needs style and paint. `width` needs style, layout and paint. Changing an existing `transform` can skip layout and paint. A change re-runs from the first stage it dirties."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-writes-batched
+  front: "Does each DOM write trigger a repaint?"
+  back: "No. Writes only mark things dirty, so ten writes in one task cost one style and layout pass at the next frame, unless script reads geometry in between and forces it early."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-first-paint-vs-fcp
+  front: "How do first paint and first contentful paint differ?"
+  back: "First paint is the first frame showing anything other than the default background. First contentful paint is the first frame showing text, an image or a canvas."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-get-client-rects-example
+  front: "`getClientRects().length` for a `display: none` element, a `visibility: hidden` one, and an empty span with `::before` content?"
+  back: "`0`, `1`, `1`. The hidden paragraph keeps its box and space; the span is wide only because of its generated content, and its `childNodes.length` is `0`. Chrome 156 and Firefox 159 printed the same."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-content-visibility-auto
+  front: "What does `content-visibility: auto` change in the pipeline?"
+  back: "While the element isn't relevant to the user (off-screen, not focused or selected) it skips its contents: they aren't painted and mostly aren't restyled, and size containment lets `contain-intrinsic-size` stand in for their size. Chrome 85, Firefox 125, Safari 18."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-incremental-render
+  front: "Does the browser wait for the whole HTML before rendering?"
+  back: "No. Parsing is incremental and a partly parsed document can render. HTML treats it as render-blocked only until `<body>` starts and render-blocking resources from `<head>` arrive, with an implementation-defined timeout."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-paint-holding
+  front: "What is paint holding?"
+  back: "A Chrome behaviour, not a spec rule: on same-origin navigations Chrome keeps showing the old page and defers compositor commits for the new one until first contentful paint or a timeout, to avoid a white flash."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-content-visibility-hidden-geometry
+  front: "What happens if you read geometry inside `content-visibility: hidden` content?"
+  back: "It still works: the browser styles and lays the content out on demand (Chrome 156 logs a console warning), which throws the saving away."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-paint-order
+  front: "In what order does paint draw the contents of a stacking context (CSS 2 Appendix E)?"
+  back: "Its background, children with negative `z-index`, block backgrounds, floats, inline content, then positioned descendants and positive `z-index` children."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: pixel-chromium-firefox-composite
+  front: "How do Chromium and Firefox hand a display list to the GPU?"
+  back: "Chromium commits property trees and the display list to the compositor thread, which layerizes the list; tiles are rasterized on raster threads and the GPU, and the Viz process draws the frames. In Firefox, the content process sends a WebRender display list to the GPU process."
+  question: browser/rendering-pipeline/pixel-pipeline
+- id: script-plain-parser-blocking
+  front: "What does a plain classic `<script src>` with no attributes do to the parser?"
+  back: "It is parser-blocking: the parser stops, the script is fetched and run, then parsing resumes."
+  question: browser/rendering-pipeline/script-loading
+- id: script-defer-behaviour
+  front: "When does a `defer` script fetch and run, and which scripts honour it?"
+  back: "Only external classic scripts honour it. It is fetched in parallel with parsing and runs after parsing finishes, in document order, before `DOMContentLoaded`. An inline script with `defer` runs immediately."
+  question: browser/rendering-pipeline/script-loading
+- id: script-async-behaviour
+  front: "When does an `async` script run relative to parsing, `DOMContentLoaded` and `load`?"
+  back: "As soon as it arrives, possibly mid-parse, in arrival order. It can run before or after `DOMContentLoaded`, but always before `load`."
+  question: browser/rendering-pipeline/script-loading
+- id: script-module-default
+  front: "When do `type=\"module\"` scripts run, and what does `async` change?"
+  back: "Deferred by default: the module and its imports are fetched in parallel, and it runs after parsing, in document order alongside `defer` scripts. `async` makes it run as soon as its graph is ready, even for inline modules."
+  question: browser/rendering-pipeline/script-loading
+- id: script-inline-classic-ignores
+  front: "Do `defer` and `async` affect inline classic scripts?"
+  back: "No. Inline classic scripts ignore both attributes and run when the parser reaches them."
+  question: browser/rendering-pipeline/script-loading
+- id: script-inserted-async-default
+  front: "How do scripts created with `document.createElement('script')` behave by default?"
+  back: "They never block the parser and are async: `script.async` reads `true`. Setting `script.async = false` makes several run in insertion order."
+  question: browser/rendering-pipeline/script-loading
+- id: script-document-write
+  front: "When is `document.write()` ignored, and what does it do after load?"
+  back: "While parsing it only inserts markup from a parser-blocking classic script. From an external `async` or `defer` script, or any module, it is ignored (Chrome logs a warning, Firefox stays silent). After the document has loaded, it opens a new document and wipes the page."
+  question: browser/rendering-pipeline/script-loading
+- id: script-order-example
+  front: "Which scripts ran before `DOMContentLoaded` in the example mixing `defer`, `async`, modules and classic scripts?"
+  back: "Order: inline defer, classic, inline async module, defer-slow, defer-fast, inline module, `DOMContentLoaded`, async-slow. `defer-fast` waited for `defer-slow`. Chrome 156 and Firefox 159 matched in three loads each, served locally."
+  question: browser/rendering-pipeline/script-loading
+- id: script-async-dependency-pitfall
+  front: "Why is loading a library and its plugin both with `async` a bug?"
+  back: "Arrival order decides which runs first, so the plugin can run before the library and throw, only on some loads and networks. Use `defer`, or a module graph with `import`; keep `async` for independent scripts like analytics."
+  question: browser/rendering-pipeline/script-loading
+- id: script-defer-waits-for-css
+  front: "Do `defer` scripts wait for style sheets?"
+  back: "Yes. Before each deferred script, the HTML Standard waits until no style sheet is blocking scripts, so a slow `<link rel=\"stylesheet\">` in `<head>` delays them, and `DOMContentLoaded` with them."
+  question: browser/rendering-pipeline/script-loading
+- id: script-async-and-defer-together
+  front: "What happens if a script has both `async` and `defer`?"
+  back: "`async` wins, because preparing the script checks it first. `defer` was the legacy fallback for browsers that didn't support `async`."
+  question: browser/rendering-pipeline/script-loading
+- id: script-nomodule
+  front: "What does `nomodule` do?"
+  back: "A classic script with `nomodule` is skipped by browsers that support modules, so sites can ship a fallback bundle next to a `type=\"module\"` one. On a module script it has no effect."
+  question: browser/rendering-pipeline/script-loading
+- id: script-four-places
+  front: "Where does prepare-the-script-element file an external classic or module script?"
+  back: "In one of four places: the set of scripts that run as soon as possible (async), the list that run in order as soon as possible (script-inserted, non-async), the list that run when parsing finishes (parser-inserted defer and non-async modules), or the pending parsing-blocking script."
+  question: browser/rendering-pipeline/script-loading
+- id: script-force-async
+  front: "Why are script-inserted scripts async, in terms of the spec's flags?"
+  back: "The force async flag starts true for script-created elements and false for parser-created ones. The `async` getter returns `true` if either it or the attribute is set; the setter clears it, moving the element from the async set to the in-order list."
+  question: browser/rendering-pipeline/script-loading
+- id: script-the-end-sequence
+  front: "What does the HTML Standard's \"the end\" step do when parsing stops?"
+  back: "It sets `readyState` to `\"interactive\"`, runs the deferred list in order, queues `DOMContentLoaded`, then waits for the async set and in-order list to empty and everything delaying load before firing `load`."
+  question: browser/rendering-pipeline/script-loading
+- id: script-modules-run-once
+  front: "If two `<script type=\"module\">` elements import the same URL, how many times does its top-level code run?"
+  back: "Once. They share one module instance from the module map."
+  question: browser/rendering-pipeline/script-loading
+- id: script-ignore-destructive-writes
+  front: "How does the ignore-destructive-writes counter drop a `document.write()` call?"
+  back: "Executing an external script or any module increments the document's counter. `document.write()` with no parser insertion point returns early when it is above zero; otherwise it would call `document.open()` and replace the document. Chrome 156 warned for the module case too."
+  question: browser/rendering-pipeline/script-loading
+- id: prb-what-blocks-what
+  front: "What does the HTML parser actually stop for?"
+  back: "One thing only: a parser-created classic `<script>` without `async`, `defer` or `type=\"module\"`. It waits until the script is fetched and run, because the script could call `document.write()` and change what comes next."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-script-blocking-sheets
+  front: "What does a parser-created stylesheet with matching `media` block?"
+  back: "Scripts, not the parser. An inline or parser-blocking script after it waits until the sheet loads, so `getComputedStyle()` sees its rules; deferred scripts wait too. Since such a script blocks the parser, CSS then script stalls parsing indirectly."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-render-blocked-definition
+  front: "When does HTML treat a document as render-blocked?"
+  back: "While `<body>` hasn't started or any render-blocking element is pending, up to an implementation-defined timeout. By default, parser-created style sheets with matching media and parser-blocking scripts in `<head>` are render-blocking."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-blocking-render-attribute
+  front: "What does `blocking=\"render\"` do, and which browsers support it?"
+  back: "It makes other elements, such as an `async` script, render-blocking, but only while the parser is still in `<head>`. Chrome 105+ and Safari 18.2+ support it; Firefox doesn't, and paints without waiting."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-media-print
+  front: "Does a stylesheet with a non-matching `media`, like `media=\"print\"` on screen, block anything?"
+  back: "It is neither script- nor render-blocking, though it still downloads."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-preload-scanner
+  front: "What is the preload scanner, and what does HTML require of it?"
+  back: "While the parser waits, browsers scan the markup ahead and start fetching later style sheets, scripts and images. HTML permits this as speculative HTML parsing but doesn't require it. It only speeds downloads; execution order is unchanged."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-rule-of-thumb
+  front: "Rule of thumb: what do CSS in `<head>`, classic scripts, and `defer`/`async`/modules each delay?"
+  back: "CSS in `<head>` delays the first paint; classic scripts delay the parser; `defer`, `async` and modules delay neither."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-script-end-of-body
+  front: "Does putting `<script>` at the end of `<body>` substitute for `defer`?"
+  back: "No. It still blocks the parser and waits for style sheets; it just has less left to block."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-body-stylesheet
+  front: "Does a `<link rel=\"stylesheet\">` inside `<body>` block rendering?"
+  back: "Not under HTML: render-blocking elements can only be added before `<body>` starts. Browsers differ: Chrome 156 painted content above the sheet but stopped parsing at it until it loaded; Firefox 159 parsed and painted past it at once."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-inserted-stylesheet
+  front: "Is a style sheet inserted by script render-blocking?"
+  back: "Not by default; only parser-created sheets are implicitly render-blocking. With `blocking=\"render\"`, inserted while the document is still in `<head>`, it is, where supported."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-never-loads
+  front: "What if a render-blocking resource never loads?"
+  back: "The document stays render-blocked only until an implementation-defined timeout passes; then it renders anyway."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-fcp-stylesheet-timing
+  front: "With an 800 ms delayed stylesheet in `<head>`, what was first contentful paint, and with `media=\"print\"`?"
+  back: "In Chrome 156, 828–832 ms, and 32–44 ms with `media=\"print\"`. In Firefox 159, 827–836 ms and 20 ms. Three loads per browser, local server."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-fcp-script-timing
+  front: "How did an 800 ms classic `<script src>` affect first contentful paint before body content versus after a paragraph?"
+  back: "Before any body content: 824–832 ms in Chrome 156, 828–861 ms in Firefox 159. After a paragraph in `<body>`: 24–40 ms and 19–20 ms. Parser-blocking scripts in `<body>` block the parser but aren't render-blocking."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-async-blocking-render-timing
+  front: "How did `<script async blocking=\"render\">` in `<head>` compare to plain `<script async>` for first contentful paint at an 800 ms delay?"
+  back: "Chrome 156: 824–832 ms with `blocking=\"render\"`, 24–40 ms without. Firefox 159: 20 ms for both, since it ignores `blocking=\"render\"`."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-chrome-in-body-sheet
+  front: "In the in-body stylesheet test, what did Chrome 156 and Firefox 159 show 600 ms into a 1,500 ms CSS delay?"
+  back: "Firefox showed both coloured blocks, above and below the `<link>`; Chrome only the upper one, as its parser hadn't created the lower block and `DOMContentLoaded` fired after the sheet loaded. That is Chrome behaviour, not the spec's."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-preload-scanner-differs
+  front: "Behind a 1,000 ms parser-blocking script, which later resources did Chrome 156 and Firefox 159 request early?"
+  back: "Chrome requested the later style sheet, script and `<img>` at once. Firefox requested the style sheet and script at once, but the `<img>` only after the blocking script ran (two loads each)."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: prb-analytics-after-css
+  front: "Why is placing an analytics `<script>` right after a large stylesheet a mistake?"
+  back: "It now waits for the CSS and holds up parsing, though it never reads styles."
+  question: browser/rendering-pipeline/parser-and-render-blocking
+- id: fsl-what-is-it
+  front: "What is a forced synchronous layout, and why does it happen?"
+  back: "Browsers compute style and layout lazily, but geometry APIs are defined in terms of boxes. Reading one after a write makes the browser run style and layout right then, mid-script. Also called forced reflow; no spec uses the term."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-which-reads
+  front: "Which kinds of reads need current layout?"
+  back: "`offset*` and `client*` sizes and positions, `scrollTop`/`scrollLeft`/`scrollWidth`/`scrollHeight`, `scrollTo()` and `scrollIntoView()`, `getBoundingClientRect()`, `getClientRects()`, `document.elementFromPoint()`, `innerText`, and `getComputedStyle()` values that resolve to used values like `width`."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-get-computed-style-lazy
+  front: "Does calling `getComputedStyle(el)` force layout?"
+  back: "No. It returns a live object and computes nothing. Reading `color` from it needs style only; reading `width` needs layout. `textContent` and attributes need neither."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-layout-thrashing
+  front: "What is layout thrashing and how do you fix it?"
+  back: "Writes and reads alternating in a loop, so every read pays for a full layout. Batch every read before every write, read at the start of a `requestAnimationFrame` callback before writing, or let `ResizeObserver` deliver sizes."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-counts-example
+  front: "In Chrome 156, what were the style and layout count changes for the interleaved versus batched 1,000-item width example?"
+  back: "Interleaved: style +1000, layout +1000. Batched: style +1, layout +1. Chrome only, from `Performance.getMetrics`, identical in three runs."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-thrash-timings
+  front: "How long did the interleaved versus batched 1,000-item example take?"
+  back: "Chrome 156: 140–157 ms interleaved, 1.7–2.3 ms batched. Firefox 159: 35–40 ms against 2–3 ms. 15 measurements per browser, 3 page loads."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-raf-not-a-fix
+  front: "Does `requestAnimationFrame` prevent forced layout?"
+  back: "No. Writing and then reading inside the callback still forces it; order matters, not timing. Read first, then write."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-hidden-read-helper
+  front: "How can a helper function cause layout thrashing?"
+  back: "A utility that measures, such as `isVisible()` or reading `innerText`, called between writes thrashes just the same."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-why-lazy
+  front: "Why doesn't the browser keep layout up to date after every write?"
+  back: "Most writes come in groups. Laying out after each would repeat work the next write throws away; deferring it lets ten writes cost one layout at the next frame."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-does-it-paint
+  front: "Does a forced layout also paint?"
+  back: "No. It runs style and layout so the value is correct; paint and compositing still wait for the frame's rendering update."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-finding-them
+  front: "How do you find forced layouts in the lab and in the field?"
+  back: "In the lab, Chrome DevTools' Performance panel has a Forced Reflow insight. In the field, Long Animation Frames script attribution reports `forcedStyleAndLayoutDuration`, in Chrome 123+ only."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-chrome-flush-by-read
+  front: "In Chrome 156, what did `getComputedStyle(box)`, `.color`, `.width` and `box.textContent` flush after a width change?"
+  back: "`getComputedStyle(box)` alone: nothing. `.color`: style only. `.width`: style and layout, as did `offsetWidth`, `offsetHeight` and `getBoundingClientRect()`. `box.textContent`: nothing. Chrome only."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-consecutive-reads
+  front: "Do several consecutive geometry reads with no write between them each force layout?"
+  back: "No. They share one layout; only the first pays."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-chrome-shortcuts
+  front: "In Chrome 156, did reading `getComputedStyle(box).width` force layout when `width` was set to `100px`, and `marginLeft`?"
+  back: "`width` forced layout even though it was set to `100px`, while `marginLeft` (a fixed `0px`) needed style only. Which values Chrome can answer without layout is an engine detail, not something to rely on."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: fsl-inner-width
+  front: "Did reading `innerWidth` force layout in Chrome 156?"
+  back: "No, nothing was forced. Not every geometry-looking global is a layout read."
+  question: browser/rendering-pipeline/forced-synchronous-layout
+- id: comp-what-is-compositing
+  front: "What is compositing, and who does it in Chromium and Firefox?"
+  back: "The last stage: the browser keeps separately rasterized layers (GPU textures) and combines them each frame, applying transform, opacity and clip. In Chromium a compositor thread does this from committed property trees and display lists; in Firefox, WebRender, in a separate GPU process on platforms that use one."
+  question: browser/rendering-pipeline/compositing
+- id: comp-layers-engine-detail
+  front: "Does any spec define compositing layers?"
+  back: "No. When an element gets a layer is engine behaviour."
+  question: browser/rendering-pipeline/compositing
+- id: comp-why-cheap
+  front: "Why are `transform` and `opacity` cheap to animate?"
+  back: "Neither changes layout or the element's painted content. A transform moves the painted result, not the box, so nothing reflows. On its own layer a new frame is the same texture at a new position or alpha, so the compositor can run declarative animations even while the main thread is busy."
+  question: browser/rendering-pipeline/compositing
+- id: comp-expensive-properties
+  front: "Why are `width`, `margin-left`, `left` and `top` expensive to animate, and `background-color`?"
+  back: "They rerun layout and paint every frame, needing the main thread each frame, so a long task freezes them. `background-color` usually repaints."
+  question: browser/rendering-pipeline/compositing
+- id: comp-chrome-promotion
+  front: "When does Chrome promote an element to its own layer?"
+  back: "While a `transform` or `opacity` animation is running, and ahead of time for `will-change: transform` or `opacity`. In Chrome 156, `translateZ(0)` also did; `translateX(10px)`, `opacity: 0.5`, `z-index: 1`, `isolation: isolate`, `will-change: left` and a running `left` animation didn't."
+  question: browser/rendering-pipeline/compositing
+- id: comp-stacking-context-not-layer
+  front: "Is a stacking context a compositing layer?"
+  back: "No. Stacking contexts group paint order and are defined by CSS; layers are how an engine caches and moves pixels. In Chrome 156, `opacity: 0.5` and `z-index: 1` each created a stacking context but no composited layer."
+  question: browser/rendering-pipeline/compositing
+- id: comp-will-change-cost
+  front: "Why isn't `will-change` or `translateZ(0)` a free speed-up?"
+  back: "Every promoted element is another texture in GPU memory. Add `will-change` shortly before an animation and remove it afterwards."
+  question: browser/rendering-pipeline/compositing
+- id: comp-js-animations
+  front: "Do JavaScript-driven animations get compositor benefits?"
+  back: "No. Setting `style.transform` from `requestAnimationFrame` needs the main thread every frame; only declarative animations (CSS, transitions, `element.animate()`) can run on the compositor."
+  question: browser/rendering-pipeline/compositing
+- id: comp-will-change-stacking
+  front: "Does `will-change: transform` change how the page looks?"
+  back: "It can. The spec requires `will-change` on a property to create a stacking context, and a containing block for positioned descendants, whenever a real value of that property would. Layer promotion is only a hint the browser may take."
+  question: browser/rendering-pipeline/compositing
+- id: comp-scrolling
+  front: "Does compositing help scrolling?"
+  back: "Yes. Chromium can scroll on the compositor thread by updating a scroll offset in the property trees, and Firefox's Asynchronous Panning and Zooming shifts already-rasterized content, without waiting for the main thread in the common case."
+  question: browser/rendering-pipeline/compositing
+- id: comp-transition-promotion
+  front: "Do `transform` transitions get promoted like keyframe animations?"
+  back: "In Chrome 156, a running `transform` transition promoted the element with the reason \"Has an active accelerated transform animation or transition\", the same as a keyframe animation."
+  question: browser/rendering-pipeline/compositing
+- id: comp-trace-counts
+  front: "In a 1 s Chrome 156 trace, which animated properties caused main-thread layout and paint events?"
+  back: "`transform` and `opacity`: 0 layout, 0 paint. `left`, `margin-left`, `width`: 60–61 layout, 120–122 paint. `background-color` with only a `to` keyframe: 0 layout, 120–122 paint. Three runs; counts varied by one."
+  question: browser/rendering-pipeline/compositing
+- id: comp-background-color-chrome
+  front: "Does animating `background-color` always repaint in Chrome 156?"
+  back: "With both `from` and `to` keyframes it produced no paint events, so Chrome can sometimes run it without repainting. With only `to`, it repainted every frame. Don't count on it."
+  question: browser/rendering-pipeline/compositing
+- id: comp-blocked-main-thread-demo
+  front: "What happened to a `transform` box and a `left` box animated during a 1 s main-thread block in Chrome 156?"
+  back: "Over 59 frames, the `transform` box moved from about 70 px to 215 px, while the `left` box stayed at 65–68 px, then jumped to 215–218 px after. Checked in Chrome only; headless Firefox can't capture frames while blocked."
+  question: browser/rendering-pipeline/compositing
