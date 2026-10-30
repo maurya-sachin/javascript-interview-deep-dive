@@ -2040,3 +2040,404 @@
   front: "Why did the quota example use random bytes, and what did 10,000,000 of them report?"
   back: "Browsers may compress what they store; a repeating pattern counted about 0.5 MB. Random bytes reported about 10 MB in `usage` with `persisted()` `false`, in Chrome 156 and Firefox 159 on a fresh profile."
   question: browser/storage/quotas-and-eviction
+# 07 Workers
+- id: ww-what-new-worker-starts
+  front: "What does `new Worker(url)` start, and what does the page's main thread gain?"
+  back: "A script in a new agent with its own thread, global object (`DedicatedWorkerGlobalScope`, reached as `self`), heap and event loop. The main thread keeps handling input and rendering while the worker computes."
+  question: browser/workers/web-workers
+- id: ww-how-sides-communicate
+  front: "How do a page and its dedicated worker exchange data, and what do they share?"
+  back: "They share no objects. They send messages with `postMessage(data)`, received as `message` events. Data is copied by structured clone or transferred for buffers. Shared memory exists only through `SharedArrayBuffer`."
+  question: browser/workers/web-workers
+- id: ww-cannot-touch-dom
+  front: "What can a dedicated worker not access?"
+  back: "The DOM: no `window`, `document`, `alert()` or `localStorage`. Anything that reads or changes the page must be messaged to the main thread."
+  question: browser/workers/web-workers
+- id: ww-apis-available
+  front: "Which APIs can a dedicated worker use?"
+  back: "`fetch` and `XMLHttpRequest`, IndexedDB, the Cache API, `WebSocket`, timers, `crypto`, `BroadcastChannel`, `OffscreenCanvas` and nested workers."
+  question: browser/workers/web-workers
+- id: ww-typeof-output
+  front: "In a worker, what do `typeof document`, `typeof localStorage`, `typeof fetch` and `typeof indexedDB` give?"
+  back: "`undefined undefined function object`. Same output in Chrome 156 and Firefox 159, served from `http://localhost`."
+  question: browser/workers/web-workers
+- id: ww-absent-globals
+  front: "In Chrome 156 and Firefox 159, which names were absent from a classic worker's global?"
+  back: "`window`, `document`, `localStorage`, `sessionStorage`, `alert`, `DOMParser` and `SharedWorker`. Both browsers gave the same answer for every name checked."
+  question: browser/workers/web-workers
+- id: ww-module-worker
+  front: "What does `{ type: 'module' }` give a worker, and since which browser versions?"
+  back: "A module worker: static `import` and strict mode, but no `importScripts()`. Supported since Chrome 80, Firefox 114 and Safari 15."
+  question: browser/workers/web-workers
+- id: ww-same-origin-script
+  front: "What origin must a worker script have, and what happens otherwise?"
+  back: "Same origin as the page; a `blob:` URL works. Classic worker scripts are fetched with mode `\"same-origin\"`. For a cross-origin URL, Chrome 156 throws `SecurityError` from the constructor; Firefox 159 fires an `error` event later."
+  question: browser/workers/web-workers
+- id: ww-uncaught-exception
+  front: "What happens when a worker throws an uncaught exception, and how do you stop the page reporting it again?"
+  back: "An `ErrorEvent` fires at the `Worker` object in the page and the worker keeps running. Call `preventDefault()` on it, or the page reports the error a second time as its own."
+  question: browser/workers/web-workers
+- id: ww-terminate-vs-close
+  front: "What is the difference between `worker.terminate()` and `close()` inside the worker?"
+  back: "`terminate()` stops the worker at once. `close()` called inside the worker stops it after the current task."
+  question: browser/workers/web-workers
+- id: ww-queued-early-message
+  front: "Why was a `postMessage` sent before the worker script had loaded not lost?"
+  back: "Messages wait in the worker-side port's message queue, which is enabled only after the script has run. In the example the early `postMessage(1e8)` was queued, not lost."
+  question: browser/workers/web-workers
+- id: ww-when-workers-help
+  front: "When do workers help, and when do they not?"
+  back: "They suit CPU-heavy work on data you can send cheaply: parsing, compression, image processing, search indexes. They don't help work that must touch the DOM, and each worker costs start-up time and a separate heap."
+  question: browser/workers/web-workers
+- id: ww-large-message-cost
+  front: "Why can returning a huge parsed object from a worker cost the main thread what it saved?"
+  back: "Each `postMessage` clones the data on the sending thread, and cloning is linear in the data's size and runs on both threads. Transfer `ArrayBuffer`s or use `SharedArrayBuffer` instead."
+  question: browser/workers/web-workers
+- id: ww-importscripts-module
+  front: "What happens when you call `importScripts()` in a module worker?"
+  back: "It throws a `TypeError`; use `import` instead. Both Chrome 156 and Firefox 159 threw. `import()` in a classic worker works in both."
+  question: browser/workers/web-workers
+- id: ww-async-not-faster
+  front: "Does moving `async` code into a worker make it faster?"
+  back: "No. `fetch` and timers already run off the main thread. A worker helps only when your own JavaScript keeps the main thread busy, such as a long loop or a heavy parse."
+  question: browser/workers/web-workers
+- id: ww-dom-work-alternative
+  front: "What is the alternative to a worker when the work must touch the DOM?"
+  back: "Break it into chunks and yield between them, for example with `scheduler.yield()`, so input and rendering run in between. The work stays on the main thread but stops blocking it."
+  question: browser/workers/web-workers
+- id: ww-offscreen-canvas
+  front: "How can a worker draw, and which browsers support it?"
+  back: "Through `OffscreenCanvas`: `canvas.transferControlToOffscreen()` hands the canvas to the worker. Supported in Chrome 69, Firefox 105 and Safari 16.4."
+  question: browser/workers/web-workers
+- id: ww-error-event-order
+  front: "Per the spec's report-an-exception steps, in what order do error handlers run for an uncaught worker exception?"
+  back: "The worker's own `onerror` runs first, then the page gets a cancelable `ErrorEvent` at the `Worker` object with `message`, `filename`, `lineno` and `colno`, but not the exception itself. Unless cancelled, the page's `window` `error` handler fires too."
+  question: browser/workers/web-workers
+- id: ww-error-edge-cases
+  front: "In Chrome 156 and Firefox 159, what happened on an unhandled promise rejection in a worker, and on a 404 for the script?"
+  back: "An unhandled rejection fired no event at the `Worker`. A 404 script fired a plain `Event` with no message. Both browsers behaved the same."
+  question: browser/workers/web-workers
+- id: ww-syntax-error-differs
+  front: "How did Chrome 156 and Firefox 159 differ on a syntax error in a worker script?"
+  back: "Chrome fired an `ErrorEvent` with the message; Firefox fired a plain `Event`. Firefox matches the spec here, which says a failed fetch or parse error should fire a plain `error` event."
+  question: browser/workers/web-workers
+- id: ww-post-after-terminate
+  front: "In Chrome 156 and Firefox 159, what happens to `postMessage()` after `terminate()`?"
+  back: "It is dropped silently, with no error, in both browsers."
+  question: browser/workers/web-workers
+- id: ww-request-response-id
+  front: "Why does a request/response layer over `postMessage` need an id per call?"
+  back: "`postMessage` has no replies, and replies can come back in any order, so the id, not arrival order, matches them to calls. An `Error` such as `SyntaxError` crossing the boundary stays a real `SyntaxError`, since `Error` objects are cloneable."
+  question: browser/workers/web-workers
+- id: ww-startup-cost
+  front: "How long did a worker take to send its first message in Chrome 156 and Firefox 159?"
+  back: "From `new Worker()` to first message: 2.6–3.8 ms (median of 20) in Chrome 156 and 4–9 ms in Firefox 159, 3 runs each on localhost. The first worker in each run took 14–22 ms. A network download adds to that."
+  question: browser/workers/web-workers
+- id: ww-pool-size
+  front: "How do you size a worker pool, and why not make a worker per task?"
+  back: "`navigator.hardwareConcurrency` gives the number of logical cores; more busy workers than that just time-share. Per-task workers pay start-up each time and each has its own heap, so keep one or a small pool alive."
+  question: browser/workers/web-workers
+- id: ww-sharedarraybuffer-isolation
+  front: "What does sharing memory with `SharedArrayBuffer` require?"
+  back: "Cross-origin isolation."
+  question: browser/workers/web-workers
+- id: ww-caches-secure-context
+  front: "What does `caches` need in a worker, and does `http://localhost` meet it?"
+  back: "It needs a secure context, and `http://localhost` counts as one."
+  question: browser/workers/web-workers
+- id: sc-algorithm-name
+  front: "What does `postMessage(message, transfer)` do to `message`, and which function exposes the same algorithm?"
+  back: "It serializes `message` on the sending side and deserializes a fresh copy on the receiving side, using structured clone (`StructuredSerializeWithTransfer`). `structuredClone()` exposes the same algorithm."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-what-copies
+  front: "Which values does structured clone copy?"
+  back: "Primitives except `Symbol` (including `BigInt`, `NaN`, `-0`), plain objects and arrays, `Date`, `RegExp`, `Map`, `Set`, `ArrayBuffer` and typed arrays, boxed primitives, `Blob`, `File`, `ImageData` and `Error` objects."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-cycles-shared-refs
+  front: "How does structured clone treat cycles and an array referenced twice?"
+  back: "It keeps both. Cycles survive, and an array referenced twice arrives as one array referenced twice."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-class-instance
+  front: "What does a class instance look like after structured clone?"
+  back: "A plain `Object` with its own enumerable string-keyed properties. Methods and prototype getters are gone; an own getter is called and its value copied; symbol keys and non-enumerable properties are dropped."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-error-subclass
+  front: "How is an `Error` cloned, and what happens to a subclass?"
+  back: "It keeps its type only for the built-in names (`TypeError`, `RangeError`…). A subclass arrives as `Error`, without extra properties. Extra own properties such as `code` were dropped in Chrome 156 and Firefox 159."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-dataclone-error
+  front: "Which values make `postMessage()` throw a `DataCloneError`, and is anything sent?"
+  back: "Functions (including methods on a plain object), `Symbol` values, DOM nodes, `WeakMap`, promises and proxies. The `DOMException` is thrown from `postMessage()` itself and nothing is sent."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-transfer-detaches
+  front: "What happens to a sender's `ArrayBuffer` after it is transferred?"
+  back: "It is detached: `byteLength` becomes 0 and views over it become empty. Reads give `undefined` and writes are ignored without an error."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-transfer-cost
+  front: "How much faster was transferring a 64 MiB `ArrayBuffer` than copying it in Chrome 156?"
+  back: "Copying blocked the sender for 5.9–10.2 ms (15 runs); transferring took under 0.2 ms."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-transferable-types
+  front: "Name some transferable types, and the rule for `MessagePort` and streams."
+  back: "`ArrayBuffer`, `MessagePort`, `ReadableStream`, `ImageBitmap` and `OffscreenCanvas`. A `MessagePort` or stream must be transferred; putting one in the message without the transfer list throws."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-transfer-list-detaches-unreferenced
+  front: "If the transfer list holds buffers `a` and `b` but the message only references `a`, which are detached?"
+  back: "Both, so `a.byteLength` and `b.byteLength` print `0 0`. Every listed buffer is detached, even one the message never references. Chrome 156 and Firefox 159 agree."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-transfer-typed-array
+  front: "What happens if you list a `Uint8Array` in the transfer list?"
+  back: "It throws `DataCloneError`. List its `.buffer` instead; the receiver gets a new view over the moved memory, and every view over it in the sender drops to length 0."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-messageerror
+  front: "What does the receiver get if deserializing fails, and is the sender told?"
+  back: "A `messageerror` event instead of `message`. The sender isn't told, since serializing already succeeded."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-regexp-lastindex
+  front: "What is a cloned `RegExp`'s `lastIndex`?"
+  back: "0. The algorithm copies only the pattern and flags."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-error-cause-stack
+  front: "What does the spec carry for an `Error`'s stack and `cause`, and what did the browsers do?"
+  back: "The spec carries `name`, `message` and an implementation-defined stack. Chrome 156 and Firefox 159 also kept `cause`, which the spec leaves to user agents."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-rebuild-instance
+  front: "How do you get a class instance's methods back after sending it through `postMessage`?"
+  back: "Send plain data and rebuild the instance on the other side, for example `Object.assign(new Point(), data)`."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-clone-runs-on-sender
+  front: "On which thread does the structured-clone copy run for a large buffer?"
+  back: "On the sending thread, so cloning large buffers on every message blocks the sender. Transfer them, or keep the data in the worker."
+  question: browser/workers/structured-clone-and-transfer
+- id: sc-sharing-memory
+  front: "How do you share memory instead of copying or moving it between threads?"
+  back: "Use `SharedArrayBuffer`."
+  question: browser/workers/structured-clone-and-transfer
+- id: sw-what-is-service-worker
+  front: "What is a service worker's registration, and what does it require?"
+  back: "The browser keeps one per registration: an origin plus a URL scope. It sits between pages in that scope and the network and runs only when an event needs it. It requires a secure context; `http://localhost` counts."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-first-install-steps
+  front: "What are the steps of a service worker's first install?"
+  back: "`register()` fetches the script and runs it; `install` fires, kept open by `event.waitUntil()`. With no older version it activates at once and `activate` fires, the place to delete old caches. A rejected `waitUntil` promise discards the worker."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-first-load-uncontrolled
+  front: "Does the page that registers a service worker get controlled by it?"
+  back: "No. It controls pages that load after activation; the registering page stays uncontrolled (`navigator.serviceWorker.controller` is `null`) until it's reloaded, unless the worker calls `clients.claim()`."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-update-triggers
+  front: "When does the browser check for a new service worker script?"
+  back: "On every navigation into the scope, on `registration.update()`, and on other events when the last check is more than 24 hours old."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-update-is-byte-diff
+  front: "What counts as an update, and what if the script is byte-identical?"
+  back: "A byte-different script. By default (`updateViaCache: 'imports'`) the main script bypasses the HTTP cache. If it's identical, nothing happens: the script is fetched but no `install` fires."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-new-version-waits
+  front: "What does a new service worker version do after it installs while old-version tabs are open?"
+  back: "It waits. It activates only after every tab controlled by the old one has closed or navigated elsewhere."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-reload-does-not-update
+  front: "Does reloading the only open tab activate a waiting service worker?"
+  back: "No. The old page is still a client when the reloaded one is requested, so v2 keeps waiting. Navigating the tab elsewhere and back activated v2 in Chrome 156 and Firefox 159."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-skipwaiting
+  front: "What does `skipWaiting()` do, and what is the risk?"
+  back: "It activates the new worker immediately, and every open tab fires `controllerchange`. A page built for v1 is then served by v2, which may have deleted caches that v1's lazy-loaded chunks need."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-prompt-then-skip
+  front: "What is the usual compromise for shipping service worker updates?"
+  back: "The waiting worker skips only when the user accepts an \"Update available\" prompt, after which the page reloads. The page posts a message such as `SKIP_WAITING` and reloads on `controllerchange`."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-claim-first-visit
+  front: "What does `clients.claim()` in `activate` do on a first visit, and why use it?"
+  back: "`controllerchange` fires and the page becomes controlled. It helps when the worker should control the first visit, for example to cache its requests; without it, the first page's requests bypass the worker."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-changing-sw-url
+  front: "Why shouldn't `sw.js` be served from a per-build URL like `sw.3f9a.js`?"
+  back: "A new URL is a different worker, and the old page still registers the old one."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-install-fails
+  front: "What happens if a `waitUntil()` promise rejects during `install`?"
+  back: "The new worker becomes `redundant` and the current one keeps control. The browser tries again at the next update check."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-three-slots-states
+  front: "What are a registration's `installing`, `waiting` and `active` slots, and a worker's `state` values?"
+  back: "`installing` runs `install`, `waiting` holds an installed version blocked by open clients, `active` controls pages. A worker's `state` is `installing`, `installed`, `activating`, `activated` or `redundant`."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-updateviacache
+  front: "How does `updateViaCache` affect a cached `sw.js` with `max-age`?"
+  back: "With the default `'imports'` the main script is always revalidated. With `'all'` a `max-age` is honoured, but a registration last checked over 24 hours ago bypasses the cache anyway."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-update-fetch-details
+  front: "What header and cache mode does the spec's Update algorithm use to fetch the script?"
+  back: "A `Service-Worker: script` header. Unless `updateViaCache` is `'all'` the cache mode is `no-cache`; a registration is stale after 86,400 seconds since its last check, and a stale one also gets `no-cache`."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-importscripts-compare
+  front: "Per the spec, how are `importScripts()` files handled during an update check?"
+  back: "If the main script is unchanged, the imported scripts are fetched and compared too. They may come from the HTTP cache unless `updateViaCache` is `'none'`. No difference, no new worker."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-try-activate
+  front: "When does Try Activate activate a waiting worker?"
+  back: "When there's no active worker, or the active one has no pending events and either no client uses the registration or the waiting one set its skip waiting flag. It runs again when the last client unloads and when `skipWaiting()` is called."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-controller-chosen-once
+  front: "When is a client's controller chosen?"
+  back: "Once, when the client is created: the navigation that loads a page picks the registration's active worker. Activation then also makes the new worker the controller of clients the old one controlled, firing `controllerchange`."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-waituntil-active-event
+  front: "In Chrome 156 and Firefox 159, when does `waitUntil()` throw `InvalidStateError`?"
+  back: "When called after the event finished dispatching, such as after `await new Promise(r => setTimeout(r, 0))`. An `await` on an already-settled promise still counts as synchronous because microtasks run first; `await fetch(...)` doesn't. `respondWith()` behaved the same."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-delete-old-caches
+  front: "When should a versioned precache delete old caches, and why not in `install`?"
+  back: "In `activate`. While v2 waits, both `static-v1` and `static-v2` exist so v1 pages keep working. Deleting in `install` would break v1 pages that are still open."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-wait-tradeoff
+  front: "What are the trade-offs of waiting versus `skipWaiting()` on every install?"
+  back: "Waiting is always safe (one tab never runs two versions) but a user with a tab open for days stays on the old version. `skipWaiting()` gets fixes out immediately but open pages run against a worker they weren't built for."
+  question: browser/workers/service-worker-lifecycle
+- id: sw-tab-closing-two-tabs
+  front: "With two tabs open and v2 waiting, what happens when you close one?"
+  back: "v2 is still waiting, because the other tab is still on v1. This held in Chrome 156 and Firefox 159."
+  question: browser/workers/service-worker-lifecycle
+- id: sc2-fetch-event
+  front: "What does a service worker see, and how does it answer a request?"
+  back: "Every request its controlled pages make: navigations into its scope and every subresource request, cross-origin included. Each fires `fetch`. `event.respondWith(promise)` during dispatch supplies the `Response`; otherwise the request goes to the network."
+  question: browser/workers/service-worker-caching
+- id: sc2-cache-api
+  front: "What is the Cache API, and how does it relate to the HTTP cache?"
+  back: "A store of request/response pairs (`caches.open(name)`, then `match`, `put`, `add`, `addAll`, `delete`, `keys`) that only your code reads and writes. It is unrelated to the HTTP cache that `fetch`'s `cache` option controls."
+  question: browser/workers/service-worker-caching
+- id: sc2-cache-keys-get-only
+  front: "How are Cache API entries keyed, and which requests can be stored?"
+  back: "By URL, query included; only `GET` requests can be stored. Entries stay until deleted or until the origin is evicted, and count against the origin's storage quota."
+  question: browser/workers/service-worker-caching
+- id: sc2-cache-first
+  front: "What is the cache-first strategy and what is it for?"
+  back: "Return the cached copy and go to the network only on a miss. Use it for versioned static files like `app.3f9a.js` that never change at the same URL."
+  question: browser/workers/service-worker-caching
+- id: sc2-network-first
+  front: "What is the network-first strategy and what is it for?"
+  back: "Try the network, update the cache, and fall back to the cache when offline. Use it for HTML and data that must be current when possible."
+  question: browser/workers/service-worker-caching
+- id: sc2-swr
+  front: "What is stale-while-revalidate and what is it for?"
+  back: "Answer from the cache immediately and refresh the cache in the background, so the next visit sees the update. Use it for avatars and data that may lag one load behind."
+  question: browser/workers/service-worker-caching
+- id: sc2-cache-only-network-only
+  front: "When use cache-only or network-only?"
+  back: "Cache-only for precached assets; network-only for requests that must never be cached, like analytics or `POST`."
+  question: browser/workers/service-worker-caching
+- id: sc2-navigation-preload
+  front: "What problem does navigation preload solve, and how is it used?"
+  back: "A navigation to a stopped service worker waits for it to boot before the request starts. `registration.navigationPreload.enable()` sends the request in parallel with a `Service-Worker-Navigation-Preload` header; the worker reads it via `event.preloadResponse`."
+  question: browser/workers/service-worker-caching
+- id: sc2-preload-double-fetch
+  front: "What happens if navigation preload is enabled but the handler calls `fetch(event.request)` itself?"
+  back: "The preload request goes out anyway, so the server is hit twice per navigation, as it did in Chrome 156 and Firefox 159. Use `event.preloadResponse`."
+  question: browser/workers/service-worker-caching
+- id: sc2-swr-output
+  front: "In the stale-while-revalidate example with a server counting 1, 2, 3…, what do three page requests print?"
+  back: "`1`, `1`, `2`. Each answer is the value cached one request earlier. With the server unreachable, a fourth request answered `3` from the cache. Same in Chrome 156 and Firefox 159."
+  question: browser/workers/service-worker-caching
+- id: sc2-network-first-fourth
+  front: "With network-first and a counting server, what does the fourth request print when the server is unreachable?"
+  back: "`3`. The first three reach the network (`1 2 3`) and each replaces the cached copy; the fourth `fetch()` rejects, so the `catch` serves the last cached response. Chrome 156 and Firefox 159 printed `1 2 3 3`."
+  question: browser/workers/service-worker-caching
+- id: sc2-check-response-ok
+  front: "Why check `response.ok` before `cache.put()` under cache-first?"
+  back: "A 404, a 500 or a redirect would be cached and served forever."
+  question: browser/workers/service-worker-caching
+- id: sc2-opaque-responses
+  front: "What is the problem with caching opaque `no-cors` responses?"
+  back: "`cache.put()` accepts them, but their status is hidden and browsers pad their quota cost. Chrome 156 counted one tiny response as about 7 MB."
+  question: browser/workers/service-worker-caching
+- id: sc2-clone-body
+  front: "Why `clone()` a response before caching it in a fetch handler?"
+  back: "A body can be read once. `put()` a `clone()` and return the original."
+  question: browser/workers/service-worker-caching
+- id: sc2-addall-atomic
+  front: "Is `cache.addAll()` atomic?"
+  back: "Yes. If any request fails or returns a non-2xx status, it rejects with a `TypeError` and stores nothing. Chrome 156 and Firefox 159 left the cache empty after one 404 in the list."
+  question: browser/workers/service-worker-caching
+- id: sc2-add-opaque
+  front: "Why can't `cache.add()` store a `no-cors` response, and what can?"
+  back: "`add()` rejects any response that isn't 2xx, and an opaque response's status reads as 0. Both browsers threw `TypeError`; `put()` stores it."
+  question: browser/workers/service-worker-caching
+- id: sc2-stream-response
+  front: "How do you stream a response from a service worker?"
+  back: "Pass a `Response` built on a `ReadableStream` to `respondWith()`. The page reads chunks as the worker enqueues them: in Chrome 156 and Firefox 159 a chunk enqueued 500 ms after the first arrived 500 ms later."
+  question: browser/workers/service-worker-caching
+- id: sc2-match-query
+  front: "Does the query string matter for `cache.match()`?"
+  back: "Yes: `/q?a=1` doesn't match `/q?a=2`. Pass `{ ignoreSearch: true }` to match on the path alone."
+  question: browser/workers/service-worker-caching
+- id: sc2-waituntil-refresh
+  front: "Why call `event.waitUntil()` for the background refresh in stale-while-revalidate?"
+  back: "To keep the worker alive until the cache refresh finishes, since the response has already been returned."
+  question: browser/workers/service-worker-caching
+- id: ct-broadcastchannel
+  front: "How does `BroadcastChannel` work, and who receives the message?"
+  back: "A named pub/sub bus; data is structured-cloned. It reaches every other channel object with that name in the same origin, including workers and a second channel object in the sending tab. Only the sending object itself is skipped."
+  question: browser/workers/cross-tab-communication
+- id: ct-broadcast-storage-key
+  front: "How does `BroadcastChannel` match a third-party iframe?"
+  back: "By storage key, so a third-party iframe only reaches copies of itself embedded under the same top-level site."
+  question: browser/workers/cross-tab-communication
+- id: ct-broadcast-origin
+  front: "Does a tab on `http://127.0.0.1:8070` receive a `BroadcastChannel` message from `http://localhost:8070`?"
+  back: "No, it's another origin. Same in Chrome 156 and Firefox 159, driven with Puppeteer."
+  question: browser/workers/cross-tab-communication
+- id: ct-sender-no-receive
+  front: "Does the sending tab receive its own `BroadcastChannel` message?"
+  back: "No. Update the sending tab directly; the channel is for the others."
+  question: browser/workers/cross-tab-communication
+- id: ct-sharedworker
+  front: "What is a `SharedWorker`, and how do pages talk to it?"
+  back: "One worker shared by every same-origin page that creates it with the same URL and name. Each page uses its own `MessagePort` (`worker.port`), and the worker gets a `connect` event per page. It runs while any page is connected."
+  question: browser/workers/cross-tab-communication
+- id: ct-sharedworker-support
+  front: "What is the `SharedWorker` support caveat?"
+  back: "Chrome Android shipped it only in Chrome 148. Safari dropped it after version 7 and restored it in 16."
+  question: browser/workers/cross-tab-communication
+- id: ct-web-locks
+  front: "What do Web Locks do, and when is the lock released?"
+  back: "`navigator.locks.request('sync', async (lock) => {…})` runs the callback once no other tab or worker of the origin holds `'sync'`. The lock is released when the returned promise settles or the tab closes."
+  question: browser/workers/cross-tab-communication
+- id: ct-lock-options
+  front: "What do the `ifAvailable`, `steal` and `mode: 'shared'` lock options do?"
+  back: "`ifAvailable: true` gives `null` instead of waiting. `steal: true` takes the lock and rejects the holder's request with `AbortError`. `mode: 'shared'` allows several readers."
+  question: browser/workers/cross-tab-communication
+- id: ct-steal-callback-continues
+  front: "Does `steal: true` stop the old lock holder's work?"
+  back: "No. Its request rejects with `AbortError`, but its callback keeps running; code inside must check whether it still owns the work."
+  question: browser/workers/cross-tab-communication
+- id: ct-iflavailable-exercise
+  front: "Tab A holds lock `'sync'` for a second; 100 ms later tab B requests it with `ifAvailable: true`. What does `lock === null` print?"
+  back: "`true`. B's callback runs at once with `null` instead of queuing. After A's lock was released, the same request printed `false`. Chrome 156 and Firefox 159 agree."
+  question: browser/workers/cross-tab-communication
+- id: ct-other-channels
+  front: "What other ways can same-origin contexts communicate besides channels, workers and locks?"
+  back: "The `storage` event fires in other tabs when `localStorage` changes; `window.opener` and iframes can `postMessage` each other directly; a service worker can message every client with `clients.matchAll()`."
+  question: browser/workers/cross-tab-communication
+- id: ct-pick-by-need
+  front: "How do you choose between `BroadcastChannel`, locks and `SharedWorker`?"
+  back: "Notifications: `BroadcastChannel`. One owner of a resource: a lock, or a `SharedWorker` where supported."
+  question: browser/workers/cross-tab-communication
+- id: ct-leader-election
+  front: "How do you elect one leader tab?"
+  back: "Every tab calls `navigator.locks.request('leader', () => new Promise(() => {}))`. The first holds the lock forever; the rest queue. When the leader's tab closes, the browser releases its lock and the next callback runs, as Chrome 156 and Firefox 159 did."
+  question: browser/workers/cross-tab-communication
+- id: ct-broadcast-vs-storage
+  front: "`BroadcastChannel` or the `storage` event?"
+  back: "The `storage` event only reports `localStorage` writes, as strings, and only when the value changes. `BroadcastChannel` sends any cloneable value without storing it. Use storage when the state must also survive a reload."
+  question: browser/workers/cross-tab-communication
+- id: ct-bfcache-spec
+  front: "Per the spec, do `BroadcastChannel` messages reach a page in the back-forward cache?"
+  back: "No. The spec delivers only to documents that are fully active. Only Chrome was checked, since headless Firefox under Puppeteer didn't restore pages from the cache."
+  question: browser/workers/cross-tab-communication
+- id: ct-bfcache-chrome
+  front: "In Chrome 156, what happens to a page with an open `BroadcastChannel` that is back-forward cached?"
+  back: "Chrome 156 cached the page, but a message sent while it was cached evicted it."
+  question: browser/workers/cross-tab-communication
