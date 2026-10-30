@@ -1697,7 +1697,7 @@
   question: browser/network-apis/sending-data-on-exit
 - id: exit-when-to-send
   front: "Which event should trigger the exit send, and which should you avoid?"
-  back: "Flush on `visibilitychange` when `visibilityState === 'hidden'`, plus `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, and in Chrome 156 an `unload` listener keeps the page out of the back/forward cache."
+  back: "Flush on `visibilitychange` when `visibilityState === 'hidden'`, plus `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, wherever `unload` runs it keeps the page out of the back/forward cache, and since Chrome 155 Chrome doesn't run it by default."
   question: browser/network-apis/sending-data-on-exit
 - id: exit-visibilitychange-why
   front: "Why is `visibilitychange` the right event on mobile?"

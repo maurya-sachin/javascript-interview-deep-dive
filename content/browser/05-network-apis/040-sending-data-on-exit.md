@@ -16,6 +16,7 @@ perishable:
   - "fetchLater(): Chromium 135+, not in Firefox or Safari"
   - Firefox 159 applies no quota to sendBeacon()
   - Exit-time delivery results from Chrome 156 and Firefox 159
+  - Chrome 155+ doesn't run unload handlers by default
 sources:
   - https://w3c.github.io/beacon/#sec-processing-model
   - https://w3c.github.io/beacon/#introduction
@@ -25,6 +26,7 @@ sources:
   - https://fetch.spec.whatwg.org/#dom-window-fetchlater
   - https://fetch.spec.whatwg.org/#queue-a-deferred-fetch
   - https://fetch.spec.whatwg.org/#available-deferred-fetch-quota
+  - https://developer.chrome.com/docs/web-platform/deprecating-unload
   - https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon#browser_compatibility
   - https://developer.mozilla.org/en-US/docs/Web/API/Window/fetchLater#browser_compatibility
   - https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#browser_compatibility
@@ -45,7 +47,7 @@ When a document goes away, the Fetch Standard terminates its in-flight fetches u
 
 Keepalive requests from one page share **64 KiB of in-flight body**. Past it, `sendBeacon()` returns `false` and a keepalive `fetch()` rejects with a `TypeError`. Firefox 159 enforced this for `fetch()` but not for beacons: a 16 MiB one went through.
 
-**When to send.** Flush when `visibilitychange` reports `visibilityState === 'hidden'`. The Beacon spec calls it the only event guaranteed to fire on mobile when the user switches apps, after which the OS may kill the page without `unload`. Add `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, and in Chrome 156 an `unload` listener keeps the page out of the back/forward cache. The page can come back after `"hidden"`, so a flush must be repeatable: send what's new and clear it.
+**When to send.** Flush when `visibilitychange` reports `visibilityState === 'hidden'`. The Beacon spec calls it the only event guaranteed to fire on mobile when the user switches apps, after which the OS may kill the page without `unload`. Add `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, wherever `unload` runs it keeps the page out of the back/forward cache, and since Chrome 155 Chrome doesn't run `unload` handlers by default. The page can come back after `"hidden"`, so a flush must be repeatable: send what's new and clear it.
 
 Better still, batch while the user is active, so the exit send carries only the tail.
 
