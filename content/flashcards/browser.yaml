@@ -2770,3 +2770,317 @@
   front: "Should you expect a `MutationObserver` callback to have run by the next line?"
   back: "No. It's a microtask: it runs after the current script returns, never in the middle of it."
   question: browser/observers/observer-timing
+
+# 09 Navigation
+- id: hist-push-state-effect
+  front: "What does `history.pushState(state, '', url)` do, and what does it not do?"
+  back: "It adds a session history entry for the same document and sets the URL. Nothing is fetched, nothing unloads, and no event fires, so the router must render the new view itself."
+  question: browser/navigation/history-api-routing
+- id: hist-replace-state-use
+  front: "How does `replaceState()` differ from `pushState()`, and when do you use it?"
+  back: "It updates the current entry instead of adding one. Use it for redirects and for filter or tab changes that shouldn't add a back step."
+  question: browser/navigation/history-api-routing
+- id: hist-popstate-when
+  front: "When does `popstate` fire for a History API router?"
+  back: "On `window`, when a traversal (back, forward, `history.go()`) lands on another entry of the same document. Render from `location` and read `event.state`. A traversal to another document fires no `popstate`."
+  question: browser/navigation/history-api-routing
+- id: hist-click-interception
+  front: "Which link clicks should a `pushState()` router intercept before calling `preventDefault()`?"
+  back: "Only a plain left click on a same-origin link without `target` or modifier keys. Anything else is left to the browser."
+  question: browser/navigation/history-api-routing
+- id: hist-first-load-render
+  front: "Why must a `pushState()` router render from `location` at startup?"
+  back: "Current browsers don't fire `popstate` on load, so nothing else triggers the first render."
+  question: browser/navigation/history-api-routing
+- id: hist-server-fallback
+  front: "Why does a `pushState()` router need a server fallback?"
+  back: "A reload or shared link requests `/about` from the server, which must return the app shell for every route. Otherwise a reload returns 404."
+  question: browser/navigation/history-api-routing
+- id: hist-state-serialization
+  front: "How is `pushState()` state stored, and what happens with functions or DOM nodes in it?"
+  back: "It's stored with `StructuredSerializeForStorage`, so functions and DOM nodes throw `DataCloneError`. Class instances come back as plain objects. `history.state` survives a reload."
+  question: browser/navigation/history-api-routing
+- id: hist-url-rewrite-security
+  front: "What does `pushState()` throw for a URL on another scheme, host or port?"
+  back: "`SecurityError`. For `http:` and `https:` the scheme, credentials, host and port must match; path, query and fragment can change."
+  question: browser/navigation/history-api-routing
+- id: hist-length-not-reliable
+  front: "Can `history.length` tell you whether back leaves your app?"
+  back: "No. It counts every entry in the tab, including other sites and entries ahead of the current one. In one Puppeteer run it read `2` in Chrome 156 and `1` in Firefox 159, because Chrome kept the initial `about:blank` entry."
+  question: browser/navigation/history-api-routing
+- id: hist-hash-vs-pushstate
+  front: "Hash routing or `pushState()`: what is the trade-off?"
+  back: "Hash URLs (`/#/about`) never reach the server, so they need no fallback, and fragment changes fire `hashchange`. `pushState()` gives clean URLs the server can render and crawlers see as distinct pages."
+  question: browser/navigation/history-api-routing
+- id: hist-fragment-popstate
+  front: "Does navigating to a fragment (`location.hash`, clicking `#section`) fire `popstate`, and what is `history.state` then?"
+  back: "Yes. It creates a same-document entry with `history.state` reset to `null` and fires `popstate` before `hashchange`. A router that renders on `popstate` must ignore in-page anchors."
+  question: browser/navigation/history-api-routing
+- id: hist-pushstate-fragment-no-hashchange
+  front: "Does `pushState(null, '', '#x')` fire `hashchange`?"
+  back: "No. Only real fragment navigations do; `pushState()` to a fragment is just a URL update."
+  question: browser/navigation/history-api-routing
+- id: hist-scroll-restoration-manual
+  front: "Why set `history.scrollRestoration = 'manual'` in a list that re-renders asynchronously?"
+  back: "The browser restores scroll right after `popstate`, before your data is back. With `\"manual\"` you save the offset in state and restore it yourself. The mode belongs to each entry; a new entry copies the current one's."
+  question: browser/navigation/history-api-routing
+- id: hist-a11y-after-push
+  front: "What does a `pushState()` router have to do for accessibility after changing the view?"
+  back: "Focus stays where it was, often on a link the new view removed, and the title doesn't change. Move focus to the new heading or main region and update `document.title`."
+  question: browser/navigation/history-api-routing
+- id: hist-traversal-order-output
+  front: "After `pushState` to `/a`, `pushState` to `/b`, `replaceState` to `/c`, then `history.back()`, what is `location.pathname` on the next line and what does `popstate` then show?"
+  back: "The next line shows `/c`, because `history.back()` traverses after the script ends. Then `popstate` fires on `/a` with state `n: 1`: the pushes fire nothing and `replaceState()` turned `/b` into `/c`."
+  question: browser/navigation/history-api-routing
+- id: hist-hash-popstate-order
+  front: "Setting `location.hash` with `popstate` and `hashchange` listeners: in what order do they log relative to the next line?"
+  back: "`popstate`, the next line, then `hashchange`. A fragment navigation fires `popstate` synchronously and queues `hashchange` as a task (Chrome 156 and Firefox 159)."
+  question: browser/navigation/history-api-routing
+- id: navapi-history-gaps
+  front: "What gaps in a History API router does the Navigation API fix?"
+  back: "A History router has no single place where navigations start: it misses form submissions and `location` changes, learns of back/forward only from `popstate` after the URL changed, has no notion of a navigation in progress, and can't read the history list."
+  question: browser/navigation/navigation-api
+- id: navapi-navigate-event
+  front: "Which navigations fire the Navigation API's `navigate` event?"
+  back: "Every navigation of the frame: link clicks, form submissions, `location` changes, `pushState()`/`replaceState()`, back/forward, reloads and `navigation.navigate()`. It fires before the navigation, and `preventDefault()` cancels it when `cancelable` is true."
+  question: browser/navigation/navigation-api
+- id: navapi-navigation-type
+  front: "What values can `navigate` event's `navigationType` have?"
+  back: "`push`, `replace`, `reload` and `traverse`."
+  question: browser/navigation/navigation-api
+- id: navapi-intercept
+  front: "What does `event.intercept({ handler })` do?"
+  back: "It turns the navigation into a same-document one. The URL and `navigation.currentEntry` change at once; the handler's promise is the navigation. The browser shows loading, fires `navigatesuccess` or `navigateerror`, then resets focus and scroll."
+  question: browser/navigation/navigation-api
+- id: navapi-can-intercept
+  front: "When is `event.canIntercept` true?"
+  back: "For a same-origin URL that isn't a traversal to another document. Cross-origin navigations and back/forward to other documents can be watched but not intercepted."
+  question: browser/navigation/navigation-api
+- id: navapi-method-promises
+  front: "What do `navigation.navigate()`, `back()`, `forward()`, `traverseTo()` and `reload()` return?"
+  back: "An object `{ committed, finished }` of two promises."
+  question: browser/navigation/navigation-api
+- id: navapi-entries
+  front: "What does `navigation.entries()` return, and how does its state differ from `history.state`?"
+  back: "This origin's contiguous entries, each with `url`, `key`, `index` and `getState()`. That state is separate from `history.state`. `currententrychange` fires on every change."
+  question: browser/navigation/navigation-api
+- id: navapi-entries-origin-limit
+  front: "Why does `navigation.entries()` expose only some entries?"
+  back: "The spec walks out from the current entry and stops at the first entry from another origin in each direction, so another site's pages, and your entries beyond them, aren't exposed."
+  question: browser/navigation/navigation-api
+- id: navapi-intercept-guards
+  front: "Which `navigate` events should a router not intercept?"
+  back: "Check `canIntercept`, and leave `hashChange` and `downloadRequest` navigations to the browser."
+  question: browser/navigation/navigation-api
+- id: navapi-signal-abort
+  front: "What happens to an intercepted navigation when a newer one starts?"
+  back: "Its `finished` rejects with `AbortError` and its `event.signal` aborts, but the handler keeps running. Pass the signal to `fetch()` to cancel the work."
+  question: browser/navigation/navigation-api
+- id: navapi-traversal-not-cancelable
+  front: "Can you block a back traversal to another document with `navigate`?"
+  back: "No. In Chrome 156 and Firefox 159 such a traversal fired `navigate` with `cancelable` and `canIntercept` both `false`."
+  question: browser/navigation/navigation-api
+- id: navapi-navigate-before-load
+  front: "What did `navigation.navigate('/about')` from a module script before `load` do?"
+  back: "It became a `replace` in Chrome 156 and a `push` in Firefox 159."
+  question: browser/navigation/navigation-api
+- id: navapi-pushstate-fires-navigate
+  front: "Does `history.pushState()` fire `navigate`, and what if you call `preventDefault()`?"
+  back: "Yes, as a `push` with `canIntercept` true. `preventDefault()` makes `pushState()` return without changing the URL or state, and without throwing."
+  question: browser/navigation/navigation-api
+- id: navapi-cross-origin-link
+  front: "What does `navigate` look like for a cross-origin link, and what does `intercept()` do?"
+  back: "`canIntercept: false` and `cancelable: true`. You can cancel it but not intercept it; `intercept()` threw `SecurityError` in Chrome 156 and Firefox 159."
+  question: browser/navigation/navigation-api
+- id: navapi-support
+  front: "Which browser versions support the Navigation API?"
+  back: "Chrome 102, Firefox 147 and Safari 26.2, so every engine has it."
+  question: browser/navigation/navigation-api
+- id: vt-start-steps
+  front: "What are the steps of `document.startViewTransition(updateCallback)`?"
+  back: "At the next rendering step it captures the old state, pauses rendering and calls your callback, then captures the new state and builds a pseudo-element tree over the page, then resumes rendering and animates."
+  question: browser/navigation/view-transitions
+- id: vt-pseudo-tree
+  front: "What is the pseudo-element tree a view transition builds?"
+  back: "`::view-transition` › `::view-transition-group(name)` › `::view-transition-image-pair(name)` › `::view-transition-old(name)` and `::view-transition-new(name)`. The root is named `root` by default."
+  question: browser/navigation/view-transitions
+- id: vt-default-animation
+  front: "What do view transitions animate by default, and how do you restyle it?"
+  back: "Old fades out, new fades in, and each group animates from the old size and position to the new. They're ordinary CSS animations, so restyle them with `animation` on the pseudo-elements."
+  question: browser/navigation/view-transitions
+- id: vt-name-capture
+  front: "What does `view-transition-name` change in a view transition?"
+  back: "Each element with a name gets its own captured image and box, and animates as a separate group that morphs from the old size and position to the new. Names match across pages in a cross-document transition."
+  question: browser/navigation/view-transitions
+- id: vt-promises
+  front: "What are the three promises of a `ViewTransition`?"
+  back: "`updateCallbackDone` (the DOM change finished), `ready` (pseudo-elements exist, animations about to run) and `finished`. `skipTransition()` skips the animation; the callback still runs."
+  question: browser/navigation/view-transitions
+- id: vt-raf-paused
+  front: "Do `requestAnimationFrame` callbacks run while a slow view-transition update callback is pending?"
+  back: "No. In Chrome 156 and Firefox 159 they didn't run during a 200 ms update callback: the event loop skips documents whose rendering is suppressed for a view transition."
+  question: browser/navigation/view-transitions
+- id: vt-cross-document-optin
+  front: "How do you enable a cross-document view transition?"
+  back: "Add `@view-transition { navigation: auto; }` to both documents. On a same-origin navigation the old page is captured before it's swapped out, and the new page animates in on its first rendering opportunity."
+  question: browser/navigation/view-transitions
+- id: vt-pageswap-pagereveal
+  front: "Which events expose the `ViewTransition` in a cross-document transition?"
+  back: "`pageswap` on the old page and `pagereveal` on the new page, for customising."
+  question: browser/navigation/view-transitions
+- id: vt-cross-doc-no-transition
+  front: "Which navigations don't get a cross-document view transition?"
+  back: "Reloads, cross-origin navigations and URLs typed in the address bar. Back and forward do transition."
+  question: browser/navigation/view-transitions
+- id: vt-support
+  front: "Which browsers support same-document and cross-document view transitions?"
+  back: "Same-document since Chrome 111, Firefox 144 and Safari 18. Cross-document in Chrome 126 and Safari 18.2, not in Firefox 159."
+  question: browser/navigation/view-transitions
+- id: vt-duplicate-name
+  front: "What happens when two rendered elements share a `view-transition-name`?"
+  back: "The whole transition is skipped: `ready` rejects with `InvalidStateError`, though the DOM update still runs and `finished` resolves."
+  question: browser/navigation/view-transitions
+- id: vt-slow-callback
+  front: "Why avoid a slow `startViewTransition` update callback?"
+  back: "The page is frozen on the old frame until the callback settles. Fetch data first, then start the transition."
+  question: browser/navigation/view-transitions
+- id: vt-one-sided-optin
+  front: "What happens if only the old page opts in to a cross-document transition?"
+  back: "In Chrome 156 the old page's `pageswap` reports a transition but the new page's `pagereveal` gets none."
+  question: browser/navigation/view-transitions
+- id: vt-reduced-motion
+  front: "How should view transitions respect `prefers-reduced-motion`?"
+  back: "Put the `@view-transition` rule or your animation styles inside a media query."
+  question: browser/navigation/view-transitions
+- id: vt-second-transition
+  front: "What happens if you start a second view transition before the first finishes?"
+  back: "The first is skipped with `AbortError`: its `ready` rejects, its callback still runs and its `finished` resolves. Then the second runs normally (Chrome 156 and Firefox 159)."
+  question: browser/navigation/view-transitions
+- id: vt-layers-replaced
+  front: "Are the old and new view-transition layers live elements?"
+  back: "The old one is a captured image; the new one shows the new state as it renders. Both are replaced elements, so `object-fit` and similar apply. Animating them doesn't re-lay out or repaint your real elements."
+  question: browser/navigation/view-transitions
+- id: vt-router-use
+  front: "How does a router use a same-document view transition?"
+  back: "It wraps the DOM update: inside the `intercept()` handler, or in place of rendering right after `pushState()`, call `document.startViewTransition(() => render(url))`."
+  question: browser/navigation/view-transitions
+- id: bfc-what-is
+  front: "What does the back/forward cache keep, and what happens on Back or Forward?"
+  back: "The whole document: DOM, JavaScript heap, pending timers and promises, all frozen. Back or Forward reactivates it without a request or any script re-running."
+  question: browser/navigation/back-forward-cache
+- id: bfc-pagehide-persisted
+  front: "What does `pagehide`'s `persisted` mean, and when does `unload` fire?"
+  back: "`persisted` is true when the document stays salvageable, so it may enter the bfcache. `unload` fires only when it's `false`."
+  question: browser/navigation/back-forward-cache
+- id: bfc-restore-events
+  front: "Which events fire when a page is restored from the bfcache?"
+  back: "`pageshow` with `persisted: true`. There is no `load` and no `popstate`. Timers resume as if no time had passed."
+  question: browser/navigation/back-forward-cache
+- id: bfc-spec-vs-policy
+  front: "Does the spec decide which pages enter the bfcache?"
+  back: "Only a few cases, such as an open WebSocket or a document whose loading was aborted mid-fetch. The rest is engine policy, which differs between Chrome, Firefox and Safari and changes between versions."
+  question: browser/navigation/back-forward-cache
+- id: bfc-unload-handler
+  front: "How does an `unload` handler affect bfcache eligibility in Firefox 159 and Chrome 156?"
+  back: "Firefox runs the handler, so the page isn't cached. Chrome's docs say that since Chrome 155 handlers don't run unless the page sends `Permissions-Policy: unload=(self)`; with that header Chrome ran it and didn't cache."
+  question: browser/navigation/back-forward-cache
+- id: bfc-unload-why-exclusive
+  front: "Why can't a page with a running `unload` handler be cached?"
+  back: "Pages assume nothing runs after `unload`, so a surviving page could break. The spec makes them exclusive: `unload` fires only for a non-salvageable document, so an engine that runs the handler must discard the page."
+  question: browser/navigation/back-forward-cache
+- id: bfc-opener
+  front: "Does a window opened by `window.open()` without `noopener` stay bfcache eligible?"
+  back: "No. It wasn't cached in Chrome 156 or Firefox 159. Open windows with `noopener`."
+  question: browser/navigation/back-forward-cache
+- id: bfc-no-store
+  front: "How do Chrome 156 and Firefox 159 treat `Cache-Control: no-store` pages in the bfcache?"
+  back: "Firefox didn't cache them. Chrome did, then evicted the page when a cookie changed."
+  question: browser/navigation/back-forward-cache
+- id: bfc-not-blockers
+  front: "In Chrome 156 and Firefox 159, what didn't block the bfcache but could still evict?"
+  back: "`beforeunload` handlers weren't blockers. An open IndexedDB connection got the page evicted when another tab upgraded the database, and an open `BroadcastChannel` got it evicted in Chrome when a message arrived."
+  question: browser/navigation/back-forward-cache
+- id: bfc-pageshow-refresh
+  front: "What should you do in `pageshow` when `persisted` is true?"
+  back: "Refresh anything that may be stale, like a cart, login state or analytics page view. A restored page gets no `load` or `DOMContentLoaded`."
+  question: browser/navigation/back-forward-cache
+- id: bfc-pagehide-not-final
+  front: "Why is `pagehide` not a safe place for final teardown?"
+  back: "With `persisted: true` the page may come back. Anything torn down there must be rebuilt in `pageshow`."
+  question: browser/navigation/back-forward-cache
+- id: bfc-debug-chrome
+  front: "How do you find why a page wasn't restored from the bfcache, and in which browsers?"
+  back: "Chrome only: DevTools' Back/forward cache test, `PerformanceNavigationTiming.notRestoredReasons` (Chrome 125+) and the protocol event `Page.backForwardCacheNotUsed`."
+  question: browser/navigation/back-forward-cache
+- id: bfc-not-restored-reasons
+  front: "What did the in-page `notRestoredReasons` report in Chrome for a cookie change after `no-store` and for an opener popup?"
+  back: "`response-cache-control-no-store` after a cookie change, and `non-trivial-browsing-context-group` for an opener popup. `Page.backForwardCacheNotUsed` lists reasons such as `UnloadHandlerExistsInMainFrame`."
+  question: browser/navigation/back-forward-cache
+- id: bfc-spa-router
+  front: "Does a single-page app's router see a bfcache restore through `popstate`?"
+  back: "No. The restored document's own entry comes back, so router state is already right. Use `pageshow` to refresh data."
+  question: browser/navigation/back-forward-cache
+- id: bfc-example-output
+  front: "With an `unload` listener in Firefox 159, what do `pagehide` and the return via Back show?"
+  back: "`pagehide` reports `persisted: false`, then `unload` runs, and on Back the page loads with navigation type `back_forward` instead of being restored."
+  question: browser/navigation/back-forward-cache
+- id: plc-states
+  front: "How should you model a page's lifetime for lifecycle events?"
+  back: "As states (visible, hidden, frozen, gone) rather than one \"goodbye\" event."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-visibilitychange
+  front: "When does `visibilitychange` fire, and why save state there?"
+  back: "Whenever `visibilityState` flips between `\"visible\"` and `\"hidden\"`: tab switches, minimising, locking the phone, navigating away, closing. Chrome's docs call `\"hidden\"` often the last observable change, especially on mobile, where the OS can kill the browser without other events."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-hidden-repeatable
+  front: "Why must a `visibilitychange` to `\"hidden\"` handler be repeatable?"
+  back: "The page may come back, so the user can switch back and the next `\"visible\"` may need to refresh data."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-pagehide
+  front: "When does `pagehide` fire, and what does `persisted` tell you?"
+  back: "When the page is being left: navigation, reload or close, but not a tab switch. `persisted` is true if the page may enter the back/forward cache, so don't treat it as the end."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-beforeunload-purpose
+  front: "What is `beforeunload` for, and how do you trigger the prompt?"
+  back: "Only for asking \"leave with unsaved changes?\". Call `event.preventDefault()` (or set `returnValue` to a non-empty string), and only while there are unsaved changes. The prompt shows only if the user has interacted with the page."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-beforeunload-message
+  front: "Can you customise the `beforeunload` prompt text?"
+  back: "No. Browsers show their own text. Chrome 156's dialog reported an empty message and Firefox 159's a fixed sentence, even with `returnValue = 'custom text'`."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-beforeunload-reliability
+  front: "Can you rely on `beforeunload` firing?"
+  back: "In Chrome 156 and Firefox 159 it fired without user interaction, but Chrome's docs warn that some browsers skip it for pages headed into the back/forward cache. On mobile it may not fire at all."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-unload
+  front: "Why avoid `unload`?"
+  back: "It fires last, only when the page won't be cached. It's often skipped on mobile, keeps the page out of the bfcache where it runs, and Chrome's docs say it stopped running by default in Chrome 155."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-freeze-resume
+  front: "Where do `freeze` and `resume` come from, and which browsers fire them?"
+  back: "The WICG Page Lifecycle draft, on `document`; only Chromium. Chrome's docs say it freezes hidden pages to save resources. Chrome 156 also fired `freeze` when a page entered the bfcache. Firefox 159 has neither event."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-was-discarded
+  front: "What does `document.wasDiscarded` tell you?"
+  back: "It's `true` after a discarded tab is reloaded. It's Chromium-only; it is `undefined` in Firefox 159."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-nav-order
+  front: "In what order do lifecycle events fire when following a link?"
+  back: "`beforeunload`, `pagehide`, `visibilitychange` (`\"hidden\"`), then `unload` if it runs. In Chrome 156 and Firefox 159, closing the tab gave `beforeunload`, `pagehide` with `persisted` false, `visibilitychange`."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-tab-switch
+  front: "Which events fire when switching tabs away and back?"
+  back: "Only `visibilitychange` to `\"hidden\"`, then to `\"visible\"`; nothing else (Chrome 156 and Firefox 159). So saving only in `pagehide` or `unload` misses tab switches."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-restore-order
+  front: "In what order do events fire on restore from the bfcache?"
+  back: "In Chrome 156: `resume`, then `visibilitychange` (`\"visible\"`), then `pageshow` with `persisted: true`. Firefox 159 is the same without `resume`."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-test-freeze
+  front: "How do you test `freeze` and `resume` in Chrome?"
+  back: "The DevTools protocol's `Page.setWebLifecycleState` with `\"frozen\"` then `\"active\"` fired both events on a hidden page."
+  question: browser/navigation/page-lifecycle-events
+- id: plc-send-data
+  front: "Where should you send exit data, and with what?"
+  back: "In the `visibilitychange` (`\"hidden\"`) and `pagehide` handlers, using `navigator.sendBeacon()` or a keepalive `fetch()`, which outlive the page."
+  question: browser/navigation/page-lifecycle-events
