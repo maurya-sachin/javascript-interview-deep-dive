@@ -30,7 +30,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 010 | [How does `IntersectionObserver` work, and why use it over scroll listeners?](010-intersection-observer.md) | medium | 🟡 draft |
 | 020 | [What does `ResizeObserver` report, and what is the loop error?](020-resize-observer.md) | medium | 🟡 draft |
 | 030 | [How does `MutationObserver` batch changes?](030-mutation-observer.md) | medium | 🟡 draft |
-| 040 | [When do observer callbacks run compared with events, microtasks, and rendering?](040-observer-timing.md) | hard | 🔴 planned |
+| 040 | [When do observer callbacks run compared with events, microtasks, and rendering?](040-observer-timing.md) | hard | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
