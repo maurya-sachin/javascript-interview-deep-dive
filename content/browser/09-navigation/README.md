@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How does client-side routing work with the History API?](010-history-api-routing.md) | medium | 🔴 planned |
+| 010 | [How does client-side routing work with the History API?](010-history-api-routing.md) | medium | 🟡 draft |
 | 020 | [What does the Navigation API fix over the History API?](020-navigation-api.md) | medium | 🔴 planned |
 | 030 | [How do View Transitions work within a page and across pages?](030-view-transitions.md) | medium | 🔴 planned |
 | 040 | [What is the back/forward cache, and what keeps a page out of it?](040-back-forward-cache.md) | medium | 🔴 planned |
