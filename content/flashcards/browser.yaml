@@ -3084,3 +3084,333 @@
   front: "Where should you send exit data, and with what?"
   back: "In the `visibilitychange` (`\"hidden\"`) and `pagehide` handlers, using `navigator.sendBeacon()` or a keepalive `fetch()`, which outlive the page."
   question: browser/navigation/page-lifecycle-events
+
+# 10 Web Components
+- id: ce-define-name-rules
+  front: "What makes a custom element name valid, and what do `define()` errors throw?"
+  back: "It must start with a lowercase ASCII letter, contain a hyphen, have no uppercase letters, and not be a reserved SVG/MathML name like `font-face`; otherwise `SyntaxError`. Defining a name or a class twice throws `NotSupportedError`."
+  question: browser/web-components/custom-elements
+- id: ce-constructor-rules
+  front: "What must a custom element constructor do and avoid?"
+  back: "Call `super()` first, then set up state, listeners, maybe a shadow root. Don't add attributes or children, and don't read them: with `createElement()` there are none yet."
+  question: browser/web-components/custom-elements
+- id: ce-connected-callback-repeat
+  front: "How often does `connectedCallback` run, and what can be missing when it does?"
+  back: "On every insertion into a document, so many times. During parsing it can run before the element's children exist. Guard one-time work and make cleanup in `disconnectedCallback` symmetric."
+  question: browser/web-components/custom-elements
+- id: ce-attribute-changed-observed
+  front: "When does `attributeChangedCallback` run?"
+  back: "Only for names in `static observedAttributes`, including the initial attributes, which arrive before `connectedCallback`. An unlisted attribute never triggers it."
+  question: browser/web-components/custom-elements
+- id: ce-adopted-callback
+  front: "When is `adoptedCallback` called?"
+  back: "When the element moves into another document, such as an iframe's. Chrome 156 and Firefox 159 called `disconnectedCallback`, `adoptedCallback(oldDocument, newDocument)`, then `connectedCallback`."
+  question: browser/web-components/custom-elements
+- id: ce-reactions-timing
+  front: "When do custom element callbacks run relative to the DOM call that triggers them?"
+  back: "Just before the triggering DOM call returns, not batched in a microtask like `MutationObserver`. So `attributeChangedCallback` logs before the next line, while a `MutationObserver` reports later."
+  question: browser/web-components/custom-elements
+- id: ce-callbacks-read-once
+  front: "Are lifecycle callbacks added to the prototype after `define()` called?"
+  back: "No. `define()` reads them once. Chrome 156 and Firefox 159 both ignored a `connectedCallback` assigned after `define()`."
+  question: browser/web-components/custom-elements
+- id: ce-upgrade
+  front: "What happens to `<star-rating>` elements parsed before `define()`, and in what order do callbacks run?"
+  back: "They are plain `HTMLElement`s matching `:not(:defined)`. `define()` upgrades them in tree order: the constructor runs on the existing element, then `attributeChangedCallback` for its attributes, then `connectedCallback`."
+  question: browser/web-components/custom-elements
+- id: ce-when-defined-upgrade
+  front: "What do `customElements.whenDefined(name)` and `customElements.upgrade(root)` do?"
+  back: "`whenDefined()` resolves when the name is defined, after the upgrade. `upgrade(root)` upgrades a detached subtree."
+  question: browser/web-components/custom-elements
+- id: ce-constructor-upgrade-attrs
+  front: "Is `getAttribute('value')` available in the constructor?"
+  back: "Only during an upgrade, where the element already has attributes. With `document.createElement('star-rating')` it logs `null`."
+  question: browser/web-components/custom-elements
+- id: ce-customized-builtin
+  front: "What is a customized built-in element, and what is its support gap?"
+  back: "A class extending a specific element (`HTMLButtonElement`), registered with `{ extends: 'button' }` and used as `<button is=\"fancy-button\">`, keeping native behaviour. Safari doesn't support them, so components are usually autonomous."
+  question: browser/web-components/custom-elements
+- id: ce-customized-builtin-why
+  front: "Why use a customized built-in over an autonomous element?"
+  back: "A `<button is=\"…\">` keeps the button's focus, keyboard, form and accessibility behaviour for free, and degrades to a working button without JavaScript. An autonomous element must rebuild all of that."
+  question: browser/web-components/custom-elements
+- id: ce-constructor-violation
+  front: "What happens when a constructor adds attributes or children and the element is created by `createElement()` or the parser?"
+  back: "Neither throws to its caller: they report a `NotSupportedError` and give you an `HTMLUnknownElement` in the `\"failed\"` state. The same constructor works through upgrade paths like `insertAdjacentHTML()`, which skip those checks."
+  question: browser/web-components/custom-elements
+- id: ce-own-property-shadow
+  front: "What goes wrong if you assign a property to a custom element before it is upgraded?"
+  back: "The value lands as an own data property that hides the class's accessor, so the setter never runs. Fix it in `connectedCallback`: read the value, `delete` the own property, then reassign it."
+  question: browser/web-components/custom-elements
+- id: ce-fouc
+  front: "How do you avoid a flash of unstyled custom elements?"
+  back: "Style `star-rating:not(:defined)` (hide it or reserve its size) until the upgrade, or await `customElements.whenDefined('star-rating')` before revealing a container."
+  question: browser/web-components/custom-elements
+- id: ce-move-callbacks
+  front: "What do `append()` and `moveBefore()` run on a connected custom element?"
+  back: "`append()` is a removal plus an insertion: `disconnectedCallback`, then `connectedCallback`. `moveBefore()` runs only `connectedMoveCallback` if present, preserving state. It exists in Chrome 133+ and Firefox 144+, not Safari."
+  question: browser/web-components/custom-elements
+- id: ce-stale-connected
+  front: "Can `connectedCallback` run when the element is already removed?"
+  back: "The spec warns that a `connectedCallback` queued before removal still runs, with `isConnected` already `false`. Check `isConnected` before connected-only work."
+  question: browser/web-components/custom-elements
+- id: ce-parse-order-children
+  front: "If the definition exists before the parser reaches the element, can `connectedCallback` see its children?"
+  back: "No. The parser constructs the element, applies attributes and inserts it, so `connectedCallback` runs with zero children. Read children lazily, watch `slotchange`, or define the element after the markup."
+  question: browser/web-components/custom-elements
+- id: ce-scoped-registries
+  front: "What problem do scoped custom element registries solve, and where are they supported?"
+  back: "One global registry means two libraries defining `ui-button` collide. A `new CustomElementRegistry()` passed to `attachShadow({ customElementRegistry })` gives a shadow root its own definitions. MDN lists Chrome 146, Firefox 159 and Safari 26."
+  question: browser/web-components/custom-elements
+- id: ce-attrs-vs-props
+  front: "Attributes or properties for custom element configuration?"
+  back: "Attributes are strings that work in HTML and server rendering; properties carry objects. Most components reflect primitive state to attributes and keep complex data as properties only."
+  question: browser/web-components/custom-elements
+- id: sd-attach-hosts
+  front: "Which elements can host a shadow root?"
+  back: "Custom elements and a short list of built-ins (`div`, `span`, `p`, `section`, `article`, headings and a few more). `<input>` or `<img>` throw `NotSupportedError`."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-encapsulated
+  front: "What does shadow DOM encapsulate?"
+  back: "DOM queries (`querySelector()` and `closest()` stop at the boundary), ids (scoped per tree, so `getElementById()` and `<label for>` can't reach inside), and selectors in both directions."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-crosses-boundary
+  front: "What crosses the shadow boundary?"
+  back: "Inherited properties and custom properties, outside `::part()` styling of exposed elements, rules on the host itself, slotted light-DOM content with the page's styles, and composed events."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-host-cascade
+  front: "Does `:host { padding: 10px }` beat a page rule `x-card { padding: 3px }`?"
+  back: "No. Cascade 5's context step makes the outer tree win for normal declarations, regardless of specificity; for `!important` the inner tree wins. Chrome 156 and Firefox 159 resolved both cases that way."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-composed-events
+  front: "Which events leave a shadow tree, and what does the outside listener see as `event.target`?"
+  back: "Events with `composed: true` (most UI events like `click`, `input`, `focus`). Outside listeners see `target` retargeted to the host. Non-composed events, including your own `CustomEvent`s by default, stop at the shadow root."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-native-change-not-composed
+  front: "Does a native `change` event from an inner `<input>` leave the shadow root?"
+  back: "No. `composed` is `false` for it in Chrome 156 and Firefox 159. Re-dispatch on the host."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-closed-mode
+  front: "What does `mode: 'closed'` actually do?"
+  back: "It makes `host.shadowRoot` return `null`; the code that called `attachShadow()` still has the root. It isn't a security boundary: same-page scripts can patch `attachShadow` and capture it."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-part
+  front: "How does a component let page CSS style its internals?"
+  back: "Mark elements with `part=\"title\"`, styled outside with `x-card::part(title)`. Only exposed elements: `x-card::part(title) span` is invalid, and nested parts must be forwarded with `exportparts`. State pseudo-classes and pseudo-elements after `::part()` are allowed."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-theming-custom-properties
+  front: "Why are custom properties the usual theming API for shadow DOM components?"
+  back: "They inherit through the shadow boundary, so `--accent` set outside can be read inside. A component can reset inherited properties with `:host { all: initial; }`, which doesn't affect custom properties."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-host-context
+  front: "Which browsers support `:host-context()`?"
+  back: "Only Chromium. Firefox 159 rejects it as invalid and MDN's data lists no Safari support. Use a custom property or a host attribute instead."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-focus-retargeting
+  front: "What do `document.activeElement` and `:focus` report when an element inside a shadow root is focused?"
+  back: "`document.activeElement` is the host (retargeted); `shadowRoot.activeElement` is the inner element. `:focus` matches both the inner element and the host, and `:focus-within` matches ancestors outside."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-flat-tree-inheritance
+  front: "What is the flat tree, and how does inheritance follow it?"
+  back: "The rendered tree in which the host's shadow tree replaces its children and each `<slot>` is replaced by its assigned nodes. A shadow tree's top-level elements inherit from the host; slotted elements inherit from their slot."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-slotted-selector
+  front: "What does `::slotted(<compound>)` match?"
+  back: "Top-level slotted elements only; `::slotted(p span)` is invalid. Slotted elements belong to the outer tree, so the page's normal styles win over it."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-closed-composed-path
+  front: "What does `composedPath()` show an outside listener for a closed vs open shadow root?"
+  back: "For a closed root, nodes inside it are left out and the path starts at the host. With an open root the path starts at the inner node."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-second-attach
+  front: "What happens on a second `attachShadow()` call on the same element?"
+  back: "It throws `NotSupportedError`, except on a declarative shadow root of the same mode."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-id-references
+  front: "Do `for`, `aria-labelledby` and `aria-describedby` id references cross the shadow boundary?"
+  back: "No, in neither direction. That is an accessibility problem for form controls inside components."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-adopted-stylesheets
+  front: "How do you share one parsed stylesheet across many shadow roots?"
+  back: "Set `root.adoptedStyleSheets = [sheet]` with a constructed `CSSStyleSheet`, instead of a `<style>` per shadow root."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: sd-focus-blur-composed
+  front: "Which focus events are composed and which bubble?"
+  back: "`focus` and `blur` are composed but don't bubble; `focusin` and `focusout` are composed and bubble. A capturing listener on `document` sees `focus` with `target` the host."
+  question: browser/web-components/shadow-dom-encapsulation
+- id: ts-template-inert
+  front: "What is `template.content`, and what does inert mean for it?"
+  back: "A `DocumentFragment` owned by a separate inert document with no browsing context. Nothing renders, scripts don't run, images don't load, custom elements aren't upgraded, and `document.querySelector()` doesn't see it."
+  question: browser/web-components/templates-and-slots
+- id: ts-template-stamp
+  front: "How do you stamp copies of a template, and when do they become live?"
+  back: "`template.content.cloneNode(true)` or `document.importNode(template.content, true)`. Each copy becomes live when inserted, so its scripts and images run per copy."
+  question: browser/web-components/templates-and-slots
+- id: ts-clone-vs-import
+  front: "`cloneNode(true)` or `importNode()` for template content: what differs for custom elements?"
+  back: "`cloneNode(true)` keeps the copy in the inert template document until inserted, so custom elements upgrade then. `document.importNode(content, true)` creates it in the page's document, so defined custom elements upgrade immediately."
+  question: browser/web-components/templates-and-slots
+- id: ts-slot-assignment
+  front: "Which host children go to which slot?"
+  back: "A child with `slot=\"title\"` goes to the first `<slot name=\"title\">`. Every other child, including text nodes, goes to the first unnamed `<slot>`. Only direct children of the host are slotted."
+  question: browser/web-components/templates-and-slots
+- id: ts-unmatched-child
+  front: "What happens to a child whose `slot` name matches no slot?"
+  back: "It isn't rendered, though it stays in the DOM. `assignedSlot` is `null`."
+  question: browser/web-components/templates-and-slots
+- id: ts-fallback-content
+  front: "When is a slot's own content rendered?"
+  back: "Only when nothing is assigned to it (fallback content)."
+  question: browser/web-components/templates-and-slots
+- id: ts-whitespace-fallback
+  front: "Why doesn't a default slot's fallback render for an indented `<x-greet>` with only a named child?"
+  back: "The whitespace text nodes around the child are assigned to the default slot (`assignedNodes().length` is 2), so fallback isn't rendered. Remove the whitespace or give the default slot something real."
+  question: browser/web-components/templates-and-slots
+- id: ts-slotted-not-moved
+  front: "Are slotted nodes moved into the shadow tree?"
+  back: "No. They stay in the light DOM, so page styles and queries still apply. Events from them travel through the slot, then up the shadow tree to the host."
+  question: browser/web-components/templates-and-slots
+- id: ts-assigned-apis
+  front: "What do `assignedNodes()`, `assignedElements()` and `{ flatten: true }` do?"
+  back: "`assignedNodes()` lists all assigned nodes and `assignedElements()` only elements. `{ flatten: true }` resolves nested slots and fallback. `node.assignedSlot` goes the other way."
+  question: browser/web-components/templates-and-slots
+- id: ts-slotchange
+  front: "When does `slotchange` fire, and does it bubble?"
+  back: "On a slot when its assigned nodes change, in a microtask, once per changed slot. It bubbles but isn't composed. `MutationObserver` callbacks run first; two `append()` calls in one task give one event."
+  question: browser/web-components/templates-and-slots
+- id: ts-slotchange-set-only
+  front: "Does editing an assigned node's text fire `slotchange`?"
+  back: "No. It fires only when the set of assigned nodes changes. Text or child edits need a `MutationObserver`."
+  question: browser/web-components/templates-and-slots
+- id: ts-manual-assignment
+  front: "What does `attachShadow({ slotAssignment: 'manual' })` change?"
+  back: "The `slot` attribute is ignored; only nodes passed to `slot.assign()` are slotted, in the order given, and only while they're children of the host. Assigning another node doesn't throw, it just isn't slotted."
+  question: browser/web-components/templates-and-slots
+- id: ts-template-untrusted
+  front: "Is a template safe storage for untrusted markup?"
+  back: "No. Its scripts and `onerror` handlers run as soon as a clone is inserted."
+  question: browser/web-components/templates-and-slots
+- id: dsd-problem
+  front: "What problem does declarative shadow DOM solve?"
+  back: "Shadow roots used to exist only via `attachShadow()`, so a component had no shadow content until its JavaScript ran. Server-rendered HTML couldn't contain it, and first paint showed nothing or unstyled light DOM."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-how-parsed
+  front: "What does the parser do on `<template shadowrootmode=\"open\">`?"
+  back: "It attaches a shadow root (`open` or `closed`) to the template's parent element and parses the content straight into it. No `<template>` remains in the DOM."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-attributes
+  front: "Which attributes map `<template shadowrootmode>` to `attachShadow()` options?"
+  back: "`shadowrootdelegatesfocus`, `shadowrootclonable` and `shadowrootserializable`."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-ssr-benefits
+  front: "Why does declarative shadow DOM matter for server rendering?"
+  back: "The component's markup and scoped styles paint with the HTML, without JavaScript, and stream in as they arrive. Hydration becomes attaching behaviour to the existing root instead of re-rendering."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-hydration-root
+  front: "How does an upgraded element find a server-rendered shadow root?"
+  back: "In `this.shadowRoot`, or for a closed root `this.attachInternals().shadowRoot`. Check it before calling `attachShadow()`."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-where-applies
+  front: "Which APIs attach declarative shadow roots, and which don't?"
+  back: "The document parser, `Element.setHTMLUnsafe()` and `Document.parseHTMLUnsafe()` do. `innerHTML`, `insertAdjacentHTML()` and `DOMParser` don't: the `<template>` stays ordinary."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-support
+  front: "Which browsers support `shadowrootmode` and `setHTMLUnsafe()`?"
+  back: "MDN's data lists `shadowrootmode` in Chrome 111, Firefox 123 and Safari 16.4, and `setHTMLUnsafe()` in Chrome 124, Firefox 123 and Safari 26."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-attach-shadow-empties
+  front: "What does `attachShadow()` do with the same mode on a host that has a declarative root?"
+  back: "It returns that root, but empties it first, removing server-rendered children. A different mode throws `NotSupportedError`."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-define-too-early
+  front: "What goes wrong if the element is defined before the parser reaches it?"
+  back: "The constructor runs before the `<template>` child is parsed, so no root exists yet. If it calls `attachShadow()`, the template that follows stays an ordinary `<template>`. Define components from a module script or after the markup."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-innerhtml-inert
+  front: "What happens to a declarative shadow root inserted with `innerHTML`, and what about `setHTML()`?"
+  back: "The templates stay inert; Chrome also warns in the console. Use `setHTMLUnsafe()` for trusted markup. `setHTML()`'s default sanitizer removed the template entirely in Chrome 156 and Firefox 159."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-serialize
+  front: "Which shadow roots does `getHTML({ serializableShadowRoots: true })` emit?"
+  back: "Only roots created with `shadowrootserializable` (or `serializable: true`). Pass specific roots with `getHTML({ shadowRoots: [root] })`."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-two-templates
+  front: "What happens with two `<template shadowrootmode>` children on one host?"
+  back: "The first attaches the root; the second is inserted as an ordinary `<template>` because the host is already a shadow host. Chrome 156 logs \"A second declarative shadow root cannot be created on a host.\""
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-style-repeat
+  front: "Does every server-rendered instance repeat its styles?"
+  back: "Yes, each declarative root carries its own `<style>` or `<link rel=\"stylesheet\">`, so output grows with every instance. After hydration components can switch to one shared sheet through `adoptedStyleSheets`."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-clone
+  front: "Does `cloneNode()` copy a declarative shadow root?"
+  back: "Only with `shadowrootclonable`. In Chrome 156 and Firefox 159 a clone of a host without it had `shadowRoot` `null`."
+  question: browser/web-components/declarative-shadow-dom
+- id: dsd-set-html-context
+  front: "Can a top-level `<template shadowrootmode>` attach a root to the element you call `setHTMLUnsafe()` on?"
+  back: "No. The parser uses the template's parent, never the context element, so `div.setHTMLUnsafe('<template shadowrootmode=\"open\">…')` leaves a plain `<template>` child."
+  question: browser/web-components/declarative-shadow-dom
+- id: fa-two-steps
+  front: "How does a custom element become form-associated?"
+  back: "Declare `static formAssociated = true` and call `this.attachInternals()`, which returns an `ElementInternals` object. Keep it private; it can be attached only once."
+  question: browser/web-components/form-associated-elements
+- id: fa-browser-behaviour
+  front: "What does the browser give a form-associated custom element for free?"
+  back: "A form owner (`internals.form`, listed in `form.elements`), `name`, `disabled` and `readonly` attributes, and `<label>` association (`internals.labels`), where clicking a label focuses a focusable element."
+  question: browser/web-components/form-associated-elements
+- id: fa-set-form-value
+  front: "What can `internals.setFormValue(value, state)` take as `value`?"
+  back: "A string, a `File`, a `FormData` (several entries, names ignoring `name`) or `null` (not submitted). `state` is what the browser hands back when it restores the form."
+  question: browser/web-components/form-associated-elements
+- id: fa-set-validity
+  front: "What does `internals.setValidity()` do?"
+  back: "`setValidity({ valueMissing: true }, 'Pick a rating', anchor)` makes the element `:invalid`, makes `form.checkValidity()` false, fires `invalid` and blocks submission, with the message shown at `anchor`. `setValidity({})` clears it."
+  question: browser/web-components/form-associated-elements
+- id: fa-callbacks
+  front: "Which form-associated callbacks does a custom element get?"
+  back: "`formAssociatedCallback(form)` when the owner changes, `formResetCallback()` on `form.reset()`, `formDisabledCallback(disabled)`, and `formStateRestoreCallback(state, mode)` with `mode` `\"restore\"` or `\"autocomplete\"`."
+  question: browser/web-components/form-associated-elements
+- id: fa-public-api
+  front: "Does `ElementInternals` give the element a public control API?"
+  back: "No, `internals` is private. Expose `value`, `form`, `validity` and `checkValidity()` yourself."
+  question: browser/web-components/form-associated-elements
+- id: fa-attach-internals-throws
+  front: "When does `attachInternals()` throw `NotSupportedError`?"
+  back: "On a second call, on customized built-ins (an element with an `is` value, which keeps its native form behaviour) and on non-custom elements."
+  question: browser/web-components/form-associated-elements
+- id: fa-support
+  front: "Which browsers support the `ElementInternals` form APIs?"
+  back: "MDN's data lists Chrome 77, Firefox 98 and Safari 16.4."
+  question: browser/web-components/form-associated-elements
+- id: fa-missing-flag
+  front: "What happens if you forget `static formAssociated = true`?"
+  back: "`attachInternals()` still works, but `setFormValue()` and `setValidity()` throw `NotSupportedError`."
+  question: browser/web-components/form-associated-elements
+- id: fa-reset
+  front: "Why implement `formResetCallback`?"
+  back: "The browser doesn't know your default, so without it the old value stays after `form.reset()`."
+  question: browser/web-components/form-associated-elements
+- id: fa-set-validity-message
+  front: "What does `setValidity()` throw with a flag but no message?"
+  back: "`TypeError`."
+  question: browser/web-components/form-associated-elements
+- id: fa-not-focusable
+  front: "Does form association make the element focusable or announced as a control?"
+  back: "No. Add `tabindex` (outside the constructor) and a role through `internals.role` yourself."
+  question: browser/web-components/form-associated-elements
+- id: fa-disabled-fieldset
+  front: "What happens to a form-associated element inside a disabled `<fieldset>`?"
+  back: "`formDisabledCallback(true)` runs, it matches `:disabled`, `willValidate` becomes `false`, and its value is left out of `FormData`. Re-enabling calls `formDisabledCallback(false)`."
+  question: browser/web-components/form-associated-elements
+- id: fa-state-restore
+  front: "When does `formStateRestoreCallback` run, and how did browsers differ?"
+  back: "When the browser restores form state, such as on back navigation to a page not kept in the bfcache. Chrome 156 called it with the `setFormValue()` state and `\"restore\"` after going back to a `no-store` page; Firefox 159 restored nothing in the same test."
+  question: browser/web-components/form-associated-elements
+- id: fa-multi-value
+  front: "How can one form-associated element submit several fields?"
+  back: "Pass a `FormData`: `setFormValue(entries)` appends each entry with its own name, ignoring the `name` attribute. Chrome 156 and Firefox 159 put `min` and `max` entries into the form's `FormData`."
+  question: browser/web-components/form-associated-elements
+- id: fa-submit-invalid
+  front: "What happened on submitting a form with an invalid form-associated element in Chrome 156 and Firefox 159?"
+  back: "With no value, the element got `invalid`, no `submit` event fired and nothing was sent. With `'5'`, the request body included `rating=5`."
+  question: browser/web-components/form-associated-elements
