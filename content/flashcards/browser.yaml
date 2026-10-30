@@ -2441,3 +2441,332 @@
   front: "In Chrome 156, what happens to a page with an open `BroadcastChannel` that is back-forward cached?"
   back: "Chrome 156 cached the page, but a message sent while it was cached evicted it."
   question: browser/workers/cross-tab-communication
+# 08 Observers
+- id: io-vs-scroll-listener
+  front: "Why prefer `IntersectionObserver` over a scroll listener that checks visibility?"
+  back: "A scroll listener runs on every scroll event and measures the element itself, often with `getBoundingClientRect()`, which can force a synchronous layout. `IntersectionObserver` hands the job to the browser, which calls you only on changes."
+  question: browser/observers/intersection-observer
+- id: io-scroll-vs-callback-count
+  front: "With 20 real wheel steps of 60 px past a target, how many `scroll` events and observer callbacks did the page get?"
+  back: "20 `scroll` events and 1 observer callback, in Chrome 156 and Firefox 159, three runs each."
+  question: browser/observers/intersection-observer
+- id: io-root
+  front: "What is `IntersectionObserver`'s `root` option?"
+  back: "The box targets are tested against. `null` (the default) means the top-level viewport; otherwise an element or document that contains the targets."
+  question: browser/observers/intersection-observer
+- id: io-rootmargin
+  front: "What does `rootMargin` do?"
+  back: "CSS-margin-style offsets that grow or shrink the root's box. `'0px 0px 300px 0px'` treats anything within 300 px below the viewport as intersecting. The getter returns the normalised four-value form, `'0px 0px 0px 0px'` by default."
+  question: browser/observers/intersection-observer
+- id: io-threshold
+  front: "What does `threshold` mean, and what is the default?"
+  back: "One ratio or a list, as fractions of the target's area. The default `0` means any overlap, even edges touching. Values outside 0–1 throw a `RangeError`."
+  question: browser/observers/intersection-observer
+- id: io-when-entry-queued
+  front: "When does an `IntersectionObserver` queue an entry?"
+  back: "Only when the target moved into a different threshold band or flipped `isIntersecting`. It computes after layout in each rendering update and calls the callback in a later task with all of that observer's queued entries."
+  question: browser/observers/intersection-observer
+- id: io-entry-fields
+  front: "Which fields does an `IntersectionObserverEntry` have?"
+  back: "`isIntersecting`, `intersectionRatio`, `intersectionRect`, `boundingClientRect`, `rootBounds`, `target` and `time`."
+  question: browser/observers/intersection-observer
+- id: io-initial-entry
+  front: "How many entries does `observe()` give initially, and why?"
+  back: "One per target, even for an element far off-screen (`isIntersecting: false`). The stored previous threshold index starts at -1, so the first computation always differs. The starting state then goes through the same code as later changes."
+  question: browser/observers/intersection-observer
+- id: io-loading-lazy
+  front: "How does native `loading=\"lazy\"` relate to `IntersectionObserver`?"
+  back: "It is specified as an `IntersectionObserver` the browser owns. Use the attribute for plain images and iframes, and the API when you need a callback."
+  question: browser/observers/intersection-observer
+- id: io-unobserve-disconnect
+  front: "What do `unobserve(target)` and `disconnect()` do?"
+  back: "`unobserve(target)` stops watching one target, for example once a one-shot target is handled. `disconnect()` stops watching everything."
+  question: browser/observers/intersection-observer
+- id: io-lazy-example-output
+  front: "In the lazy-image example (ten 300px images, `rootMargin` 300px bottom, viewport 1024×768), what do the two callbacks log?"
+  back: "First: 10 entries, loaded photo-0 to photo-3. After scrolling 1000 px: 3 entries, loaded photo-4 to photo-6. Images 7–9 were still outside the margin, and 0–3 were no longer observed. Same in Chrome 156 and Firefox 159."
+  question: browser/observers/intersection-observer
+- id: io-not-always-visible
+  front: "Why check `isIntersecting` on every entry?"
+  back: "The initial entry and exit entries arrive too, so not every entry means \"became visible\"."
+  question: browser/observers/intersection-observer
+- id: io-isintersecting-threshold-differs
+  front: "What does the spec say about `isIntersecting` with thresholds above 0, and what do Chrome 156 and Firefox 159 do?"
+  back: "The spec says it's true for any overlap. In Chrome 156 and Firefox 159 it stays `false` until the ratio reaches the lowest threshold: with `threshold: [0.5]`, a target 1% in view logged `false`. Compare `intersectionRatio` instead."
+  question: browser/observers/intersection-observer
+- id: io-cross-origin-rootmargin
+  front: "What happens to `rootMargin` for a cross-origin iframe target with the implicit root?"
+  back: "The spec ignores it and gives the target `rootBounds: null`. Chrome 156 and Firefox 159 both did exactly that."
+  question: browser/observers/intersection-observer
+- id: io-scrollmargin
+  front: "Why doesn't `rootMargin` reach past a nested scroller, and what does?"
+  back: "`rootMargin` grows only the root's box, so a target clipped by an inner `overflow: auto` container stays clipped. `scrollMargin` grows every scrollport on the way. It shipped in Chrome 120, Firefox 141 and Safari 26."
+  question: browser/observers/intersection-observer
+- id: io-target-not-in-root
+  front: "What happens if the target isn't inside `root`?"
+  back: "No error. The spec skips the geometry, so the entry has `isIntersecting: false`, ratio 0 and an all-zero `boundingClientRect`. Chrome 156 and Firefox 159 reported exactly that."
+  question: browser/observers/intersection-observer
+- id: io-v2-trackvisibility
+  front: "What does IntersectionObserver v2 add, and who ships it?"
+  back: "`trackVisibility: true` with `delay` adds `isVisible`, false when the target is covered, transformed, filtered or not fully opaque. Only Chrome ships it, since 74."
+  question: browser/observers/intersection-observer
+- id: io-delay-100
+  front: "What minimum `delay` does `trackVisibility` need, and how do spec and Chrome 156 differ?"
+  back: "100. The spec raises a smaller `delay` to 100; Chrome 156 throws `NotSupportedError` instead when it's below 100."
+  question: browser/observers/intersection-observer
+- id: io-callback-timing
+  front: "When does the `IntersectionObserver` callback run relative to scrolling?"
+  back: "Intersections are computed in the rendering update after layout; the callback runs in a separate task queued from there, so it's never synchronous with the scroll."
+  question: browser/observers/intersection-observer
+- id: io-algorithm-steps
+  front: "What are the steps of the update intersection observations algorithm?"
+  back: "Clip the target's box by every scrolling ancestor and the root rectangle (root box plus `rootMargin`); `intersectionRatio` is intersection area over target area (1 or 0 for a zero-area target); `thresholdIndex` is the first threshold greater than the ratio; queue an entry if the index or `isIntersecting` changed."
+  question: browser/observers/intersection-observer
+- id: io-edge-touching
+  front: "In Chrome 156 and Firefox 159, what do a target touching the viewport bottom edge give with default options, and with `threshold: [0.25, 0.5, 1]`?"
+  back: "Default: `isIntersecting` `true`, ratio 0. With `threshold: [0.25, 0.5, 1]`: `false`, ratio 0."
+  question: browser/observers/intersection-observer
+- id: io-edge-half-zero-height
+  front: "In Chrome 156 and Firefox 159, what do a half-below-the-fold target and a zero-height on-screen target report by default?"
+  back: "Half below the fold: `true`, ratio 0.5. Zero-height, on screen: `true`, ratio 1."
+  question: browser/observers/intersection-observer
+- id: io-rootmargin-vs-scrollmargin-measured
+  front: "A target is 50 px below an inner scroller's visible area. What does `rootMargin: '100px'` versus `scrollMargin: '100px'` report in Chrome 156 and Firefox 159?"
+  back: "`rootMargin: '100px'`: `isIntersecting` `false`. `scrollMargin: '100px'`: `true`."
+  question: browser/observers/intersection-observer
+- id: io-invalid-options
+  front: "What do invalid `threshold` and `rootMargin` values throw?"
+  back: "A `threshold` outside 0–1 throws a `RangeError`; an invalid `rootMargin` throws a `SyntaxError`."
+  question: browser/observers/intersection-observer
+- id: ro-what-it-is
+  front: "What is `ResizeObserver`, and which boxes can `observe(el, { box })` watch?"
+  back: "The per-element counterpart of `window`'s `resize` event. `box` is `'content-box'` (the default), `'border-box'` or `'device-pixel-content-box'`. An entry arrives when that box's size differs from the last size reported."
+  question: browser/observers/resize-observer
+- id: ro-initial-entry
+  front: "Does `ResizeObserver` fire an initial entry, even for a hidden element?"
+  back: "Yes. The first check always differs, so every `observe()` produces an initial entry, even for a `display: none` element (0 × 0)."
+  question: browser/observers/resize-observer
+- id: ro-entry-fields
+  front: "What do `contentBoxSize`, `borderBoxSize` and `devicePixelContentBoxSize` contain, and why arrays?"
+  back: "Frozen arrays of `{ inlineSize, blockSize }`, logical sizes that follow `writing-mode`. They're arrays so that fragmented elements (multi-column) can someday report each fragment; today they hold one item."
+  question: browser/observers/resize-observer
+- id: ro-contentrect
+  front: "What is `ResizeObserverEntry.contentRect`?"
+  back: "The legacy physical rectangle, kept for compatibility. It's always the content box in physical width and height, whatever `box` you chose; for a `vertical-rl` element `contentBoxSize[0].inlineSize` is its height."
+  question: browser/observers/resize-observer
+- id: ro-timing
+  front: "When do `ResizeObserver` callbacks run?"
+  back: "Inside the rendering update, after style and layout and before paint, so reading sizes there is cheap and changes made there show in the same frame."
+  question: browser/observers/resize-observer
+- id: ro-layout-size-only
+  front: "Which changes do not trigger a `ResizeObserver` callback?"
+  back: "Only layout size counts. `transform` never triggers one, and changing padding doesn't trigger a `content-box` observation."
+  question: browser/observers/resize-observer
+- id: ro-loop-error
+  front: "What causes the \"ResizeObserver loop completed with undelivered notifications\" error?"
+  back: "Resizing elements inside the callback forces another layout. The browser re-delivers only to elements deeper than the shallowest one just delivered; the rest wait for the next frame, and an `ErrorEvent` is reported at `window`."
+  question: browser/observers/resize-observer
+- id: ro-loop-error-not-thrown
+  front: "Can `try`/`catch` catch the `ResizeObserver` loop error?"
+  back: "No. It isn't thrown, but `window.onerror` and error-monitoring tools see it."
+  question: browser/observers/resize-observer
+- id: ro-depth-rule
+  front: "Why does the depth rule matter, and what is the fix for the loop error?"
+  back: "Each pass can only deliver deeper elements, which guarantees the loop ends. The fix is to not resize what you observe from its own callback, or to make the change converge. For pure styling, CSS container queries need no script."
+  question: browser/observers/resize-observer
+- id: ro-example-output
+  front: "In the example that grows an observed box by 50 px per callback, what is logged for the first run?"
+  back: "`content 200, border 230`, then the loop error message, then `content 250, border 280`, the error again, and `content 300, border 330`. Each resize lands one frame later. Same in Chrome 156 and Firefox 159, three runs each."
+  question: browser/observers/resize-observer
+- id: ro-raf-silencing
+  front: "Does deferring the resize with `requestAnimationFrame` fix a resize loop?"
+  back: "It stops the error message (verified in Chrome 156 and Firefox 159), but a callback that keeps resizing its own target still runs every frame."
+  question: browser/observers/resize-observer
+- id: ro-container-queries
+  front: "When should you use container queries instead of `ResizeObserver`?"
+  back: "When toggling classes by a container's width. That is what container queries are for."
+  question: browser/observers/resize-observer
+- id: ro-error-event-shape
+  front: "How does the loop `ErrorEvent` differ between Chrome 156 and Firefox 159?"
+  back: "Both: `lineno` 0, no `error` object. Chrome sets `filename` to the page URL and makes it cancelable; Firefox leaves `filename` empty and it isn't cancelable. Chrome 156 doesn't print it to the console."
+  question: browser/observers/resize-observer
+- id: ro-device-pixel
+  front: "Why use `device-pixel-content-box`, and which browsers support it?"
+  back: "For pixel-exact canvas sizing: it reports the content box in whole device pixels as the browser snapped it, which multiplying by `devicePixelRatio` can't reproduce. A 100.6 px-wide canvas reported 101 at DPR 1. Chrome 84 and Firefox 108 support it; Safari doesn't."
+  question: browser/observers/resize-observer
+- id: ro-removed-element
+  front: "Does removing an observed element, or hiding it with `display: none`, produce an entry?"
+  back: "Yes. Its size becomes 0 × 0, which differs from the last report. In Chrome 156 and Firefox 159 the box reported `0` after being hidden."
+  question: browser/observers/resize-observer
+- id: ro-deeper-exercise
+  front: "With `outer` (height 100px) and a deeper `inner` both observed, and the callback setting `inner`'s height to 50px, what happens?"
+  back: "`outer 100, inner 0`, then `inner 50`, with no error: `inner` is deeper than `outer`, so it is re-delivered in the same frame. Without `outer`'s fixed height, the loop error occurs and `outer 50` arrives a frame later. Chrome 156 and Firefox 159 agree."
+  question: browser/observers/resize-observer
+- id: mo-observe-options
+  front: "What options does `MutationObserver.observe()` take, and what if none of the types is set?"
+  back: "`childList`, `attributes` (narrowed by `attributeFilter`), `characterData`, `subtree`, `attributeOldValue` and `characterDataOldValue`. At least one type is required or `observe()` throws a `TypeError`; the old-value options and `attributeFilter` imply their type."
+  question: browser/observers/mutation-observer
+- id: mo-batching
+  front: "How does `MutationObserver` batch changes?"
+  back: "Each mutation appends a `MutationRecord` to each matching observer's queue; the first one queues a single microtask. At the next checkpoint, each observer is called once with all its records, so 100 `append()` calls give one callback with 100 records."
+  question: browser/observers/mutation-observer
+- id: mo-not-mid-code
+  front: "Can a `MutationObserver` callback run in the middle of your code?"
+  back: "No. It runs at the next microtask checkpoint, after the current script returns, in observer creation order."
+  question: browser/observers/mutation-observer
+- id: mo-dom-operations-only
+  front: "Does setting `input.value` or `input.checked` produce a mutation record?"
+  back: "No. Records describe DOM operations, not values; a property that doesn't reflect an attribute changes no DOM. Setting an attribute to the value it already has still produces a record."
+  question: browser/observers/mutation-observer
+- id: mo-movebefore
+  front: "What records does `moveBefore()` produce?"
+  back: "Two `childList` records, a removal and an insertion. `moveBefore()` shipped in Chrome 133 and Firefox 144, not Safari."
+  question: browser/observers/mutation-observer
+- id: mo-takerecords-disconnect
+  front: "What do `takeRecords()` and `disconnect()` do to pending records?"
+  back: "`takeRecords()` returns and empties the queue; `disconnect()` stops observing and discards pending records. Call `takeRecords()` first if you need them."
+  question: browser/observers/mutation-observer
+- id: mo-attributechangedcallback
+  front: "How does `attributeChangedCallback` differ from a `MutationObserver`?"
+  back: "Custom elements that only care about their own attributes use `attributeChangedCallback`, which runs synchronously before `setAttribute()` returns."
+  question: browser/observers/mutation-observer
+- id: mo-mutation-events-removed
+  front: "What happened to legacy mutation events like `DOMNodeInserted`?"
+  back: "They fired synchronously for every change. They were removed in Chrome 127, Firefox 140 and Safari 26."
+  question: browser/observers/mutation-observer
+- id: mo-example-output
+  front: "In the example with 100 `append()` calls, `list.id`, `input.value` and `setAttribute('value')`, what does the callback log?"
+  back: "`sync code done` first, then `102 records, attributes: id (was null), value (was null)`, then the later-queued microtask. The `input.value` assignment made no record. Same in Chrome 156 and Firefox 159."
+  question: browser/observers/mutation-observer
+- id: mo-callback-reentry
+  front: "What happens if a `MutationObserver` callback mutates observed nodes without a guard?"
+  back: "Each change queues another microtask in the same checkpoint, so the callback re-enters before any timer or rendering; unbounded, it freezes the page. With a guard of five changes, all five callbacks ran before a `setTimeout(fn, 0)` in both browsers."
+  question: browser/observers/mutation-observer
+- id: mo-characterdata-subtree
+  front: "Why does `characterData: true` on an element not see its text change?"
+  back: "The data belongs to the child `Text` node, so you also need `subtree: true`."
+  question: browser/observers/mutation-observer
+- id: mo-heavy-subtree
+  front: "What is the risk of observing `document` with `subtree: true`?"
+  back: "Rendering a long list produces one record per inserted node, so heavy per-record work is costly. Filter by `type` and `target` early."
+  question: browser/observers/mutation-observer
+- id: mo-why-not-per-mutation
+  front: "Why batch mutations instead of one callback per mutation?"
+  back: "Mutation events were synchronous and fired mid-operation, so handlers saw half-updated DOM and slowed every change. Batching into a microtask gives a consistent tree and one call per script."
+  question: browser/observers/mutation-observer
+- id: mo-textcontent-one-record
+  front: "What does `el.textContent = 'flat'` record on an element with 101 children?"
+  back: "One `childList` record with 101 `removedNodes` and one added text node. `innerHTML` likewise gives one record for the whole replacement."
+  question: browser/observers/mutation-observer
+- id: mo-observer-order
+  front: "In what order do two `MutationObserver`s run?"
+  back: "Creation order, not `observe()` order: an observer created first was called first even though it called `observe()` second, in Chrome 156 and Firefox 159."
+  question: browser/observers/mutation-observer
+- id: mo-agent-shared
+  front: "What do same-origin iframes share regarding mutation observer delivery?"
+  back: "The flag, the set of pending observers and a creation counter live on the similar-origin window agent, so same-origin iframes share one mutation observer microtask."
+  question: browser/observers/mutation-observer
+- id: mo-transient-observers
+  front: "How are changes inside a removed subtree still reported?"
+  back: "Removing a node from an observed subtree adds a transient registered observer to it, which lasts until the next notification. In Chrome 156 and Firefox 159 an attribute change in the same task produced a record; in a later task it produced none."
+  question: browser/observers/mutation-observer
+- id: mo-edge-records
+  front: "In Chrome 156 and Firefox 159, how many records do `el.className = 'x'` twice, and `el.dataset.k = '1'` with `el.style.color = 'red'`, produce?"
+  back: "`className` twice: two `attributes` records (old values `null`, `'x'`). `dataset.k` and `style.color` give `data-k` and `style` attribute records."
+  question: browser/observers/mutation-observer
+- id: mo-attributes-false-oldvalue
+  front: "What does `observe(node, { attributes: false, attributeOldValue: true })` do?"
+  back: "It throws a `TypeError`, as does `{}` or `{ subtree: true }` alone. Both Chrome 156 and Firefox 159 agree."
+  question: browser/observers/mutation-observer
+- id: mo-append-last-child
+  front: "What records does `b.append(n)` produce when `n` is already `b`'s last child?"
+  back: "A removal and an insertion, both on `b` (Chrome 156 and Firefox 159)."
+  question: browser/observers/mutation-observer
+- id: mo-takerecords-exercise
+  front: "After `append('a')`, `takeRecords()`, `append('b')`, `disconnect()`, `append('c')`, what is logged?"
+  back: "Only `taken 1`. `takeRecords()` emptied the queue after `'a'`; `disconnect()` discarded the record for `'b'`; `'c'` came after disconnecting. The microtask ran, but an observer with no records isn't called."
+  question: browser/observers/mutation-observer
+- id: ot-three-places
+  front: "Where in the event loop does each observer deliver?"
+  back: "`MutationObserver` is a microtask, run right after the script returns. `ResizeObserver` runs inside the rendering update, after layout and before paint. `IntersectionObserver` entries are computed in that update but the callback is a separate task after the frame."
+  question: browser/observers/observer-timing
+- id: ot-mo-microtask
+  front: "When does a `MutationObserver` callback run, and does rendering matter?"
+  back: "At the next microtask checkpoint, when the current script, listener or callback returns to an empty stack. Rendering isn't involved, so it runs in hidden pages too."
+  question: browser/observers/observer-timing
+- id: ot-mo-click
+  front: "How does `MutationObserver` timing differ for a real click versus `el.click()`?"
+  back: "In a real click it runs between listeners (`listener 1, MO, listener 2, MO`). After `el.click()` it waits until the whole dispatch returns (`listener 1, listener 2, click() returned, MO`). Chrome 156 and Firefox 159 agree."
+  question: browser/observers/observer-timing
+- id: ot-ro-in-update
+  front: "What is the order inside the rendering update for `ResizeObserver`?"
+  back: "After animation frame callbacks, the browser runs style and layout, delivers resize observations, then repeats layout for deeper elements those callbacks resized. All before paint, so changes appear in the same frame."
+  question: browser/observers/observer-timing
+- id: ot-ro-checkpoint
+  front: "What runs between two `ResizeObserver` callbacks if one triggers a mutation?"
+  back: "A microtask checkpoint follows each callback, so a mutation observer triggered there runs before the next resize observer. Two resize observers logged `RO 1, MO, RO 2, IO` in Chrome 156 and Firefox 159."
+  question: browser/observers/observer-timing
+- id: ot-io-after-paint
+  front: "When does an `IntersectionObserver` callback run relative to paint?"
+  back: "Intersections are computed after the resize loop, then one *notify intersection observers* task is queued. It runs after the update finishes, so after that frame is painted, and other tasks can run first. Changes made there show in the next frame."
+  question: browser/observers/observer-timing
+- id: ot-initial-notifications
+  front: "When do `ResizeObserver` and `IntersectionObserver` deliver their first entries?"
+  back: "In the first rendering update after `observe()`. The IntersectionObserver spec stops the browser from skipping that update while a target still awaits its first entry. `MutationObserver` has no initial call."
+  question: browser/observers/observer-timing
+- id: ot-hidden-chrome
+  front: "In Chrome 156, what happened to observer callbacks for a background tab?"
+  back: "A size change and an intersection change produced no `ResizeObserver` or `IntersectionObserver` callback for 3 s; both arrived within 0.5 s of the tab becoming visible. The `MutationObserver` callback ran immediately."
+  question: browser/observers/observer-timing
+- id: ot-hidden-firefox
+  front: "In Firefox 159, how did a background tab differ from Chrome 156 for observers?"
+  back: "Firefox still ran 2 animation frames in 3 s and delivered the `ResizeObserver` and `IntersectionObserver` callbacks in them. The `MutationObserver` callback ran immediately in both."
+  question: browser/observers/observer-timing
+- id: ot-combined-order
+  front: "In the example with a mutation, promise, rAF, resize and intersection observer, what order is logged?"
+  back: "`script end, MutationObserver, promise, rAF, ResizeObserver, timer, IntersectionObserver`. Same in Chrome 156 and Firefox 159, 15 runs each. The mutation microtask was queued before the promise reaction."
+  question: browser/observers/observer-timing
+- id: ot-timer-before-io
+  front: "Is a timer queued in a `ResizeObserver` callback guaranteed to run before the `IntersectionObserver` callback?"
+  back: "No. It did in every run in Chrome 156 and Firefox 159, but no spec guarantees the order between those two tasks; it is implementation order."
+  question: browser/observers/observer-timing
+- id: ot-io-same-frame
+  front: "Why not toggle visible content from an `IntersectionObserver` callback to affect the current frame?"
+  back: "The callback runs after that frame's paint. For same-frame adjustments, use `ResizeObserver` or `requestAnimationFrame`."
+  question: browser/observers/observer-timing
+- id: ot-io-background-impressions
+  front: "Why check `document.visibilityState` when counting impressions with `IntersectionObserver`?"
+  back: "Chrome delays the entries in background tabs until the tab is visible."
+  question: browser/observers/observer-timing
+- id: ot-raf-before-observers
+  front: "Do changes made in `requestAnimationFrame` show up in that frame's observer entries?"
+  back: "Yes. Animation frame callbacks run before the style and layout loop, so sizes and intersections are computed from the DOM they left."
+  question: browser/observers/observer-timing
+- id: ot-canvas-backing-store
+  front: "Which observer sizes a canvas's backing store, and why?"
+  back: "`ResizeObserver` with `box: 'device-pixel-content-box'`: it runs after layout and before paint, so you can resize and redraw without a stretched frame."
+  question: browser/observers/observer-timing
+- id: ot-mo-flag-checkpoints
+  front: "Where do microtask checkpoints run in the browser's observer delivery?"
+  back: "After every callback the browser invokes from an empty stack: each event listener during a user-dispatched event, each animation frame callback, each observer callback, and after every task. Any number of mutations before the next checkpoint share one mutation microtask."
+  question: browser/observers/observer-timing
+- id: ot-ro-loop-leftovers
+  front: "What happens to resize observations left over after the depth loop?"
+  back: "Each pass can only deliver elements deeper than the last, so the loop ends. Leftover observations make the browser report the loop error and wait for the next frame."
+  question: browser/observers/observer-timing
+- id: ot-io-task-source
+  front: "How is the intersection observer task queued?"
+  back: "Queuing the first entry for a document queues an intersection observer task on the IntersectionObserver task source, guarded by a per-document flag. Painting happens at the end of the update; the task can only run once the update is done."
+  question: browser/observers/observer-timing
+- id: ot-io-update-position
+  front: "Where in the rendering update do intersections get computed?"
+  back: "Later in the same update, after focus fix-up and view transition steps, *run the update intersection observations steps* computes every target and queues entries."
+  question: browser/observers/observer-timing
+- id: ot-mo-in-ro-edge
+  front: "In a `ResizeObserver` callback that mutates an observed attribute, when does the `MutationObserver` run?"
+  back: "Before the next resize observer. In a background tab in Chrome 156, MO runs immediately while RO and IO wait until the tab is visible; in Firefox 159 they run in the next throttled frame."
+  question: browser/observers/observer-timing
+- id: ot-mo-expect-next-line
+  front: "Should you expect a `MutationObserver` callback to have run by the next line?"
+  back: "No. It's a microtask: it runs after the current script returns, never in the middle of it."
+  question: browser/observers/observer-timing
