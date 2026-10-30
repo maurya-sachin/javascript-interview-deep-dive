@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [What does `postMessage()` copy, what can it transfer, and what can't it send?](020-structured-clone-and-transfer.md) | medium | 🟡 draft |
 | 030 | [How does the service worker lifecycle work, and how do updates reach users?](030-service-worker-lifecycle.md) | hard | 🟡 draft |
 | 040 | [How does a service worker intercept requests, and which caching strategies are common?](040-service-worker-caching.md) | medium | 🟡 draft |
-| 050 | [How do tabs of the same site talk to each other?](050-cross-tab-communication.md) | medium | 🔴 planned |
+| 050 | [How do tabs of the same site talk to each other?](050-cross-tab-communication.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
