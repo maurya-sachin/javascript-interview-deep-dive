@@ -1731,3 +1731,312 @@
   front: "What happened to a pending `fetchLater()` when the page navigated into the back/forward cache in Chrome 156?"
   back: "It had already been sent, and on return `result.activated` was `true`. Aborting its signal before it was sent cancelled it."
   question: browser/network-apis/sending-data-on-exit
+# 06 Storage
+- id: choose-how-to-pick
+  front: "What two questions decide which browser storage to use?"
+  back: "Does the server need it on every request, and what shape and size is the data? Cookies for server-needed state, Web Storage for small strings, IndexedDB for structured or large data, the Cache API for responses."
+  question: browser/storage/choosing-browser-storage
+- id: choose-cookie-limits
+  front: "What does a cookie hold, how big can it be, and how long does it live?"
+  back: "One string of name plus value, at most 4,096 bytes. It lives for the session, or up to 400 days. Scope is domain plus path, and it is sent to the server."
+  question: browser/storage/choosing-browser-storage
+- id: choose-cookies-use
+  front: "When are cookies the right storage choice?"
+  back: "Only for state the server needs on every request, like a session id, ideally `HttpOnly` so script can't read it. Every byte goes up with each matching request, so keep them small."
+  question: browser/storage/choosing-browser-storage
+- id: choose-local-session
+  front: "What are `localStorage` and `sessionStorage` suited to, and what is their cap?"
+  back: "`localStorage` suits small client-only settings like a theme; it stores strings and blocks the main thread on every call. `sessionStorage` is the same API scoped to one tab. Chrome 156 and Firefox 159 cap storage at 5 MiB of characters per origin."
+  question: browser/storage/choosing-browser-storage
+- id: choose-indexeddb-cache
+  front: "What are IndexedDB and the Cache API for?"
+  back: "IndexedDB is the client database for large or structured data, indexes, and anything a worker needs; it is async and transactional. The Cache API stores `Request`→`Response` pairs, usually for a service worker."
+  question: browser/storage/choosing-browser-storage
+- id: choose-not-guaranteed
+  front: "Is browser storage guaranteed to persist?"
+  back: "No. Users clear it, browsers may evict it, and Safari deletes script-written storage after seven days of Safari use without the user interacting with the site. Keep a server copy of anything you can't lose."
+  question: browser/storage/choosing-browser-storage
+- id: choose-web-storage-strings
+  front: "What do `localStorage.setItem('draft', obj)` and a JSON round trip do to a `Date` and a `Set`?"
+  back: "`setItem()` stringifies, so an object becomes `\"[object Object]\"` and numbers come back as strings. JSON turns the `Date` into a string and the `Set` into `{}`. IndexedDB stores a structured clone and returns a real `Date` and `Set`."
+  question: browser/storage/choosing-browser-storage
+- id: choose-token-localstorage
+  front: "Why shouldn't a session token live in `localStorage`?"
+  back: "Any script running on the origin, injected ones included, can read it; an `HttpOnly` cookie is out of script's reach. The full trade-off belongs to authentication and XSS defence."
+  question: browser/storage/choosing-browser-storage
+- id: choose-cookie-over-4096
+  front: "What happens to a cookie over 4,096 bytes of name plus value?"
+  back: "It is silently dropped. Chrome 156 and Firefox 159 dropped a 4,097-byte one whether it came from script or a header. The cookie spec also asks browsers to keep at least 50 cookies per domain."
+  question: browser/storage/choosing-browser-storage
+- id: choose-workers
+  front: "Which storage APIs are available in workers?"
+  back: "IndexedDB and the Cache API are; `localStorage` and `sessionStorage` are not (`typeof localStorage` is `\"undefined\"` in a dedicated worker in Chrome 156 and Firefox 159). Service workers get `cookieStore`."
+  question: browser/storage/choosing-browser-storage
+- id: choose-sw-cookies
+  front: "Can a service worker read cookies?"
+  back: "Not through `document.cookie`. Service workers get the asynchronous Cookie Store API (`cookieStore.get()`, `set()`, `change` events): Chrome 87+, Firefox 140+, Safari 18.4+. Dedicated workers have neither."
+  question: browser/storage/choosing-browser-storage
+- id: choose-binary-files
+  front: "Where do large binary files go?"
+  back: "IndexedDB stores `Blob`s, and the Origin Private File System (`navigator.storage.getDirectory()`, Chrome 86+, Firefox 111+, Safari 15.2+) gives file handles, with fast synchronous access in workers. Both count against the origin's quota."
+  question: browser/storage/choosing-browser-storage
+- id: choose-secure-context
+  front: "Which storage APIs need a secure context?"
+  back: "The Cache API and Cookie Store API exist only over HTTPS or on `localhost` (`typeof caches` is `\"undefined\"` on `http://example.test`). Cookies, Web Storage and IndexedDB work over plain HTTP."
+  question: browser/storage/choosing-browser-storage
+- id: choose-quota-registration
+  front: "What quotas does the Storage Standard register for each storage type?"
+  back: "`localStorage` and `sessionStorage` get 5 MiB each. IndexedDB, the Cache API and service worker registrations get no fixed one: they share the origin's disk quota."
+  question: browser/storage/choosing-browser-storage
+- id: choose-sync-tradeoff
+  front: "When is synchronous storage a feature, and when a cost?"
+  back: "A feature when you need a value before first paint: reading a theme from `localStorage` in an inline `<script>` avoids a flash, and IndexedDB can't answer that early. A cost when data is large or written often, since each write blocks rendering and input."
+  question: browser/storage/choosing-browser-storage
+- id: choose-setitem-example
+  front: "What does `localStorage.setItem('list', [1, 2])` plus `setItem('flag', false)` give back?"
+  back: "`getItem('list')` is `\"1,2\"` and `getItem('flag') === false` is `false`, since both values were converted to strings and `\"false\"` isn't `=== false`."
+  question: browser/storage/choosing-browser-storage
+- id: cookie-what-is-it
+  front: "What is a cookie and how is it created?"
+  back: "A `name=value` pair the browser stores and attaches to later requests in a `Cookie` header. A `Set-Cookie` response header or an assignment to `document.cookie` creates it, and its attributes decide where it goes and for how long."
+  question: browser/storage/how-cookies-work
+- id: cookie-domain
+  front: "How does the `Domain` attribute scope a cookie?"
+  back: "Without `Domain` it is host-only: sent only to the exact host that set it. `Domain=example.com` sends it to `example.com` and every subdomain. A host may name itself or a parent, never another site or a public suffix like `co.uk`."
+  question: browser/storage/how-cookies-work
+- id: cookie-path
+  front: "How does `Path` match, and what is its default?"
+  back: "By prefix: `Path=/admin` matches `/admin` and `/admin/users`, not `/administrator`. The default is the directory of the URL that set it. Several matches are listed longest path first, and ports don't count."
+  question: browser/storage/how-cookies-work
+- id: cookie-secure
+  front: "What does the `Secure` attribute restrict?"
+  back: "The cookie is sent over HTTPS only, though browsers also treat `http://localhost` as secure."
+  question: browser/storage/how-cookies-work
+- id: cookie-samesite
+  front: "What do `SameSite` `Strict`, `Lax` and `None` do on cross-site requests?"
+  back: "`Strict` never sends the cookie. `Lax` sends it on top-level navigations with safe methods, like following a link. `None` (which requires `Secure`) always does. Chrome treats a missing `SameSite` as `Lax`; Firefox 159 doesn't."
+  question: browser/storage/how-cookies-work
+- id: cookie-lifetime
+  front: "How long does a cookie live without, and with, `Expires` and `Max-Age`?"
+  back: "With neither it's a session cookie, kept until the browser decides the session is over. With both, `Max-Age` (seconds) wins over `Expires` (a date). Browsers cap either at 400 days."
+  question: browser/storage/how-cookies-work
+- id: cookie-delete
+  front: "How do you delete a cookie?"
+  back: "Set it again with the same name, domain and path and `Max-Age=0`. A different `Path` or `Domain` addresses a different cookie, and the original stays."
+  question: browser/storage/how-cookies-work
+- id: cookie-document-cookie
+  front: "What does `document.cookie` return and how does assignment work?"
+  back: "Only `name=value` pairs, never attributes and never `HttpOnly` cookies. Each assignment sets one cookie, so assigning `'a=1; b=2'` reads `b=2` as an attribute and ignores it."
+  question: browser/storage/how-cookies-work
+- id: cookie-chips
+  front: "What are partitioned cookies (CHIPS)?"
+  back: "A third-party cookie set with `Partitioned` and `Secure` is stored per top-level site, so an embedded widget gets a separate jar on each embedding site. Chrome 114+, Firefox 141+, Safari 26.2+."
+  question: browser/storage/how-cookies-work
+- id: cookie-partitioned-draft
+  front: "What standard defines the `Partitioned` attribute?"
+  back: "Only an expired individual Internet-Draft (CHIPS); browsers ship it anyway. A `Partitioned` cookie set in an iframe under `example.test` came back under same-site `app.example.test` and was absent at the widget's own top level in both browsers."
+  question: browser/storage/how-cookies-work
+- id: cookie-domain-widens
+  front: "Does adding `Domain=example.com` restrict a cookie?"
+  back: "No, it widens it to every subdomain. Leaving `Domain` out is the narrowest scope."
+  question: browser/storage/how-cookies-work
+- id: cookie-path-not-security
+  front: "Is `Path` a security boundary?"
+  back: "No. Any same-origin page can read another path's cookies, for example through an iframe's `contentDocument.cookie`."
+  question: browser/storage/how-cookies-work
+- id: cookie-prefixes
+  front: "What do the `__Host-` and `__Secure-` prefixes enforce?"
+  back: "A `__Secure-` cookie must be set with `Secure`. A `__Host-` cookie also needs `Path=/` and no `Domain`, pinning it to one host. Chrome 156 and Firefox 159 rejected each violation, including on `localhost`."
+  question: browser/storage/how-cookies-work
+- id: cookie-third-party-embed
+  front: "Why can an embedded widget see its cookie in Chrome but not Firefox?"
+  back: "Firefox partitions every third-party cookie by top-level site by default. A `SameSite=None; Secure` cookie set in an iframe under one site was visible at the widget's own top-level site in Chrome 156, not in Firefox 159."
+  question: browser/storage/how-cookies-work
+- id: cookie-store-api
+  front: "What does the Cookie Store API offer?"
+  back: "An asynchronous cookie API: `cookieStore.get()` returns attributes like `expires` and `path`, and it works in service workers. Chrome 87+, Firefox 140+, Safari 18.4+."
+  question: browser/storage/how-cookies-work
+- id: cookie-cross-site-matrix
+  front: "From a page on `other.test`, which cookies reached `example.test` on a link click versus `fetch` with `credentials: 'include'`?"
+  back: "Link click (top-level `GET`): `lax`, `none` and no-`SameSite` cookies in both Chrome 156 and Firefox 159. The `fetch`: only `none` in Chrome, nothing in Firefox, which uses only the third-party context's partitioned cookies."
+  question: browser/storage/how-cookies-work
+- id: cookie-samesite-none-no-secure
+  front: "What happens to a `SameSite=None` cookie without `Secure`?"
+  back: "It was rejected in both Chrome 156 and Firefox 159."
+  question: browser/storage/how-cookies-work
+- id: ws-scope
+  front: "What are the scopes of `localStorage` and `sessionStorage`?"
+  back: "`localStorage` belongs to the origin (scheme, host and port): every tab and same-origin iframe shares one map until cleared. `sessionStorage` belongs to the origin and one tab: it survives reloads and same-tab navigation, a second tab starts empty, and it is deleted when the tab closes."
+  question: browser/storage/web-storage-scope
+- id: ws-origin-ports
+  front: "Do `localhost:8061` and `localhost:8062` share `localStorage`?"
+  back: "No. The origin includes the port, so they can't see each other's."
+  question: browser/storage/web-storage-scope
+- id: ws-window-open-copy
+  front: "What does `window.open()` do with the opener's `sessionStorage`?"
+  back: "It copies it into the new tab as a snapshot, after which the two drift apart. After `setItem('step','1')`, `window.open()` and then `'2'` in the opener, the new tab read `1` in Chrome 156 and Firefox 159."
+  question: browser/storage/web-storage-scope
+- id: ws-noopener
+  front: "How do you keep a new tab from inheriting `sessionStorage`?"
+  back: "Open it with `noopener` in the features string or a `target=\"_blank\"` link. Both open the tab with no opener, so the copy step doesn't run; `rel=\"opener\"` brought the copy back in Chrome 156 and Firefox 159."
+  question: browser/storage/web-storage-scope
+- id: ws-storage-event
+  front: "Which documents receive the `storage` event, and what does it carry?"
+  back: "Every other same-origin `Window` sharing the changed storage, never the one that wrote it. It carries `key`, `oldValue`, `newValue`, `url` and `storageArea`; `clear()` sends `key: null`."
+  question: browser/storage/web-storage-scope
+- id: ws-no-event-cases
+  front: "When does a `storage` event not fire at all?"
+  back: "Setting a key to the value it already has (`setItem('k', 1)` after `'1'`), `clear()` on an empty store, and `removeItem()` of a missing key."
+  question: browser/storage/web-storage-scope
+- id: ws-session-event-reach
+  front: "Where does a `sessionStorage` `storage` event reach?"
+  back: "Only same-origin iframes in the same tab, since other tabs have their own copy. A same-origin iframe in the writing tab got it in Chrome 156 and Firefox 159. For `localStorage` the event reaches other tabs."
+  question: browser/storage/web-storage-scope
+- id: ws-event-use
+  front: "What is the `storage` event good for, and what is `BroadcastChannel` for?"
+  back: "A cheap way to sync small state such as a logout or theme change across tabs. `BroadcastChannel` is the general tool for messages that aren't stored."
+  question: browser/storage/web-storage-scope
+- id: ws-quota
+  front: "What is the Web Storage quota and what happens past it?"
+  back: "5 MiB per origin per the Storage Standard. Chrome 156 and Firefox 159 threw `QuotaExceededError` once keys plus values passed 5,242,880 UTF-16 code units, counting `é` as one unit; the write is lost."
+  question: browser/storage/web-storage-scope
+- id: ws-own-event-pitfall
+  front: "Why can't you wait for your own `storage` event to update the UI?"
+  back: "The writing document never receives it. Update locally, and use the event only for other tabs."
+  question: browser/storage/web-storage-scope
+- id: ws-try-catch
+  front: "Why wrap `setItem()` in `try`/`catch`?"
+  back: "Past the quota it throws `QuotaExceededError` and the write is lost."
+  question: browser/storage/web-storage-scope
+- id: ws-hot-loop
+  front: "Why shouldn't you read storage in a hot loop or on every render?"
+  back: "Each call is synchronous. Read once into memory and write back when the value changes."
+  question: browser/storage/web-storage-scope
+- id: ws-partitioned-iframe
+  front: "Why might an embedded iframe see different `localStorage` on two sites?"
+  back: "Browsers partition third-party storage by the top-level site, so the same origin embedded in two sites gets two separate maps."
+  question: browser/storage/web-storage-scope
+- id: ws-navigation-kept
+  front: "Is `sessionStorage` kept when navigating away and back in the same tab, or via `<a target=\"_blank\">`?"
+  back: "Kept on reload and when navigating to another page and back in the same tab. A `<a target=\"_blank\">` tab starts with empty `sessionStorage` and `window.opener` is `null`."
+  question: browser/storage/web-storage-scope
+- id: idb-what-it-is
+  front: "What is IndexedDB and what creates its stores and indexes?"
+  back: "The browser's asynchronous, transactional object database, one set of databases per origin. A higher version in `indexedDB.open(name, version)` fires `upgradeneeded` inside a `versionchange` transaction, the only place to create or delete object stores and indexes."
+  question: browser/storage/indexeddb-transactions
+- id: idb-stores-indexes
+  front: "What do IndexedDB object stores hold, and what are indexes for?"
+  back: "Structured clones (objects, `Date`, `Map`, `Blob`…), keyed by a `keyPath` property, a key generator or an explicit key. Indexes query by another property, e.g. `store.index('byPrice').getAll(IDBKeyRange.upperBound(8))`."
+  question: browser/storage/indexeddb-transactions
+- id: idb-transaction-modes
+  front: "How do IndexedDB transactions behave across modes, and on a failed request?"
+  back: "Each is `readonly` or `readwrite` over named stores. Read-write transactions over the same store run one at a time. A failed request you don't handle aborts the transaction and rolls back its writes."
+  question: browser/storage/indexeddb-transactions
+- id: idb-active-rule
+  front: "When is an IndexedDB transaction active, and when does it commit?"
+  back: "While the task that created it runs, and again while each of its requests' `success` or `error` events is dispatched. Requests can only be placed while it's active. When every request has finished and no new one was placed, the browser commits; there's no keep-alive."
+  question: browser/storage/indexeddb-transactions
+- id: idb-fetch-breaks
+  front: "What happens if you `await fetch()` or a timer mid-transaction?"
+  back: "When your code resumes, the transaction is inactive or already committed, and the next request throws `TransactionInactiveError`. Fix the ordering: fetch first, then open the transaction and write."
+  question: browser/storage/indexeddb-transactions
+- id: idb-await-wrapped-ok
+  front: "Why is awaiting a promise-wrapped IndexedDB request fine mid-transaction?"
+  back: "The success handler resolves the promise, and the code after `await` runs in the microtask checkpoint inside that dispatch, while the transaction is still active."
+  question: browser/storage/indexeddb-transactions
+- id: idb-commit-method
+  front: "What does `tx.commit()` do, and what does `durability: 'relaxed'` trade?"
+  back: "`commit()` commits as soon as the placed requests finish, without waiting for their handlers; any later request throws `TransactionInactiveError`. Chrome 76+, Firefox 74+, Safari 15+. `durability: 'relaxed'` trades crash safety for speed."
+  question: browser/storage/indexeddb-transactions
+- id: idb-create-store-outside
+  front: "What happens if you call `createObjectStore()` outside `upgradeneeded`?"
+  back: "It throws `InvalidStateError`. Bump the version instead."
+  question: browser/storage/indexeddb-transactions
+- id: idb-versionchange-blocked
+  front: "What happens when two tabs need different IndexedDB versions?"
+  back: "The newer tab's `open()` fires `versionchange` on every old connection. If one stays open, the request gets `blocked` and `upgradeneeded` waits until it closes. Handle it with `db.onversionchange = () => db.close()` and prompt a reload."
+  question: browser/storage/indexeddb-transactions
+- id: idb-constraint-error
+  front: "What happens when `add()` of an existing key fails in a transaction?"
+  back: "It fails with `ConstraintError` and, if unhandled, aborts the transaction, rolling back the `put()` placed before it."
+  question: browser/storage/indexeddb-transactions
+- id: idb-cant-store
+  front: "What can't IndexedDB store?"
+  back: "Anything structured clone rejects: functions and DOM nodes threw `DataCloneError` from `put()` in both browsers. Class instances come back as plain objects, the same rules as `postMessage()`."
+  question: browser/storage/indexeddb-transactions
+- id: idb-transaction-states
+  front: "What states does a transaction have, and how does the spec make one go inactive?"
+  back: "Active, inactive, committing or finished. Creating one marks it active and registers it for cleanup; at the end of the current microtask checkpoint, HTML's cleanup sets it inactive. It survives `await Promise.resolve()` right after creation, but not a new task."
+  question: browser/storage/indexeddb-transactions
+- id: idb-success-event-commit
+  front: "What happens when a request's `success` event fires?"
+  back: "The transaction is set active, the event dispatches, then it's set inactive again. If its request list is then empty, it commits right there. Microtasks queued by a listener run inside the dispatch, which is why promise wrappers work."
+  question: browser/storage/indexeddb-transactions
+- id: idb-wait-table
+  front: "Which waits keep an IndexedDB transaction usable in Chrome 156 and Firefox 159?"
+  back: "Awaiting a promise-wrapped request, `await Promise.resolve()` right after creating the transaction, and `queueMicrotask()` in a `success` handler work. `setTimeout` (even inside a handler), awaiting a timer promise, and `await fetch()` give `TransactionInactiveError`."
+  question: browser/storage/indexeddb-transactions
+- id: quota-shared-bucket
+  front: "What shares one quota in an origin's storage bucket?"
+  back: "IndexedDB, the Cache API, the Origin Private File System and service worker registrations. The Storage Standard leaves the size to the browser. `localStorage`, `sessionStorage` and cookies have their own limits."
+  question: browser/storage/quotas-and-eviction
+- id: quota-chrome-policy
+  front: "What is Chrome's storage quota policy?"
+  back: "Chrome's policy: an origin may use up to 60% of the disk, all origins 80%."
+  question: browser/storage/quotas-and-eviction
+- id: quota-firefox-safari-policy
+  front: "What are Firefox's and Safari 17+'s quota policies?"
+  back: "Firefox: best-effort data gets the smaller of 10% of the disk or 10 GiB per site (all origins under one registrable domain); persistent data up to 50% of the disk. Safari 17+: about 60% of the disk per origin in Safari, 15% in other apps embedding web views."
+  question: browser/storage/quotas-and-eviction
+- id: quota-estimate
+  front: "What does `navigator.storage.estimate()` return, and how reliable is it?"
+  back: "`{ usage, quota }`, both deliberately approximate: browsers compress, deduplicate and pad. Writing past the quota rejects with `QuotaExceededError`."
+  question: browser/storage/quotas-and-eviction
+- id: quota-chrome-133
+  front: "How does Chrome 133+ report `quota` from `estimate()`?"
+  back: "As usage + 10 GiB rather than the real limit, to resist fingerprinting. On a 460 GiB disk both Chrome 156 and Firefox 159 reported 10,737,418,240 bytes (Firefox's per-site cap)."
+  question: browser/storage/quotas-and-eviction
+- id: quota-opaque
+  front: "How are opaque responses counted in the Cache API?"
+  back: "At far more than their size. Each 1 KiB opaque response added 0.3–14.8 MB to `usage` in Chrome 156 and 0.3–1.1 MB in Firefox 159 (15 responses each). Request with CORS where the server allows it."
+  question: browser/storage/quotas-and-eviction
+- id: quota-eviction
+  front: "How does eviction work for best-effort storage?"
+  back: "When the disk runs low or the browser's total limit is hit, it deletes data one whole origin at a time, least recently used first, not old records. The app must cope with starting empty and re-syncing."
+  question: browser/storage/quotas-and-eviction
+- id: quota-persist
+  front: "What does `navigator.storage.persist()` do, and how do browsers decide?"
+  back: "It asks to make the bucket persistent, which only the user can then clear. Chrome grants or denies silently based on engagement, installation, bookmarks and notification permission; Firefox asks the user; Safari uses heuristics such as being a Home Screen web app."
+  question: browser/storage/quotas-and-eviction
+- id: quota-safari-7-days
+  front: "What does Safari do to a site's script-written storage?"
+  back: "Safari deletes it after seven days of Safari use without user interaction, except for Home Screen web apps."
+  question: browser/storage/quotas-and-eviction
+- id: quota-partitioning
+  front: "How is third-party iframe storage keyed, and which browsers do it?"
+  back: "Chrome 115+ and Firefox 103+ key storage by top-level site as well as origin, so an embed gets separate data and quota on every site. The key is the site, so a same-site subdomain shares the partition. Browser policy: the Storage Standard still keys by origin alone."
+  question: browser/storage/quotas-and-eviction
+- id: quota-safari-frames
+  front: "How does Safari give cross-origin frames quota?"
+  back: "MDN reports a separate quota of roughly a tenth of their parent's."
+  question: browser/storage/quotas-and-eviction
+- id: quota-free-space-pitfall
+  front: "Why isn't `quota - usage` free space?"
+  back: "Chrome reports a made-up quota, and the spec forbids basing quota on free disk space. A write can still fail, so catch `QuotaExceededError`."
+  question: browser/storage/quotas-and-eviction
+- id: quota-persist-headless
+  front: "What did `persist()` do in a headless browser?"
+  back: "Chrome 156 resolved `false` at once. Firefox 159's promise was still pending after 3 seconds, waiting on a prompt nobody could see. Call it from a clear user action such as \"Keep offline\"."
+  question: browser/storage/quotas-and-eviction
+- id: quota-localstorage-estimate
+  front: "Does `localStorage` count toward `estimate()`?"
+  back: "It depends on the browser. A 4-million-character value added nothing to `usage` in Chrome 156 and 4.00 MB in Firefox 159. Either way it keeps its own 5 MiB limit."
+  question: browser/storage/quotas-and-eviction
+- id: quota-storage-buckets
+  front: "What is the Storage Buckets API?"
+  back: "`navigator.storageBuckets.open('drafts', { persisted: true })` creates a named bucket with its own IndexedDB and caches and its own eviction fate, so one origin can protect some data. Chrome 122+ only."
+  question: browser/storage/quotas-and-eviction
+- id: quota-compress-example
+  front: "Why did the quota example use random bytes, and what did 10,000,000 of them report?"
+  back: "Browsers may compress what they store; a repeating pattern counted about 0.5 MB. Random bytes reported about 10 MB in `usage` with `persisted()` `false`, in Chrome 156 and Firefox 159 on a fresh profile."
+  question: browser/storage/quotas-and-eviction
