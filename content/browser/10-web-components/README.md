@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [How do custom elements work, including their lifecycle and upgrades?](010-custom-elements.md) | medium | 🔴 planned |
+| 010 | [How do custom elements work, including their lifecycle and upgrades?](010-custom-elements.md) | medium | 🟡 draft |
 | 020 | [What does shadow DOM encapsulate, and what crosses the boundary?](020-shadow-dom-encapsulation.md) | medium | 🔴 planned |
 | 030 | [How do `<template>` and `<slot>` work?](030-templates-and-slots.md) | medium | 🔴 planned |
 | 040 | [What is declarative shadow DOM, and why does it matter for server rendering?](040-declarative-shadow-dom.md) | medium | 🔴 planned |
