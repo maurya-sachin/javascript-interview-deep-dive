@@ -28,7 +28,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 <!-- generated:questions:start -->
 | # | Question | Difficulty | Status |
 |---|---|---|---|
-| 010 | [What are Web Workers, and what can't they do?](010-web-workers.md) | medium | 🔴 planned |
+| 010 | [What are Web Workers, and what can't they do?](010-web-workers.md) | medium | 🟡 draft |
 | 020 | [What does `postMessage()` copy, what can it transfer, and what can't it send?](020-structured-clone-and-transfer.md) | medium | 🔴 planned |
 | 030 | [How does the service worker lifecycle work, and how do updates reach users?](030-service-worker-lifecycle.md) | hard | 🔴 planned |
 | 040 | [How does a service worker intercept requests, and which caching strategies are common?](040-service-worker-caching.md) | medium | 🔴 planned |
