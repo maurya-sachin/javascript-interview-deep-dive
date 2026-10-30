@@ -3,10 +3,11 @@
 Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene.
 
 ## Now
-- Branch `dev`; production = `main` (last release `9e2f22b`, live 2026-10-24). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
-- Done: JS 183 q / 1088 cards, TS 63 q / 762 cards, HTML and CSS 61 q / 1083 cards, all `draft`, Opus-written or -audited. Limits: JS ch 18–22 browser claims Chrome 155 only; ch 26 V8 natives Node 24.19 only; TS 7.1 facts from 7.1.0-beta; HTML and CSS accessibility-tree and keyboard claims Chrome only, Safari from compat data only.
-- Bug (since `7e76852`, awaiting OK to fix and deploy): direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/<topic>/<chapter>`, unknown paths) get Vercel's NOT_FOUND; the rewrite targets `/app-shell.html`, which `cleanUrls` 308s to `/app-shell` (200). Likely fix: destination `/app-shell` — confirm in Vercel docs, then curl those routes live.
-- Next: Phase 7 `browser` (Frontend path order): plan chapters, stubs, Opus Batch mode, Sonnet cards. Awaiting maintainer: Phase 5 reviews; wordmark redraw.
+- Branch `dev`; production `main` = release of 2026-10-30 (browser drafts). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
+- Done, all `draft`: JS 183 q / 1088 cards, TS 63 / 762, HTML and CSS 61 / 1083, browser 51 / 851. Limits are labelled in the text (browser runs: Chrome 156 + Firefox 159 headless, Safari from compat data; JS ch 18–22 Chrome 155 only; TS 7.1 from 7.1.0-beta; V8 natives on Node 24.19).
+- Bug, awaiting OK to fix and deploy: direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/…`, unknown paths) get Vercel's NOT_FOUND, because `cleanUrls` 308s the `/app-shell.html` rewrite. Likely fix: destination `/app-shell`; confirm in Vercel docs, curl live.
+- Next: Phase 7 next topic — recommended `react` (Frontend track); plan chapters + stubs from its **Not yet mapped** list, then the same writer/cards loop (briefs and harness setup in memory).
+- Awaiting maintainer: Phase 5 reviews; wordmark redraw.
 
 ## Goal
 Interview Q&A for any software engineer — language → spec/engine → runtimes → frontend, backend, infrastructure, practice. Not introductory.
@@ -41,7 +42,7 @@ Non-goals: backend service, accounts, paid AI.
 
 ### 7 — Next topics
 - [ ] Per topic: chapters + stubs from its **Not yet mapped** list, then content
-  - HTML and CSS examples run in the installed Chrome and Firefox via puppeteer-core in the scratchpad (never in the repo); browser-specific behaviour is labelled with the browser and version.
+  - Browser-run examples (HTML, CSS, DOM and Web APIs) run in the installed Chrome and Firefox via puppeteer-core in the scratchpad, never in the repo; browser-specific behaviour names the browser and version.
 
 ## Parked (don't start without maintainer)
 Supabase sync/votes · in-browser AI (WebLLM + retrieval; no paid APIs, no fine-tuning) · PWA offline · runnable challenges (Sandpack)
