@@ -6,7 +6,7 @@ Open work and settled rules only. Keep it lean: see `CLAUDE.md` → Plan hygiene
 - Branch `dev`; production `main` = release `9c73e0e` (2026-10-29). Tags `v1-archive` (v1), `archive/improvements` (unmerged v1 fixes).
 - Done, all `draft`: JS 183 q / 1088 cards, TS 63 / 762, HTML and CSS 61 / 1083. Limits are labelled in the text (JS ch 18–22 browser claims Chrome 155 only; HTML and CSS accessibility-tree and keyboard claims Chrome only, Safari from compat data; TS 7.1 from 7.1.0-beta; V8 natives on Node 24.19).
 - Bug, awaiting OK to fix and deploy: direct loads of non-prerendered routes (`/flashcards/<topic>`, `/practice/…`, unknown paths) get Vercel's NOT_FOUND, because `cleanUrls` 308s the `/app-shell.html` rewrite. Likely fix: destination `/app-shell`; confirm in Vercel docs, curl live.
-- Doing: `browser`, 10 chapters / 51 stubs; ch 01–03 written, verified, 289 cards. Next: ch 04 rendering pipeline, one Opus writer per chapter, then Sonnet cards (3 chapters per agent).
+- Doing: `browser`, 10 chapters / 51 stubs; ch 01–06 written, verified, 509 cards. Next: ch 07 workers, one Opus writer per chapter, then Sonnet cards (3 chapters per agent).
 - Awaiting maintainer: Phase 5 reviews; wordmark redraw.
 
 ## Goal
