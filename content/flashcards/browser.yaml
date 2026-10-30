@@ -1478,3 +1478,256 @@
   front: "What happened to a `transform` box and a `left` box animated during a 1 s main-thread block in Chrome 156?"
   back: "Over 59 frames, the `transform` box moved from about 70 px to 215 px, while the `left` box stayed at 65–68 px, then jumped to 215–218 px after. Checked in Chrome only; headless Firefox can't capture frames while blocked."
   question: browser/rendering-pipeline/compositing
+# 05 Network APIs
+- id: fetch-fulfills-on-404
+  front: "Does `fetch()` reject on a 404 or 500?"
+  back: "No. A 404 or 500 is a complete HTTP response, so the promise fulfills with a `Response`. Success is yours to check: `response.ok` is `true` only for statuses 200–299, and `response.status` holds the code."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-when-rejects
+  front: "When does the `fetch()` promise reject?"
+  back: "Only when there is no response: a network error or invalid input rejects with a `TypeError`, and an abort rejects with the signal's reason (a `DOMException`, usually `AbortError`)."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-network-error-causes
+  front: "What causes `fetch()` to reject with a network-error `TypeError`, and can the page tell them apart?"
+  back: "DNS failure, a refused or reset connection, a failed CORS check, a CSP block, mixed content, a bad port, or `redirect: 'error'` meeting a redirect. All become one network error (type `\"error\"`, status 0), so the page can't tell them apart; details show only in DevTools."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-network-error-message
+  front: "What does the network-error message look like in Chrome 156 and Firefox 159?"
+  back: "Chrome prints `Failed to fetch`; Firefox prints `NetworkError when attempting to fetch resource.` The message is browser-specific, so branch on `error.name`, not the message."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-invalid-input
+  front: "What kind of invalid input makes `fetch()` reject with a `TypeError`?"
+  back: "Input that fails while building the `Request`: an unparsable URL, or a body on a `GET`."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-abort-reasons
+  front: "What does `fetch()` reject with for `controller.abort()` versus `AbortSignal.timeout()`?"
+  back: "A `DOMException` named `AbortError` for `controller.abort()`, and `TimeoutError` for `AbortSignal.timeout()`. Neither is a `TypeError`, so `error.name` or `signal.aborted` tells an abort from a network failure."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-body-errors-later
+  front: "Which errors can surface after `fetch()` has fulfilled?"
+  back: "The promise fulfills once status and headers arrive, so errors come when you read the body. A connection dropping mid-body makes `response.text()` reject with a `TypeError`; `.json()` rejects with a `SyntaxError` when the body isn't JSON, such as an HTML error page or an empty body."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-body-read-once
+  front: "What happens on a second `response.json()`, and how do you read a body twice?"
+  back: "Any reading method sets `bodyUsed` to `true`, and the second read rejects with a `TypeError`. Call `response.clone()` before the first read; `clone()` itself throws if the body is already unusable."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-204-body
+  front: "What do `.text()` and `.json()` give for a response with no body, such as a 204?"
+  back: "`.text()` gives an empty string and `.json()` rejects with a `SyntaxError`."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-redirect-default
+  front: "What happens by default on a redirect, and with `redirect: 'error'`?"
+  back: "`fetch()` follows it and fulfills with the final response: `res.redirected` is `true` and `res.url` is the final URL. `redirect: 'error'` turns the redirect into a network error."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-ok-false-opaque
+  front: "Is `res.ok === false` always an HTTP error?"
+  back: "No. An opaque response from `mode: 'no-cors'` has status 0 and `ok` `false` even when the server answered 200, because the page may not see the status."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-json-before-ok
+  front: "Why is calling `res.json()` before checking `res.ok` a mistake?"
+  back: "An HTML error page then rejects with a `SyntaxError` and the real status is lost. Check `!res.ok` first, throw with the status and the error body, then parse."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-spec-steps
+  front: "In the `fetch()` method steps, where do a bad URL, an early abort, and a network error each reject?"
+  back: "Building the `Request` throws first (a bad URL or `GET` with a body becomes a `TypeError`). Then an already-aborted signal rejects with its abort reason. Finally, when the response is ready, a network error rejects with a new `TypeError`; anything else fulfills."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-consume-body-unusable
+  front: "When is a body \"unusable\" in the Fetch Standard?"
+  back: "When its stream is disturbed (read from) or locked to a reader. Consuming it then returns a promise rejected with a `TypeError`."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-error-http-client-pattern
+  front: "In the real-world API client, why is the error body read with `.text()`, and why the 204 check?"
+  back: "Error pages are often HTML, so reading text avoids a `SyntaxError`. The 204 check avoids the `SyntaxError` that `.json()` gives an empty body. Network errors and aborts propagate as-is, keeping offline, HTTP error and cancellation separate."
+  question: browser/network-apis/fetch-resolves-on-errors
+- id: fetch-mode-default
+  front: "What do `mode: 'cors'` (default), `'same-origin'` and `'no-cors'` do?"
+  back: "`'cors'`: a cross-origin response is readable only if the server opts in with CORS headers, otherwise the promise rejects with a `TypeError`. `'same-origin'` rejects any cross-origin URL. `'no-cors'` sends the request anyway but returns an opaque response."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-no-cors-limits
+  front: "What are the limits of `mode: 'no-cors'`?"
+  back: "Only `GET`, `HEAD` or `POST` (a `PUT` throws) and safelisted headers (others are silently dropped). In Chrome 156 and Firefox 159, a `POST` with `X-Custom` and a JSON `Content-Type` sent neither; the string body went as `text/plain;charset=UTF-8`."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-opaque-response
+  front: "What does an opaque response look like?"
+  back: "`type` `\"opaque\"`, `status` 0, `ok` `false`, no headers and an empty body. Script can't read it, only hand it on, for example to a service worker's cache."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-no-cors-not-a-fix
+  front: "Does `mode: 'no-cors'` fix a CORS error?"
+  back: "No. The request goes out, but the response is opaque: no status, headers or body. It is not a security hole either: it only sends what a form or an `<img>` could already send."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-credentials-modes
+  front: "What do `credentials: 'same-origin'`, `'include'` and `'omit'` do?"
+  back: "`'same-origin'` (default) sends cookies, HTTP auth and client certificates only to your own origin. `'include'` sends them cross-origin too, but the response is usable only if the server explicitly allows credentials. `'omit'` never sends them and ignores any `Set-Cookie`."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-include-without-allow
+  front: "In Chrome 156 and Firefox 159, what happened with `credentials: 'include'` and no `Access-Control-Allow-Credentials`?"
+  back: "The cookie was sent but the promise rejected with a `TypeError`. A failed CORS check withholds the response, not the request."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-cache-modes
+  front: "What do the `cache` modes `'default'`, `'no-store'`, `'reload'` and `'no-cache'` do?"
+  back: "`'default'` follows the response's caching headers. `'no-store'` skips the cache both ways. `'reload'` goes to the network, then stores the result. `'no-cache'` always revalidates; a 304 serves the cached body."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-cache-force-only
+  front: "What do `cache: 'force-cache'` and `'only-if-cached'` do?"
+  back: "`'force-cache'` uses any cached copy, even stale. `'only-if-cached'` never touches the network and requires `mode: 'same-origin'`, otherwise the call throws a `TypeError` before any request."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-no-cache-vs-no-store
+  front: "Is `cache: 'no-cache'` the same as \"don't cache\"?"
+  back: "No. It still uses the cache after revalidating. `'no-store'` is the one that skips it. This is the HTTP cache only, not the Cache API a service worker manages."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-cache-example
+  front: "With a cacheable `/counted` (`max-age=60` plus ETag), what sequence of hits did default, `no-store`, default, `reload`, `no-cache` give?"
+  back: "`hit 1` (first fetch), `hit 1` (fresh cache copy), `hit 2` (`no-store`, cache untouched), `hit 1` (default, still the old copy), `hit 3` (`reload` updated the cache), `hit 3` (`no-cache`, server sent 304). Chrome 156 and Firefox 159 agreed."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-cache-request-headers
+  front: "Which request headers do the cache modes add (per the spec's HTTP-network-or-cache fetch steps)?"
+  back: "`'no-store'` and `'reload'`: `Pragma: no-cache` and `Cache-Control: no-cache`. `'no-cache'` with a cached copy: `If-None-Match` (the stored ETag) and `Cache-Control: max-age=0`. `'default'` with a fresh copy: no request at all."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-redirect-modes
+  front: "What are the `redirect` modes, and what does `'manual'` return?"
+  back: "`'follow'` (default), `'error'` (a redirect becomes a network error) and `'manual'`, which returns an `\"opaqueredirect\"` response with status 0 and `url` the original URL."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-redirect-manual-why
+  front: "What is `redirect: 'manual'` for, if script can't read the `Location`?"
+  back: "The spec's reason: a service worker can return the opaque-redirect response to a navigation, so the browser replays the redirect offline. To the page it is nearly indistinguishable from a network error, apart from `type` `\"opaqueredirect\"`."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-referrer-policy-default
+  front: "What does the default referrer policy send?"
+  back: "`strict-origin-when-cross-origin`: only your origin to other origins. In Chrome 156 and Firefox 159, a cross-origin fetch sent `Referer: http://localhost:8051/`; same origin or `referrerPolicy: 'unsafe-url'` sent the full URL; `'no-referrer'` or `referrer: ''` sent none."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-request-defaults
+  front: "What defaults does `new Request('/x')` report in Chrome 156 and Firefox 159?"
+  back: "`mode` `'cors'`, `credentials` `'same-origin'`, `cache` `'default'`, `redirect` `'follow'`, `referrer` `'about:client'`."
+  question: browser/network-apis/fetch-request-options
+- id: fetch-request-constructor-throws
+  front: "Which option combinations make the `Request` constructor throw a `TypeError` before sending?"
+  back: "`mode: 'navigate'`, `cache: 'only-if-cached'` without `mode: 'same-origin'`, and a method other than `GET`, `HEAD` or `POST` in `no-cors` mode. In `no-cors` mode appending a non-safelisted header does nothing."
+  question: browser/network-apis/fetch-request-options
+- id: stream-body-is-readablestream
+  front: "What is `response.body`, and when is it available?"
+  back: "A `ReadableStream` of `Uint8Array` chunks, available as soon as `fetch()` fulfills, before the body has arrived. `res.json()` and `res.text()` wait for all of it; reading the stream lets you handle bytes as they land."
+  question: browser/network-apis/streaming-bodies
+- id: stream-read-loop
+  front: "How do you read a response stream, and what does `reader.read()` resolve to?"
+  back: "Call `res.body.getReader()` and loop on `await reader.read()`, which resolves to `{ value, done }`. Or use `for await (const chunk of res.body)`, supported since Chrome 124, Firefox 110 and Safari 27."
+  question: browser/network-apis/streaming-bodies
+- id: stream-locked
+  front: "What happens to `res.json()` after `getReader()`?"
+  back: "The stream is locked, so `res.json()` rejects with a `TypeError`. Getting a reader locks the stream without reading it (`res.body.locked` is `true`, `bodyUsed` still `false`)."
+  question: browser/network-apis/streaming-bodies
+- id: stream-cancel
+  front: "How do you stop a streaming download halfway?"
+  back: "`reader.cancel()` (later reads resolve `{ done: true }`) or break out of `for await`. Aborting the fetch's `AbortSignal` also works, erroring the stream and making the pending `read()` reject with an `AbortError`."
+  question: browser/network-apis/streaming-bodies
+- id: stream-text-decoding
+  front: "Why must you not decode each chunk with a fresh `TextDecoder`?"
+  back: "Chunks can split inside a multi-byte UTF-8 character, so a split `é` becomes two `�`. Pipe through `new TextDecoderStream()`, or reuse one `TextDecoder` with `decode(chunk, { stream: true })`. For NDJSON, also buffer the unfinished last line."
+  question: browser/network-apis/streaming-bodies
+- id: stream-split-char-example
+  front: "With a server writing `caf` plus the first byte of `é`, what do a fresh decoder per chunk and `TextDecoderStream` log?"
+  back: "A fresh `TextDecoder` per chunk logs `[\"caf�\",\"�\"]`. `TextDecoderStream` holds the incomplete byte back and emits `[\"caf\",\"é\"]`. A reused decoder with `{ stream: true }` gives `café`. Chrome 156 and Firefox 159 agreed."
+  question: browser/network-apis/streaming-bodies
+- id: stream-progress
+  front: "How do you compute download progress, and what are the two catches?"
+  back: "Sum `chunk.byteLength` and divide by `Content-Length`. With chunked transfer encoding there is no `Content-Length`, so show indeterminate progress. With `gzip` or `br` the header is the compressed size while chunks arrive decompressed."
+  question: browser/network-apis/streaming-bodies
+- id: stream-gzip-example
+  front: "What did progress report for a 100,000-byte body sent gzipped?"
+  back: "`100000 of 132`: `Content-Length` was 132, the compressed size, while chunks arrived decompressed. Have the server send the uncompressed size in its own header, or show bytes rather than percent."
+  question: browser/network-apis/streaming-bodies
+- id: stream-missing-length
+  front: "What does `received / total` show when `Content-Length` is missing?"
+  back: "`Number(null)` is `0`, so the bar shows `Infinity%`."
+  question: browser/network-apis/streaming-bodies
+- id: stream-upload-duplex
+  front: "What does a `ReadableStream` request body need, and who supports it?"
+  back: "`duplex: 'half'`. Only Chrome supports it (105 and later); in Chrome 156 it also needed HTTP/2. Firefox and Safari have none."
+  question: browser/network-apis/streaming-bodies
+- id: stream-upload-firefox
+  front: "What did Firefox 159 do when given a `ReadableStream` request body?"
+  back: "It doesn't throw: it sent the string `[object ReadableStream]` (23 bytes) as `text/plain`."
+  question: browser/network-apis/streaming-bodies
+- id: stream-chrome-http1-upload
+  front: "What happened to a stream upload over HTTP/1.1 in Chrome 156?"
+  back: "To `http://localhost` it rejected with `TypeError: Failed to fetch` and the console showed `net::ERR_ALPN_NEGOTIATION_FAILED`. The same upload to an HTTP/2 server over TLS arrived in pieces, 300 ms apart."
+  question: browser/network-apis/streaming-bodies
+- id: stream-request-rules
+  front: "What does the Fetch Standard require of streaming request bodies?"
+  back: "`duplex: 'half'` (the whole request is sent before the response is processed). It is forbidden in `no-cors` mode and with `keepalive`, and always preflighted cross-origin."
+  question: browser/network-apis/streaming-bodies
+- id: stream-read-twice
+  front: "How do you read a body twice, say for progress and for `.json()`?"
+  back: "`res.clone()` before reading, or `res.body.tee()`, which splits one stream into two. Both branches get every chunk, so chunks the slower branch hasn't read yet wait in its queue."
+  question: browser/network-apis/streaming-bodies
+- id: stream-transfer-to-worker
+  front: "Can a worker parse a response stream, and how?"
+  back: "Yes. `ReadableStream` is transferable: `worker.postMessage(stream, [stream])` hands it over (Chrome 87, Firefox 103, Safari 27)."
+  question: browser/network-apis/streaming-bodies
+- id: stream-duplex-feature-test
+  front: "How does the `duplex` getter feature test work, and what did it print in Chrome 156 and Firefox 159?"
+  back: "It builds a `Request` with a stream body and a `duplex` getter; unsupporting browsers ignore `duplex` and stringify the body, giving it a `Content-Type`. It prints `true` in Chrome 156 and `false` in Firefox 159."
+  question: browser/network-apis/streaming-bodies
+- id: exit-keepalive-termination
+  front: "What happens to in-flight fetches when a document goes away?"
+  back: "The Fetch Standard terminates them unless they are keepalive. In Firefox 159, closing the tab lost a plain `fetch()` started on the way out every time. Chrome 156 delivered plain fetches in the same test, but the spec lets the browser terminate them."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-sendbeacon
+  front: "What does `navigator.sendBeacon(url, data)` do and return?"
+  back: "It queues a `POST` and returns `true` if queued, `false` if the data is over quota. No response, no custom headers, always cookies. A string goes as `text/plain;charset=UTF-8`; `URLSearchParams`, `FormData` and a `Blob` bring their own type."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-beacon-blob-preflight
+  front: "What happens when a cross-origin beacon sends a `Blob` typed `application/json`?"
+  back: "It waits for a CORS preflight the server must answer. A plain string avoids it, and the server parses `text/plain`."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-keepalive-fetch
+  front: "What is `fetch(url, { keepalive: true })` compared to `sendBeacon()`?"
+  back: "The same mechanism with the whole `fetch()` API (method, headers, `credentials`). Stream bodies aren't allowed. A keepalive `fetch()` resolves with a response if the page is still alive to receive it."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-fetchlater
+  front: "What does `fetchLater(url, init)` do, and who supports it?"
+  back: "It registers a request now; the browser sends it when the document is destroyed, or after `activateAfter` milliseconds. Abort it and register again to update the data. Chromium 135+ only; not in Firefox or Safari."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-quota
+  front: "What is the keepalive quota, and what happens past it?"
+  back: "Keepalive requests from one page share 64 KiB of in-flight body. Past it, `sendBeacon()` returns `false` and a keepalive `fetch()` rejects with a `TypeError`. The budget counts every keepalive request still in flight."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-quota-firefox
+  front: "How did Chrome 156 and Firefox 159 apply the 64 KiB quota?"
+  back: "Chrome counted beacons and keepalive fetches together: a 40 KiB keepalive `fetch()` in flight made a 40 KiB beacon return `false`, and vice versa. Firefox limited keepalive fetches the same way, but sent a 16 MiB beacon."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-when-to-send
+  front: "Which event should trigger the exit send, and which should you avoid?"
+  back: "Flush on `visibilitychange` when `visibilityState === 'hidden'`, plus `pagehide` for navigations. Avoid `unload` and `beforeunload`: they can be skipped, and in Chrome 156 an `unload` listener keeps the page out of the back/forward cache."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-visibilitychange-why
+  front: "Why is `visibilitychange` the right event on mobile?"
+  back: "The Beacon spec calls it the only event guaranteed to fire when the user switches apps, after which the OS may kill the page without `unload`."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-repeatable-flush
+  front: "Why must an exit flush be repeatable and clear what it sent?"
+  back: "The page can come back after `\"hidden\"`, and `pagehide` may follow `visibilitychange`. Send what's new and clear it, otherwise you double-count the session. Keep data if `sendBeacon()` returns `false`."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-batching
+  front: "How should you reduce what the exit send has to carry?"
+  back: "Batch data while the user is active, so the exit send carries only the tail."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-beacon-cookies
+  front: "Do beacons carry cookies to another origin?"
+  back: "Yes. The Beacon spec sets credentials mode `include`; a beacon from `localhost:8051` to `localhost:8052` carried the cookie in Chrome 156 and Firefox 159."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-fetchlater-activated
+  front: "What does `fetchLater()`'s `result.activated` tell you?"
+  back: "It turns `true` once the request has been sent. With `activateAfter: 1000` it read `false` immediately and `true` 1.5 s later in Chrome 156."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-delivery-table
+  front: "After closing the tab, what reached the server in Chrome 156 versus Firefox 159?"
+  back: "Chrome: everything. Firefox: beacon and keepalive fetch only; both plain fetches were lost. On navigating away, Firefox delivered everything except `fetchLater()`, which doesn't exist there. Puppeteer, 3 runs each."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-fetchlater-limits
+  front: "What limits did `fetchLater()` hit in Chrome 156?"
+  back: "Its own quota of 64 KiB per destination origin, counting URL, referrer, headers and body: a 65,537-byte body threw `QuotaExceededError`. A `ReadableStream` body threw a `TypeError`, and a negative `activateAfter` a `RangeError`."
+  question: browser/network-apis/sending-data-on-exit
+- id: exit-fetchlater-bfcache
+  front: "What happened to a pending `fetchLater()` when the page navigated into the back/forward cache in Chrome 156?"
+  back: "It had already been sent, and on return `result.activated` was `true`. Aborting its signal before it was sent cancelled it."
+  question: browser/network-apis/sending-data-on-exit
