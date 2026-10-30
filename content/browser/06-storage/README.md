@@ -32,7 +32,7 @@ Coverage checklist: each concept points to the questions covering it; `→ —` 
 | 020 | [How do cookies work — which requests carry them, and for how long?](020-how-cookies-work.md) | medium | 🟡 draft |
 | 030 | [How do `localStorage` and `sessionStorage` behave across tabs?](030-web-storage-scope.md) | medium | 🟡 draft |
 | 040 | [How does IndexedDB work, and why do its transactions commit on their own?](040-indexeddb-transactions.md) | hard | 🟡 draft |
-| 050 | [How much can a site store, and when does the browser delete it?](050-quotas-and-eviction.md) | medium | 🔴 planned |
+| 050 | [How much can a site store, and when does the browser delete it?](050-quotas-and-eviction.md) | medium | 🟡 draft |
 <!-- generated:questions:end -->
 
 ## Sources
